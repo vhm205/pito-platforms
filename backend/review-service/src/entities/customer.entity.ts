@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Review } from '../entities/review.entity';
+import { SubOrder } from './subOrder.entity';
 
 @Entity({ schema: 'review_dba', name: 'customers' })
 export class Customer {
@@ -20,4 +21,7 @@ export class Customer {
 
   @OneToMany(() => Review, review => review.customer)
   reviews: Review[];
+  
+  @OneToMany(() => SubOrder, order => order.partner)
+  orders: SubOrder[];
 }

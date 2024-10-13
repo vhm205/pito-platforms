@@ -6,7 +6,7 @@ import { AppService } from './app.service';
 import { Review } from './entities/review.entity';
 import { Customer } from './entities/customer.entity';
 import { Partner } from './entities/partner.entity';
-
+import { SubOrder } from './entities/subOrder.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -28,7 +28,7 @@ import { Partner } from './entities/partner.entity';
         
       }),
     }),
-    TypeOrmModule.forFeature([Review, Customer, Partner]),
+    TypeOrmModule.forFeature([Review, Customer, Partner, SubOrder]),
   ],
   controllers: [AppController],
   providers: [AppService],

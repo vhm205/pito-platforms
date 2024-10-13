@@ -18,7 +18,7 @@ export class AppController {
   }
 
   // Get all reviews for a specific partner
-  @Get(':partnerId')
+  @Get('partners/:partnerId')
   async getReviews(@Param('partnerId') partnerId: string) {
     const response = await this.appService.getReviewsByExternalPartnerId(partnerId);
     console.log(response);
