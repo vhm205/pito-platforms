@@ -3,18 +3,27 @@ services:
   postgres:
     image: postgres:17
     container_name: postgres
-    
     environment:
-      POSTGRES_USER: pito
-      POSTGRES_PASSWORD: Hello@2025
-      POSTGRES_DB: pitodb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./init_review.sql:/docker-entrypoint-initdb.d/init_review.sql
     ports:
       - "5432:5432"
 
-  
+  review-service:
+    build:
+      context: ../backend/review-service
+      dockerfile: Dockerfile
+    container_name: review-service
+    env_file:
+      - ../backend/review-service/.env
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
 
 volumes:
   postgres-data:
