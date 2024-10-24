@@ -8,8 +8,6 @@ export class ZodValidationPipe implements PipeTransform {
     try {
       const parsedValue = this.schema.parse(value);
 
-      a = 123;
-
       return parsedValue;
     } catch (error) {
       console.log('error', error);
