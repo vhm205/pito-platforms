@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10"
+  },
+  "lint-staged": {
+    "backend/**/*.ts": [
+      "sh -c 'cd backend && yarn run lint'",
+      "sh -c 'cd backend && yarn run format'",
+      "git add ."
+    ]
+  },
+  "scripts": {
+    "prepare": "husky",
+    "lint-staged": "lint-staged"
+  }
+}
