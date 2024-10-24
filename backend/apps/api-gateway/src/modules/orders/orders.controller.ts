@@ -19,7 +19,6 @@ export class OrdersController {
     @AuthUser() user: User,
   ) {
     const orders = await this.ordersService.getHistoryOrders(user.id, getListOrderDto);
-    a = 123;
 
     return orders;
   }
