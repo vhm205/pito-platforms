@@ -5,9 +5,10 @@
   },
   "lint-staged": {
     "backend/**/*.ts": [
+      "sh -c 'git diff --name-only --cached > .tmp-lint-staged-files'",
       "sh -c 'cd backend && yarn run lint'",
       "sh -c 'cd backend && yarn run format'",
-      "git add ."
+      "sh -c 'git add $(cat .tmp-lint-staged-files) && rm .tmp-lint-staged-files'"
     ]
   },
   "scripts": {
