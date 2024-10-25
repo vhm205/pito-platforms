@@ -1,0 +1,1 @@
+<img src="assets/pito-architecture.png">
