@@ -1,6 +1,6 @@
 import { join } from 'path';
 
-import { ORDER_PACKAGE_NAME } from '@app/common';
+import { Logger, ORDER_PACKAGE_NAME } from '@app/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import * as dotenv from 'dotenv';
@@ -11,6 +11,7 @@ dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(OrderModule, {
+    logger: new Logger('OrderService'),
     transport: Transport.GRPC,
     options: {
       package: ORDER_PACKAGE_NAME,

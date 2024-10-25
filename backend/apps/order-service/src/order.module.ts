@@ -1,3 +1,4 @@
+import { Logger } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -28,6 +29,6 @@ import { OrderService } from './order.service';
     TypeOrmModule.forFeature([OrderEntity]),
   ],
   controllers: [OrderController],
-  providers: [OrderService],
+  providers: [OrderService, { provide: Logger, useValue: Logger }],
 })
 export class OrderModule {}
