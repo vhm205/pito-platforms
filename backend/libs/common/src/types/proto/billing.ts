@@ -12,19 +12,25 @@ export const protobufPackage = 'billing';
 
 export interface Empty {}
 
+export interface SuccessReponse {
+  status: boolean;
+}
+
 export const BILLING_PACKAGE_NAME = 'billing';
 
 export interface BillingServiceClient {
-  findAllBilling(request: Empty): Observable<Empty>;
+  createPayment(request: Empty): Observable<SuccessReponse>;
 }
 
 export interface BillingServiceController {
-  findAllBilling(request: Empty): Promise<Empty> | Observable<Empty> | Empty;
+  createPayment(
+    request: Empty,
+  ): Promise<SuccessReponse> | Observable<SuccessReponse> | SuccessReponse;
 }
 
 export function BillingServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['findAllBilling'];
+    const grpcMethods: string[] = ['createPayment'];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod('BillingService', method)(constructor.prototype[method], method, descriptor);

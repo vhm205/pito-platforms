@@ -3,7 +3,11 @@ syntax = "proto3";
 package billing;
 
 service BillingService {
-  rpc FindAllBilling (Empty) returns (Empty);
+  rpc createPayment (Empty) returns (SuccessReponse);
 }
 
 message Empty {};
+
+message SuccessReponse {
+  bool status = 1;
+};

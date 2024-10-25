@@ -1,0 +1,10 @@
+import { EmailSentDto } from '@app/common';
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class NotificationService {
+  async sendEmail(emailSentDto: EmailSentDto): Promise<{ status: boolean }> {
+    console.log('emailSentDto', emailSentDto);
+    return { status: true };
+  }
+}

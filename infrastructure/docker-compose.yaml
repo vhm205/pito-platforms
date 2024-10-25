@@ -1,29 +1,62 @@
 version: '3.8'
 services:
-  postgres:
-    image: postgres:17
-    container_name: postgres
+  # postgres:
+  #   image: postgres:17
+  #   container_name: postgres
+  #   environment:
+  #     POSTGRES_USER: ${POSTGRES_USER}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #     POSTGRES_DB: ${POSTGRES_DB}
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #     # - ./init_review.sql:/docker-entrypoint-initdb.d/init_review.sql
+  #   networks:
+  #     - platform_net
+  #   ports:
+  #     - "5432:5432"
+  
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./init_review.sql:/docker-entrypoint-initdb.d/init_review.sql
+      - /var/lib/rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - platform_net
+  
+  redis:
+    image: redis:alpine
+    container_name: redis
     ports:
-      - "5432:5432"
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - platform_net
 
-  review-service:
-    build:
-      context: ../backend/review-service
-      dockerfile: Dockerfile
-    container_name: review-service
-    env_file:
-      - ../backend/review-service/.env
-    depends_on:
-      - postgres
-    ports:
-      - "3000:3000"
+  # review-service:
+  #   build:
+  #     context: ../backend/review-service
+  #     dockerfile: Dockerfile
+  #   container_name: review-service
+  #   env_file:
+  #     - ../backend/review-service/.env
+  #   depends_on:
+  #     - postgres
+  #   ports:
+  #     - "3000:3000"
 
 volumes:
-  postgres-data:
+  # postgres-data:
+  rabbitmq_data:
+    driver: local
+  redis_data:
+
+networks:
+  platform_net:
+    driver: bridge
