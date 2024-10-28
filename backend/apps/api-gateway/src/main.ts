@@ -1,3 +1,4 @@
+import { Logger } from '@app/common/logger';
 import { NestFactory } from '@nestjs/core';
 import * as dotenv from 'dotenv';
 
@@ -8,7 +9,9 @@ import './instrument';
 dotenv.config();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new Logger('APIGateway'),
+  });
   await app.listen(process.env.API_GATEWAY_PORT);
 
   // app.connectMicroservice<MicroserviceOptions>({
