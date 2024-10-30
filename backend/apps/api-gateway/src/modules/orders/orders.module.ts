@@ -1,3 +1,5 @@
+import { join } from 'path';
+
 import { ORDER_SERVICE, ORDER_PACKAGE_NAME } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -16,7 +18,7 @@ dotenv.config();
         transport: Transport.GRPC,
         options: {
           package: ORDER_PACKAGE_NAME,
-          protoPath: './proto/order.proto',
+          protoPath: join(__dirname, '../order.proto'),
           url: `${process.env.ORDER_GRPC_HOST}:${process.env.ORDER_GRPC_PORT}`,
         },
       },

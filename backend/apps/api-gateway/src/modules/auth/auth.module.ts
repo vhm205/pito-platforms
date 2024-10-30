@@ -6,11 +6,14 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
+import * as dotenv from 'dotenv';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.stategy';
 import { PublicStrategy } from './public.stategy';
+
+dotenv.config();
 
 @Module({
   imports: [
@@ -20,7 +23,8 @@ import { PublicStrategy } from './public.stategy';
         transport: Transport.GRPC,
         options: {
           package: USER_PACKAGE_NAME,
-          protoPath: join(__dirname, '../../../../proto/user.proto'),
+          protoPath: join(__dirname, '../user.proto'),
+          url: `${process.env.USER_GRPC_HOST}:${process.env.USER_GRPC_PORT}`,
         },
       },
     ]),

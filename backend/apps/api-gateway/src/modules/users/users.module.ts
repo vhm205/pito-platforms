@@ -1,3 +1,5 @@
+import { join } from 'path';
+
 import { USER_SERVICE, USER_PACKAGE_NAME } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -16,7 +18,7 @@ dotenv.config();
         transport: Transport.GRPC,
         options: {
           package: USER_PACKAGE_NAME,
-          protoPath: './proto/user.proto',
+          protoPath: join(__dirname, '../user.proto'),
           url: `${process.env.USER_GRPC_HOST}:${process.env.USER_GRPC_PORT}`,
         },
       },
