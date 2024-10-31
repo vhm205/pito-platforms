@@ -9,12 +9,14 @@ import { CatchAllErrorInterceptor } from './interceptors/catch-all-error.interce
 import { AuthModule } from './modules/auth/auth.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { UsersModule } from './modules/users/users.module';
+import { WebhookModule } from './modules/webhook/webhook.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
     OrdersModule,
+    WebhookModule,
     ClsModule.forRoot({
       global: true,
       middleware: {
@@ -35,7 +37,7 @@ import { UsersModule } from './modules/users/users.module';
     },
     {
       provide: Logger,
-      useValue: Logger,
+      useFactory: () => new Logger('APIGateway'),
     },
   ],
   exports: [Logger],
