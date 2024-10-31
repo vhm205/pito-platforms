@@ -6,18 +6,21 @@ import * as DailyRotateFile from 'winston-daily-rotate-file';
 export class Logger implements LoggerService {
   protected logger: winston.Logger;
 
-  constructor(context: string) {
-    this.logger = winston.createLogger({
-      transports: [
-        new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format.timestamp(),
-            winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss A' }),
-            winston.format.printf(({ level, message, timestamp, service }) => {
-              return `[${service}] ${level.toUpperCase()}: ${timestamp} - ${message}`;
-            }),
-          ),
-        }),
+  constructor(service: string) {
+    const transports: winston.transport[] = [
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss A' }),
+          winston.format.printf(({ level, message, timestamp, service }) => {
+            return `[${service}] ${level.toUpperCase()}: ${timestamp} - ${message}`;
+          }),
+        ),
+      }),
+    ];
+
+    if (['production', 'stage'].includes(process.env.NODE_ENV)) {
+      transports.push(
         new DailyRotateFile({
           dirname: 'logs',
           filename: 'application-%DATE%.log',
@@ -38,9 +41,13 @@ export class Logger implements LoggerService {
           format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
           level: 'error',
         }),
-      ],
+      );
+    }
+
+    this.logger = winston.createLogger({
+      transports,
+      defaultMeta: { service },
     });
-    this.logger.defaultMeta = { service: context };
   }
 
   log(message: string) {
