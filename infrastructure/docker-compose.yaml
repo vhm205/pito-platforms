@@ -34,16 +34,18 @@ services:
     container_name: redis
     ports:
       - '6379:6379'
+    # command: redis-server --appendonly yes
     volumes:
-      - redis_data:/data
+      - /var/lib/redis_data:/data
     networks:
       - platform_net
 
 volumes:
   # postgres-data:
   rabbitmq_data:
-    driver: local
+    # driver: local
   redis_data:
+    # driver: local
 
 networks:
   platform_net:
