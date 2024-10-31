@@ -69,7 +69,7 @@ $ yarn format
 
 ```bash
 # If you make changes to the .proto files, use the following command to regenerate the protobuf
-$ protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./libs/common/src/types --ts_proto_opt=nestJs=true,useDate=true ./proto/\*.proto
+$ yarn protoc:build
 
 # Generate new application
 nest g app review-service
