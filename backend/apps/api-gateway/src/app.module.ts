@@ -1,3 +1,4 @@
+import { Logger } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
@@ -32,6 +33,11 @@ import { UsersModule } from './modules/users/users.module';
       provide: APP_INTERCEPTOR,
       useClass: CatchAllErrorInterceptor,
     },
+    {
+      provide: Logger,
+      useValue: Logger,
+    },
   ],
+  exports: [Logger],
 })
 export class AppModule {}
