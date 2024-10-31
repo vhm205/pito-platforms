@@ -15,7 +15,7 @@ async function bootstrap() {
     options: {
       package: USER_PACKAGE_NAME,
       protoPath: join(__dirname, '../user.proto'),
-      url: `${process.env.USER_GRPC_HOST}:${process.env.USER_GRPC_PORT}`,
+      url: `0.0.0.0:${process.env.USER_GRPC_PORT}`,
     },
   });
   await app.listen();

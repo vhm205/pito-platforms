@@ -15,7 +15,7 @@ async function bootstrap() {
     options: {
       protoPath: join(__dirname, '../billing.proto'),
       package: BILLING_PACKAGE_NAME,
-      url: `${process.env.BILLING_GRPC_HOST}:${process.env.BILLING_GRPC_PORT}`,
+      url: `0.0.0.0:${process.env.BILLING_GRPC_PORT}`,
     },
   });
   await app.listen();

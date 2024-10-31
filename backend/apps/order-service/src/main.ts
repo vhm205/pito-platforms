@@ -15,7 +15,7 @@ async function bootstrap() {
     options: {
       package: ORDER_PACKAGE_NAME,
       protoPath: join(__dirname, '../order.proto'),
-      url: `${process.env.ORDER_GRPC_HOST}:${process.env.ORDER_GRPC_PORT}`,
+      url: `0.0.0.0:${process.env.ORDER_GRPC_PORT}`,
     },
   });
   await app.listen();
