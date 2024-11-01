@@ -4,23 +4,10 @@ export enum OrderEvent {
   NotDelivered = 'not_delivered',
 }
 
-export type OrderEventData = { id: string };
-
-type AhamoveOrderStatus =
-  | 'IDLE'
-  | 'ASSIGNING'
-  | 'ACCEPTED'
-  | 'IN PROCESS'
-  | 'COMPLETED'
-  | 'CANCELLED';
-
-export type AhamoveOrderCallback = {
-  _id: string;
-  order_id: string;
-  service_id: string;
-  status: AhamoveOrderStatus;
-  cancel_time: number;
+export type OrderEventData = {
+  order_code: string;
+  cancel_by_user: boolean;
   cancel_comment: string;
-  cancel_image_url?: string;
-  complete_time: number;
+  cancel_image_url: string;
+  cancel_time: number;
 };

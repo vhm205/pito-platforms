@@ -9,8 +9,8 @@ export class AhamoveAuthStrategy implements WebhookAuthStrategy {
   }
 
   authenticate(req: Request): boolean {
-    const apiKey = req.headers['apikey']?.toString();
-    const token = req.headers['authorization']?.replace('Bearer ', '');
-    return apiKey === this.apiKey || token === this.apiKey;
+    const apiKey =
+      req.headers['apikey']?.toString() ?? req.headers['authorization']?.replace('Bearer ', '');
+    return apiKey === this.apiKey;
   }
 }
