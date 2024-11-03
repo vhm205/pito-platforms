@@ -51,7 +51,7 @@ steps:
           docker compose build
         else
           for service in \$changed_services; do
-            docker compose build backend-\$service
+            docker compose build \$service
           done
         fi
         "
@@ -71,8 +71,8 @@ steps:
           docker compose up -d
         else
           for service in \$changed_services; do
-            docker compose down backend-\$service &&
-            docker compose up -d --no-deps backend-\$service
+            docker compose down \$service &&
+            docker compose up -d --no-deps \$service
           done
         fi
         "
