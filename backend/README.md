@@ -69,8 +69,7 @@ $ yarn format
 
 ```bash
 # If you make changes to the .proto files, use the following command to regenerate the protobuf
-$ yarn protoc:build
-
+$ yarn generate:protobuf
 # Generate new application
 nest g app review-service
 

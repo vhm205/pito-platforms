@@ -1,0 +1,85 @@
+steps:
+  # Step 1: SSH into VM and pull the latest code
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud compute ssh $VM_INSTANCE_NAME --zone $ZONE --command "
+        cd /data/pito-platform &&
+        git checkout $BRANCH_NAME &&
+        git pull origin $BRANCH_NAME
+        "
+
+  # Step 2: Identify changed folders on the VM
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud compute ssh $VM_INSTANCE_NAME --zone $ZONE --command "
+        cd /data/pito-platform/backend &&
+        changed_services=\"\"
+
+        if git diff --name-only HEAD~1 | grep -q '^apps/common/'; then
+          changed_services=\"all\"
+        else
+          for service in api-gateway user-service order-service; do
+            if git diff --name-only HEAD~1 | grep -q \"^apps/\$service/\"; then
+              changed_services=\"\$changed_services \$service\"
+            fi
+          done
+        fi
+        echo \"\$changed_services\" > /data/pito-platform/backend/changed_services.txt
+        "
+
+  # Step 3: SSH into VM and rebuild necessary Docker images
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud compute ssh $VM_INSTANCE_NAME --zone $ZONE --command "
+        cd /data/pito-platform/backend &&
+        changed_services=\$(cat changed_services.txt)
+
+        if [ \"\$changed_services\" = \"all\" ]; then
+          for service in api-gateway user-service order-service; do
+            docker build -t \$service:latest -f apps/\$service/Dockerfile .
+          done
+        else
+          for service in \$changed_services; do
+            docker build -t \$service:latest -f apps/\$service/Dockerfile .
+          done
+        fi
+        "
+
+  # Step 4: SSH into VM and update relevant containers
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud compute ssh $VM_INSTANCE_NAME --zone $ZONE --command "
+        cd /data/pito-platform/backend &&
+        changed_services=\$(cat changed_services.txt)
+
+        if [ \"\$changed_services\" = \"all\" ]; then
+          docker-compose down &&
+          docker-compose up -d --build
+        else
+          for service in \$changed_services; do
+            docker-compose up -d --no-deps --build \$service &&
+            # Remove old Docker images
+            old_images=\$(docker images -q \$service | tail -n +3)
+            if [ -n \"\$old_images\" ]; then
+              docker rmi -f \$old_images
+            fi
+          done
+        fi
+        "
+
+substitutions:
+  _BRANCH_NAME: 'develop'
+  _VM_INSTANCE_NAME: 'pito-platform-development'
+  _ZONE: 'asia-southeast1-c'
