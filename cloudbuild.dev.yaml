@@ -5,6 +5,7 @@ steps:
     args:
       - '-c'
       - |
+        git config --global --add safe.directory /data/pito-platform && \
         gcloud compute ssh ${_VM_INSTANCE_NAME} --zone ${_ZONE} --command "
         cd /data/pito-platform &&
         git checkout $BRANCH_NAME &&
