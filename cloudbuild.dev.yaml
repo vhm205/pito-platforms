@@ -28,6 +28,9 @@ steps:
           for service in api-gateway user-service order-service; do
             if git diff --name-only HEAD~1 | grep -q \"^apps/\$service/\"; then
               changed_services=\"\$changed_services \$service\"
+              echo \"Service changed: \$service\"
+            else
+              echo \"No changes for service: \$service\"
             fi
           done
         fi
