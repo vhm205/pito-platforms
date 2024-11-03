@@ -48,10 +48,10 @@ steps:
         changed_services=\$(cat changed_services.txt)
 
         if [ \"\$changed_services\" = \"all\" ]; then
-          docker-compose build
+          docker compose build
         else
           for service in \$changed_services; do
-            docker-compose build backend-\$service
+            docker compose build backend-\$service
           done
         fi
         "
