@@ -1,20 +1,12 @@
 steps:
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - 'whoami'
-
   # Step 1: SSH into VM and pull the latest code
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        whoami &&
         gcloud compute ssh ${_VM_INSTANCE_NAME} --zone ${_ZONE} --command "
         cd /data/pito-platform &&
-        echo 'ready to run git command' &&
         git config --global --add safe.directory /data/pito-platform &&
         git checkout $BRANCH_NAME &&
         git pull origin $BRANCH_NAME

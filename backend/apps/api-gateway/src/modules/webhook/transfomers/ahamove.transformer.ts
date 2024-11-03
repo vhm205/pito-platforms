@@ -2,7 +2,7 @@ import { WebhookEvent, OrderEvent, OrderEventData, AhamoveOrderCallback } from '
 import { WebhookEventTransformer } from './transfomer.interface';
 
 export class AhamoveOrderTransformer implements WebhookEventTransformer<OrderEventData> {
-  canHandle(body: object): body is AhamoveOrderCallback {
+  canHandle(_body: object): _body is AhamoveOrderCallback {
     // return '_id' in body && 'status' in body && 'path' in body && 'service_id' in body;
     return true; // for testing
   }
