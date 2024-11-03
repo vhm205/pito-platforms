@@ -11,11 +11,15 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute ssh ${_VM_INSTANCE_NAME} --zone ${_ZONE} --command "
+        whoami &&
+        su - tuan_nguyen -c "git config --global --add safe.directory /data/pito-platform &&
+        whoami &&
+        gcloud compute ssh ${_VM_INSTANCE_NAME} --zone ${_ZONE} --command '
+        whoami &&
         cd /data/pito-platform &&
         git checkout $BRANCH_NAME &&
         git pull origin $BRANCH_NAME
-        "
+        '"
 
   # Step 2: Identify changed folders on the VM
   - name: 'gcr.io/cloud-builders/gcloud'
