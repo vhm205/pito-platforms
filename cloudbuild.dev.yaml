@@ -48,7 +48,7 @@ steps:
         sudo -u tuan_nguyen bash -c '
           cd /data/pito-platform/backend &&
           yarn
-        '"
+        '
         changed_services=\$(cat changed_services.txt)
 
         if [ \"\$changed_services\" = \"all\" ]; then

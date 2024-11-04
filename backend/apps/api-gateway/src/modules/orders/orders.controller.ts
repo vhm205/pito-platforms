@@ -18,7 +18,7 @@ export class OrdersController {
 
   @Get('test')
   async test() {
-    await this.cacheManager.set('key', '1.0.32', 100 * 1000);
+    await this.cacheManager.set('key', '1.0.33', 100 * 1000);
 
     const result = await this.cacheManager.get('key');
 
