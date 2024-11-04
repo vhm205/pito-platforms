@@ -94,6 +94,13 @@ steps:
     args:
       - '-c'
       - |
+        SLACK_WEBHOOK_URL=$(gcloud secrets versions access latest --secret="SLACK_WEBHOOK_URL")
+
+        if [ -z "$SLACK_WEBHOOK_URL" ]; then
+          echo "Failed to retrieve SLACK_WEBHOOK_URL from Secret Manager."
+          exit 1
+        fi
+
         gcloud compute ssh ${_VM_INSTANCE_NAME} --zone ${_ZONE} --command "
         changed_services=\$(cat /data/pito-platform/backend/changed_services.txt)
 
@@ -107,6 +114,10 @@ steps:
           \"text\": \"Deployment of services to ${_VM_INSTANCE_NAME} completed successfully. \$services_message\"
         }' '$SLACK_WEBHOOK_URL'
         "
+
+secrets:
+  - secret: SLACK_WEBHOOK_URL # The name of the secret in Google Secret Manager
+    versions: ['latest']
 
 substitutions:
   _BRANCH_NAME: 'develop'
