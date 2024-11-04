@@ -9,8 +9,7 @@
     "backend/**/*.ts": [
       "sh -c 'git diff --name-only --cached > .tmp-lint-staged-files'",
       "sh -c 'cd backend && yarn run lint'",
-      "sh -c 'cd backend && yarn run format'",
-      "sh -c 'cat .tmp-lint-staged-files | xargs -I {} sh -c \"if [ -f {} ]; then git add {}; fi\" && rm .tmp-lint-staged-files'"
+      "sh -c 'cd backend && yarn run format'"
     ]
   },
   "scripts": {

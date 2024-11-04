@@ -11,6 +11,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { UsersModule } from './modules/users/users.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
+import { FilesModule } from './modules/files/files.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { WebhookModule } from './modules/webhook/webhook.module';
     UsersModule,
     OrdersModule,
     WebhookModule,
+    FilesModule,
   ],
   controllers: [],
   providers: [
