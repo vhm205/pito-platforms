@@ -113,10 +113,10 @@ steps:
 
         slack_message=\"Deployment of services to ${_VM_INSTANCE_NAME} completed successfully. \$services_message\"
 
-        echo \"$slack_message\"
+        echo \"\$slack_message\"
 
         curl -X POST -H 'Content-Type: application/json' --data '{
-          \"text\": \"slack_message\"
+          \"text\": \"$slack_message\"
         }' '$select_webhook_url'
         "
 
