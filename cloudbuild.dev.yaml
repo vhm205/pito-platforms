@@ -77,7 +77,7 @@ steps:
         fi
         "
 
-  # Step 4: Clean up dangling images to free up space
+  # Step 5: Clean up dangling images to free up space
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
@@ -88,7 +88,31 @@ steps:
         docker image prune -f --filter 'dangling=true'
         "
 
+  # Step 6: Notify Slack about the deployment
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud compute ssh ${_VM_INSTANCE_NAME} --zone ${_ZONE} --command "
+        changed_services=\$(cat /data/pito-platform/backend/changed_services.txt)
+
+        if [ \"\$changed_services\" = \"all\" ]; then
+          services_message=\"All services have changed.\"
+        else
+          services_message=\"Changed services: \$changed_services\"
+        fi
+
+        curl -X POST -H 'Content-Type: application/json' --data '{
+          \"text\": \"Deployment of services to ${_VM_INSTANCE_NAME} completed successfully. \$services_message\"
+        }' '$SLACK_WEBHOOK_URL'
+        "
+
 substitutions:
   _BRANCH_NAME: 'develop'
   _VM_INSTANCE_NAME: 'pito-platform-development'
   _ZONE: 'asia-southeast1-c'
+
+options:
+  substitution_option: ALLOW_LOOSE
+timeout: '3600s'
