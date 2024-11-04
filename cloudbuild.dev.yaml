@@ -67,10 +67,12 @@ steps:
         changed_services=\$(cat changed_services.txt)
 
         if [ \"\$changed_services\" = \"all\" ]; then
+          yarn &&
           docker compose down &&
           docker compose up -d
         else
           for service in \$changed_services; do
+            yarn &&
             docker compose down \$service &&
             docker compose up -d --no-deps \$service
           done
