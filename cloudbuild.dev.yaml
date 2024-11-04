@@ -111,7 +111,7 @@ steps:
         fi
 
         curl -X POST -H 'Content-Type: application/json' --data '{
-          \"text\": \"Deployment of services to ${_VM_INSTANCE_NAME} completed successfully. \$services_message\"
+          \"text\": \"Deployment of services to ${_VM_INSTANCE_NAME} completed successfully. $services_message\"
         }' '$select_webhook_url'
         "
 
