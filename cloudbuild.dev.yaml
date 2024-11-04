@@ -25,7 +25,7 @@ steps:
         if git diff --name-only HEAD~1 | grep -q '^apps/common/'; then
           changed_services=\"all\"
         else
-          for service in api-gateway user-service order-service; do
+          for service in api-gateway user-service order-service notification-service billing-service; do
             if git diff --name-only HEAD~1 | grep -q \"backend/apps/\$service/\"; then
               changed_services=\"\$changed_services \$service\"
               echo \"Service changed: \$service\"
