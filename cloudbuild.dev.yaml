@@ -103,12 +103,15 @@ steps:
 
         gcloud compute ssh ${_VM_INSTANCE_NAME} --zone ${_ZONE} --command "
         changed_services=\$(cat /data/pito-platform/backend/changed_services.txt)
+        services_message="No service change."
 
         if [ \"\$changed_services\" = \"all\" ]; then
           services_message=\"All services have changed.\"
         else
           services_message=\"Changed services: \$changed_services\"
         fi
+
+        echo \$services_message
 
         curl -X POST -H 'Content-Type: application/json' --data '{
           \"text\": \"Deployment of services to ${_VM_INSTANCE_NAME} completed successfully. $services_message\"
