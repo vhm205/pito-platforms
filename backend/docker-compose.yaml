@@ -37,6 +37,28 @@ services:
     networks:
       - platform_net
 
+  billing-service:
+    build:
+      context: ./
+      dockerfile: ./apps/billing-service/Dockerfile
+    container_name: billing-service
+    env_file:
+      - .env
+    ports:
+      - '5001:5001'
+    networks:
+      - platform_net
+
+  notification-service:
+    build:
+      context: ./
+      dockerfile: ./apps/notification-service/Dockerfile
+    container_name: notification-service
+    env_file:
+      - .env
+    networks:
+      - platform_net
+
 networks:
   platform_net:
     driver: bridge
