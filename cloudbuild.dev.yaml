@@ -103,7 +103,7 @@ steps:
 
         gcloud compute ssh ${_VM_INSTANCE_NAME} --zone ${_ZONE} --command "
         changed_services=\$(cat /data/pito-platform/backend/changed_services.txt)
-        services_message="No service change."
+        services_message=\"No service change.\"
 
         if [ \"\$changed_services\" = \"all\" ]; then
           services_message=\"All services have changed.\"
