@@ -1,4 +1,5 @@
 import { USER_SERVICE, User, USERS_SERVICE_NAME, UsersServiceClient } from '@app/common';
+import { AllConfigType } from '@app/common/configs';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -12,11 +13,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   constructor(
     @Inject(USER_SERVICE) private client: ClientGrpc,
-    configService: ConfigService,
+    configService: ConfigService<AllConfigType>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: configService.get<string>('SUPABASE_JWT_SECRET'),
+      secretOrKey: configService.get('external.supabase.jwtSecret', { infer: true }),
     });
   }
 

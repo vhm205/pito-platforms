@@ -10,16 +10,19 @@ import {
 } from './event.interface';
 import { AhamoveOrderTransformer } from '../transfomers';
 import { OrderEventData, OrderEvent, WebhookEvent } from '../types';
+import { AllConfigType } from '@app/common/configs';
 
 @Injectable()
 export class OrderEventHandler implements WebhookEventHandler {
   private transformers: WebhookEventTransformer<OrderEventData>[];
   private authStrategies: WebhookAuthStrategy[];
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(private readonly configService: ConfigService<AllConfigType>) {
     this.transformers = [new AhamoveOrderTransformer()];
     this.authStrategies = [
-      new AhamoveAuthStrategy(this.configService.get<string>('AHAMOVE_ORDER_EVENTS_API_KEY')),
+      new AhamoveAuthStrategy(
+        this.configService.get('external.ahamove.orderEventsApiKey', { infer: true }),
+      ),
     ];
   }
 
@@ -50,13 +53,16 @@ export class OrderEventHandler implements WebhookEventHandler {
 
   protected async orderDelivering(data: OrderEventData): Promise<void> {
     console.info('Processing order delivering:', data);
+    return Promise.resolve();
   }
 
   protected async orderDelivered(data: OrderEventData): Promise<void> {
     console.info('Processing order completed:', data);
+    return Promise.resolve();
   }
 
   protected async orderNotDelivered(data: OrderEventData): Promise<void> {
     console.info('Processing order cannot deliver:', data);
+    return Promise.resolve();
   }
 }

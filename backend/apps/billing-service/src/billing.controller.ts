@@ -34,6 +34,6 @@ export class BillingController implements BillingServiceController {
 
     // await lastValueFrom(this.rabbitClient.emit('email-sent', record));
 
-    return { status: true };
+    return Promise.resolve({ status: true });
   }
 }

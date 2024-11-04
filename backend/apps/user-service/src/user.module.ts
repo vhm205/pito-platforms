@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AllConfigType } from '@app/common/configs';
 
 import { UserController } from './user.controller';
 import { UserEntity } from './user.entity';
@@ -15,13 +16,13 @@ import { UserService } from './user.service';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService<AllConfigType>) => ({
         type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
+        host: configService.get('database.host', { infer: true }),
+        port: configService.get('database.port', { infer: true }),
+        username: configService.get('database.username', { infer: true }),
+        password: configService.get('database.password', { infer: true }),
+        database: configService.get('database.name', { infer: true }),
         entities: [UserEntity],
       }),
     }),

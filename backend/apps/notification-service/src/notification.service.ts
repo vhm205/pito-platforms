@@ -5,6 +5,6 @@ import { Injectable } from '@nestjs/common';
 export class NotificationService {
   async sendEmail(emailSentDto: EmailSentDto): Promise<{ status: boolean }> {
     console.log('emailSentDto', emailSentDto);
-    return { status: true };
+    return Promise.resolve({ status: true });
   }
 }

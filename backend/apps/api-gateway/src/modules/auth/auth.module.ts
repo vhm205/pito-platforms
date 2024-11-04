@@ -6,14 +6,12 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
-import * as dotenv from 'dotenv';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.stategy';
 import { PublicStrategy } from './public.stategy';
-
-dotenv.config();
+import { AllConfigType } from '@app/common/configs';
 
 @Module({
   imports: [
@@ -30,8 +28,10 @@ dotenv.config();
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('SUPABASE_SECRET_KEY'),
+      useFactory: (configService: ConfigService<AllConfigType>) => ({
+        secret: configService.get('external.supabase.jwtSecret', {
+          infer: true,
+        }),
         signOptions: {
           algorithm: 'RS256',
         },
