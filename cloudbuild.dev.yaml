@@ -115,10 +115,6 @@ steps:
         }' '$SLACK_WEBHOOK_URL'
         "
 
-secrets:
-  - secret: SLACK_WEBHOOK_URL # The name of the secret in Google Secret Manager
-    versions: ['latest']
-
 substitutions:
   _BRANCH_NAME: 'develop'
   _VM_INSTANCE_NAME: 'pito-platform-development'
