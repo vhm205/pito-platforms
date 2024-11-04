@@ -45,10 +45,7 @@ steps:
       - |
         gcloud compute ssh ${_VM_INSTANCE_NAME} --zone ${_ZONE} --command "
         cd /data/pito-platform/backend &&
-        sudo -u tuan_nguyen bash -c '
-          cd /data/pito-platform/backend &&
-          yarn
-        '
+        sudo -u tuan_nguyen bash -i /data/pito-platform/backend/deploy.sh &&
         changed_services=\$(cat changed_services.txt)
 
         if [ \"\$changed_services\" = \"all\" ]; then
