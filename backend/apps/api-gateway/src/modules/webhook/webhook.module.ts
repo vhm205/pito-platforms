@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 
-import { WebhookEventsModule } from './events/event.module';
-import { WebhookController } from './webhook.controller';
-import { WebhookService } from './webhook.service';
+import { TransformerModule } from './transfomers';
+import { AhamoveWebhookController } from './controllers';
+import { OrderEventsService } from './services';
 
 @Module({
-  imports: [WebhookEventsModule],
-  controllers: [WebhookController],
-  providers: [WebhookService],
-  exports: [WebhookService],
+  imports: [TransformerModule],
+  controllers: [AhamoveWebhookController],
+  providers: [OrderEventsService],
+  exports: [OrderEventsService],
 })
 export class WebhookModule {}

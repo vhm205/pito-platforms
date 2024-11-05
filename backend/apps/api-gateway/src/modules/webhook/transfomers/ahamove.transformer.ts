@@ -1,12 +1,14 @@
-import { WebhookEvent, OrderEvent, OrderEventData, AhamoveOrderCallback } from '../types';
-import { WebhookEventTransformer } from './transfomer.interface';
+import { Injectable } from '@nestjs/common';
+import {
+  WebhookEvent,
+  AhamoveOrderCallback,
+  OrderEvent,
+  OrderEventData,
+} from '@gateway/modules/webhook/types';
+import { WebhookEventTransformer } from './transformer.interface';
 
+@Injectable()
 export class AhamoveOrderTransformer implements WebhookEventTransformer<OrderEventData> {
-  canHandle(_body: object): _body is AhamoveOrderCallback {
-    // return '_id' in body && 'status' in body && 'path' in body && 'service_id' in body;
-    return true; // for testing
-  }
-
   transform(body: AhamoveOrderCallback): WebhookEvent<OrderEventData> {
     console.info('Transforming Ahamove order event');
     console.log(JSON.stringify(body, null, 2));
