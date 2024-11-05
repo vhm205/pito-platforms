@@ -27,8 +27,6 @@ export class OrderEventHandler implements WebhookEventHandler {
   }
 
   async processEvent(event: WebhookEvent<OrderEventData>): Promise<void> {
-    console.info('Processing event');
-    console.log(JSON.stringify(event, null, 2));
     switch (event.type) {
       case OrderEvent.Delivering:
         return this.orderDelivering(event.data);

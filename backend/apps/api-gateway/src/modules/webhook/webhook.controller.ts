@@ -1,5 +1,5 @@
-import { Controller, HttpCode, HttpStatus, Post, Req, Res } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Controller, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
+import { Request } from 'express';
 
 import { WebhookService } from './webhook.service';
 
@@ -9,22 +9,22 @@ export class WebhookController {
 
   @Post('order_events')
   @HttpCode(HttpStatus.OK)
-  async handleOrderEvents(@Req() req: Request, @Res() res: Response) {
+  async handleOrderEvents(@Req() req: Request) {
     await this.webhookService.processEvent('order_events', req);
-    return res.send('OK');
+    return 'OK';
   }
 
   @Post('user_events')
   @HttpCode(HttpStatus.OK)
-  async handleUserEvents(@Req() req: Request, @Res() res: Response) {
+  async handleUserEvents(@Req() req: Request) {
     await this.webhookService.processEvent('user_events', req);
-    return res.send('OK');
+    return 'OK';
   }
 
   @Post('payment_events')
   @HttpCode(HttpStatus.OK)
-  async handlePaymentEvents(@Req() req: Request, @Res() res: Response) {
+  async handlePaymentEvents(@Req() req: Request) {
     await this.webhookService.processEvent('payment_events', req);
-    return res.send('OK');
+    return 'OK';
   }
 }
