@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AllConfigType } from '@app/common/configs';
+import { AllConfigType, appConfig, databaseConfig } from '@app/common/configs';
 
 import { UserController } from './user.controller';
 import { UserEntity } from './user.entity';
@@ -11,7 +11,8 @@ import { UserService } from './user.service';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ['.env'],
+      load: [appConfig, databaseConfig],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
