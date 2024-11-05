@@ -12,27 +12,41 @@ export class AhamoveOrderTransformer implements WebhookEventTransformer<OrderEve
   transform(body: AhamoveOrderCallback): WebhookEvent<OrderEventData> {
     console.info('Transforming Ahamove order event');
     console.log(JSON.stringify(body, null, 2));
+
+    const [pickupPath, deliveryPath] = body.path;
+
     return {
-      type: this.getEventType(body.status),
+      type: this.getEventType(body),
       timestamp: new Date().toISOString(),
       data: {
-        order_code: body.path.find(path => path.tracking_number).tracking_number,
-        cancel_by_user: body.cancel_by_user,
-        cancel_comment: body.cancel_comment,
-        cancel_image_url: body.cancel_image_url,
-        cancel_time: body.cancel_time,
+        orderCode: pickupPath.tracking_number ?? deliveryPath.tracking_number,
+        isCancelledByUser: body.cancel_by_user,
+        pickupTimestamp: body.pickup_time,
+        completionTimestamp: deliveryPath.complete_time,
+        cancelTimestamp: body.cancel_time,
+        cancelReason: body.cancel_comment,
+        images: {
+          pickupImageUrl: pickupPath.pop_info,
+          deliveryImageUrl: deliveryPath.pop_info,
+        },
       },
     };
   }
 
-  protected getEventType(status: AhamoveOrderCallback['status']): OrderEvent {
+  protected getEventType({ status, path }: AhamoveOrderCallback): OrderEvent {
     switch (status) {
       case 'IN PROCESS':
         return OrderEvent.Delivering;
-      case 'COMPLETED':
-        return OrderEvent.Delivered;
-      case 'CANCELLED':
-        return OrderEvent.NotDelivered;
+      case 'COMPLETED': {
+        const [, deliveryPath] = path;
+        return deliveryPath.status === 'COMPLETED'
+          ? OrderEvent.Delivered
+          : deliveryPath.status === 'FAILED'
+            ? OrderEvent.FailedDelivery
+            : OrderEvent.Unhandled;
+      }
+      default:
+        return OrderEvent.Unhandled;
     }
   }
 }

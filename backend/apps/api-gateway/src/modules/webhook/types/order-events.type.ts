@@ -1,13 +1,19 @@
 export enum OrderEvent {
   Delivering = 'delivering',
   Delivered = 'delivered',
-  NotDelivered = 'not_delivered',
+  FailedDelivery = 'failed_delivery',
+  Unhandled = 'unhandled',
 }
 
 export type OrderEventData = {
-  order_code: string;
-  cancel_by_user: boolean;
-  cancel_comment: string;
-  cancel_image_url: string;
-  cancel_time: number;
+  orderCode: string;
+  isCancelledByUser: boolean;
+  pickupTimestamp?: number;
+  completionTimestamp?: number;
+  cancelTimestamp?: number;
+  cancelReason?: string;
+  images: {
+    pickupImageUrl?: string;
+    deliveryImageUrl?: string;
+  };
 };

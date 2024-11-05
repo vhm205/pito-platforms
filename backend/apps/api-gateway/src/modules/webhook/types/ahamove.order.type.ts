@@ -6,20 +6,14 @@ export type AhamoveOrderStatus =
   | 'COMPLETED'
   | 'CANCELLED';
 
-type OrderPath = {
+type OrderCallbackPath = {
   address: string;
+  name: string;
   mobile: string;
+  status: string;
   tracking_number: string;
-  lat: number;
-  lng: number;
-  adr_source: string;
-  pop_type?: string;
-  require_pop?: boolean;
-  supplier_cod?: number;
-  name?: string;
-  pod_type?: string;
-  require_pod?: boolean;
-  pod_types?: string[];
+  complete_time?: number;
+  pop_info?: string;
 };
 
 export type AhamoveOrderCallback = {
@@ -36,7 +30,7 @@ export type AhamoveOrderCallback = {
   currency: string;
   order_time: number;
   partner: string;
-  path: OrderPath[];
+  path: OrderCallbackPath[];
   payment_method: string;
   pickup_time: number;
   service_id: string;

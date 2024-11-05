@@ -6,26 +6,28 @@ export class OrderEventsService {
   async processEvent(event: WebhookEvent<OrderEventData>): Promise<void> {
     switch (event.type) {
       case OrderEvent.Delivering:
-        return this.orderDelivering(event.data);
+        return this.handleOrderDelivering(event.data);
       case OrderEvent.Delivered:
-        return this.orderDelivered(event.data);
-      case OrderEvent.NotDelivered:
-        return this.orderNotDelivered(event.data);
+        return this.handleOrderDelivered(event.data);
+      case OrderEvent.FailedDelivery:
+        return this.handleOrderDeliveryFailed(event.data);
+      default:
+        console.warn('Unhandled event:', event.type);
     }
   }
 
-  protected async orderDelivering(data: OrderEventData): Promise<void> {
-    console.info('Processing order delivering:', data);
+  protected async handleOrderDelivering(data: OrderEventData): Promise<void> {
+    console.info('Handling order delivering:', data);
     return Promise.resolve();
   }
 
-  protected async orderDelivered(data: OrderEventData): Promise<void> {
-    console.info('Processing order completed:', data);
+  protected async handleOrderDelivered(data: OrderEventData): Promise<void> {
+    console.info('Handling order completed:', data);
     return Promise.resolve();
   }
 
-  protected async orderNotDelivered(data: OrderEventData): Promise<void> {
-    console.info('Processing order cannot deliver:', data);
+  protected async handleOrderDeliveryFailed(data: OrderEventData): Promise<void> {
+    console.info('Handling order delivery failed:', data);
     return Promise.resolve();
   }
 }
