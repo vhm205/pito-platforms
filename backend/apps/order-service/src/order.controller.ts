@@ -1,4 +1,9 @@
-import { OrdersServiceControllerMethods } from '@app/common';
+import { Controller } from '@nestjs/common';
+import {
+  OrdersServiceControllerMethods,
+  OrderUpdateResponse,
+  OrderUpdateStatusDto,
+} from '@app/common';
 import {
   FindOneOrderDto,
   Order,
@@ -9,7 +14,6 @@ import {
   QueryOrderWithPagination,
   SortDirection,
 } from '@app/common/types';
-import { Controller } from '@nestjs/common';
 
 import { OrderService } from './order.service';
 import { SortOrderDto } from './dto';
@@ -18,6 +22,12 @@ import { SortOrderDto } from './dto';
 @OrdersServiceControllerMethods()
 export class OrderController implements OrdersServiceController {
   constructor(private readonly orderService: OrderService) {}
+
+  updateOrderStatus(
+    request: OrderUpdateStatusDto,
+  ): Promise<OrderUpdateResponse> | OrderUpdateResponse {
+    return this.orderService.updateOrderStatus(request);
+  }
 
   async findOrders(dto: OrderFilterDto): Promise<Orders> {
     console.log('Finding orders', { metadata: dto });

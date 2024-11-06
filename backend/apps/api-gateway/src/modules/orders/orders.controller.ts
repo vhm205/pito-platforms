@@ -1,6 +1,16 @@
-import { User } from '@app/common';
+import { OrderUpdateStatusDto, User } from '@app/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Controller, Get, Param, HttpCode, HttpStatus, Query, Inject } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  HttpCode,
+  HttpStatus,
+  Query,
+  Inject,
+  Put,
+  Body,
+} from '@nestjs/common';
 import { RedisStore } from 'cache-manager-redis-yet';
 
 import { GetListOrderDto, getListOrderSchema } from './dto/get-list-order.dto';
@@ -23,6 +33,12 @@ export class OrdersController {
     const result = await this.cacheManager.get('key');
 
     return { result };
+  }
+
+  @Put()
+  @HttpCode(HttpStatus.OK)
+  updateStatus(@Body() updateOrderDto: OrderUpdateStatusDto) {
+    return this.ordersService.updateOrderStatus(updateOrderDto);
   }
 
   @Get()

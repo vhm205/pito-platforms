@@ -3,6 +3,9 @@ import { validateConfig } from './validate-config';
 import { IsString } from 'class-validator';
 
 export type ExternalConfig = {
+  sendgrid: {
+    apiKey: string;
+  };
   sentry: {
     dsn: string;
   };
@@ -21,6 +24,9 @@ export type ExternalConfig = {
 };
 
 class ExternalVariablesValidator {
+  @IsString()
+  SENDGRID_API_KEY: string;
+
   @IsString()
   SENTRY_DSN: string;
 
@@ -53,6 +59,9 @@ export default registerAs<ExternalConfig>('external', () => {
   validateConfig(process.env, ExternalVariablesValidator);
 
   return {
+    sendgrid: {
+      apiKey: process.env.SENDGRID_API_KEY,
+    },
     sentry: {
       dsn: process.env.SENTRY_DSN,
     },

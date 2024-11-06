@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import * as dotenv from 'dotenv';
 
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
@@ -9,12 +11,17 @@ import { LoggerModule } from '@app/common';
 import { RelationalOrderPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { OrderEntity } from './infrastructure/persistence/relational/entities/order.entity';
 
+dotenv.config();
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
       load: [appConfig, databaseConfig],
+    }),
+    LoggerModule.forRoot({
+      service: OrderService.name,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -29,8 +36,26 @@ import { OrderEntity } from './infrastructure/persistence/relational/entities/or
         entities: [OrderEntity],
       }),
     }),
+    TypeOrmModule.forFeature([OrderEntity]),
     RelationalOrderPersistenceModule,
-    LoggerModule.forRoot({ service: OrderService.name }),
+    ClientsModule.register([
+      {
+        name: 'NOTIFICATIONS_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: [
+            `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${
+              process.env.RABBITMQ_HOST
+            }:${process.env.RABBITMQ_PORT}${process.env.RABBITMQ_VHOST}`,
+          ],
+          queue: 'notifications_queue',
+          queueOptions: {
+            durable: true,
+            noAck: false,
+          },
+        },
+      },
+    ]),
   ],
   controllers: [OrderController],
   providers: [OrderService],
