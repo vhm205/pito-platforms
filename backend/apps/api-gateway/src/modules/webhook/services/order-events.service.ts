@@ -1,33 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { WebhookEvent, OrderEvent, OrderEventData } from '@gateway/modules/webhook/types';
+import { LoggerService } from '@app/common';
 
 @Injectable()
 export class OrderEventsService {
-  async processEvent(event: WebhookEvent<OrderEventData>): Promise<void> {
-    switch (event.type) {
+  constructor(private readonly logger: LoggerService) {}
+
+  async processEvent({ type, data }: WebhookEvent<OrderEventData>): Promise<void> {
+    switch (type) {
       case OrderEvent.Delivering:
-        return this.handleOrderDelivering(event.data);
+        return this.handleOrderDelivering(data);
       case OrderEvent.Delivered:
-        return this.handleOrderDelivered(event.data);
+        return this.handleOrderDelivered(data);
       case OrderEvent.FailedDelivery:
-        return this.handleOrderDeliveryFailed(event.data);
+        return this.handleOrderDeliveryFailed(data);
       default:
-        console.warn('Unhandled event:', event.type);
+        this.logger.warn(`Unhandled event ${type}`);
     }
   }
 
   protected async handleOrderDelivering(data: OrderEventData): Promise<void> {
-    console.info('Handling order delivering:', data);
+    this.logger.log('Handling order delivering', { metadata: data });
     return Promise.resolve();
   }
 
   protected async handleOrderDelivered(data: OrderEventData): Promise<void> {
-    console.info('Handling order completed:', data);
+    this.logger.log('Handling order completed', { metadata: data });
     return Promise.resolve();
   }
 
   protected async handleOrderDeliveryFailed(data: OrderEventData): Promise<void> {
-    console.info('Handling order delivery failed:', data);
+    this.logger.log('Handling order delivery failed', { metadata: data });
     return Promise.resolve();
   }
 }

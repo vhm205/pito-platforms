@@ -3,6 +3,6 @@ export * from './ahamove.order.type';
 
 export type WebhookEvent<T> = {
   type: string;
-  timestamp: string;
+  timestamp: number;
   data: T;
 };

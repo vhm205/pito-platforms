@@ -6,30 +6,40 @@ import {
   OrderEventData,
 } from '@gateway/modules/webhook/types';
 import { WebhookEventTransformer } from './transformer.interface';
+import { LoggerService } from '@app/common';
 
 @Injectable()
 export class AhamoveOrderTransformer implements WebhookEventTransformer<OrderEventData> {
+  constructor(private readonly logger: LoggerService) {}
+
   transform(body: AhamoveOrderCallback): WebhookEvent<OrderEventData> {
-    console.info('Transforming Ahamove order event');
-    console.log(JSON.stringify(body, null, 2));
+    this.logger.log('Transforming Ahamove order event', { metadata: body });
 
     const [pickupPath, deliveryPath] = body.path;
 
-    return {
-      type: this.getEventType(body),
-      timestamp: new Date().toISOString(),
-      data: {
-        orderCode: pickupPath.tracking_number ?? deliveryPath.tracking_number,
-        isCancelledByUser: body.cancel_by_user,
-        pickupTimestamp: body.pickup_time,
-        completionTimestamp: deliveryPath.complete_time,
-        cancelTimestamp: body.cancel_time,
-        cancelReason: body.cancel_comment,
-        images: {
-          pickupImageUrl: pickupPath.pop_info,
-          deliveryImageUrl: deliveryPath.pop_info,
-        },
+    const eventType = this.getEventType(body);
+    const eventData: OrderEventData = {
+      orderCode: pickupPath.tracking_number ?? deliveryPath.tracking_number,
+      isUserCancelled: body.cancel_by_user,
+      timestamps: {
+        pickup: body.pickup_time,
+        cancel: deliveryPath.fail_time,
+        completion: deliveryPath.complete_time,
       },
+      ...(deliveryPath.fail_comment && {
+        cancelInfo: { reason: deliveryPath.fail_comment },
+      }),
+      images: {
+        pickupUrl: pickupPath.pop_info,
+        deliveryUrl: deliveryPath.pod_info ?? deliveryPath.pof_info,
+      },
+      trackingUrl: body.shared_link,
+    };
+
+    return {
+      type: eventType,
+      timestamp: new Date().getTime(),
+      data: eventData,
     };
   }
 

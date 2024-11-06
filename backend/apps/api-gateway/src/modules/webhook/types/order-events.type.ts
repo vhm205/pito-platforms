@@ -7,13 +7,18 @@ export enum OrderEvent {
 
 export type OrderEventData = {
   orderCode: string;
-  isCancelledByUser: boolean;
-  pickupTimestamp?: number;
-  completionTimestamp?: number;
-  cancelTimestamp?: number;
-  cancelReason?: string;
-  images: {
-    pickupImageUrl?: string;
-    deliveryImageUrl?: string;
+  isUserCancelled: boolean;
+  timestamps: {
+    pickup?: number;
+    completion?: number;
+    cancel?: number;
   };
+  cancelInfo?: {
+    reason?: string;
+  };
+  images: {
+    pickupUrl?: string;
+    deliveryUrl?: string;
+  };
+  trackingUrl?: string;
 };

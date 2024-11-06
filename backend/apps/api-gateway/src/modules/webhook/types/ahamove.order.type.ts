@@ -14,6 +14,11 @@ type OrderCallbackPath = {
   tracking_number: string;
   complete_time?: number;
   pop_info?: string;
+  pod_info?: string; // when status in delivery is 'COMPLETED'
+  pof_info?: string; // when status in delivery is 'FAILED'
+
+  fail_comment?: string;
+  fail_time?: number;
 };
 
 export type AhamoveOrderCallback = {
