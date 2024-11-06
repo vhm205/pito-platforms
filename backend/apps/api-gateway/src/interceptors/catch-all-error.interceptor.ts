@@ -1,4 +1,4 @@
-import { Logger } from '@app/common';
+import { LoggerService } from '@app/common';
 import {
   Injectable,
   NestInterceptor,
@@ -13,7 +13,7 @@ import { catchError } from 'rxjs/operators';
 
 @Injectable()
 export class CatchAllErrorInterceptor implements NestInterceptor {
-  constructor(private readonly logger: Logger) {}
+  constructor(private readonly logger: LoggerService) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const isHttp = context.getType() === 'http';

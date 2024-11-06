@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Logger } from '@app/common';
+import { LoggerService } from '@app/common';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { useContainer } from 'class-validator';
@@ -18,7 +18,7 @@ async function bootstrap() {
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   const configService = app.get(ConfigService<AllConfigType>);
 
-  app.useLogger(app.get(Logger));
+  app.useLogger(app.get(LoggerService));
   app.useGlobalPipes(new ValidationPipe(validationOptions));
 
   /**

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { join } from 'path';
 
-import { BILLING_PACKAGE_NAME } from '@app/common';
+import { BILLING_PACKAGE_NAME, LoggerService } from '@app/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
@@ -16,6 +16,8 @@ async function bootstrap() {
       url: `0.0.0.0:${process.env.BILLING_GRPC_PORT}`,
     },
   });
+  app.useLogger(app.get(LoggerService));
+
   await app.listen();
 }
 

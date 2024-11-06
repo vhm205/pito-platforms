@@ -1,4 +1,3 @@
-import { Logger } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,6 +6,7 @@ import { OrderEntity } from './entities/order.entity';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
 import { AllConfigType, appConfig, databaseConfig } from '@app/common/configs';
+import { LoggerModule } from '@app/common';
 
 @Module({
   imports: [
@@ -29,8 +29,11 @@ import { AllConfigType, appConfig, databaseConfig } from '@app/common/configs';
       }),
     }),
     TypeOrmModule.forFeature([OrderEntity]),
+    LoggerModule.forRoot({
+      service: OrderService.name,
+    }),
   ],
   controllers: [OrderController],
-  providers: [OrderService, { provide: Logger, useValue: Logger }],
+  providers: [OrderService],
 })
 export class OrderModule {}

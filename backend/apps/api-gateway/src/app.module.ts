@@ -1,4 +1,4 @@
-import { Logger } from '@app/common';
+import { LoggerModule } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
@@ -27,6 +27,9 @@ import { FilesModule } from './modules/files/files.module';
       load: [appConfig, databaseConfig, externalConfig, fileConfig],
     }),
     SentryModule.forRoot(),
+    LoggerModule.forRoot({
+      service: 'ApiGateway',
+    }),
     AuthModule,
     UsersModule,
     OrdersModule,
@@ -39,11 +42,6 @@ import { FilesModule } from './modules/files/files.module';
       provide: APP_INTERCEPTOR,
       useClass: CatchAllErrorInterceptor,
     },
-    {
-      provide: Logger,
-      useFactory: () => new Logger('APIGateway'),
-    },
   ],
-  exports: [Logger],
 })
 export class AppModule {}

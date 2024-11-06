@@ -6,6 +6,7 @@ import { AllConfigType, appConfig, databaseConfig } from '@app/common/configs';
 import { UserController } from './user.controller';
 import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
+import { LoggerModule } from '@app/common';
 
 @Module({
   imports: [
@@ -28,6 +29,9 @@ import { UserService } from './user.service';
       }),
     }),
     TypeOrmModule.forFeature([UserEntity]),
+    LoggerModule.forRoot({
+      service: UserService.name,
+    }),
   ],
   controllers: [UserController],
   providers: [UserService],
