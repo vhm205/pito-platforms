@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { OrderEntity } from './entities/order.entity';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
 import { AllConfigType, appConfig, databaseConfig } from '@app/common/configs';
 import { LoggerModule } from '@app/common';
+import { RelationalOrderPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { OrderEntity } from './infrastructure/persistence/relational/entities/order.entity';
 
 @Module({
   imports: [
@@ -28,12 +29,11 @@ import { LoggerModule } from '@app/common';
         entities: [OrderEntity],
       }),
     }),
-    TypeOrmModule.forFeature([OrderEntity]),
-    LoggerModule.forRoot({
-      service: OrderService.name,
-    }),
+    RelationalOrderPersistenceModule,
+    LoggerModule.forRoot({ service: OrderService.name }),
   ],
   controllers: [OrderController],
   providers: [OrderService],
+  exports: [OrderService],
 })
 export class OrderModule {}

@@ -7,6 +7,7 @@ import "google/protobuf/timestamp.proto";
 service OrdersService {
   rpc FindOrders (OrderFilterDto) returns (Orders);
   rpc FindOneOrder (FindOneOrderDto) returns (Order);
+  rpc FindOrdersWithPagination (QueryOrderWithPagination) returns (OrderWithPagination);
 }
 
 message OrderFilterDto {
@@ -99,6 +100,36 @@ message Orders {
   int32 total = 2;
 }
 
-message StoreOrder {
+// Enum for sorting direction
+enum SortDirection {
+  ASC = 0;
+  DESC = 1;
+}
 
+// GetOrderRequest with pagination
+message QueryOrderWithPagination {
+  int32 page = 1;        // Page number for pagination
+  int32 page_size = 2;   // Number of items per page
+
+  // Filtering criteria
+  message OrderFilter {
+    optional string status = 1;
+    optional string keyword = 2;
+    optional string from_date = 3;
+    optional string to_date = 4;
+  }
+
+  // Sorting criteria
+  message OrderSort {
+    string field = 1;
+    SortDirection direction = 2;
+  }
+
+  OrderFilter filters = 3; // List of filters for querying orders
+  repeated OrderSort sorts = 4;     // List of sorting criteria
+}
+
+message OrderWithPagination {
+  repeated Order orders = 1;
+  int32 total = 2;
 }
