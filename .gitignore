@@ -132,6 +132,7 @@ dist
 
 .DS_Store
 .tmp-lint-staged-files
+.tmp-lint-staged-files-changed
 
 # IDE
 .idea
