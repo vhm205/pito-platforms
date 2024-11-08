@@ -12,7 +12,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/api-gateway/main",
-    "generate:protobuf": "protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./libs/common/src/types --ts_proto_opt=nestJs=true,useDate=true ./proto/*.proto",
+    "generate:protobuf": "protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./libs/common/src/types --ts_proto_opt=nestJs=true,useDate=true ./proto/*.proto && node scripts/remove_proto_headers.js && prettier --write './libs/common/src/types/proto/*.ts' './libs/common/src/types/google/protobuf/*.ts'",
     "lint": "eslint \"{src,apps,libs}/**/*.ts\" --ignore-pattern \"**/test/**\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
