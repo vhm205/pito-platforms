@@ -2,7 +2,7 @@ import { join } from 'path';
 
 import { USER_PACKAGE_NAME, USER_SERVICE } from '@app/common';
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
@@ -15,15 +15,19 @@ import { AllConfigType } from '@app/common/configs';
 
 @Module({
   imports: [
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
+        imports: [ConfigModule],
         name: USER_SERVICE,
-        transport: Transport.GRPC,
-        options: {
-          package: USER_PACKAGE_NAME,
-          protoPath: join(__dirname, '../user.proto'),
-          url: `${process.env.USER_GRPC_HOST}:${process.env.USER_GRPC_PORT}`,
-        },
+        useFactory: (configService: ConfigService<AllConfigType>) => ({
+          transport: Transport.GRPC,
+          options: {
+            package: USER_PACKAGE_NAME,
+            protoPath: join(process.cwd(), 'proto/user.proto'),
+            url: configService.get('app.userGrpcUrl', { infer: true }),
+          },
+        }),
+        inject: [ConfigService],
       },
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),

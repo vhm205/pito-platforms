@@ -1,11 +1,8 @@
-import { UseDto } from '@app/common/decorators/use-dto.decorator';
+import { EntityRelationalHelper } from '@app/common';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { OrderDto } from '../dto/order.dto';
-
 @Entity({ name: 'orders' })
-@UseDto(OrderDto)
-export class OrderEntity extends OrderDto {
+export class OrderEntity extends EntityRelationalHelper {
   @PrimaryColumn({ name: 'id' })
   orderId: string;
 

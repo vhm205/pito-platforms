@@ -5,24 +5,27 @@ import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { redisStore } from 'cache-manager-redis-yet';
-import * as dotenv from 'dotenv';
 
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
-
-dotenv.config();
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AllConfigType } from '@app/common/configs';
 
 @Module({
   imports: [
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
+        imports: [ConfigModule],
         name: ORDER_SERVICE,
-        transport: Transport.GRPC,
-        options: {
-          package: ORDER_PACKAGE_NAME,
-          protoPath: join(__dirname, '../order.proto'),
-          url: `${process.env.ORDER_GRPC_HOST}:${process.env.ORDER_GRPC_PORT}`,
-        },
+        useFactory: (configService: ConfigService<AllConfigType>) => ({
+          transport: Transport.GRPC,
+          options: {
+            package: ORDER_PACKAGE_NAME,
+            protoPath: join(process.cwd(), 'proto/order.proto'),
+            url: configService.get('app.orderGrpcUrl', { infer: true }),
+          },
+        }),
+        inject: [ConfigService],
       },
     ]),
     CacheModule.registerAsync({

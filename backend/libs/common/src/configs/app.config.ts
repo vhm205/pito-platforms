@@ -12,14 +12,9 @@ export type AppConfig = {
   nodeEnv: Environment;
   apiGatewayPort: number;
 
-  userGrpcHost: string;
-  userGrpcPort: number;
-
-  orderGrpcHost: string;
-  orderGrpcPort: number;
-
-  billingGrpcHost: string;
-  billingGrpcPort: number;
+  userGrpcUrl: string;
+  orderGrpcUrl: string;
+  billingGrpcUrl: string;
 
   rabbitmqHost: string;
   rabbitmqPort: number;
@@ -80,16 +75,9 @@ export default registerAs<AppConfig>('app', () => {
       ? parseInt(process.env.API_GATEWAY_PORT, 10)
       : 3000,
 
-    userGrpcHost: process.env.USER_GRPC_HOST,
-    userGrpcPort: process.env.USER_GRPC_PORT ? parseInt(process.env.USER_GRPC_PORT, 10) : 5000,
-
-    orderGrpcHost: process.env.ORDER_GRPC_HOST,
-    orderGrpcPort: process.env.ORDER_GRPC_PORT ? parseInt(process.env.ORDER_GRPC_PORT, 10) : 5001,
-
-    billingGrpcHost: process.env.BILLING_GRPC_HOST,
-    billingGrpcPort: process.env.BILLING_GRPC_PORT
-      ? parseInt(process.env.BILLING_GRPC_PORT, 10)
-      : 5002,
+    userGrpcUrl: process.env.USER_GRPC_HOST.concat(':', process.env.USER_GRPC_PORT),
+    orderGrpcUrl: process.env.ORDER_GRPC_HOST.concat(':', process.env.ORDER_GRPC_PORT),
+    billingGrpcUrl: process.env.BILLING_GRPC_HOST.concat(':', process.env.BILLING_GRPC_PORT),
 
     rabbitmqHost: process.env.RABBITMQ_HOST,
     rabbitmqPort: process.env.RABBITMQ_PORT ? parseInt(process.env.RABBITMQ_PORT, 10) : 5672,

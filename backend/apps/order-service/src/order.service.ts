@@ -1,59 +1,32 @@
-import { convertObjectKeysToCamelCase } from '@app/common';
-import { OrderFilterDto } from '@app/common/types';
+import { pagePagination } from '@app/common';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-
-import { OrderEntity } from './entities/order.entity';
+import { OrderRepository } from './infrastructure/persistence/order.repository';
+import { PaginationOptions } from '@app/common/types/common';
+import { FilterOrderDto, SortOrderDto } from './dto';
 
 @Injectable()
 export class OrderService {
-  constructor(
-    @InjectRepository(OrderEntity)
-    private orderRepository: Repository<OrderEntity>,
-  ) {}
+  constructor(private readonly orderRepository: OrderRepository) {}
 
-  async findOrders(
-    orderFilterDto: OrderFilterDto,
-  ): Promise<{ orders: OrderEntity[]; total: number }> {
-    const [rowResponse, totalResponse] = await Promise.all([
-      this.orderRepository.query(
-        'SELECT * FROM get_history_orders_by_filter($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
-        [
-          orderFilterDto.userId,
-          orderFilterDto.keyword,
-          orderFilterDto.status,
-          orderFilterDto.fromDate,
-          orderFilterDto.toDate,
-          orderFilterDto.deliveryDate,
-          orderFilterDto.sortBy,
-          orderFilterDto.sortDirection,
-          orderFilterDto.pageSize,
-          orderFilterDto.from,
-        ],
-      ),
-      this.orderRepository.query(
-        'SELECT * FROM get_total_orders_history_by_filter($1, $2, $3, $4, $5, $6)',
-        [
-          orderFilterDto.userId,
-          orderFilterDto.keyword,
-          orderFilterDto.status,
-          orderFilterDto.fromDate,
-          orderFilterDto.toDate,
-          orderFilterDto.deliveryDate,
-        ],
-      ),
-    ]);
-
-    const orders = convertObjectKeysToCamelCase(rowResponse) as OrderEntity[];
-    const total = totalResponse![0]!['get_total_orders_history_by_filter'] || 0;
-
-    return { orders, total };
+  findOrders() {
+    return Promise.resolve([[], 0]);
   }
 
-  async findOneOrder(orderId: string): Promise<OrderEntity | null> {
-    const order = await this.orderRepository.findOne({ where: { orderId } });
+  async findOrdersWithPagination(options: {
+    paginationOptions: PaginationOptions;
+    sorts: SortOrderDto[];
+    filters?: FilterOrderDto;
+  }) {
+    const [orders, count] = await this.orderRepository.findOrdersWithPagination({
+      paginationOptions: options.paginationOptions,
+      sorts: options.sorts,
+      filters: options.filters,
+    });
 
-    return order || null;
+    return pagePagination(orders, {
+      total: count,
+      page: options.paginationOptions.page,
+      pageSize: options.paginationOptions.pageSize,
+    });
   }
 }
