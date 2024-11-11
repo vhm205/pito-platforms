@@ -7,8 +7,12 @@ import "google/protobuf/timestamp.proto";
 service OrdersService {
   rpc UpdateOrderStatus (OrderUpdateStatusDto) returns (OrderUpdateResponse);
   rpc FindOrders (OrderFilterDto) returns (Orders);
-  rpc FindOneOrder (FindOneOrderDto) returns (Order);
+  rpc FindOneOrder (FindOneOrderDto) returns (OrderResponse);
   rpc FindOrdersWithPagination (QueryOrderWithPagination) returns (OrderWithPagination);
+}
+
+message OrderResponse {
+  optional Order order = 1;
 }
 
 message OrderUpdateStatusDto {

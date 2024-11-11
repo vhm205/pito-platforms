@@ -14,9 +14,7 @@ import { GetListOrderDto } from './dto/get-list-order.dto';
 export class OrdersService {
   private ordersService: OrdersServiceClient;
 
-  constructor(@Inject(ORDER_SERVICE) private client: ClientGrpc) {}
-
-  onModuleInit() {
+  constructor(@Inject(ORDER_SERVICE) private client: ClientGrpc) {
     this.ordersService = this.client.getService<OrdersServiceClient>(ORDERS_SERVICE_NAME);
   }
 
@@ -29,21 +27,21 @@ export class OrdersService {
     return firstValueFrom(
       this.ordersService.findOrders({
         userId,
-        keyword: null,
-        status: null,
-        fromDate: null,
-        toDate: null,
-        deliveryDate: null,
+        keyword: '',
+        status: '',
+        fromDate: '',
+        toDate: '',
+        deliveryDate: '',
         ...getListOrderDto,
-        sortBy: null,
-        sortDirection: null,
-        pageSize: null,
-        from: null,
+        sortBy: '',
+        sortDirection: '',
+        pageSize: '',
+        from: '',
       }),
     );
   }
 
   getOrderDetail(id: string) {
-    return this.ordersService.findOneOrder({ id }).toPromise();
+    return this.ordersService.findOneOrder({ id });
   }
 }

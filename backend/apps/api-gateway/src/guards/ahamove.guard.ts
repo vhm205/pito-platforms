@@ -12,8 +12,9 @@ export class AhamoveWebhookGuard implements CanActivate {
 
     const apiKey = request.headers['apikey']?.toString();
     const authorization = request.headers['authorization']?.replace('Bearer ', '');
+    const token = apiKey ?? authorization ?? '';
 
-    if (!this.isAhamoveToken(apiKey ?? authorization)) {
+    if (!this.isAhamoveToken(token)) {
       throw new UnauthorizedException('The request is not authenticated');
     }
 

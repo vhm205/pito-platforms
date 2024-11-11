@@ -33,7 +33,7 @@ import { AllConfigType } from '@app/common/configs';
         const store = await redisStore({
           socket: {
             host: process.env.REDIS_HOST,
-            port: +process.env.REDIS_PORT,
+            port: +process.env.REDIS_PORT!,
           },
         });
 

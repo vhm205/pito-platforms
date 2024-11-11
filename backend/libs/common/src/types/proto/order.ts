@@ -12,6 +12,10 @@ export enum SortDirection {
   UNRECOGNIZED = -1,
 }
 
+export interface OrderResponse {
+  order?: Order | undefined;
+}
+
 export interface OrderUpdateStatusDto {
   orderId: string;
   status: string;

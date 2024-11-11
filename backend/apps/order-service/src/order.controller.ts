@@ -1,5 +1,6 @@
 import { Controller } from '@nestjs/common';
 import {
+  OrderResponse,
   OrdersServiceControllerMethods,
   OrderUpdateResponse,
   OrderUpdateStatusDto,

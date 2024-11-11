@@ -7,7 +7,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RmqRecordBuilder } from '@nestjs/microservices';
 
 import { OrderUpdateStatusDto, SendNotificationDto } from '@app/common/types';
-import { Channel, PushType } from '@app/common/enums';
+import { Channel } from '@app/common/enums';
 
 @Injectable()
 export class OrderService {
@@ -32,8 +32,10 @@ export class OrderService {
         // pushNotification: {
         //   type: PushType.TOPIC,
         //   topic: payload.orderId,
-        //   android: {
-        //     priority: 'high',
+        //   platforms: {
+        //     android: {
+        //       priority: 'high',
+        //     },
         //   },
         //   data: {
         //     title: 'This is test title',

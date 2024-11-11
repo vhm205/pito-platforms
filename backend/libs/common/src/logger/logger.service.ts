@@ -32,7 +32,7 @@ export class LoggerService implements NestjsLoggerService {
       }),
     ];
 
-    if (['production', 'stage'].includes(process.env.NODE_ENV)) {
+    if (['production', 'stage'].includes(process.env.NODE_ENV!)) {
       transports.push(
         new DailyRotateFile({
           dirname: path.resolve(logPath),
