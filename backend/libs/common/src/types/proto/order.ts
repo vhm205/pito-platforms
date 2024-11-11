@@ -13,7 +13,7 @@ export enum SortDirection {
 }
 
 export interface OrderResponse {
-  order?: Order | undefined;
+  data?: Order | undefined;
 }
 
 export interface OrderUpdateStatusDto {
@@ -163,7 +163,7 @@ export interface OrdersServiceClient {
 
   findOrders(request: OrderFilterDto): Observable<Orders>;
 
-  findOneOrder(request: FindOneOrderDto): Observable<Order>;
+  findOneOrder(request: FindOneOrderDto): Observable<OrderResponse>;
 
   findOrdersWithPagination(request: QueryOrderWithPagination): Observable<OrderWithPagination>;
 }
@@ -175,7 +175,9 @@ export interface OrdersServiceController {
 
   findOrders(request: OrderFilterDto): Promise<Orders> | Observable<Orders> | Orders;
 
-  findOneOrder(request: FindOneOrderDto): Promise<Order> | Observable<Order> | Order;
+  findOneOrder(
+    request: FindOneOrderDto,
+  ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
 
   findOrdersWithPagination(
     request: QueryOrderWithPagination,

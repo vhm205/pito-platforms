@@ -7,7 +7,6 @@ import {
 } from '@app/common';
 import {
   FindOneOrderDto,
-  Order,
   OrderFilterDto,
   Orders,
   OrdersServiceController,
@@ -36,9 +35,10 @@ export class OrderController implements OrdersServiceController {
     return Promise.resolve({ orders: [], total: 0 });
   }
 
-  async findOneOrder(dto: FindOneOrderDto): Promise<Order | null> {
+  async findOneOrder(dto: FindOneOrderDto): Promise<OrderResponse> {
     console.log('Finding order', { metadata: dto });
-    return Promise.resolve(null);
+    await Promise.resolve(null);
+    return { data: undefined };
   }
 
   async findOrdersWithPagination(args: QueryOrderWithPagination): Promise<OrderWithPagination> {

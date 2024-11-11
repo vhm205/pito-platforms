@@ -12,7 +12,7 @@ service OrdersService {
 }
 
 message OrderResponse {
-  optional Order order = 1;
+  optional Order data = 1;
 }
 
 message OrderUpdateStatusDto {
