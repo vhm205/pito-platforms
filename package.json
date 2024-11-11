@@ -10,7 +10,9 @@
       "sh -c 'git diff --name-only --cached > .tmp-lint-staged-files'",
       "sh -c 'cd backend && yarn run lint'",
       "sh -c 'cd backend && yarn run format'",
-      "sh -c 'cat .tmp-lint-staged-files | xargs -I {} sh -c \"if [ -f {} ]; then git add {}; fi\" && rm .tmp-lint-staged-files'"
+      "sh -c 'git diff --name-only > .tmp-lint-staged-files-changed'",
+      "sh -c 'grep -Fxf .tmp-lint-staged-files .tmp-lint-staged-files-changed | xargs -I {} git add {}'",
+      "sh -c 'rm .tmp-lint-staged-files .tmp-lint-staged-files-changed'"
     ]
   },
   "scripts": {

@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 
 import { BillingController } from './billing.controller';
 import { BillingService } from './billing.service';
+import { LoggerModule } from '@app/common';
 
 dotenv.config();
 
@@ -27,6 +28,9 @@ dotenv.config();
         },
       },
     ]),
+    LoggerModule.forRoot({
+      service: BillingService.name,
+    }),
   ],
   controllers: [BillingController],
   providers: [BillingService],

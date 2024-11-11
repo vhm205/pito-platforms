@@ -1,24 +1,29 @@
+import { join } from 'path';
+
 import { USER_SERVICE, USER_PACKAGE_NAME } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import * as dotenv from 'dotenv';
 
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-
-dotenv.config();
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AllConfigType } from '@app/common/configs';
 
 @Module({
   imports: [
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
+        imports: [ConfigModule],
         name: USER_SERVICE,
-        transport: Transport.GRPC,
-        options: {
-          package: USER_PACKAGE_NAME,
-          protoPath: './proto/user.proto',
-          url: `${process.env.USER_GRPC_HOST}:${process.env.USER_GRPC_PORT}`,
-        },
+        useFactory: (configService: ConfigService<AllConfigType>) => ({
+          transport: Transport.GRPC,
+          options: {
+            package: USER_PACKAGE_NAME,
+            protoPath: join(process.cwd(), 'proto/user.proto'),
+            url: configService.get('app.userGrpcUrl', { infer: true }),
+          },
+        }),
+        inject: [ConfigService],
       },
     ]),
   ],

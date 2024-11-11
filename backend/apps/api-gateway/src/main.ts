@@ -1,24 +1,37 @@
-import { NestFactory } from '@nestjs/core';
-import * as dotenv from 'dotenv';
-
-import { AppModule } from './app.module';
+import 'dotenv/config';
+import { LoggerService } from '@app/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { useContainer } from 'class-validator';
 
 import './instrument';
 
-dotenv.config();
+import { AppModule } from './app.module';
+import { ResolvePromisesInterceptor } from './utils/serializer.interceptor';
+import { validationOptions } from './utils/validation-options';
+import { ConfigService } from '@nestjs/config';
+import { AllConfigType } from '@app/common/configs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.API_GATEWAY_PORT);
 
-  // app.connectMicroservice<MicroserviceOptions>({
-  //   transport: Transport.GRPC,
-  //   options: {
-  //     package: ORDER_PACKAGE_NAME,
-  //     protoPath: './order.proto',
-  //     url: `${process.env.ORDER_GRPC_HOST}:${process.env.ORDER_GRPC_PORT}`,
-  //   },
-  // });
-  // await app.startAllMicroservices();
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  const configService = app.get(ConfigService<AllConfigType>);
+
+  app.useLogger(app.get(LoggerService));
+  app.useGlobalPipes(new ValidationPipe(validationOptions));
+
+  /**
+    ResolvePromisesInterceptor is used to resolve promises in responses 
+    because class-transformer can't do it.
+    https://github.com/typestack/class-transformer/issues/549
+   */
+  app.useGlobalInterceptors(
+    new ResolvePromisesInterceptor(),
+    new ClassSerializerInterceptor(app.get(Reflector)),
+  );
+
+  await app.listen(configService.get('app.apiGatewayPort', { infer: true }));
 }
-bootstrap();
+
+void bootstrap();

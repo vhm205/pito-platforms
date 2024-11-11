@@ -14,13 +14,13 @@ services:
   #     - platform_net
   #   ports:
   #     - "5432:5432"
-  
+
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - '5672:5672'
+      - '15672:15672'
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -28,34 +28,24 @@ services:
       - /var/lib/rabbitmq_data:/var/lib/rabbitmq
     networks:
       - platform_net
-  
+
   redis:
     image: redis:alpine
     container_name: redis
     ports:
-      - "6379:6379"
+      - '6379:6379'
+    # command: redis-server --appendonly yes
     volumes:
-      - redis_data:/data
+      - /var/lib/redis_data:/data
     networks:
       - platform_net
-
-  # review-service:
-  #   build:
-  #     context: ../backend/review-service
-  #     dockerfile: Dockerfile
-  #   container_name: review-service
-  #   env_file:
-  #     - ../backend/review-service/.env
-  #   depends_on:
-  #     - postgres
-  #   ports:
-  #     - "3000:3000"
 
 volumes:
   # postgres-data:
   rabbitmq_data:
-    driver: local
+    # driver: local
   redis_data:
+    # driver: local
 
 networks:
   platform_net:

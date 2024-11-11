@@ -1,6 +1,7 @@
+import 'dotenv/config';
 import { join } from 'path';
 
-import { USER_PACKAGE_NAME } from '@app/common';
+import { LoggerService, USER_PACKAGE_NAME } from '@app/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
@@ -12,8 +13,11 @@ async function bootstrap() {
     options: {
       package: USER_PACKAGE_NAME,
       protoPath: join(__dirname, '../user.proto'),
+      url: `0.0.0.0:${process.env.USER_GRPC_PORT}`,
     },
   });
+  app.useLogger(app.get(LoggerService));
   await app.listen();
 }
-bootstrap();
+
+void bootstrap();

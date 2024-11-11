@@ -1,5 +1,7 @@
 import { User } from '@app/common';
-import { Controller, Get, Param, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Controller, Get, Param, HttpCode, HttpStatus, Query, Inject } from '@nestjs/common';
+import { RedisStore } from 'cache-manager-redis-yet';
 
 import { GetListOrderDto, getListOrderSchema } from './dto/get-list-order.dto';
 import { OrdersService } from './orders.service';
@@ -9,7 +11,19 @@ import { ZodValidationPipe } from '../../pipes/zod-validation.pipe';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    @Inject(CACHE_MANAGER) private cacheManager: RedisStore,
+  ) {}
+
+  @Get('test')
+  async test() {
+    await this.cacheManager.set('key', '1.0.34', 100 * 1000);
+
+    const result = await this.cacheManager.get('key');
+
+    return { result };
+  }
 
   @Get()
   @Auth([])

@@ -27,6 +27,9 @@
       ],
       "@app/common/*": [
         "libs/common/src/*"
+      ],
+      "@gateway/*": [
+        "apps/api-gateway/src/*"
       ]
     }
   }

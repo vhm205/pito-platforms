@@ -1,0 +1,64 @@
+version: '3.8'
+services:
+  api-gateway:
+    build:
+      context: ./
+      dockerfile: ./apps/api-gateway/Dockerfile
+    container_name: api-gateway
+    env_file:
+      - .env
+    ports:
+      - '80:3000'
+      - '443:3000'
+    networks:
+      - platform_net
+
+  user-service:
+    build:
+      context: ./
+      dockerfile: ./apps/user-service/Dockerfile
+    container_name: user-service
+    env_file:
+      - .env
+    ports:
+      - '5003:5003'
+    networks:
+      - platform_net
+
+  order-service:
+    build:
+      context: ./
+      dockerfile: ./apps/order-service/Dockerfile
+    container_name: order-service
+    env_file:
+      - .env
+    ports:
+      - '5001:5001'
+    networks:
+      - platform_net
+
+  billing-service:
+    build:
+      context: ./
+      dockerfile: ./apps/billing-service/Dockerfile
+    container_name: billing-service
+    env_file:
+      - .env
+    ports:
+      - '5002:5002'
+    networks:
+      - platform_net
+
+  notification-service:
+    build:
+      context: ./
+      dockerfile: ./apps/notification-service/Dockerfile
+    container_name: notification-service
+    env_file:
+      - .env
+    networks:
+      - platform_net
+
+networks:
+  platform_net:
+    driver: bridge

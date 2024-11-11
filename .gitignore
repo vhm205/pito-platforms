@@ -76,6 +76,7 @@ web_modules/
 .env
 .env.development.local
 .env.test.local
+.env.staging.local
 .env.production.local
 .env.local
 
@@ -131,3 +132,7 @@ dist
 
 .DS_Store
 .tmp-lint-staged-files
+.tmp-lint-staged-files-changed
+
+# IDE
+.idea
