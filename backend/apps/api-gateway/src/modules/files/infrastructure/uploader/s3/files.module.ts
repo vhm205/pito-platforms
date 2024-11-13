@@ -1,14 +1,17 @@
-import { S3Client } from '@aws-sdk/client-s3';
 import { AllConfigType } from '@app/common/configs';
+import { S3Client } from '@aws-sdk/client-s3';
 import { HttpStatus, Module, UnprocessableEntityException } from '@nestjs/common';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MulterModule } from '@nestjs/platform-express';
 import * as multerS3 from 'multer-s3';
 
+// eslint-disable-next-line max-len
+import { RelationalFilesPersistenceModule } from '../../persistence/relational/relational-persistence.module';
+
 import { FilesS3Controller } from './files.controller';
 import { FilesS3Service } from './files.service';
-import { RelationalFilesPersistenceModule } from '../../persistence/relational/relational-persistence.module';
+// eslint-disable-next-line max-len
 
 @Module({
   imports: [
@@ -30,9 +33,9 @@ import { RelationalFilesPersistenceModule } from '../../persistence/relational/r
         });
 
         return {
-          fileFilter: (_req, file, callback) => {
+          fileFilter: (_req, file, resolve) => {
             if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
-              return callback(
+              return resolve(
                 new UnprocessableEntityException({
                   status: HttpStatus.UNPROCESSABLE_ENTITY,
                   errors: {
@@ -42,7 +45,7 @@ import { RelationalFilesPersistenceModule } from '../../persistence/relational/r
                 false,
               );
             }
-            callback(null, true);
+            resolve(null, true);
           },
           storage: multerS3({
             s3,
@@ -50,8 +53,8 @@ import { RelationalFilesPersistenceModule } from '../../persistence/relational/r
               infer: true,
             }),
             contentType: multerS3.AUTO_CONTENT_TYPE,
-            key: (_req, file, callback) => {
-              callback(
+            key: (_req, file, resolve) => {
+              resolve(
                 null,
                 `${randomStringGenerator()}.${file.originalname.split('.').pop()?.toLowerCase()}`,
               );

@@ -1,7 +1,7 @@
+import { LoggerService } from '@app/common';
 import { NestFactory } from '@nestjs/core';
 
 import { PromotionServiceModule } from './promotion-service.module';
-import { LoggerService } from '@app/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(PromotionServiceModule);

@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrderEntity } from './entities/order.entity';
+
 import { OrderRepository } from '../order.repository';
+
+import { OrderEntity } from './entities/order.entity';
 import { OrderRelationalRepository } from './repositories/order.repository';
 
 @Module({

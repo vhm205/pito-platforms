@@ -1,15 +1,15 @@
 import { join } from 'path';
 
 import { ORDER_SERVICE, ORDER_PACKAGE_NAME } from '@app/common';
+import { AllConfigType } from '@app/common/configs';
 import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { redisStore } from 'cache-manager-redis-yet';
 
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AllConfigType } from '@app/common/configs';
 
 @Module({
   imports: [

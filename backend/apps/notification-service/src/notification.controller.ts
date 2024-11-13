@@ -22,6 +22,7 @@ export class NotificationController {
 
       channel.ack(originalMessage);
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log('error', error);
       channel.nack(originalMessage, false, true);
     }

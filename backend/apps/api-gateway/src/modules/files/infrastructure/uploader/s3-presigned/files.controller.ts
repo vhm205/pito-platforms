@@ -1,6 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { FilesS3PresignedService } from './files.service';
+
 import { FileUploadDto } from './dto/file.dto';
+import { FilesS3PresignedService } from './files.service';
 
 @Controller('files')
 export class FilesS3PresignedController {
