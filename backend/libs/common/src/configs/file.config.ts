@@ -1,6 +1,7 @@
-import { validateConfig } from './validate-config';
 import { registerAs } from '@nestjs/config';
 import { IsEnum, IsString, ValidateIf } from 'class-validator';
+
+import { validateConfig } from './validate-config';
 
 export enum FileDriver {
   LOCAL = 'local',
@@ -38,6 +39,7 @@ class ConfigVariablesValidator {
   AWS_S3_REGION: string;
 }
 
+// eslint-disable-next-line import/no-default-export
 export default registerAs<FileConfig>('file', () => {
   validateConfig(process.env, ConfigVariablesValidator);
 

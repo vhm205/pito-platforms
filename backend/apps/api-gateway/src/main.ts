@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import { LoggerService } from '@app/common';
+import { AllConfigType } from '@app/common/configs';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { useContainer } from 'class-validator';
 
@@ -9,8 +11,6 @@ import './instrument';
 import { AppModule } from './app.module';
 import { ResolvePromisesInterceptor } from './utils/serializer.interceptor';
 import { validationOptions } from './utils/validation-options';
-import { ConfigService } from '@nestjs/config';
-import { AllConfigType } from '@app/common/configs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

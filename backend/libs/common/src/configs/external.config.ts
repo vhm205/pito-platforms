@@ -1,6 +1,7 @@
 import { registerAs } from '@nestjs/config';
-import { validateConfig } from './validate-config';
 import { IsString } from 'class-validator';
+
+import { validateConfig } from './validate-config';
 
 export type ExternalConfig = {
   sentry: {
@@ -49,6 +50,7 @@ class ExternalVariablesValidator {
   AHAMOVE_ORDER_EVENTS_API_KEY: string;
 }
 
+// eslint-disable-next-line import/no-default-export
 export default registerAs<ExternalConfig>('external', () => {
   validateConfig(process.env, ExternalVariablesValidator);
 

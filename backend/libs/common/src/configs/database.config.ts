@@ -1,6 +1,7 @@
-import { validateConfig } from './validate-config';
 import { registerAs } from '@nestjs/config';
 import { IsBoolean, IsInt, IsOptional, IsString, ValidateIf } from 'class-validator';
+
+import { validateConfig } from './validate-config';
 
 class DatabaseVariablesValidator {
   @ValidateIf(envValues => envValues.DATABASE_URL)
@@ -78,6 +79,7 @@ export type DatabaseConfig = {
   cert?: string;
 };
 
+// eslint-disable-next-line import/no-default-export
 export default registerAs<DatabaseConfig>('database', () => {
   validateConfig(process.env, DatabaseVariablesValidator);
 

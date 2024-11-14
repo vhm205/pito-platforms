@@ -1,8 +1,9 @@
 import { pagePagination } from '@app/common';
-import { Injectable } from '@nestjs/common';
-import { OrderRepository } from './infrastructure/persistence/order.repository';
 import { PaginationOptions } from '@app/common/types/common';
+import { Injectable } from '@nestjs/common';
+
 import { FilterOrderDto, SortOrderDto } from './dto';
+import { OrderRepository } from './infrastructure/persistence/order.repository';
 
 @Injectable()
 export class OrderService {

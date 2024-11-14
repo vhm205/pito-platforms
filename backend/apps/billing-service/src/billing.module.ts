@@ -1,10 +1,10 @@
+import { LoggerModule } from '@app/common';
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import * as dotenv from 'dotenv';
 
 import { BillingController } from './billing.controller';
 import { BillingService } from './billing.service';
-import { LoggerModule } from '@app/common';
 
 dotenv.config();
 

@@ -1,8 +1,8 @@
+import { LoggerModule } from '@app/common';
 import { Module } from '@nestjs/common';
 
 import { NotificationController } from './notification.controller';
 import { NotificationService } from './notification.service';
-import { LoggerModule } from '@app/common';
 
 @Module({
   imports: [
