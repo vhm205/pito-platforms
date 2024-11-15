@@ -1,7 +1,11 @@
-import { OrdersServiceControllerMethods } from '@app/common';
+import {
+  OrderResponse,
+  OrdersServiceControllerMethods,
+  OrderUpdateResponse,
+  OrderUpdateStatusDto,
+} from '@app/common';
 import {
   FindOneOrderDto,
-  Order,
   OrderFilterDto,
   Orders,
   OrdersServiceController,
@@ -19,6 +23,12 @@ import { OrderService } from './order.service';
 export class OrderController implements OrdersServiceController {
   constructor(private readonly orderService: OrderService) {}
 
+  updateOrderStatus(
+    request: OrderUpdateStatusDto,
+  ): Promise<OrderUpdateResponse> | OrderUpdateResponse {
+    return this.orderService.updateOrderStatus(request);
+  }
+
   async findOrders(dto: OrderFilterDto): Promise<Orders> {
     // eslint-disable-next-line no-console
     console.log('Finding orders', { metadata: dto });
@@ -26,10 +36,11 @@ export class OrderController implements OrdersServiceController {
     return Promise.resolve({ orders: [], total: 0 });
   }
 
-  async findOneOrder(dto: FindOneOrderDto): Promise<Order | null> {
+  async findOneOrder(dto: FindOneOrderDto): Promise<OrderResponse> {
     // eslint-disable-next-line no-console
     console.log('Finding order', { metadata: dto });
-    return Promise.resolve(null);
+    await Promise.resolve(null);
+    return { data: undefined };
   }
 
   async findOrdersWithPagination(args: QueryOrderWithPagination): Promise<OrderWithPagination> {

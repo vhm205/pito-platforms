@@ -41,7 +41,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       firstName: user.firstName,
       lastName: user.lastName,
       roles: roleMappings?.clientMappings?.['application-cli']?.mappings || [],
-    };
+    } as AuthUser;
 
     return authUser;
   }

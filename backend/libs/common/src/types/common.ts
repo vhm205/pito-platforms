@@ -12,3 +12,13 @@ export type PaginationOptions = {
   page: number;
   pageSize: number;
 };
+
+export interface RetryOptions {
+  maxRetries?: number;
+  delay?: number;
+  backoff?: number;
+}
+
+export interface RetryOperationParams {
+  attempt: number;
+}

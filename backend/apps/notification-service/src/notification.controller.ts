@@ -1,32 +1,48 @@
-import { EmailSentDto } from '@app/common';
+import { LoggerService, SendNotificationDto } from '@app/common';
+import { Channel } from '@app/common/enums';
+import { ZodValidationPipe } from '@app/common/pipes';
 import { Controller } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import * as Sentry from '@sentry/nestjs';
 
+import { sendNotificationSchema } from './dtos/send-notification.dto';
 import { NotificationService } from './notification.service';
 
 @Controller()
 export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(
+    private readonly notificationService: NotificationService,
+    private readonly logger: LoggerService,
+  ) {}
 
-  @EventPattern('email-sent')
-  async sendEmail(
-    @Payload() emailSentDto: EmailSentDto,
+  @EventPattern('notification.sent')
+  async sendNotification(
+    @Payload(new ZodValidationPipe(sendNotificationSchema)) payload: SendNotificationDto,
     @Ctx() context: RmqContext,
-  ): Promise<{ status: boolean; error?: string }> {
+  ) {
     const channel = context.getChannelRef();
-
     const originalMessage = context.getMessage();
 
     try {
-      await this.notificationService.sendEmail(emailSentDto);
+      const { channels, message } = payload;
+
+      const asyncSendNotifications = channels.map(channel => {
+        switch (channel) {
+          case Channel.EMAIL: {
+            return this.notificationService.sendEmail(message.email!);
+          }
+          case Channel.PUSH: {
+            return this.notificationService.pushNotification(message.pushNotification!);
+          }
+        }
+      });
+      await Promise.all(asyncSendNotifications);
 
       channel.ack(originalMessage);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log('error', error);
-      channel.nack(originalMessage, false, true);
+      this.logger.error('Failed to process send notification', error);
+      Sentry.captureException(error);
+      channel.nack(originalMessage, false, false);
     }
-
-    return { status: true };
   }
 }
