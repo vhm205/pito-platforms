@@ -62,6 +62,7 @@ After writing code, ensure to run the following commands to maintain code qualit
 
 ```bash
 $ yarn lint
+
 $ yarn format
 ```
 
