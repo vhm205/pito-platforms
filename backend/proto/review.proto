@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package review;
+
+service ReviewsService {
+  rpc FindReviews (Empty) returns (Empty);
+}
+
+message Empty {};
