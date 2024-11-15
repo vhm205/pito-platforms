@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { LoggerService } from '@app/common';
-import { AllConfigType } from '@app/common/configs';
+import { AllConfigType, AppConfig } from '@app/common/configs';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
@@ -31,7 +31,8 @@ async function bootstrap() {
     new ClassSerializerInterceptor(app.get(Reflector)),
   );
 
-  await app.listen(configService.get('app.apiGatewayPort', { infer: true }));
+  const PORT = configService.get<AppConfig>('app.apiGatewayPort', { infer: true });
+  await app.listen(PORT);
 }
 
 void bootstrap();

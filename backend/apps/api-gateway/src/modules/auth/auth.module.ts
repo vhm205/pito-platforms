@@ -53,7 +53,7 @@ import { PublicStrategy } from './public.stategy';
         const store = await redisStore({
           socket: {
             host: process.env.REDIS_HOST,
-            port: +process.env.REDIS_PORT,
+            port: +(process.env.REDIS_PORT as string),
           },
         });
 

@@ -4,6 +4,19 @@ import { IsString } from 'class-validator';
 import { validateConfig } from './validate-config';
 
 export type ExternalConfig = {
+  sendgrid: {
+    apiKey: string;
+    orderCreateTemplateId: string;
+    partnerApprovedTemplateId: string;
+    partnerCancelTemplateId: string;
+    orderInvoiceTemplateId: string;
+    customerCancelTemplateId: string;
+    orderCompletedTemplateId: string;
+    paymentFailedTemplateId: string;
+    payNotCompletedTemplateId: string;
+    refundCompletedTemplateId: string;
+    vnpayRefundCompletedTemplateId: string;
+  };
   sentry: {
     dsn: string;
   };
@@ -22,6 +35,39 @@ export type ExternalConfig = {
 };
 
 class ExternalVariablesValidator {
+  @IsString()
+  SENDGRID_API_KEY: string;
+
+  @IsString()
+  SENDGRID_ORDER_CREATE_TEMPLATE_ID: string;
+
+  @IsString()
+  SENDGRID_PARTNER_APPROVED_TEMPLATE_ID: string;
+
+  @IsString()
+  SENDGRID_PARTNER_CANCEL_TEMPLATE_ID: string;
+
+  @IsString()
+  SENDGRID_MAIL_INVOICE_TEMPLATE_ID: string;
+
+  @IsString()
+  SENDGRID_CUSTOMER_CANCEL_TEMPLATE_ID: string;
+
+  @IsString()
+  SENDGRID_ORDER_COMPLETED_TEMPLATE_ID: string;
+
+  @IsString()
+  SENDGRID_PAYMENT_FAILED_TEMPLATE_ID: string;
+
+  @IsString()
+  SENDGRID_PAY_NOT_COMPLETED_TEMPLATE_ID: string;
+
+  @IsString()
+  SENDGRID_REFUND_COMPLETED_TEMPLATE_ID: string;
+
+  @IsString()
+  SENDGRID_VNPAY_REFUND_COMPLETED_TEMPLATE_ID: string;
+
   @IsString()
   SENTRY_DSN: string;
 
@@ -55,20 +101,33 @@ export default registerAs<ExternalConfig>('external', () => {
   validateConfig(process.env, ExternalVariablesValidator);
 
   return {
+    sendgrid: {
+      apiKey: process.env.SENDGRID_API_KEY!,
+      orderCreateTemplateId: process.env.SENDGRID_ORDER_CREATE_TEMPLATE_ID!,
+      partnerApprovedTemplateId: process.env.SENDGRID_PARTNER_APPROVED_TEMPLATE_ID!,
+      partnerCancelTemplateId: process.env.SENDGRID_PARTNER_CANCEL_TEMPLATE_ID!,
+      orderInvoiceTemplateId: process.env.SENDGRID_MAIL_INVOICE_TEMPLATE_ID!,
+      customerCancelTemplateId: process.env.SENDGRID_CUSTOMER_CANCEL_TEMPLATE_ID!,
+      orderCompletedTemplateId: process.env.SENDGRID_ORDER_COMPLETED_TEMPLATE_ID!,
+      paymentFailedTemplateId: process.env.SENDGRID_PAYMENT_FAILED_TEMPLATE_ID!,
+      payNotCompletedTemplateId: process.env.SENDGRID_PAY_NOT_COMPLETED_TEMPLATE_ID!,
+      refundCompletedTemplateId: process.env.SENDGRID_REFUND_COMPLETED_TEMPLATE_ID!,
+      vnpayRefundCompletedTemplateId: process.env.SENDGRID_VNPAY_REFUND_COMPLETED_TEMPLATE_ID!,
+    },
     sentry: {
-      dsn: process.env.SENTRY_DSN,
+      dsn: process.env.SENTRY_DSN!,
     },
     supabase: {
-      url: process.env.SUPABASE_URL,
-      anonKey: process.env.SUPABASE_ANON_KEY,
-      serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-      jwtSecret: process.env.SUPABASE_JWT_SECRET,
+      url: process.env.SUPABASE_URL!,
+      anonKey: process.env.SUPABASE_ANON_KEY!,
+      serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      jwtSecret: process.env.SUPABASE_JWT_SECRET!,
     },
     ahamove: {
-      apiKey: process.env.AHAMOVE_API_KEY,
-      serviceId: process.env.AHAMOVE_SERVICE_ID,
-      systemToken: process.env.AHAMOVE_SYSTEM_TOKEN,
-      orderEventsApiKey: process.env.AHAMOVE_ORDER_EVENTS_API_KEY,
+      apiKey: process.env.AHAMOVE_API_KEY!,
+      serviceId: process.env.AHAMOVE_SERVICE_ID!,
+      systemToken: process.env.AHAMOVE_SYSTEM_TOKEN!,
+      orderEventsApiKey: process.env.AHAMOVE_ORDER_EVENTS_API_KEY!,
     },
   };
 });

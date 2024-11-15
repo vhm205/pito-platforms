@@ -19,6 +19,7 @@ async function bootstrap() {
         durable: true,
       },
       noAck: false,
+      persistent: true,
       prefetchCount: 1,
     },
   });

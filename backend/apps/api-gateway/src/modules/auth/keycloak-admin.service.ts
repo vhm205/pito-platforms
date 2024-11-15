@@ -26,7 +26,7 @@ export class KeycloakAdminService implements OnModuleInit {
       username: this.configService.get<string>('KEYCLOAK_ADMIN_USERNAME'),
       password: this.configService.get<string>('KEYCLOAK_ADMIN_PASSWORD'),
       grantType: 'password',
-      clientId: this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_ID'),
+      clientId: this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_ID') as string,
       clientSecret: this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_SECRET'),
     });
   }
@@ -44,7 +44,7 @@ export class KeycloakAdminService implements OnModuleInit {
           username: this.configService.get<string>('KEYCLOAK_ADMIN_USERNAME'),
           password: this.configService.get<string>('KEYCLOAK_ADMIN_PASSWORD'),
           grantType: 'password',
-          clientId: this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_ID'),
+          clientId: this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_ID') as string,
           clientSecret: this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_SECRET'),
         });
       }

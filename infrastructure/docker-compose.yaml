@@ -41,7 +41,6 @@ services:
       - platform_net
 
 volumes:
-  # postgres-data:
   rabbitmq_data:
     # driver: local
   redis_data:

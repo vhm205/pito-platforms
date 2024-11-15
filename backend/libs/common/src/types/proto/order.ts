@@ -12,6 +12,22 @@ export enum SortDirection {
   UNRECOGNIZED = -1,
 }
 
+export interface OrderResponse {
+  data?: Order | undefined;
+}
+
+export interface OrderUpdateStatusDto {
+  orderId: string;
+  status: string;
+  reason?: string | undefined;
+}
+
+export interface OrderUpdateResponse {
+  message: string;
+  statusCode: number;
+  success: boolean;
+}
+
 export interface OrderFilterDto {
   userId: string;
   keyword: string;
@@ -143,17 +159,25 @@ wrappers['.google.protobuf.Timestamp'] = {
 } as any;
 
 export interface OrdersServiceClient {
+  updateOrderStatus(request: OrderUpdateStatusDto): Observable<OrderUpdateResponse>;
+
   findOrders(request: OrderFilterDto): Observable<Orders>;
 
-  findOneOrder(request: FindOneOrderDto): Observable<Order>;
+  findOneOrder(request: FindOneOrderDto): Observable<OrderResponse>;
 
   findOrdersWithPagination(request: QueryOrderWithPagination): Observable<OrderWithPagination>;
 }
 
 export interface OrdersServiceController {
+  updateOrderStatus(
+    request: OrderUpdateStatusDto,
+  ): Promise<OrderUpdateResponse> | Observable<OrderUpdateResponse> | OrderUpdateResponse;
+
   findOrders(request: OrderFilterDto): Promise<Orders> | Observable<Orders> | Orders;
 
-  findOneOrder(request: FindOneOrderDto): Promise<Order> | Observable<Order> | Order;
+  findOneOrder(
+    request: FindOneOrderDto,
+  ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
 
   findOrdersWithPagination(
     request: QueryOrderWithPagination,
@@ -162,7 +186,12 @@ export interface OrdersServiceController {
 
 export function OrdersServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['findOrders', 'findOneOrder', 'findOrdersWithPagination'];
+    const grpcMethods: string[] = [
+      'updateOrderStatus',
+      'findOrders',
+      'findOneOrder',
+      'findOrdersWithPagination',
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod('OrdersService', method)(constructor.prototype[method], method, descriptor);
