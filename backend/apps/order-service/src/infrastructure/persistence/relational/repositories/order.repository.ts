@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { FindOptionsWhere, Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import { LoggerService } from '@app/common';
 import { NullableType, PaginationOptions } from '@app/common/types/common';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+// eslint-disable-next-line import/named
+import { FindOptionsWhere, Repository } from 'typeorm';
+
+import { Order } from '../../../../domain/order';
+import { FilterOrderDto, SortOrderDto } from '../../../../dto';
 import { OrderRepository } from '../../order.repository';
 import { OrderEntity } from '../entities/order.entity';
 import { OrderMapper } from '../mappers/order.mapper';
-import { FilterOrderDto, SortOrderDto } from '../../../../dto';
-import { Order } from '../../../../domain/order';
 
 @Injectable()
 export class OrderRelationalRepository implements OrderRepository {
@@ -29,7 +31,8 @@ export class OrderRelationalRepository implements OrderRepository {
 
   async findOrdersByUserId(userId: string): Promise<Order[]> {
     this.logger.log('Finding orders by userId', { metadata: userId });
-    const entities = await this.orderRepository.find(); // TODO: Add where clause to filter by userId
+    // TODO: Add where clause to filter by userId
+    const entities = await this.orderRepository.find();
 
     return entities.map(entity => OrderMapper.toDomain(entity));
   }

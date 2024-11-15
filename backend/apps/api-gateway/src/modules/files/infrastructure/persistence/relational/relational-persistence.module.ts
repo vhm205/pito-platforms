@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+
 import { FileRepository } from '../file.repository';
+
 import { FileRelationalRepository } from './repositories/file.repository';
 
 @Module({

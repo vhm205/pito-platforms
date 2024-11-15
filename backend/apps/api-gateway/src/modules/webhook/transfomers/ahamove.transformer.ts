@@ -1,12 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { LoggerService } from '@app/common';
 import {
   WebhookEvent,
   AhamoveOrderCallback,
   OrderEvent,
   OrderEventData,
 } from '@gateway/modules/webhook/types';
+import { Injectable } from '@nestjs/common';
+
 import { WebhookEventTransformer } from './transformer.interface';
-import { LoggerService } from '@app/common';
 
 @Injectable()
 export class AhamoveOrderTransformer implements WebhookEventTransformer<OrderEventData> {

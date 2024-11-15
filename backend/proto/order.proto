@@ -5,9 +5,26 @@ package order;
 import "google/protobuf/timestamp.proto";
 
 service OrdersService {
+  rpc UpdateOrderStatus (OrderUpdateStatusDto) returns (OrderUpdateResponse);
   rpc FindOrders (OrderFilterDto) returns (Orders);
-  rpc FindOneOrder (FindOneOrderDto) returns (Order);
+  rpc FindOneOrder (FindOneOrderDto) returns (OrderResponse);
   rpc FindOrdersWithPagination (QueryOrderWithPagination) returns (OrderWithPagination);
+}
+
+message OrderResponse {
+  optional Order data = 1;
+}
+
+message OrderUpdateStatusDto {
+  string order_id = 1;
+  string status = 2;
+  optional string reason = 3;
+}
+
+message OrderUpdateResponse {
+  string message = 1;
+  int32 statusCode = 2;
+  bool success = 3;
 }
 
 message OrderFilterDto {

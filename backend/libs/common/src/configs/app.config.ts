@@ -1,6 +1,7 @@
-import { validateConfig } from './validate-config';
 import { registerAs } from '@nestjs/config';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+
+import { validateConfig } from './validate-config';
 
 export enum Environment {
   Development = 'development',
@@ -66,6 +67,7 @@ class AppVariablesValidator {
   RABBITMQ_VHOST: string;
 }
 
+// eslint-disable-next-line import/no-default-export
 export default registerAs<AppConfig>('app', () => {
   validateConfig(process.env, AppVariablesValidator);
 
@@ -75,14 +77,14 @@ export default registerAs<AppConfig>('app', () => {
       ? parseInt(process.env.API_GATEWAY_PORT, 10)
       : 3000,
 
-    userGrpcUrl: process.env.USER_GRPC_HOST.concat(':', process.env.USER_GRPC_PORT),
-    orderGrpcUrl: process.env.ORDER_GRPC_HOST.concat(':', process.env.ORDER_GRPC_PORT),
-    billingGrpcUrl: process.env.BILLING_GRPC_HOST.concat(':', process.env.BILLING_GRPC_PORT),
+    userGrpcUrl: process.env.USER_GRPC_HOST!.concat(':', process.env.USER_GRPC_PORT!),
+    orderGrpcUrl: process.env.ORDER_GRPC_HOST!.concat(':', process.env.ORDER_GRPC_PORT!),
+    billingGrpcUrl: process.env.BILLING_GRPC_HOST!.concat(':', process.env.BILLING_GRPC_PORT!),
 
-    rabbitmqHost: process.env.RABBITMQ_HOST,
+    rabbitmqHost: process.env.RABBITMQ_HOST!,
     rabbitmqPort: process.env.RABBITMQ_PORT ? parseInt(process.env.RABBITMQ_PORT, 10) : 5672,
-    rabbitmqUser: process.env.RABBITMQ_USER,
-    rabbitmqPass: process.env.RABBITMQ_PASS,
-    rabbitmqVhost: process.env.RABBITMQ_VHOST,
+    rabbitmqUser: process.env.RABBITMQ_USER!,
+    rabbitmqPass: process.env.RABBITMQ_PASS!,
+    rabbitmqVhost: process.env.RABBITMQ_VHOST!,
   };
 });

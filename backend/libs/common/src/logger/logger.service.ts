@@ -1,9 +1,11 @@
 import 'dotenv/config';
-import { Injectable, LoggerService as NestjsLoggerService } from '@nestjs/common';
-import { LoggerOptions, LogMetadata } from './logger.interface';
-import * as winston from 'winston';
 import * as path from 'path';
+
+import { Injectable, LoggerService as NestjsLoggerService } from '@nestjs/common';
+import * as winston from 'winston';
 import * as DailyRotateFile from 'winston-daily-rotate-file';
+
+import { LoggerOptions, LogMetadata } from './logger.interface';
 
 @Injectable()
 export class LoggerService implements NestjsLoggerService {
@@ -26,13 +28,17 @@ export class LoggerService implements NestjsLoggerService {
           winston.format.timestamp({ format: 'YYYY-MM-DDTHH:mm:ss.sssZ' }),
           winston.format.printf(({ level, message, timestamp, context, trace, extra }) => {
             const contextPart = context ? ` ${context}` : '';
-            return `${timestamp} ${service} ${level.toUpperCase()}${contextPart}: ${message}${trace ?? ''}${extra ?? ''}`;
+            return [
+              `${timestamp} ${service} ${level.toUpperCase()}${contextPart}: ${message}`,
+              trace ?? '',
+              extra ?? '',
+            ].join('');
           }),
         ),
       }),
     ];
 
-    if (['production', 'stage'].includes(process.env.NODE_ENV)) {
+    if (['production', 'stage'].includes(process.env.NODE_ENV!)) {
       transports.push(
         new DailyRotateFile({
           dirname: path.resolve(logPath),

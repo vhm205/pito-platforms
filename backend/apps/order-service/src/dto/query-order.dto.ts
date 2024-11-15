@@ -1,7 +1,8 @@
+import { DEFAULT_PAGE_LIMIT, DEFAULT_PAGE_NUMBER } from '@app/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { plainToInstance, Transform, Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { DEFAULT_PAGE_LIMIT, DEFAULT_PAGE_NUMBER } from '@app/common';
+
 import { Order } from '../domain';
 
 export class FilterOrderDto {

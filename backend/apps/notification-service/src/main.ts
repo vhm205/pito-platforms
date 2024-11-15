@@ -1,9 +1,9 @@
 import 'dotenv/config';
+import { LoggerService } from '@app/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 import { NotificationModule } from './notification.module';
-import { LoggerService } from '@app/common';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(NotificationModule, {
@@ -19,6 +19,7 @@ async function bootstrap() {
         durable: true,
       },
       noAck: false,
+      persistent: true,
       prefetchCount: 1,
     },
   });

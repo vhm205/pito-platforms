@@ -33,7 +33,7 @@ export class UsersService {
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
-    return this.usersService.updateUser({ id, ...updateUserDto });
+    return this.usersService.updateUser({ ...updateUserDto, id });
   }
 
   remove(id: string) {

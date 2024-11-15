@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { WebhookEvent, OrderEvent, OrderEventData } from '@gateway/modules/webhook/types';
 import { LoggerService } from '@app/common';
+import { WebhookEvent, OrderEvent, OrderEventData } from '@gateway/modules/webhook/types';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class OrderEventsService {

@@ -25,7 +25,7 @@ steps:
         if git diff --name-only HEAD~1 | grep -q '^apps/common/'; then
           changed_services=\"all\"
         else
-          for service in api-gateway user-service order-service notification-service billing-service; do
+          for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
             if git diff --name-only HEAD~1 | grep -q \"backend/apps/\$service/\"; then
               changed_services=\"\$changed_services \$service\"
               echo \"Service changed: \$service\"
@@ -115,7 +115,7 @@ steps:
         echo \"\$services_message\"
 
         curl -X POST -H 'Content-Type: application/json' --data '{
-          \"text\": \"Deployment of services to ${_VM_INSTANCE_NAME} completed successfully.\"
+          \"text\": \"[Development] Deployment of services to ${_VM_INSTANCE_NAME} completed successfully.\"
         }' '$select_webhook_url'
         "
 

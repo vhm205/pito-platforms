@@ -1,16 +1,17 @@
+import { AllConfigType, FileConfig } from '@app/common/configs';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { FileType } from '@gateway/modules/files/domain/file';
+import { FileRepository } from '@gateway/modules/files/infrastructure/persistence/file.repository';
 import {
   HttpStatus,
   Injectable,
   PayloadTooLargeException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { FileRepository } from '@gateway/modules/files/infrastructure/persistence/file.repository';
-import { ConfigService } from '@nestjs/config';
-import { AllConfigType } from '@app/common/configs';
-import { FileType } from '@gateway/modules/files/domain/file';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { ConfigService } from '@nestjs/config';
+
 import { FileUploadDto } from './dto/file.dto';
 
 @Injectable()
@@ -21,11 +22,16 @@ export class FilesS3PresignedService {
     private readonly configService: ConfigService<AllConfigType>,
     private readonly fileRepository: FileRepository,
   ) {
+    const { awsS3Region, accessKeyId, secretAccessKey } = this.configService.get<FileConfig>(
+      'file',
+      { infer: true },
+    );
+
     this.s3 = new S3Client({
-      region: this.configService.get('file.awsS3Region', { infer: true }),
+      region: awsS3Region,
       credentials: {
-        accessKeyId: configService.get('file.accessKeyId', { infer: true }),
-        secretAccessKey: configService.get('file.secretAccessKey', { infer: true }),
+        accessKeyId,
+        secretAccessKey,
       },
     });
   }
@@ -48,7 +54,7 @@ export class FilesS3PresignedService {
       });
     }
 
-    const maxFileSize = this.configService.get('file.maxFileSize', { infer: true });
+    const maxFileSize = this.configService.get<FileConfig>('file.maxFileSize', { infer: true });
     if (file.fileSize > maxFileSize) {
       throw new PayloadTooLargeException({
         statusCode: HttpStatus.PAYLOAD_TOO_LARGE,

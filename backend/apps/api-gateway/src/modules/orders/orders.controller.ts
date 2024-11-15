@@ -1,13 +1,25 @@
-import { User } from '@app/common';
+import { OrderUpdateStatusDto, User } from '@app/common';
+import { RoleType } from '@gateway/constants';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Controller, Get, Param, HttpCode, HttpStatus, Query, Inject } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  HttpCode,
+  HttpStatus,
+  Query,
+  Inject,
+  Put,
+  Body,
+} from '@nestjs/common';
 import { RedisStore } from 'cache-manager-redis-yet';
 
-import { GetListOrderDto, getListOrderSchema } from './dto/get-list-order.dto';
-import { OrdersService } from './orders.service';
 import { AuthUser } from '../../decorators/auth-user.decorator';
 import { Auth } from '../../decorators/http.decorator';
 import { ZodValidationPipe } from '../../pipes/zod-validation.pipe';
+
+import { GetListOrderDto, getListOrderSchema } from './dto/get-list-order.dto';
+import { OrdersService } from './orders.service';
 
 @Controller('orders')
 export class OrdersController {
@@ -17,7 +29,24 @@ export class OrdersController {
   ) {}
 
   @Get('test')
+  @Auth([RoleType.CUSTOMER])
   async test() {
+    await this.cacheManager.set('key', '1.0.34', 100 * 1000);
+
+    const result = await this.cacheManager.get('key');
+
+    return { result };
+  }
+
+  @Put()
+  @HttpCode(HttpStatus.OK)
+  updateStatus(@Body() updateOrderDto: OrderUpdateStatusDto) {
+    return this.ordersService.updateOrderStatus(updateOrderDto);
+  }
+
+  @Get('test-partner')
+  @Auth([RoleType.PARTNER])
+  async testPartner() {
     await this.cacheManager.set('key', '1.0.34', 100 * 1000);
 
     const result = await this.cacheManager.get('key');

@@ -1,8 +1,8 @@
+import { LoggerModule } from '@app/common';
 import { Module } from '@nestjs/common';
 
 import { PromotionServiceController } from './promotion-service.controller';
 import { PromotionServiceService } from './promotion-service.service';
-import { LoggerModule } from '@app/common';
 
 @Module({
   imports: [
