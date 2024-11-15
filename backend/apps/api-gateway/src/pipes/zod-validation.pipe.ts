@@ -10,6 +10,7 @@ export class ZodValidationPipe implements PipeTransform {
 
       return parsedValue;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log('error', error);
       throw new BadRequestException(`Validation failed`);
     }

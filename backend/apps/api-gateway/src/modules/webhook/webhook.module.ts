@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
+import { join } from 'path';
 
-import { TransformerModule } from './transfomers';
+import { ORDER_PACKAGE_NAME, ORDER_SERVICE } from '@app/common';
+import { AllConfigType } from '@app/common/configs';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+
 import { AhamoveWebhookController } from './controllers';
 import { OrderEventsService } from './services';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ORDER_PACKAGE_NAME, ORDER_SERVICE } from '@app/common';
-import { join } from 'path';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AllConfigType } from '@app/common/configs';
+import { TransformerModule } from './transfomers';
 
 @Module({
   imports: [

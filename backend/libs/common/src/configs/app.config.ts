@@ -1,6 +1,7 @@
-import { validateConfig } from './validate-config';
 import { registerAs } from '@nestjs/config';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+
+import { validateConfig } from './validate-config';
 
 export enum Environment {
   Development = 'development',
@@ -66,6 +67,7 @@ class AppVariablesValidator {
   RABBITMQ_VHOST: string;
 }
 
+// eslint-disable-next-line import/no-default-export
 export default registerAs<AppConfig>('app', () => {
   validateConfig(process.env, AppVariablesValidator);
 

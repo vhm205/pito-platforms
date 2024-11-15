@@ -1,12 +1,12 @@
+import { LoggerModule } from '@app/common';
+import { AllConfigType, appConfig, databaseConfig } from '@app/common/configs';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AllConfigType, appConfig, databaseConfig } from '@app/common/configs';
 
 import { UserController } from './user.controller';
 import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
-import { LoggerModule } from '@app/common';
 
 @Module({
   imports: [

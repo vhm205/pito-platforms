@@ -8,8 +8,7 @@ services:
     env_file:
       - .env
     ports:
-      - '80:3000'
-      - '443:3000'
+      - '3000:3000'
     networks:
       - platform_net
 
@@ -56,6 +55,30 @@ services:
     container_name: notification-service
     env_file:
       - .env
+    networks:
+      - platform_net
+
+  review-service:
+    build:
+      context: ./
+      dockerfile: ./apps/review-service/Dockerfile
+    container_name: review-service
+    env_file:
+      - .env
+    ports:
+      - '5004:5004'
+    networks:
+      - platform_net
+
+  menu-service:
+    build:
+      context: ./
+      dockerfile: ./apps/menu-service/Dockerfile
+    container_name: menu-service
+    env_file:
+      - .env
+    ports:
+      - '5005:5005'
     networks:
       - platform_net
 

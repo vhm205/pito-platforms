@@ -11,8 +11,9 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 
-import { UsersService } from './users.service';
 import { Auth } from '../../decorators/http.decorator';
+
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {

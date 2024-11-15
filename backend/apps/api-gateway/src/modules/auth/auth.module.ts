@@ -1,17 +1,20 @@
 import { join } from 'path';
 
 import { USER_PACKAGE_NAME, USER_SERVICE } from '@app/common';
+import { AllConfigType } from '@app/common/configs';
+import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
+import { redisStore } from 'cache-manager-redis-yet';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.stategy';
+import { KeycloakAdminService } from './keycloak-admin.service';
 import { PublicStrategy } from './public.stategy';
-import { AllConfigType } from '@app/common/configs';
 
 @Module({
   imports: [
@@ -45,9 +48,23 @@ import { AllConfigType } from '@app/common/configs';
       }),
       inject: [ConfigService],
     }),
+    CacheModule.registerAsync({
+      useFactory: async () => {
+        const store = await redisStore({
+          socket: {
+            host: process.env.REDIS_HOST,
+            port: +(process.env.REDIS_PORT as string),
+          },
+        });
+
+        return {
+          store: store as unknown as CacheStore,
+        };
+      },
+    }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, PublicStrategy],
+  providers: [AuthService, JwtStrategy, PublicStrategy, KeycloakAdminService],
   exports: [JwtModule, AuthService],
 })
 export class AuthModule {}

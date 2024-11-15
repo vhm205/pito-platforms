@@ -102,6 +102,19 @@
         "watchAssets": true
       }
     },
+    "menu-service": {
+      "type": "application",
+      "root": "apps/menu-service",
+      "entryFile": "src/main",
+      "sourceRoot": "./",
+      "compilerOptions": {
+        "tsConfigPath": "apps/menu-service/tsconfig.app.json",
+        "assets": [
+          "proto/*.proto"
+        ],
+        "watchAssets": true
+      }
+    },
     "common": {
       "type": "library",
       "root": "libs/common",

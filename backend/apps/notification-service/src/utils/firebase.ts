@@ -1,7 +1,8 @@
-import { JWT, Credentials } from 'google-auth-library';
+import * as dotenv from 'dotenv';
 import { FirebaseError, initializeApp } from 'firebase-admin/app';
 import { getMessaging } from 'firebase-admin/messaging';
-import * as dotenv from 'dotenv';
+import { JWT, Credentials } from 'google-auth-library';
+
 import { FirebaseErrorType } from '../enums/firebase.enum';
 
 dotenv.config();

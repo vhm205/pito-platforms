@@ -1,5 +1,4 @@
 import { Order } from '../../../../domain/order';
-
 import { OrderEntity } from '../entities/order.entity';
 
 export class OrderMapper {

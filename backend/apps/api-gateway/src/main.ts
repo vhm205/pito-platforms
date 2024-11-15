@@ -1,10 +1,10 @@
 import 'dotenv/config';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
-import { NestFactory, Reflector } from '@nestjs/core';
-import { ConfigService } from '@nestjs/config';
-import { useContainer } from 'class-validator';
 import { LoggerService } from '@app/common';
-import type { AllConfigType, AppConfig } from '@app/common/configs';
+import { AllConfigType, AppConfig } from '@app/common/configs';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { useContainer } from 'class-validator';
 
 import './instrument';
 

@@ -62,6 +62,7 @@ After writing code, ensure to run the following commands to maintain code qualit
 
 ```bash
 $ yarn lint
+
 $ yarn format
 ```
 
@@ -70,6 +71,7 @@ $ yarn format
 ```bash
 # If you make changes to the .proto files, use the following command to regenerate the protobuf
 $ yarn generate:protobuf
+
 # Generate new application
 nest g app review-service
 
@@ -92,3 +94,4 @@ Check out a few resources that may come in handy when working with project:
 - [RabbitMQ](https://www.rabbitmq.com/docs)
 - [Redis](https://redis.io/docs/latest/)
 - [Commit Message Conventions](https://pitovn.atlassian.net/wiki/spaces/EW/pages/109740033/Commit+rules)
+- [The Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)

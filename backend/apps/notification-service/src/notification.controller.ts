@@ -1,12 +1,12 @@
+import { LoggerService, SendNotificationDto } from '@app/common';
+import { Channel } from '@app/common/enums';
+import { ZodValidationPipe } from '@app/common/pipes';
 import { Controller } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import * as Sentry from '@sentry/nestjs';
 
-import { Channel } from '@app/common/enums';
-import { LoggerService, SendNotificationDto } from '@app/common';
-import { ZodValidationPipe } from '@app/common/pipes';
-import { NotificationService } from './notification.service';
 import { sendNotificationSchema } from './dtos/send-notification.dto';
+import { NotificationService } from './notification.service';
 
 @Controller()
 export class NotificationController {

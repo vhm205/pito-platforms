@@ -1,15 +1,16 @@
+import { LoggerModule } from '@app/common';
+import { AllConfigType, appConfig, databaseConfig } from '@app/common/configs';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
 
+import { OrderEntity } from './infrastructure/persistence/relational/entities/order.entity';
+// eslint-disable-next-line max-len
+import { RelationalOrderPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
-import { AllConfigType, appConfig, databaseConfig } from '@app/common/configs';
-import { LoggerModule } from '@app/common';
-import { RelationalOrderPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
-import { OrderEntity } from './infrastructure/persistence/relational/entities/order.entity';
 
 dotenv.config();
 

@@ -3,6 +3,10 @@ export * from './proto/user';
 export * from './proto/billing';
 // @ts-expect-error: FIX: Duplicate protoBufName
 export * from './proto/order';
+// @ts-expect-error: FIX: Duplicate protoBufName
+export * from './proto/menu';
+// @ts-expect-error: FIX: Duplicate protoBufName
+export * from './proto/review';
 
 export * from './notification';
 

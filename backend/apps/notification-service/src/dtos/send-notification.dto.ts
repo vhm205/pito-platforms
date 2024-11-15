@@ -1,6 +1,6 @@
-import { z, ZodType } from 'zod';
 import { SendNotificationDto, PushNotificationDto, SendEmailDto } from '@app/common';
 import { Channel, PushType } from '@app/common/enums';
+import { z, ZodType } from 'zod';
 
 /**
  * PUSH NOTIFICATION
@@ -119,6 +119,7 @@ export const sendNotificationSchema = z
     },
     {
       message:
+        // eslint-disable-next-line max-len
         'Email message is required for email channel and pushNotification message is required for push channel',
       path: ['message'],
     },

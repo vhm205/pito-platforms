@@ -1,13 +1,12 @@
 import { pagePagination } from '@app/common';
-import { OrderRepository } from './infrastructure/persistence/order.repository';
+import { Channel } from '@app/common/enums';
+import { OrderUpdateStatusDto, SendNotificationDto } from '@app/common/types';
 import { PaginationOptions } from '@app/common/types/common';
-import { FilterOrderDto, SortOrderDto } from './dto';
-
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RmqRecordBuilder } from '@nestjs/microservices';
 
-import { OrderUpdateStatusDto, SendNotificationDto } from '@app/common/types';
-import { Channel } from '@app/common/enums';
+import { FilterOrderDto, SortOrderDto } from './dto';
+import { OrderRepository } from './infrastructure/persistence/order.repository';
 
 @Injectable()
 export class OrderService {
