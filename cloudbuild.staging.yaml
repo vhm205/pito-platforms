@@ -115,13 +115,13 @@ steps:
         echo \"\$services_message\"
 
         curl -X POST -H 'Content-Type: application/json' --data '{
-          \"text\": \"[Development] Deployment of services to ${_VM_INSTANCE_NAME} completed successfully.\"
+          \"text\": \"[Staging] Deployment of services to ${_VM_INSTANCE_NAME} completed successfully.\"
         }' '$select_webhook_url'
         "
 
 substitutions:
-  _BRANCH_NAME: 'develop'
-  _VM_INSTANCE_NAME: 'pito-platform-development'
+  _BRANCH_NAME: 'staging'
+  _VM_INSTANCE_NAME: 'pito-platform-staging'
   _ZONE: 'asia-southeast1-c'
 
 options:
