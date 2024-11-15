@@ -84,4 +84,4 @@ services:
 
 networks:
   platform_net:
-    driver: bridge
+    external: true
