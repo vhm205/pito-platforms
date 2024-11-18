@@ -1,9 +1,8 @@
-import { LoggerService } from '@app/common';
+import { CUSTOMER_DB_SOURCE, LoggerService } from '@app/common';
 import { NullableType, PaginationOptions } from '@app/common/types/common';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-// eslint-disable-next-line import/named
-import { FindOptionsWhere, Repository } from 'typeorm';
+import type { FindOptionsWhere, Repository } from 'typeorm';
 
 import { Order } from '../../../../domain/order';
 import { FilterOrderDto, SortOrderDto } from '../../../../dto';
@@ -15,7 +14,7 @@ import { OrderMapper } from '../mappers/order.mapper';
 export class OrderRelationalRepository implements OrderRepository {
   constructor(
     private readonly logger: LoggerService,
-    @InjectRepository(OrderEntity)
+    @InjectRepository(OrderEntity, CUSTOMER_DB_SOURCE)
     private orderRepository: Repository<OrderEntity>,
   ) {}
 

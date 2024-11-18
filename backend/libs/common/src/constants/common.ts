@@ -1,2 +1,5 @@
 export const DEFAULT_PAGE_LIMIT = 10;
 export const DEFAULT_PAGE_NUMBER = 1;
+
+export const CUSTOMER_DB_SOURCE = 'CUSTOMER_DB_SOURCE';
+export const PARTNER_DB_SOURCE = 'PARTNER_DB_SOURCE';
