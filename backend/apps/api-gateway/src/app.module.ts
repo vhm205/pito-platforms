@@ -7,6 +7,7 @@ import { SentryModule } from '@sentry/nestjs/setup';
 import { ClsModule } from 'nestjs-cls';
 
 import { CatchAllErrorInterceptor } from './interceptors/catch-all-error.interceptor';
+import { TransformResponseInterceptor } from './interceptors/transform-response.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
 import { FilesModule } from './modules/files/files.module';
 import { OrdersModule } from './modules/orders/orders.module';
@@ -41,6 +42,10 @@ import { WebhookModule } from './modules/webhook/webhook.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: CatchAllErrorInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformResponseInterceptor,
     },
   ],
 })

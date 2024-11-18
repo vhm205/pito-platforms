@@ -4,7 +4,7 @@ export interface ClientRole {
   description: string;
 }
 
-export interface AuthUser {
+export interface AuthenticatedUser {
   id: string;
   email: string;
   firstName: string;
