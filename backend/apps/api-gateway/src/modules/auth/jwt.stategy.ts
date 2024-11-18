@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { AuthUser } from './auth-user.interface';
+import { AuthenticatedUser } from './auth-user.interface';
 import { KeycloakAdminService } from './keycloak-admin.service';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(args: { sub: string }): Promise<AuthUser> {
+  async validate(args: { sub: string }): Promise<AuthenticatedUser> {
     // const observable = await this.usersService
     //   .findOneUser({ id: args.sub })
     //   .pipe(retry({ count: 3, delay: 3000 }));
@@ -41,7 +41,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       firstName: user.firstName,
       lastName: user.lastName,
       roles: roleMappings?.clientMappings?.['application-cli']?.mappings || [],
-    } as AuthUser;
+    } as AuthenticatedUser;
 
     return authUser;
   }
