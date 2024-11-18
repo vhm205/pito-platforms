@@ -1,4 +1,5 @@
-import { Order } from '../../../../domain/order';
+import { Order } from 'apps/order-service/src/domain';
+
 import { OrderEntity } from '../entities/order.entity';
 
 export class OrderMapper {
