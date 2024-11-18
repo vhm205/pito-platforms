@@ -1,4 +1,4 @@
-import { LoggerModule } from '@app/common';
+import { CUSTOMER_DB_SOURCE, PARTNER_DB_SOURCE, LoggerModule } from '@app/common';
 import { AllConfigType, appConfig, databaseConfig } from '@app/common/configs';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -7,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
 
 import { OrderEntity } from './infrastructure/persistence/relational/entities/order.entity';
-// eslint-disable-next-line max-len
+import { StoreOrderEntity } from './infrastructure/persistence/relational/entities/store-order.entity';
 import { RelationalOrderPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
@@ -25,7 +25,7 @@ dotenv.config();
       service: OrderService.name,
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+      name: CUSTOMER_DB_SOURCE,
       inject: [ConfigService],
       useFactory: (configService: ConfigService<AllConfigType>) => ({
         type: 'postgres',
@@ -37,7 +37,19 @@ dotenv.config();
         entities: [OrderEntity],
       }),
     }),
-    TypeOrmModule.forFeature([OrderEntity]),
+    TypeOrmModule.forRootAsync({
+      name: PARTNER_DB_SOURCE,
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.getOrThrow<string>('PARTNER_DB_HOST', { infer: true }),
+        port: configService.getOrThrow<number>('PARTNER_DB_PORT', { infer: true }),
+        username: configService.getOrThrow<string>('PARTNER_DB_USER', { infer: true }),
+        password: configService.getOrThrow<string>('PARTNER_DB_PASSWORD', { infer: true }),
+        database: configService.getOrThrow<string>('PARTNER_DB_NAME', { infer: true }),
+        entities: [StoreOrderEntity],
+      }),
+    }),
     RelationalOrderPersistenceModule,
     ClientsModule.register([
       {
