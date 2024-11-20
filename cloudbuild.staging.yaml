@@ -117,7 +117,7 @@ substitutions:
 
 options:
   substitution_option: ALLOW_LOOSE
-  timeout: '1200s'
+timeout: '1200s'
 
 source:
   repoSource:
