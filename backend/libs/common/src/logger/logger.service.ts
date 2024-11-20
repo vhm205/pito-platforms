@@ -80,19 +80,19 @@ export class LoggerService implements NestjsLoggerService {
     this.logger.info(message, this.formatMeta(metadata));
   }
 
-  error(message: string, metadata?: any) {
+  error(message: string, metadata?: LogMetadata) {
     this.logger.error(message, this.formatMeta(metadata));
   }
 
-  warn(message: string, metadata?: any) {
+  warn(message: string, metadata?: LogMetadata) {
     this.logger.warn(message, this.formatMeta(metadata));
   }
 
-  debug(message: string, metadata?: any) {
+  debug(message: string, metadata?: LogMetadata) {
     this.logger.debug(message, this.formatMeta(metadata));
   }
 
-  verbose(message: string, metadata?: any) {
+  verbose(message: string, metadata?: LogMetadata) {
     this.logger.verbose(message, this.formatMeta(metadata));
   }
 }

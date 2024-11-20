@@ -1,25 +1,33 @@
 import { CUSTOMER_DB_SOURCE, PARTNER_DB_SOURCE, LoggerModule } from '@app/common';
-import { AllConfigType, appConfig, databaseConfig } from '@app/common/configs';
+import {
+  AllConfigType,
+  Environment,
+  appConfig,
+  databaseConfig,
+  externalConfig,
+} from '@app/common/configs';
+import { GlobalRpcExceptionFilter } from '@app/common/filters';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import * as dotenv from 'dotenv';
 
 import { OrderEntity } from './infrastructure/persistence/relational/entities/order.entity';
 import { StoreOrderEntity } from './infrastructure/persistence/relational/entities/store-order.entity';
+import { StoreEntity } from './infrastructure/persistence/relational/entities/store.entity';
 import { RelationalOrderPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+import { NotificationService } from './notification.service';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
-
-dotenv.config();
+import { StoreOrderService } from './store-order.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
-      load: [appConfig, databaseConfig],
+      load: [appConfig, databaseConfig, externalConfig],
     }),
     LoggerModule.forRoot({
       service: OrderService.name,
@@ -34,6 +42,18 @@ dotenv.config();
         username: configService.get('database.username', { infer: true }),
         password: configService.get('database.password', { infer: true }),
         database: configService.get('database.name', { infer: true }),
+        logging: configService.get('app.nodeEnv', { infer: true }) !== Environment.PRODUCTION,
+        // synchronize: configService.get('database.synchronize', { infer: true }),
+        // dropSchema: false,
+        // extra: {
+        //   max: configService.get('database.maxConnections', { infer: true }),
+        //   ssl: configService.get('database.sslEnabled', { infer: true }) && {
+        //     rejectUnauthorized: configService.get('database.rejectUnauthorized', { infer: true }),
+        //     ca: configService.get('database.ca', { infer: true }),
+        //     key: configService.get('database.key', { infer: true }),
+        //     cert: configService.get('database.cert', { infer: true }),
+        //   },
+        // },
         entities: [OrderEntity],
       }),
     }),
@@ -47,7 +67,8 @@ dotenv.config();
         username: configService.getOrThrow<string>('PARTNER_DB_USER', { infer: true }),
         password: configService.getOrThrow<string>('PARTNER_DB_PASSWORD', { infer: true }),
         database: configService.getOrThrow<string>('PARTNER_DB_NAME', { infer: true }),
-        entities: [StoreOrderEntity],
+        logging: configService.get('app.nodeEnv', { infer: true }) !== Environment.PRODUCTION,
+        entities: [StoreOrderEntity, StoreEntity],
       }),
     }),
     RelationalOrderPersistenceModule,
@@ -71,7 +92,15 @@ dotenv.config();
     ]),
   ],
   controllers: [OrderController],
-  providers: [OrderService],
-  exports: [OrderService],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GlobalRpcExceptionFilter,
+    },
+    OrderService,
+    StoreOrderService,
+    NotificationService,
+  ],
+  exports: [OrderService, StoreOrderService, NotificationService],
 })
 export class OrderModule {}

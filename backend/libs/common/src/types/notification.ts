@@ -55,9 +55,9 @@ interface Message {
   pushNotification: PushNotificationDto;
 }
 
-export interface SendNotificationDto {
+export interface SendNotificationDto<T = Record<string, unknown>> {
   notificationType: string;
   channels: Channel[];
   message: Partial<Message>;
-  metadata?: Record<string, any>;
+  metadata?: T;
 }

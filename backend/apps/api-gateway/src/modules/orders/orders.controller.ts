@@ -1,4 +1,4 @@
-import { OrderUpdateStatusDto, User, Order } from '@app/common';
+import { UpdateOrderStatusRequest, User, Order } from '@app/common';
 import { RoleType } from '@gateway/constants';
 import { ApiPageWrapperResponse } from '@gateway/decorators';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
@@ -45,7 +45,7 @@ export class OrdersController {
 
   @Put()
   @HttpCode(HttpStatus.OK)
-  updateStatus(@Body() updateOrderDto: OrderUpdateStatusDto) {
+  updateStatus(@Body() updateOrderDto: UpdateOrderStatusRequest) {
     return this.ordersService.updateOrderStatus(updateOrderDto);
   }
 

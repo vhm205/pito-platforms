@@ -16,6 +16,8 @@ export type ExternalConfig = {
     payNotCompletedTemplateId: string;
     refundCompletedTemplateId: string;
     vnpayRefundCompletedTemplateId: string;
+    orderDeliveryFailedTemplateId: string;
+    orderDeliveringTemplateId: string;
   };
   sentry: {
     dsn: string;
@@ -69,6 +71,12 @@ class ExternalVariablesValidator {
   SENDGRID_VNPAY_REFUND_COMPLETED_TEMPLATE_ID: string;
 
   @IsString()
+  SENDGRID_ORDER_DELIVERY_FAILED_TEMPLATE_ID: string;
+
+  @IsString()
+  SENDGRID_ORDER_DELIVERING_TEMPLATE_ID: string;
+
+  @IsString()
   SENTRY_DSN: string;
 
   @IsString()
@@ -113,6 +121,8 @@ export default registerAs<ExternalConfig>('external', () => {
       payNotCompletedTemplateId: process.env.SENDGRID_PAY_NOT_COMPLETED_TEMPLATE_ID!,
       refundCompletedTemplateId: process.env.SENDGRID_REFUND_COMPLETED_TEMPLATE_ID!,
       vnpayRefundCompletedTemplateId: process.env.SENDGRID_VNPAY_REFUND_COMPLETED_TEMPLATE_ID!,
+      orderDeliveryFailedTemplateId: process.env.SENDGRID_ORDER_DELIVERY_FAILED_TEMPLATE_ID!,
+      orderDeliveringTemplateId: process.env.SENDGRID_ORDER_DELIVERING_TEMPLATE_ID!,
     },
     sentry: {
       dsn: process.env.SENTRY_DSN!,

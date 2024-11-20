@@ -2,15 +2,16 @@
  * ORDER
  */
 export enum OrderStatus {
-  draft = 'draft',
-  waiting = 'waiting',
-  received = 'received',
-  processing = 'processing',
-  delivering = 'delivering',
-  refunding = 'refunding',
-  refunded = 'refunded',
-  canceled = 'canceled',
-  completed = 'completed',
+  DRAFT = 'draft',
+  WAITING = 'waiting',
+  RECEIVED = 'received',
+  PROCESSING = 'processing',
+  DELIVERING = 'delivering',
+  REFUNDING = 'refunding',
+  REFUNDED = 'refunded',
+  CANCELLED = 'canceled',
+  COMPLETED = 'completed',
+  DELIVERY_FAILED = 'delivery_failed',
 }
 
 export enum PartnerOrderStatus {
@@ -21,6 +22,17 @@ export enum PartnerOrderStatus {
   missed = 'missed',
   prepared = 'prepared',
   completed = 'completed',
+}
+
+export enum StoreOrderStatus {
+  PENDING = 'pending', // Chờ xác nhận
+  CONFIRMED = 'confirmed', // Đã xác nhận
+  NOT_CONFIRMED = 'not_confirmed', // Không xác nhận
+  PREPARING = 'preparing', // Đang chuẩn bị
+  PREPARED = 'prepared', // Chuẩn bị xong
+  CANCELLED = 'canceled', // Store huỷ đơn
+  COMPLETED = 'completed', // Hoàn thành
+  REJECTED = 'rejected', // Từ chối
 }
 
 export enum OrderType {

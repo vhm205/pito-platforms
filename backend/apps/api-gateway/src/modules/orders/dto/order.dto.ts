@@ -79,7 +79,7 @@ export class OrderDto implements Order {
   totalAmount: number;
 
   @ApiProperty({
-    example: OrderStatus.completed,
+    example: OrderStatus.COMPLETED,
     description: 'The current status of the order',
     enum: OrderStatus,
   })

@@ -1,5 +1,5 @@
 import { LoggerService, SendNotificationDto } from '@app/common';
-import { Channel } from '@app/common/enums';
+import { Channel, NotificationEventPattern } from '@app/common/enums';
 import { ZodValidationPipe } from '@app/common/pipes';
 import { Controller } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
@@ -15,7 +15,7 @@ export class NotificationController {
     private readonly logger: LoggerService,
   ) {}
 
-  @EventPattern('notification.sent')
+  @EventPattern(NotificationEventPattern.SEND)
   async sendNotification(
     @Payload(new ZodValidationPipe(sendNotificationSchema)) payload: SendNotificationDto,
     @Ctx() context: RmqContext,

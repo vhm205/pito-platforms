@@ -2,7 +2,7 @@ import {
   ORDER_SERVICE,
   ORDERS_SERVICE_NAME,
   OrdersServiceClient,
-  OrderUpdateStatusDto,
+  UpdateOrderStatusRequest,
 } from '@app/common';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -18,7 +18,7 @@ export class OrdersService {
     this.ordersService = this.client.getService<OrdersServiceClient>(ORDERS_SERVICE_NAME);
   }
 
-  updateOrderStatus(payload: OrderUpdateStatusDto) {
+  updateOrderStatus(payload: UpdateOrderStatusRequest) {
     const source$ = this.ordersService.updateOrderStatus(payload).pipe(timeout(2000));
     return firstValueFrom(source$);
   }
@@ -42,6 +42,6 @@ export class OrdersService {
   }
 
   getOrderDetail(id: string) {
-    return this.ordersService.findOneOrder({ id });
+    return this.ordersService.findOrder({ id });
   }
 }
