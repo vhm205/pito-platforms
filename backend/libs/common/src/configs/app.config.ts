@@ -4,9 +4,9 @@ import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { validateConfig } from './validate-config';
 
 export enum Environment {
-  Development = 'development',
-  Production = 'production',
-  Test = 'test',
+  DEVELOPMENT = 'development',
+  PRODUCTION = 'production',
+  TEST = 'test',
 }
 
 export type AppConfig = {
@@ -72,7 +72,7 @@ export default registerAs<AppConfig>('app', () => {
   validateConfig(process.env, AppVariablesValidator);
 
   return {
-    nodeEnv: (process.env.NODE_ENV as Environment) ?? Environment.Development,
+    nodeEnv: (process.env.NODE_ENV! as Environment) ?? Environment.DEVELOPMENT,
     apiGatewayPort: process.env.API_GATEWAY_PORT
       ? parseInt(process.env.API_GATEWAY_PORT, 10)
       : 3000,
