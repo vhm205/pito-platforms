@@ -121,6 +121,6 @@ timeout: '1200s'
 
 source:
   repoSource:
-    projectId: YOUR_PROJECT_ID
+    projectId: pito-platform-418503
     repoName: pitovn/pito-platform
     branchName: staging
