@@ -7,8 +7,6 @@ steps:
       - |
         echo "Listing contents of /workspace:"
         ls -la /workspace
-        echo "Listing contents of /workspace/pito-platform:"
-        ls -la /workspace/pito-platform
 
   # Step 2: Identify changed folders
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -16,7 +14,7 @@ steps:
     args:
       - '-c'
       - |
-        cd /workspace/pito-platform/backend &&
+        cd /workspace/backend &&
         changed_services=""
 
         if git diff --name-only HEAD~1 | grep -q '^apps/common/'; then
@@ -31,7 +29,7 @@ steps:
             fi
           done
         fi
-        echo "\$changed_services" > /workspace/pito-platform/backend/changed_services.txt
+        echo "\$changed_services" > /workspace/backend/changed_services.txt
 
   # Step 3: Build Docker images and push to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
@@ -39,7 +37,7 @@ steps:
     args:
       - '-c'
       - |
-        cd /workspace/pito-platform/backend &&
+        cd /workspace/backend &&
         changed_services=$(cat changed_services.txt)
 
         if [ "\$changed_services" = "all" ]; then
@@ -58,7 +56,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute scp /workspace/pito-platform/backend/changed_services.txt ${_VM_INSTANCE_NAME}:/data/pito-platform/backend/changed_services.txt --zone ${_ZONE}
+        gcloud compute scp /workspace/backend/changed_services.txt ${_VM_INSTANCE_NAME}:/data/pito-platform/backend/changed_services.txt --zone ${_ZONE}
 
   # Step 5: SSH into VM and update relevant containers
   - name: 'gcr.io/cloud-builders/gcloud'
