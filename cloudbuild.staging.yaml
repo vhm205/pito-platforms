@@ -33,6 +33,15 @@ steps:
         fi
         echo \"\$changed_services\" > /workspace/backend/changed_services.txt
 
+  # Step 1: Set up buildx
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker buildx create --use --name mybuilder
+        docker buildx inspect --bootstrap
+
   # Step 3: Build Docker images and push to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     entrypoint: 'bash'
@@ -46,25 +55,19 @@ steps:
 
         shared_cache="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/shared-cache:${_IMAGE_TAG}"
 
-        echo "Pulling shared cache from ${shared_cache}"
-        docker pull $shared_cache || echo "No existing cache found. Proceeding without cache."
-
-        for service in api-gateway; do
+        for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
           image_url="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}"
 
           echo "Build image for service $service -> $image_url"
 
-          docker build \
+          docker buildx build \
             --platform linux/amd64 \
-            --cache-from=$shared_cache \
+            --output type=registry \
+            --cache-from=type=registry,ref=$shared_cache \
+            --cache-to=type=registry,ref=$shared_cache,mode=max \
             -t $image_url -f ./apps/${service}/Dockerfile . \
-          
-          docker push $image_url
+            --push
         done
-
-        echo "Saving new cache to $shared_cache"
-        docker tag $image_url $shared_cache
-        docker push $shared_cache
 
   # Step 4: Copy changed_services.txt to VM
   - name: 'gcr.io/cloud-builders/gcloud'
