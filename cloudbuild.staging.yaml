@@ -17,21 +17,21 @@ steps:
       - '-c'
       - |
         cd /workspace/backend &&
-        changed_services=\"\"
+        changed_services=""
 
         if git diff --name-only HEAD~1 | grep -q '^apps/common/'; then
-          changed_services=\"all\"
+          changed_services="all"
         else
           for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
             if git diff --name-only HEAD~1 | grep -q \"backend/apps/\$service/\"; then
               changed_services=\"\$changed_services \$service\"
-              echo \"Service changed: \$service\"
+              echo "Service changed: ${service}"
             else
-              echo \"No changes for service: \$service\"
+              echo "No changes for service: ${service}"
             fi
           done
         fi
-        echo \"\$changed_services\" > /data/pito-platform/backend/changed_services.txt
+        echo "${changed_services}" > /data/backend/changed_services.txt
 
   # # Step 1: Set up buildx
   # - name: 'gcr.io/cloud-builders/docker'
@@ -51,18 +51,18 @@ steps:
         cd /workspace/backend &&
         changed_services=$(cat changed_services.txt)
 
-        echo \$changed_services
+        echo "Previous step changed services: ${changed_services}"
 
         shared_cache="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/shared-cache:${_IMAGE_TAG}"
         first_service=true
 
-        services=\$changed_services
+        services=${changed_services}
 
-        if [ \"\$changed_services\" = \"all\" ]; then
+        if [ "${changed_services}" = "all" ]; then
           services=("api-gateway" "user-service" "order-service" "notification-service" "billing-service" "review-service" "menu-service")
         fi
 
-        echo \$services
+        echo "Changed services: ${services}"
 
         for service in "${services[@]}"; do
           image_url="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}"
@@ -90,7 +90,7 @@ steps:
         ls -la /data/pito-platform &&
 
         changed_services=\$(cat changed_services.txt)
-        echo "changed_services:" \$changed_services
+        echo "changed_services: ${changed_services}"
 
         if [ \"\$changed_services\" = \"all\" ]; then
           for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
