@@ -41,12 +41,17 @@ steps:
         changed_services=$(cat changed_services.txt)
 
         if [ "\$changed_services" = "all" ]; then
-          docker compose build &&
-          docker compose push
+          echo "Begin build all services"
+          for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
+            echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform\$service:${_IMAGE_TAG} &&
+            docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform\$service:${_IMAGE_TAG} -f ./apps/\$service/Dockerfile . &&
+            docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform\$service:${_IMAGE_TAG}
+          done
         else
           for service in \$changed_services; do
-            docker compose build \$service &&
-            docker compose push \$service
+            echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform\$service:${_IMAGE_TAG} &&
+            docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform\$service:${_IMAGE_TAG} -f ./apps/\$service/Dockerfile . &&
+            docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform\$service:${_IMAGE_TAG}
           done
         fi
 
@@ -56,7 +61,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute scp /workspace/backend/changed_services.txt ${_VM_INSTANCE_NAME}:/data/pito-platform/backend/changed_services.txt --zone ${_ZONE}
+        gcloud compute scp /workspace/backend/changed_services.txt ${_VM_INSTANCE_NAME}:/data/pito-platform/changed_services.txt --zone ${_ZONE}
 
   # Step 5: SSH into VM and update relevant containers
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -65,14 +70,22 @@ steps:
       - '-c'
       - |
         gcloud compute ssh ${_VM_INSTANCE_NAME} --zone ${_ZONE} --command "
-        cd /data/pito-platform/backend &&
+        cd /data/pito-platform &&
+        echo "Listing contents of /data/pito-platform:" &&
+        ls -la /data/pito-platform &&
+
         changed_services=\$(cat changed_services.txt)
+        echo "changed_services:" \$changed_services
 
         if [ \"\$changed_services\" = \"all\" ]; then
-          docker compose down &&
-          docker compose up -d
+          for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
+            docker compose pull \$service &&
+            docker compose down \$service &&
+            docker compose up -d --no-deps \$service
+          done
         else
           for service in \$changed_services; do
+            docker compose pull \$service &&
             docker compose down \$service &&
             docker compose up -d --no-deps \$service
           done
@@ -123,9 +136,12 @@ substitutions:
   _BRANCH_NAME: 'staging'
   _VM_INSTANCE_NAME: 'pito-platform-staging'
   _ZONE: 'asia-southeast1-a'
+  _PROJECT_ID: 'pito-platform-418503'
+  _IMAGE_TAG: 'stg'
 
 options:
   substitution_option: ALLOW_LOOSE
+
 timeout: '1200s'
 
 source:
