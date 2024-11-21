@@ -12,8 +12,7 @@ steps:
         github_token=$(gcloud secrets versions access latest --secret="GITHUB_TOKEN")
         git config --global credential.helper 'store'
         echo "https://$github_token@github.com" > ~/.git-credentials
-        git checkout ${_BRANCH_NAME}
-        git fetch origin ${_BRANCH_NAME}
+        git fetch
 
         echo "Listing contents of /workspace:"
         ls -la /workspace
