@@ -21,15 +21,15 @@ steps:
           changed_services="all"
         else
           for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
-            if git diff --name-only HEAD~1 | grep -q "backend/apps/\$service/"; then
+            if git diff --name-only HEAD~1 | grep -q \"backend/apps/\$service/\"; then
               changed_services="\$changed_services \$service"
-              echo "Service changed: \$service"
+              echo \"Service changed: \$service\"
             else
-              echo "No changes for service: \$service"
+              echo \"No changes for service: \$service\"
             fi
           done
         fi
-        echo "\$changed_services" > /workspace/backend/changed_services.txt
+        echo \"\$changed_services\" > /workspace/backend/changed_services.txt
 
   # Step 3: Build Docker images and push to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
@@ -43,16 +43,15 @@ steps:
         if [ "\$changed_services" = "all" ]; then
           echo "Begin build all services"
           for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
-            echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/\$service:${_IMAGE_TAG} &&
-            
-            docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/\$service:${_IMAGE_TAG} -f ./apps/\$service/Dockerfile . &&
-            docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/\$service:${_IMAGE_TAG}
+            echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} &&
+            docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} -f ./apps/${service} &&
+            docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}
           done
         else
           for service in \$changed_services; do
-            echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/\$service:${_IMAGE_TAG} &&
-            docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/\$service:${_IMAGE_TAG} -f ./apps/\$service/Dockerfile . &&
-            docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/\$service:${_IMAGE_TAG}
+            echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} &&
+            docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} -f ./apps/\$service/Dockerfile . &&
+            docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}
           done
         fi
 
