@@ -46,9 +46,6 @@ steps:
 
         shared_cache="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/shared-cache:${_IMAGE_TAG}"
 
-        echo "Loading cache from $shared_cache"
-        docker pull $shared_cache || echo "No existing cache found. Proceeding with build."
-
         for service in api-gateway; do
           image_url="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}"
 
@@ -56,15 +53,12 @@ steps:
 
           docker build \
             --platform linux/amd64 \
-            --cache-from=ref=$shared_cache \
+            --cache-from=$shared_cache \
+            --cache-to=$shared_cache \
             -t $image_url -f ./apps/${service}/Dockerfile . \
           
           docker push $image_url
         done
-
-        echo "Storing cache to $shared_cache"
-        docker commit $(docker ps -q) $shared_cache
-        docker push $shared_cache
 
   # Step 4: Copy changed_services.txt to VM
   - name: 'gcr.io/cloud-builders/gcloud'
