@@ -17,7 +17,7 @@ steps:
       - '-c'
       - |
         cd /workspace/backend &&
-        echo (git diff --name-only HEAD) &&
+        git diff --name-only HEAD &&
         changed_services=""
 
         if git diff --name-only HEAD | grep -q 'backend/libs/common/'; then
