@@ -5,6 +5,8 @@ steps:
     args:
       - '-c'
       - |
+        echo "Service Account used by Cloud Build:"
+        gcloud config get-value account
         echo "Listing contents of /workspace:"
         ls -la /workspace
 
