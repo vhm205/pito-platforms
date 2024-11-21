@@ -147,7 +147,7 @@ substitutions:
   _ZONE: 'asia-southeast1-a'
   _PROJECT_ID: 'pito-platform-418503'
   _IMAGE_TAG: 'stg'
-  _IMAGE_ZONE: 'asia-southeast1'
+  _IMAGE_ZONE: 'asia-southeast1-docker'
 
 options:
   substitution_option: ALLOW_LOOSE
