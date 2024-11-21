@@ -49,7 +49,7 @@ steps:
         echo "Loading cache from $shared_cache"
         docker pull $shared_cache || echo "No existing cache found. Proceeding with build."
 
-        for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
+        for service in api-gateway; do
           image_url="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}"
 
           echo "Build image for service $service -> $image_url"
