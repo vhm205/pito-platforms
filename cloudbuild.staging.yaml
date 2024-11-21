@@ -1,4 +1,13 @@
 steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Cloning repository with depth=1..."
+        git clone --depth=2 https://source.developers.google.com/p/${_PROJECT_ID}/r/${_REPO_NAME} --branch=${_BRANCH_NAME} --single-branch /workspace
+        cd /workspace
+
   # Step 1: Verify the repository is cloned correctly
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
@@ -173,6 +182,7 @@ substitutions:
   _VM_INSTANCE_NAME: 'pito-platform-staging'
   _ZONE: 'asia-southeast1-a'
   _PROJECT_ID: 'pito-platform-418503'
+  _REPO_NAME: 'pitovn/pito-platform'
   _IMAGE_TAG: 'stg'
   _IMAGE_ZONE: 'asia-southeast1-docker'
 
