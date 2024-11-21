@@ -7,9 +7,15 @@ steps:
       - |
         echo "Service Account used by Cloud Build:"
         gcloud config get-value account
+
+        cd /workspace
+        github_token=$(gcloud secrets versions access latest --secret="GITHUB_TOKEN")
+        git config --global credential.helper 'store'
+        echo "https://$github_token@github.com" > ~/.git-credentials
+        git fetch --unshallow
+
         echo "Listing contents of /workspace:"
         ls -la /workspace
-        git fetch --unshallow
 
   # Step 2: Identify changed folders
   - name: 'gcr.io/cloud-builders/gcloud'
