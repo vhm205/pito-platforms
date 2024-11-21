@@ -60,9 +60,11 @@ steps:
 
         if [ "${changed_services}" = "all" ]; then
           services=("api-gateway" "user-service" "order-service" "notification-service" "billing-service" "review-service" "menu-service")
+        else
+          IFS=' ' read -r -a services <<< "${changed_services}"
         fi
 
-        echo "Changed services: ${services}"
+        echo "Changed services: ${services[@]}"
 
         for service in "${services[@]}"; do
           image_url="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}"
