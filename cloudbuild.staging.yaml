@@ -86,11 +86,11 @@ steps:
       - |
         gcloud compute ssh ${_VM_INSTANCE_NAME} --zone ${_ZONE} --command "
         cd /data/pito-platform &&
-        echo "Listing contents of /data/pito-platform:" &&
+        echo \"Listing contents of /data/pito-platform:\" &&
         ls -la /data/pito-platform &&
 
         changed_services=\$(cat changed_services.txt)
-        echo "changed_services: ${changed_services}"
+        echo \"changed_services: \${changed_services}\"
 
         if [ \"\$changed_services\" = \"all\" ]; then
           for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
