@@ -12,7 +12,8 @@ steps:
         github_token=$(gcloud secrets versions access latest --secret="GITHUB_TOKEN")
         git config --global credential.helper 'store'
         echo "https://$github_token@github.com" > ~/.git-credentials
-        git fetch --unshallow
+        git checkout ${_BRANCH_NAME}
+        git fetch origin ${_BRANCH_NAME}
 
         echo "Listing contents of /workspace:"
         ls -la /workspace
@@ -26,30 +27,11 @@ steps:
         cd /workspace/backend &&
         changed_services=""
 
-        echo $(git log --pretty=format:"%H" -n 5)
-        last_commit=$(git log --pretty=format:"%H" -n 2 | tail -n 1)
-        echo $last_commit
-        echo $(git diff --name-only $last_commit..HEAD)
-
-        # Get the hash of the commit before HEAD (HEAD~1)
-        last_commit_before_head=$(git log --pretty=format:"%H" -n 1 HEAD~1)
-
-        echo "Last commit before HEAD: ${last_commit_before_head}"
-
-        # Get the files changed in the last commit (before HEAD)
-        echo "Changed files in last commit:"
-        echo $(git diff --name-only ${last_commit_before_head} HEAD)
-
-        # Get the last commit before HEAD
-        last_commit_before_head_2=$(git rev-parse HEAD^)
-
-        echo "Last commit before HEAD: $last_commit_before_head_2"
-
-        if git diff --name-only $last_commit..HEAD | grep -q 'backend/libs/common/'; then
+        if git diff --name-only HEAD~1| grep -q 'backend/libs/common/'; then
           changed_services="all"
         else
           for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
-            if git diff --name-only $last_commit..HEAD | grep -q "backend/apps/${service}"; then
+            if git diff --name-only HEAD~1| grep -q "backend/apps/${service}"; then
               changed_services="${changed_services} ${service}"
               echo "Service changed: ${service}"
             else
@@ -113,6 +95,7 @@ steps:
       - '-c'
       - |
         gcloud compute ssh ${_VM_INSTANCE_NAME} --zone ${_ZONE} --command "
+        gcloud auth configure-docker asia-southeast1-docker.pkg.dev &&
         cd /data/pito-platform &&
         echo \"Listing contents of /data/pito-platform:\" &&
         ls -la /data/pito-platform &&
