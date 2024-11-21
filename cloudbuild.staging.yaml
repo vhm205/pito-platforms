@@ -5,6 +5,7 @@ steps:
       - '-c'
       - |
         echo "Cloning repository"
+        mkdir /workspace/pito-platform
         git clone https://source.developers.google.com/p/${_PROJECT_ID}/r/${_REPO_NAME} --branch=${_BRANCH_NAME} --single-branch /workspace/pito-platform
         cd /workspace/pito-platform
 
