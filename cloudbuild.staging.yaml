@@ -12,7 +12,7 @@ steps:
         github_token=$(gcloud secrets versions access latest --secret="GITHUB_TOKEN")
         git config --global credential.helper 'store'
         echo "https://$github_token@github.com" > ~/.git-credentials
-        git fetch --unshallow
+        git fetch origin ${_BRANCH_NAME} --unshallow
 
         echo "Listing contents of /workspace:"
         ls -la /workspace
@@ -29,7 +29,7 @@ steps:
         if git diff --name-only HEAD~1 | grep -q 'backend/libs/common/'; then
           changed_services="all"
         else
-          for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
+          for service in api-gateway order-service notification-service review-service menu-service; do
             if git diff --name-only HEAD~1 | grep -q "backend/apps/${service}"; then
               changed_services="${changed_services} ${service}"
               echo "Service changed: ${service}"
@@ -66,7 +66,7 @@ steps:
         services=${changed_services}
 
         if [ "${changed_services}" = "all" ]; then
-          services=("api-gateway" "user-service" "order-service" "notification-service" "billing-service" "review-service" "menu-service")
+          services=("api-gateway" "order-service" "notification-service" "review-service" "menu-service")
         else
           IFS=' ' read -r -a services <<< "${changed_services}"
         fi
