@@ -15,4 +15,4 @@ export type AllConfigType = {
   file: FileConfig;
 };
 
-export const temp = 'temp 02';
+export const temp = 'temp 03';
