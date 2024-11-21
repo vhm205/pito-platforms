@@ -19,11 +19,11 @@ steps:
         cd /workspace/backend &&
         changed_services=""
 
-        if git diff --name-only HEAD | grep 'backend/libs/common/'; then
+        if git diff --name-only HEAD | grep -q 'backend/libs/common/'; then
           changed_services="all"
         else
           for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
-            if git diff --name-only HEAD | grep "backend/apps/${service}"; then
+            if git diff --name-only HEAD | grep -q "backend/apps/${service}"; then
               changed_services="${changed_services} ${service}"
               echo "Service changed: ${service}"
             else
