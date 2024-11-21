@@ -38,7 +38,7 @@ steps:
       - '-c'
       - |
         cd /workspace/backend &&
-        changed_services=$(cat changed_services.txt)
+        changed_services=\$(cat changed_services.txt)
 
         if [ "\$changed_services" = "all" ]; then
           echo "Begin build all services"
