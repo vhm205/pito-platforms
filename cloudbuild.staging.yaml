@@ -51,6 +51,8 @@ steps:
         cd /workspace/backend &&
         changed_services=$(cat changed_services.txt)
 
+        echo $changed_services
+
         for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
           image_url="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}"
 
@@ -58,8 +60,8 @@ steps:
 
           docker buildx build \
             --platform linux/amd64 \
-            --cache-from=type=registry,ref=${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform:cache \
-            --cache-to=type=registry,ref=${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform:cache,mode=max \
+            --cache-from=type=registry,ref=${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:cache \
+            --cache-to=type=registry,ref=${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:cache,mode=max \
             -t $image_url -f ./apps/${service}/Dockerfile . \
             --push
         done
