@@ -54,19 +54,31 @@ steps:
         echo $changed_services
 
         shared_cache="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/shared-cache:${_IMAGE_TAG}"
+        first_service=true
 
         for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
           image_url="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}"
 
           echo "Build image for service $service -> $image_url"
 
-          docker buildx build \
-            --platform linux/amd64 \
-            --output type=registry \
-            --cache-from=type=registry,ref=$shared_cache \
-            --cache-to=type=registry,ref=$shared_cache,mode=max \
-            -t $image_url -f ./apps/${service}/Dockerfile . \
-            --push
+          if [ "$first_service" = true ]; then
+            docker buildx build \
+              --platform linux/amd64 \
+              --output type=docker \
+              --cache-from=type=registry,ref=$shared_cache \
+              --cache-to=type=registry,ref=$shared_cache,mode=max \
+              -t $image_url -f ./apps/${service}/Dockerfile .
+            
+            first_service=false
+          else
+            docker buildx build \
+              --platform linux/amd64 \
+              --output type=docker \
+              --cache-from=type=registry,ref=$shared_cache \
+              -t $image_url -f ./apps/${service}/Dockerfile .
+          fi
+          
+          docker push $image_url
         done
 
   # Step 4: Copy changed_services.txt to VM
