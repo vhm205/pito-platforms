@@ -56,7 +56,7 @@ steps:
         shared_cache="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/shared-cache:${_IMAGE_TAG}"
 
         echo "Pulling shared cache: $shared_cache"
-        docker buildx build --cache-from=type=registry,ref=${SHARED_CACHE} --pull || echo "No existing cache found."
+        docker buildx build --cache-from=type=registry,ref=${shared_cache} --pull || echo "No existing cache found."
 
         for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
           image_url="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}"
