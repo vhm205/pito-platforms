@@ -24,6 +24,20 @@ steps:
         echo $last_commit
         echo $(git diff --name-only $last_commit..HEAD)
 
+        # Get the hash of the commit before HEAD (HEAD~1)
+        last_commit_before_head=$(git log --pretty=format:"%H" -n 1 HEAD~1)
+
+        echo "Last commit before HEAD: ${last_commit_before_head}"
+
+        # Get the files changed in the last commit (before HEAD)
+        echo "Changed files in last commit:"
+        echo $(git diff --name-only ${last_commit_before_head} HEAD)
+
+        # Get the last commit before HEAD
+        last_commit_before_head_2=$(git rev-parse HEAD^)
+
+        echo "Last commit before HEAD: $last_commit_before_head_2"
+
         if git diff --name-only $last_commit..HEAD | grep -q 'backend/libs/common/'; then
           changed_services="all"
         else
