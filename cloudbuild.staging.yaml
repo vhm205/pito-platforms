@@ -32,7 +32,7 @@ steps:
         if git diff --name-only HEAD~1 | grep -q 'backend/libs/common/'; then
           changed_services="all"
         else
-          for service in api-gateway order-service notification-service review-service menu-service; do
+          for service in api-gateway order-service notification-service review-service menu-service user-service billing-service; do
             if git diff --name-only HEAD~1 | grep -q "backend/apps/${service}"; then
               changed_services="${changed_services} ${service}"
               echo "Service changed: ${service}"
@@ -43,16 +43,16 @@ steps:
         fi
         echo "${changed_services}" > /workspace/backend/changed_services.txt
 
-  # # Step 1: Set up buildx
-  # - name: 'gcr.io/cloud-builders/docker'
-  #   entrypoint: 'bash'
-  #   args:
-  #     - '-c'
-  #     - |
-  #       docker buildx create --use --name mybuilder
-  #       docker buildx inspect --bootstrap
+  # Step 3: Set up buildx
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker buildx create --use --name mybuilder
+        docker buildx inspect --bootstrap
 
-  # Step 3: Build Docker images and push to Artifact Registry
+  # Step 4: Build Docker images and push to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     entrypoint: 'bash'
     args:
@@ -64,25 +64,45 @@ steps:
         echo "Previous step changed services: ${changed_services}"
 
         shared_cache="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/shared-cache:${_IMAGE_TAG}"
-        first_service=true
 
         services=${changed_services}
 
         if [ "${changed_services}" = "all" ]; then
-          services=("api-gateway" "order-service" "notification-service" "review-service" "menu-service")
+          services=("api-gateway" "order-service" "notification-service" "review-service" "menu-service" "user-service" "billing-service")
         else
           IFS=' ' read -r -a services <<< "${changed_services}"
         fi
 
         echo "Changed services: ${services[@]}"
 
+        first_service=true
+
         for service in "${services[@]}"; do
           image_url="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}"
 
           echo "Build image for service $service -> $image_url"
+
+          if [ "$first_service" = true ]; then
+            docker buildx build \
+              --platform linux/amd64 \
+              --output type=docker \
+              --cache-from=type=registry,ref=$shared_cache \
+              --cache-to=type=registry,ref=$shared_cache,mode=max \
+              -t $image_url -f ./apps/${service}/Dockerfile .
+            
+            first_service=false
+          else
+            docker buildx build \
+              --platform linux/amd64 \
+              --output type=docker \
+              --cache-from=type=registry,ref=$shared_cache \
+              -t $image_url -f ./apps/${service}/Dockerfile .
+          fi
+          
+          docker push $image_url
         done
 
-  # Step 4: Copy changed_services.txt to VM
+  # Step 5: Copy changed_services.txt to VM
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
@@ -90,7 +110,7 @@ steps:
       - |
         gcloud compute scp /workspace/backend/changed_services.txt ${_VM_INSTANCE_NAME}:/data/pito-platform/changed_services.txt --zone ${_ZONE}
 
-  # Step 5: SSH into VM and update relevant containers
+  # Step 6: SSH into VM and update relevant containers
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
@@ -106,7 +126,7 @@ steps:
         echo \"changed_services: \${changed_services}\"
 
         if [ \"\$changed_services\" = \"all\" ]; then
-          for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
+          for service in api-gateway order-service notification-service review-service menu-service user-service billing-service; do
             docker compose pull \$service &&
             docker compose down \$service &&
             docker compose up -d --no-deps \$service
@@ -120,7 +140,7 @@ steps:
         fi
         "
 
-  # Step 6: Clean up dangling images to free up space
+  # Step 7: Clean up dangling images to free up space
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
@@ -130,7 +150,7 @@ steps:
         docker image prune -f --filter 'dangling=true'
         "
 
-  # Step 7: Notify Slack about the deployment
+  # Step 8: Notify Slack about the deployment
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
