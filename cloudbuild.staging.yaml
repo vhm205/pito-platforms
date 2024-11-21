@@ -190,9 +190,8 @@ options:
   substitution_option: ALLOW_LOOSE
 
 timeout: '1200s'
-
-source:
-  repoSource:
-    projectId: pito-platform-418503
-    repoName: pitovn/pito-platform
-    branchName: staging
+# source:
+#   repoSource:
+#     projectId: pito-platform-418503
+#     repoName: pitovn/pito-platform
+#     branchName: staging
