@@ -43,15 +43,16 @@ steps:
         if [ "\$changed_services" = "all" ]; then
           echo "Begin build all services"
           for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
-            echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform\$service:${_IMAGE_TAG} &&
-            docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform\$service:${_IMAGE_TAG} -f ./apps/\$service/Dockerfile . &&
-            docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform\$service:${_IMAGE_TAG}
+            echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/\$service:${_IMAGE_TAG} &&
+            
+            docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/\$service:${_IMAGE_TAG} -f ./apps/\$service/Dockerfile . &&
+            docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/\$service:${_IMAGE_TAG}
           done
         else
           for service in \$changed_services; do
-            echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform\$service:${_IMAGE_TAG} &&
-            docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform\$service:${_IMAGE_TAG} -f ./apps/\$service/Dockerfile . &&
-            docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform\$service:${_IMAGE_TAG}
+            echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/\$service:${_IMAGE_TAG} &&
+            docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/\$service:${_IMAGE_TAG} -f ./apps/\$service/Dockerfile . &&
+            docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/\$service:${_IMAGE_TAG}
           done
         fi
 
