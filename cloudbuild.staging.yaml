@@ -61,8 +61,6 @@ steps:
         cd /workspace/backend &&
         changed_services=$(cat changed_services.txt)
 
-        echo "Previous step changed services: ${changed_services}"
-
         shared_cache="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/shared-cache:${_IMAGE_TAG}"
 
         services=${changed_services}
