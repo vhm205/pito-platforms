@@ -33,6 +33,15 @@ steps:
         fi
         echo \"\$changed_services\" > /workspace/backend/changed_services.txt
 
+  # Step 1: Set up buildx
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker buildx create --use --name mybuilder
+        docker buildx inspect --bootstrap
+
   # Step 3: Build Docker images and push to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     entrypoint: 'bash'
@@ -43,14 +52,16 @@ steps:
         changed_services=$(cat changed_services.txt)
 
         for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
-          echo "Build image" ${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} &&
+          image_url="${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}"
+
+          echo "Build image for service $service -> $image_url"
+
           docker buildx build \
             --platform linux/amd64 \
             --cache-from=type=registry,ref=${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:cache \
             --cache-to=type=registry,ref=${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:cache,mode=max \
-            -t ${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} \
-            -f ./apps/${service}/Dockerfile . &&
-          docker push ${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}
+            -t $image_url -f ./apps/${service}/Dockerfile . \
+            --push
         done
 
   # Step 4: Copy changed_services.txt to VM
@@ -140,6 +151,8 @@ substitutions:
 
 options:
   substitution_option: ALLOW_LOOSE
+  env:
+    - DOCKER_BUILDKIT=1
 
 timeout: '1200s'
 
