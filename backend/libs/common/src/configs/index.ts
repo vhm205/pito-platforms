@@ -14,5 +14,3 @@ export type AllConfigType = {
   external: ExternalConfig;
   file: FileConfig;
 };
-
-export const temp = 'temp 31';
