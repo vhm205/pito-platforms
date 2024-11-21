@@ -16,6 +16,8 @@ import { validationOptions } from './utils/validation-options';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors();
+
   const options = new DocumentBuilder()
     .setTitle('PITO API')
     .setDescription('PITO API')

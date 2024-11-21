@@ -1,0 +1,119 @@
+version: '3.8'
+services:
+  # postgres:
+  #   image: postgres:17
+  #   container_name: postgres
+  #   environment:
+  #     POSTGRES_USER: ${POSTGRES_USER}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #     POSTGRES_DB: ${POSTGRES_DB}
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #     # - ./init_review.sql:/docker-entrypoint-initdb.d/init_review.sql
+  #   networks:
+  #     - platform_net
+  #   ports:
+  #     - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - /var/lib/rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - platform_net
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - '6379:6379'
+    # command: redis-server --appendonly yes
+    volumes:
+      - /var/lib/redis_data:/data
+    networks:
+      - platform_net
+
+  api-gateway:
+    image: asia-southeast1-docker.pkg.dev/pito-platform-418503/pito-platform/api-gateway:stg
+    container_name: api-gateway
+    env_file:
+      - .env
+    ports:
+      - '3000:3000'
+    networks:
+      - platform_net
+
+  order-service:
+    image: asia-southeast1-docker.pkg.dev/pito-platform-418503/pito-platform/order-service:stg
+    container_name: order-service
+    env_file:
+      - .env
+    ports:
+      - '5001:5001'
+    networks:
+      - platform_net
+
+  notification-service:
+    image: asia-southeast1-docker.pkg.dev/pito-platform-418503/pito-platform/notification-service:stg
+    container_name: notification-service
+    env_file:
+      - .env
+    networks:
+      - platform_net
+
+  user-service:
+    image: asia-southeast1-docker.pkg.dev/pito-platform-418503/pito-platform/user-service:stg
+    container_name: user-service
+    env_file:
+      - .env
+    ports:
+      - '5003:5003'
+    networks:
+      - platform_net
+
+  billing-service:
+    image: asia-southeast1-docker.pkg.dev/pito-platform-418503/pito-platform/billing-service:stg
+    container_name: billing-service
+    env_file:
+      - .env
+    ports:
+      - '5002:5002'
+    networks:
+      - platform_net
+
+  review-service:
+    image: asia-southeast1-docker.pkg.dev/pito-platform-418503/pito-platform/review-service:stg
+    container_name: review-service
+    env_file:
+      - .env
+    ports:
+      - '5004:5004'
+    networks:
+      - platform_net
+
+  menu-service:
+    image: asia-southeast1-docker.pkg.dev/pito-platform-418503/pito-platform/menu-service:stg
+    container_name: menu-service
+    env_file:
+      - .env
+    ports:
+      - '5005:5005'
+    networks:
+      - platform_net
+
+volumes:
+  rabbitmq_data:
+    # driver: local
+  redis_data:
+    # driver: local
+
+networks:
+  platform_net:
+    driver: bridge
