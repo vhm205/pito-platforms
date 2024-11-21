@@ -43,9 +43,14 @@ steps:
         changed_services=$(cat changed_services.txt)
 
         for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
-          echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} &&
-          docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} -f ./apps/${service}/Dockerfile . &&
-          docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}
+          echo "Build image" ${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} &&
+          docker buildx build \
+            --platform linux/amd64 \
+            --cache-from=type=registry,ref=${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:cache \
+            --cache-to=type=registry,ref=${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:cache,mode=max \
+            -t ${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} \
+            -f ./apps/${service}/Dockerfile . &&
+          docker push ${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}
         done
 
   # Step 4: Copy changed_services.txt to VM
@@ -131,6 +136,7 @@ substitutions:
   _ZONE: 'asia-southeast1-a'
   _PROJECT_ID: 'pito-platform-418503'
   _IMAGE_TAG: 'stg'
+  _IMAGE_ZONE: 'asia-southeast1'
 
 options:
   substitution_option: ALLOW_LOOSE
