@@ -19,7 +19,7 @@ steps:
         cd /workspace/backend &&
         changed_services=""
 
-        echo $(git log)
+        echo $(git log --pretty=format:"%H" -n 2)
         last_commit=$(git log --pretty=format:"%H" -n 2 | tail -n 1)
         echo $last_commit
         echo $(git diff --name-only $last_commit..HEAD)
