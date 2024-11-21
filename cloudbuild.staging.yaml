@@ -4,9 +4,9 @@ steps:
     args:
       - '-c'
       - |
-        echo "Cloning repository with depth=1..."
-        git clone https://source.developers.google.com/p/${_PROJECT_ID}/r/${_REPO_NAME} --branch=${_BRANCH_NAME} --single-branch /workspace
-        cd /workspace
+        echo "Cloning repository"
+        git clone https://source.developers.google.com/p/${_PROJECT_ID}/r/${_REPO_NAME} --branch=${_BRANCH_NAME} --single-branch /workspace/pito-platform
+        cd /workspace/pito-platform
 
   # Step 1: Verify the repository is cloned correctly
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -16,8 +16,8 @@ steps:
       - |
         echo "Service Account used by Cloud Build:"
         gcloud config get-value account
-        echo "Listing contents of /workspace:"
-        ls -la /workspace
+        echo "Listing contents of /workspace/pito-platform:"
+        ls -la /workspace/pito-platform
 
   # Step 2: Identify changed folders
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -25,7 +25,7 @@ steps:
     args:
       - '-c'
       - |
-        cd /workspace/backend &&
+        cd /workspace/pito-platform/backend &&
         changed_services=""
 
         echo $(git log --pretty=format:"%H" -n 5)
@@ -59,7 +59,7 @@ steps:
             fi
           done
         fi
-        echo "${changed_services}" > /workspace/backend/changed_services.txt
+        echo "${changed_services}" > /workspace/pito-platform/backend/changed_services.txt
 
   # # Step 1: Set up buildx
   # - name: 'gcr.io/cloud-builders/docker'
@@ -76,7 +76,7 @@ steps:
     args:
       - '-c'
       - |
-        cd /workspace/backend &&
+        cd /workspace/pito-platform/backend &&
         changed_services=$(cat changed_services.txt)
 
         echo "Previous step changed services: ${changed_services}"
@@ -106,7 +106,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute scp /workspace/backend/changed_services.txt ${_VM_INSTANCE_NAME}:/data/pito-platform/changed_services.txt --zone ${_ZONE}
+        gcloud compute scp /workspace/pito-platform/backend/changed_services.txt ${_VM_INSTANCE_NAME}:/data/pito-platform/changed_services.txt --zone ${_ZONE}
 
   # Step 5: SSH into VM and update relevant containers
   - name: 'gcr.io/cloud-builders/gcloud'
