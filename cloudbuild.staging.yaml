@@ -1,4 +1,13 @@
 steps:
+  # Step 1: Fetch additional commit history
+  - name: 'gcr.io/cloud-builders/git'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cd /workspace/backend &&
+        git fetch --depth=2
+
   # Step 1: Verify the repository is cloned correctly
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
@@ -23,8 +32,8 @@ steps:
           changed_services="all"
         else
           for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
-            if git diff --name-only HEAD~1 | grep -q \"backend/apps/\$service/\"; then
-              changed_services=\"\$changed_services \$service\"
+            if git diff --name-only HEAD~1 | grep -q "backend/apps/${service}/"; then
+              changed_services="${changed_services} ${service}"
               echo "Service changed: ${service}"
             else
               echo "No changes for service: ${service}"
