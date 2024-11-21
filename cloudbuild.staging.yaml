@@ -38,22 +38,13 @@ steps:
       - '-c'
       - |
         cd /workspace/backend &&
-        changed_services=\$(cat changed_services.txt)
+        changed_services=$(cat changed_services.txt)
 
-        if [ "\$changed_services" = "all" ]; then
-          echo "Begin build all services"
-          for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
-            echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} &&
-            docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} -f ./apps/${service} &&
-            docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}
-          done
-        else
-          for service in \$changed_services; do
-            echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} &&
-            docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} -f ./apps/\$service/Dockerfile . &&
-            docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}
-          done
-        fi
+        for service in api-gateway user-service order-service notification-service billing-service review-service menu-service; do
+          echo "Build image" ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} &&
+          docker build --platform linux/amd64 -t ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG} -f ./apps/${service} &&
+          docker push ${_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/${service}:${_IMAGE_TAG}
+        done
 
   # Step 4: Copy changed_services.txt to VM
   - name: 'gcr.io/cloud-builders/gcloud'
