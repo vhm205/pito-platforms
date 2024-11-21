@@ -31,7 +31,7 @@ steps:
             fi
           done
         fi
-        echo "${changed_services}" > /data/backend/changed_services.txt
+        echo "${changed_services}" > /workspace/backend/changed_services.txt
 
   # # Step 1: Set up buildx
   # - name: 'gcr.io/cloud-builders/docker'
