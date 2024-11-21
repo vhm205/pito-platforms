@@ -135,7 +135,7 @@ steps:
       - |
         select_webhook_url=$(gcloud secrets versions access latest --secret="SLACK_WEBHOOK_URL")
 
-        if [ -z "$select_web" ]; then
+        if [ -z "$select_webhook_url" ]; then
           echo "Failed to retrieve SLACK_WEBHOOK_URL from Secret Manager."
           exit 1
         fi
