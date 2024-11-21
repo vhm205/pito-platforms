@@ -5,7 +5,7 @@ steps:
       - '-c'
       - |
         echo "Cloning repository with depth=1..."
-        git clone --depth=2 https://source.developers.google.com/p/${_PROJECT_ID}/r/${_REPO_NAME} --branch=${_BRANCH_NAME} --single-branch /workspace
+        git clone https://source.developers.google.com/p/${_PROJECT_ID}/r/${_REPO_NAME} --branch=${_BRANCH_NAME} --single-branch /workspace
         cd /workspace
 
   # Step 1: Verify the repository is cloned correctly
@@ -28,8 +28,8 @@ steps:
         cd /workspace/backend &&
         changed_services=""
 
-        echo $(git log --pretty=format:"%H" -n 3)
-        last_commit=$(git log --pretty=format:"%H" -n 3 | tail -n 1)
+        echo $(git log --pretty=format:"%H" -n 5)
+        last_commit=$(git log --pretty=format:"%H" -n 2 | tail -n 1)
         echo $last_commit
         echo $(git diff --name-only $last_commit..HEAD)
 
