@@ -126,21 +126,13 @@ steps:
         if [ \"\$changed_services\" = \"all\" ]; then
           for service in api-gateway order-service notification-service review-service menu-service user-service; do
             docker compose pull \$service &&
-            if [ \"$(docker ps -aq -f name=\${service})\" ]; then
-              docker compose down \$service
-            else
-              echo \"No container \${service} to stop.\"
-            fi
+            docker compose down \$service &&
             docker compose up -d --no-deps \$service
           done
         else
           for service in \$changed_services; do
             docker compose pull \$service &&
-            if [ \"$(docker ps -aq -f name=\${service})\" ]; then
-              docker compose down \$service
-            else
-              echo \"No container \${service} to stop.\"
-            fi
+            docker compose down \$service &&
             docker compose up -d --no-deps \$service
           done
         fi
@@ -182,16 +174,16 @@ steps:
         echo \"\$services_message\"
 
         curl -X POST -H 'Content-Type: application/json' --data '{
-          \"text\": \"[Development] Deployment of services to ${_VM_INSTANCE_NAME} completed successfully.\"
+          \"text\": \"[Production] Deployment of services to ${_VM_INSTANCE_NAME} completed successfully.\"
         }' '$select_webhook_url'
         "
 
 substitutions:
-  _BRANCH_NAME: 'develop'
-  _VM_INSTANCE_NAME: 'pito-platform-development'
-  _ZONE: 'asia-southeast1-c'
+  _BRANCH_NAME: 'main'
+  _VM_INSTANCE_NAME: 'pito-platform-production'
+  _ZONE: 'asia-southeast1-a'
   _PROJECT_ID: 'pito-platform-418503'
-  _IMAGE_TAG: 'dev'
+  _IMAGE_TAG: 'prod'
   _IMAGE_ZONE: 'asia-southeast1-docker'
 
 options:
@@ -203,4 +195,4 @@ source:
   repoSource:
     projectId: pito-platform-418503
     repoName: pitovn/pito-platform
-    branchName: develop
+    branchName: main
