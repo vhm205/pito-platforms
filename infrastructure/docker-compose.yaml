@@ -40,34 +40,6 @@ services:
     networks:
       - platform_net
 
-  api-gateway:
-    image: asia-southeast1-docker.pkg.dev/pito-platform-418503/pito-platform/api-gateway:stg
-    container_name: api-gateway
-    env_file:
-      - .env
-    ports:
-      - '3000:3000'
-    networks:
-      - platform_net
-
-  order-service:
-    image: asia-southeast1-docker.pkg.dev/pito-platform-418503/pito-platform/order-service:stg
-    container_name: order-service
-    env_file:
-      - .env
-    ports:
-      - '5001:5001'
-    networks:
-      - platform_net
-
-  notification-service:
-    image: asia-southeast1-docker.pkg.dev/pito-platform-418503/pito-platform/notification-service:stg
-    container_name: notification-service
-    env_file:
-      - .env
-    networks:
-      - platform_net
-
 volumes:
   rabbitmq_data:
     # driver: local
@@ -76,4 +48,4 @@ volumes:
 
 networks:
   platform_net:
-    driver: bridge
+    external: true
