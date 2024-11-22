@@ -25,10 +25,17 @@ export class UserController implements UsersServiceController {
     return this.userService.findAll();
   }
 
-  async findOneUser(findOneUserDto: FindOneUserDto): Promise<User | null> {
+  async findOneUser(findOneUserDto: FindOneUserDto): Promise<User> {
     const user = await this.userService.findOne(findOneUserDto.id);
 
-    return user && user.toDto();
+    return (
+      (user && user.toDto()) || {
+        id: 'id',
+        email: 'example@email.com',
+        encryptedPassword: 'password',
+        phone: 'phone',
+      }
+    );
   }
 
   updateUser(updateUserDto: UpdateUserDto) {
