@@ -6,7 +6,10 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
+import { AuthModule } from '../auth/auth.module';
+
 import { AhamoveWebhookController } from './controllers';
+import { SupabaseWebhookController } from './controllers/supabase.controller';
 import { OrderEventsService } from './services';
 import { TransformerModule } from './transfomers';
 
@@ -27,8 +30,9 @@ import { TransformerModule } from './transfomers';
       },
     ]),
     TransformerModule,
+    AuthModule,
   ],
-  controllers: [AhamoveWebhookController],
+  controllers: [AhamoveWebhookController, SupabaseWebhookController],
   providers: [OrderEventsService],
   exports: [OrderEventsService],
 })
