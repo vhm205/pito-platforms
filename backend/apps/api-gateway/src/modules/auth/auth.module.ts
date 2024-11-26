@@ -8,10 +8,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { redisStore } from 'cache-manager-redis-yet';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { RoleEntity } from './entities/RoleEntity';
+import { UserEntity } from './entities/UserEntity';
 import { JwtStrategy } from './jwt.stategy';
 import { KeycloakAdminService } from './keycloak-admin.service';
 import { PublicStrategy } from './public.stategy';
@@ -62,6 +65,20 @@ import { PublicStrategy } from './public.stategy';
         };
       },
     }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<AllConfigType>) => ({
+        type: 'postgres',
+        host: configService.getOrThrow<string>('KEYCLOAK_DB_HOST', { infer: true }),
+        port: configService.getOrThrow<number>('KEYCLOAK_DB_PORT', { infer: true }),
+        username: configService.getOrThrow<string>('KEYCLOAK_DB_USER', { infer: true }),
+        password: configService.getOrThrow<string>('KEYCLOAK_DB_PASSWORD', { infer: true }),
+        database: configService.getOrThrow<string>('KEYCLOAK_DB_NAME', { infer: true }),
+        entities: [UserEntity, RoleEntity],
+      }),
+    }),
+    TypeOrmModule.forFeature([UserEntity, RoleEntity]),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, PublicStrategy, KeycloakAdminService],
