@@ -15,7 +15,7 @@ export class SupabaseWebhookController {
 
   @Post('customer-users')
   async handleCustomerUser(@Body() payload: SupabaseUserCallback) {
-    this.logger.debug('Received Supabase customer user events', payload);
+    this.logger.debug('Received Supabase customer user events', { metadata: payload });
 
     if (payload.type === 'INSERT') {
       const userPayload = payload.record;
@@ -38,7 +38,7 @@ export class SupabaseWebhookController {
 
   @Post('partner-users')
   async handlePartnerUser(@Body() payload: SupabaseUserCallback) {
-    this.logger.debug('Received Supabase partner user events', payload);
+    this.logger.debug('Received Supabase partner user events', { metadata: payload });
 
     if (payload.type === 'INSERT') {
       const userPayload = payload.record;
