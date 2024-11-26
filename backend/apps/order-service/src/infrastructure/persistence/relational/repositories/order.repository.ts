@@ -18,22 +18,11 @@ export class OrderRelationalRepository implements OrderRepository {
     private orderRepository: Repository<OrderEntity>,
   ) {}
 
-  async findOrderById(orderId: Order['id']): Promise<NullableType<Order>> {
-    const entity = await this.orderRepository.findOne({ where: { orderId } });
+  async findOne(
+    filter: FindOptionsWhere<Pick<Order, 'id' | 'orderCode' | 'storeId'>>,
+  ): Promise<NullableType<Order>> {
+    const entity = await this.orderRepository.findOne({ where: filter });
     return entity ? OrderMapper.toDomain(entity) : null;
-  }
-
-  async findOrderByCode(orderCode: Order['orderCode']): Promise<NullableType<Order>> {
-    const entity = await this.orderRepository.findOne({ where: { orderCode } });
-    return entity ? OrderMapper.toDomain(entity) : null;
-  }
-
-  async findOrdersByUserId(userId: string): Promise<Order[]> {
-    this.logger.log('Finding orders by userId', { metadata: userId });
-    // TODO: Add where clause to filter by userId
-    const entities = await this.orderRepository.find();
-
-    return entities.map(entity => OrderMapper.toDomain(entity));
   }
 
   findAllOrders(): Promise<Order[]> {
@@ -67,18 +56,14 @@ export class OrderRelationalRepository implements OrderRepository {
     return [domainEntities, total];
   }
 
-  findOrdersInDelivery(): Promise<Order[]> {
-    throw new Error('Method not implemented.');
-  }
-
   saveOrder(order: Omit<Order, 'id'>): Promise<Order> {
     this.logger.log('Saving order', { metadata: order });
     throw new Error('Method not implemented.');
   }
 
-  updateOrder(order: Order): Promise<Order> {
-    this.logger.log('Updating order', { metadata: order });
-    throw new Error('Method not implemented.');
+  async updateOrder(order: Order): Promise<NullableType<Order>> {
+    const updatedEntity = await this.orderRepository.save(OrderMapper.toPersistence(order));
+    return OrderMapper.toDomain(updatedEntity);
   }
 
   deleteOrder(order: Order['id']): Promise<void> {

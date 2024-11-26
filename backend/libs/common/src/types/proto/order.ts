@@ -12,20 +12,51 @@ export enum SortDirection {
   UNRECOGNIZED = -1,
 }
 
-export interface OrderResponse {
-  data?: Order | undefined;
-}
-
-export interface OrderUpdateStatusDto {
-  orderId: string;
+/** Request message for UpdateOrderStatus */
+export interface UpdateOrderStatusRequest {
+  id: string;
   status: string;
-  reason?: string | undefined;
+  cancelReason?: string | undefined;
+  timestamp?: Date | undefined;
+  deliveryEta?: number | undefined;
 }
 
-export interface OrderUpdateResponse {
-  message: string;
-  statusCode: number;
-  success: boolean;
+export interface UpdateOrderResponse {
+  order: Order | undefined;
+}
+
+/** Request message for UpdateStoreOrderStatus */
+export interface UpdateStoreOrderStatusRequest {
+  id: string;
+  status: string;
+}
+
+export interface UpdateStoreOrderResponse {
+  id: string;
+  status: string;
+}
+
+/** Request message for FindOrder */
+export interface FindOrderRequest {
+  id?: string | undefined;
+  orderCode?: string | undefined;
+  status?: string | undefined;
+}
+
+export interface FindOrderResponse {
+  order: Order | undefined;
+}
+
+/** Request message for FindStoreOrder */
+export interface FindStoreOrderRequest {
+  id?: string | undefined;
+  orderCode?: string | undefined;
+  orderId?: string | undefined;
+  status?: string | undefined;
+}
+
+export interface FindStoreOrderResponse {
+  storeOrder: StoreOrder | undefined;
 }
 
 export interface OrderFilterDto {
@@ -39,10 +70,6 @@ export interface OrderFilterDto {
   sortDirection: string;
   pageSize: string;
   from: string;
-}
-
-export interface FindOneOrderDto {
-  id: string;
 }
 
 /** Message for Order Items */
@@ -93,22 +120,19 @@ export interface OrderItem_Item {
 
 /** Message for Order */
 export interface Order {
-  orderId: string;
-  storeName: string;
-  introduction: string;
-  slug: string;
-  thumbnail: string;
-  avatar: string;
+  id: string;
   orderCode: string;
   totalPrice: number;
-  note: string;
-  receiverName: string;
   status: string;
-  errorCode: number;
   paymentMethod: string;
   createdAt: Date | undefined;
   deliveryDate: Date | undefined;
-  orderItems: OrderItem[];
+}
+
+/** Message for Store Order */
+export interface StoreOrder {
+  id: string;
+  status: string;
 }
 
 export interface Orders {
@@ -159,25 +183,42 @@ wrappers['.google.protobuf.Timestamp'] = {
 } as any;
 
 export interface OrdersServiceClient {
-  updateOrderStatus(request: OrderUpdateStatusDto): Observable<OrderUpdateResponse>;
+  updateOrderStatus(request: UpdateOrderStatusRequest): Observable<UpdateOrderResponse>;
+
+  updateStoreOrderStatus(
+    request: UpdateStoreOrderStatusRequest,
+  ): Observable<UpdateStoreOrderResponse>;
+
+  findOrder(request: FindOrderRequest): Observable<FindOrderResponse>;
+
+  findStoreOrder(request: FindStoreOrderRequest): Observable<FindStoreOrderResponse>;
 
   findOrders(request: OrderFilterDto): Observable<Orders>;
-
-  findOneOrder(request: FindOneOrderDto): Observable<OrderResponse>;
 
   findOrdersWithPagination(request: QueryOrderWithPagination): Observable<OrderWithPagination>;
 }
 
 export interface OrdersServiceController {
   updateOrderStatus(
-    request: OrderUpdateStatusDto,
-  ): Promise<OrderUpdateResponse> | Observable<OrderUpdateResponse> | OrderUpdateResponse;
+    request: UpdateOrderStatusRequest,
+  ): Promise<UpdateOrderResponse> | Observable<UpdateOrderResponse> | UpdateOrderResponse;
+
+  updateStoreOrderStatus(
+    request: UpdateStoreOrderStatusRequest,
+  ):
+    | Promise<UpdateStoreOrderResponse>
+    | Observable<UpdateStoreOrderResponse>
+    | UpdateStoreOrderResponse;
+
+  findOrder(
+    request: FindOrderRequest,
+  ): Promise<FindOrderResponse> | Observable<FindOrderResponse> | FindOrderResponse;
+
+  findStoreOrder(
+    request: FindStoreOrderRequest,
+  ): Promise<FindStoreOrderResponse> | Observable<FindStoreOrderResponse> | FindStoreOrderResponse;
 
   findOrders(request: OrderFilterDto): Promise<Orders> | Observable<Orders> | Orders;
-
-  findOneOrder(
-    request: FindOneOrderDto,
-  ): Promise<OrderResponse> | Observable<OrderResponse> | OrderResponse;
 
   findOrdersWithPagination(
     request: QueryOrderWithPagination,
@@ -188,8 +229,10 @@ export function OrdersServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       'updateOrderStatus',
+      'updateStoreOrderStatus',
+      'findOrder',
+      'findStoreOrder',
       'findOrders',
-      'findOneOrder',
       'findOrdersWithPagination',
     ];
     for (const method of grpcMethods) {

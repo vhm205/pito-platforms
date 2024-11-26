@@ -3,7 +3,7 @@ import { join } from 'path';
 import { ORDER_PACKAGE_NAME, ORDER_SERVICE } from '@app/common';
 import { AllConfigType } from '@app/common/configs';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { AhamoveWebhookController } from './controllers';
@@ -14,8 +14,8 @@ import { TransformerModule } from './transfomers';
   imports: [
     ClientsModule.registerAsync([
       {
-        imports: [ConfigModule],
         name: ORDER_SERVICE,
+        inject: [ConfigService],
         useFactory: (configService: ConfigService<AllConfigType>) => ({
           transport: Transport.GRPC,
           options: {
@@ -24,7 +24,6 @@ import { TransformerModule } from './transfomers';
             url: configService.get('app.orderGrpcUrl', { infer: true }),
           },
         }),
-        inject: [ConfigService],
       },
     ]),
     TransformerModule,

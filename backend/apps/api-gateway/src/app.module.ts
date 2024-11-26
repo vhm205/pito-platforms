@@ -28,9 +28,7 @@ import { WebhookModule } from './modules/webhook/webhook.module';
       load: [appConfig, databaseConfig, externalConfig, fileConfig],
     }),
     SentryModule.forRoot(),
-    LoggerModule.forRoot({
-      service: 'ApiGateway',
-    }),
+    LoggerModule.forRoot({ service: 'ApiGateway' }),
     AuthModule,
     UsersModule,
     OrdersModule,
