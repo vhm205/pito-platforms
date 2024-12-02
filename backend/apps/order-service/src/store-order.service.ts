@@ -4,9 +4,10 @@ import {
   transformFilterRule,
   UpdateStoreOrderStatusRequest,
 } from '@app/common';
-import { StoreOrderStatus } from '@app/common/enums';
+import { GrpcStatus, StoreOrderStatus } from '@app/common/enums';
 import { OrderStatus } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 
 import { StoreOrder } from './domain';
 import { StoreOrderRepository } from './infrastructure/persistence/store-order.repository';
@@ -14,6 +15,18 @@ import { StoreOrderRepository } from './infrastructure/persistence/store-order.r
 @Injectable()
 export class StoreOrderService {
   constructor(private readonly repository: StoreOrderRepository) {}
+
+  async createStoreOrder(order: Partial<StoreOrder>) {
+    const storeOrder = await this.repository.findOne({ orderId: order.orderId });
+    if (storeOrder) {
+      throw new RpcException({
+        message: `Store Order with order id ${order.orderId} already exists`,
+        status: GrpcStatus.ALREADY_EXISTS,
+      });
+    }
+
+    return this.repository.saveOrder(order);
+  }
 
   async findOneStoreOrder(filters: FindStoreOrderRequest) {
     return this.repository.findOne(filters);

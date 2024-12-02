@@ -7,25 +7,31 @@ message CreateVnpayUrlPaymentRequest {
   string order_code = 2;
   int64 amount = 3;
   string bank_code = 4;
-  string locale = 5;
-  string url_callback = 6;
+  optional string locale = 5;
+  string callback_url = 6;
+  string ip_addr = 7;
 }
 
 message CreateVnpayUrlPaymentResponse {
-  string vnpay_url = 1;
+  string payment_url = 1;
 }
 
-message HandleIPNRequest {
-  string vnp_Amount = 1;
-  string vnp_BankCode = 2;
-  string vnp_BankTranNo = 3;
-  string vnp_CardType = 4;
-  string vnp_OrderInfo = 5;
-  string vnp_PayDate = 6;
-  string vnp_ResponseCode = 7;
-  string vnp_TmnCode = 8;
-  string vnp_TransactionNo = 9;
-  string vnp_TxnRef = 10;
-  string vnp_SecureHash = 11;
-  string vnp_TransactionStatus = 12;
+message HandleIpnVnpayRequest {
+  string vnp_amount = 1;
+  string vnp_bank_code = 2;
+  string vnp_bank_tran_no = 3;
+  string vnp_card_type = 4;
+  string vnp_order_info = 5;
+  string vnp_pay_date = 6;
+  string vnp_response_code = 7;
+  string vnp_tmn_code = 8;
+  string vnp_transaction_no = 9;
+  string vnp_txn_ref = 10;
+  string vnp_secure_hash = 11;
+  string vnp_transaction_status = 12;
+}
+
+message HandleIpnVnpayResponse {
+  string RspCode = 1;
+  string Message = 2;
 }

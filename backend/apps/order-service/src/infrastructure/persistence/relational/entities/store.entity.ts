@@ -15,6 +15,12 @@ export class StoreEntity {
   @Column({ type: 'text', name: 'store_name', nullable: false })
   storeName: string;
 
+  @Column({ type: 'text', name: 'store_code', nullable: false })
+  storeCode: string;
+
+  @Column('uuid', { name: 'partner_id', nullable: false })
+  partnerId: string;
+
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 

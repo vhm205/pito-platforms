@@ -1,6 +1,16 @@
+import { SelectedOption } from './create-order.dto';
+
 /**
  * SENDGRID DYNAMIC PAYLOAD
  */
+export interface OrderMailItem {
+  item_name: string;
+  item_amount: string;
+  count: number;
+  note: string;
+  item_options: SelectedOption[];
+}
+
 export interface OrderMailPayload {
   to: string[];
   user_name: string;
@@ -12,9 +22,14 @@ export interface OrderMailPayload {
   discount_shipping_fee: string;
   voucher: string;
   total_paid: string;
-  items: Record<string, any>;
+  items: OrderMailItem[];
   link?: string;
   voucher_ids: string[];
+  is_service_person: boolean;
+  is_service_time: boolean;
+  total_services_amount: string;
+  service_time: Record<string, any>;
+  service_person: Record<string, any>;
 }
 
 export interface OrderInvoiceMailPayload {

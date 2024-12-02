@@ -12,6 +12,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { timeout, firstValueFrom } from 'rxjs';
 
+import { CreateOrderDto } from './dto/create-order.dto';
 import { UserQueryOrderHistoryDto } from './dto/query-order.dto';
 
 @Injectable()
@@ -25,6 +26,13 @@ export class OrdersService {
   ) {
     this.orderServiceClient = this.orderClient.getService<OrdersServiceClient>(ORDERS_SERVICE_NAME);
     this.menuServiceClient = this.menuClient.getService<MenusServiceClient>(MENUS_SERVICE_NAME);
+  }
+
+  createOrder(payload: CreateOrderDto, userId: string, ipAddr: string) {
+    const source$ = this.orderServiceClient
+      .createOrder({ ...payload, userId, ipAddr })
+      .pipe(timeout(10000));
+    return firstValueFrom(source$);
   }
 
   updateOrderStatus(payload: UpdateOrderStatusRequest) {

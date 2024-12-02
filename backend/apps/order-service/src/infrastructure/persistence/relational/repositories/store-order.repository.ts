@@ -73,4 +73,10 @@ export class StoreOrderRelationalRepository implements StoreOrderRepository {
       where: { storeId, status: StoreOrderStatus.COMPLETED },
     });
   }
+
+  async saveOrder(order: StoreOrder): Promise<StoreOrder> {
+    const entity = StoreOrderMapper.toPersistence(order);
+    const savedEntity = await this.repository.save(entity);
+    return StoreOrderMapper.toDomain(savedEntity);
+  }
 }

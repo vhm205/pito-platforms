@@ -1,9 +1,16 @@
 import { formatCurrency, formatTimestamp, LoggerService } from '@app/common';
-import { Channel, NotificationEventPattern, NotificationType } from '@app/common/enums';
+import {
+  Channel,
+  NotificationEventPattern,
+  NotificationTemplateCode,
+  NotificationType,
+  PushType,
+} from '@app/common/enums';
 import { SendNotificationDto } from '@app/common/types/notification';
 import { OrderStatus } from '@app/common/types/proto/common';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RmqRecord, RmqRecordBuilder } from '@nestjs/microservices';
+import { getOrderNotificationTemplate } from 'apps/notification-service/src/utils';
 import { get, map } from 'lodash';
 
 import { Order } from './domain';
@@ -132,5 +139,122 @@ export class OrderNotificationService {
     };
 
     this.notify(this.buildRmqRecord(messageRequest));
+  }
+
+  sendOrderConfirmNotification(payload: Record<string, any>) {
+    const templateId = getOrderStatusTemplateIds()[OrderStatus.WAITING_FOR_DEPOSIT];
+
+    const message: SendNotificationDto = {
+      notificationType: NotificationType.ORDER_STATUS_UPDATE,
+      channels: [Channel.EMAIL],
+      message: {
+        email: {
+          from: this.fromEmail,
+          to: payload.to,
+          templateId,
+          dynamicTemplateData: payload,
+        },
+      },
+    };
+
+    this.notify(this.buildRmqRecord(message));
+  }
+
+  async sendPaymentFailedNotification(order: Order) {
+    const templateId = getOrderStatusTemplateIds()[OrderStatus.PAYMENT_FAILED];
+    const dynamicData = this.getBaseDynamicDataForOrder(order);
+
+    switch (order.statusCode) {
+      case OrderStatus.PAYMENT_FAILED: {
+        const store = await this.storeRepository.findOne({ id: order.storeId })!;
+        dynamicData['store'] = { name: get(store, 'storeName') };
+        break;
+      }
+    }
+
+    const message: SendNotificationDto = {
+      notificationType: NotificationType.ORDER_STATUS_UPDATE,
+      channels: [Channel.EMAIL],
+      message: {
+        email: {
+          from: this.fromEmail,
+          to: dynamicData.recipient.email!,
+          templateId,
+          dynamicTemplateData: dynamicData,
+        },
+      },
+    };
+
+    this.notify(this.buildRmqRecord(message));
+  }
+
+  async sendPaymentSuccessNotification(order: Order) {
+    const templateIds = getOrderStatusTemplateIds();
+    const templateId = templateIds[OrderStatus.WAITING_FOR_CONFIRMATION];
+    const code = order.deliveryLater
+      ? NotificationTemplateCode.ORDER_WAITING_FOR_CONFIRMATION
+      : NotificationTemplateCode.ORDER_CREATED;
+    const sound = [
+      NotificationTemplateCode.ORDER_CREATED,
+      NotificationTemplateCode.ORDER_WAITING_FOR_CONFIRMATION,
+      NotificationTemplateCode.ORDER_NOT_CONFIRMED,
+    ].includes(code)
+      ? 'delivery_report.wav'
+      : 'default';
+
+    const dynamicData = this.getBaseDynamicDataForOrder(order);
+
+    switch (order.statusCode) {
+      case OrderStatus.PAYMENT_FAILED: {
+        const store = await this.storeRepository.findOne({ id: order.storeId })!;
+        dynamicData['store'] = { name: get(store, 'storeName') };
+        break;
+      }
+    }
+
+    const { title, body } = getOrderNotificationTemplate(code, order.orderCode);
+
+    const message: SendNotificationDto = {
+      notificationType: NotificationType.ORDER_STATUS_UPDATE,
+      channels: [Channel.EMAIL, Channel.PUSH],
+      message: {
+        email: {
+          from: this.fromEmail,
+          to: order.receiverEmail!,
+          templateId,
+          dynamicTemplateData: dynamicData,
+        },
+        pushNotification: {
+          type: PushType.TOPIC,
+          topic: order.partnerId,
+          platforms: {
+            android: {
+              priority: 'high',
+            },
+            apns: {
+              payload: {
+                aps: {
+                  alert: {
+                    title,
+                    body,
+                  },
+                  'content-available': 1,
+                  sound,
+                },
+              },
+            },
+          },
+          data: {
+            objectId: order.id,
+            type: 'partnerOrder',
+            title,
+            body,
+            code,
+          },
+        },
+      },
+    };
+
+    this.notify(this.buildRmqRecord(message));
   }
 }

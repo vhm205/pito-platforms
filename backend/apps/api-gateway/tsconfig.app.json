@@ -4,7 +4,7 @@
     "declaration": false,
     "outDir": "../../dist/apps/api-gateway",
     "noUnusedLocals": false, // TODO: we need to find another way to enforce this
-    "noUnusedParameters": false
+    "noUnusedParameters": false,
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]

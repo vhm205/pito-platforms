@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { join } from 'path';
 
-import { LoggerService } from '@app/common';
+import { LoggerService, RabbitMQQueue } from '@app/common';
 import { NOTIFICATION_PACKAGE_NAME } from '@app/common/types/proto/notification';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
@@ -30,7 +30,7 @@ async function bootstrap() {
           process.env.RABBITMQ_HOST
         }:${process.env.RABBITMQ_PORT}${process.env.RABBITMQ_VHOST}`,
       ],
-      queue: 'notification_queue',
+      queue: RabbitMQQueue.NOTIFICATION_QUEUE,
       queueOptions: {
         durable: true,
       },

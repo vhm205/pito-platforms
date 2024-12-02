@@ -36,6 +36,10 @@ export class NotificationController {
     const channel = context.getChannelRef();
     const originalMessage = context.getMessage();
 
+    this.logger.log('Received send notification event', {
+      metadata: payload,
+    });
+
     try {
       const { channels, message } = payload;
 

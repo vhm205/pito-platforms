@@ -1,6 +1,6 @@
 import { DEFAULT_PAGE_NUMBER, UpdateOrderStatusRequest } from '@app/common';
 import { RoleType } from '@gateway/constants';
-import { ApiPageWrapperResponse, AuthUser } from '@gateway/decorators';
+import { ApiPageWrapperResponse, AuthUser, ClientIP } from '@gateway/decorators';
 import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
@@ -22,8 +22,9 @@ import {
   HttpException,
   UsePipes,
   ValidationPipe,
+  Post,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ApiBody, ApiResponse, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import type { RedisStore } from 'cache-manager-redis-yet';
 import { plainToInstance } from 'class-transformer';
 import { omit } from 'lodash';
@@ -31,6 +32,7 @@ import { omit } from 'lodash';
 import { Auth } from '../../decorators/http.decorator';
 import { AuthenticatedUser } from '../auth/auth-user.interface';
 
+import { CreateOrderDto, CreateOrderResponseDto } from './dto/create-order.dto';
 import {
   GetRevenueAndCountOrderQueryDto,
   GetRevenueAndCountOrderResponseDto,
@@ -56,6 +58,19 @@ export class OrdersController {
     const result = await this.cacheManager.get('key');
 
     return { result };
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.OK)
+  @Auth([RoleType.CUSTOMER])
+  @ApiBody({ type: CreateOrderDto })
+  @ApiResponse({ description: 'Order created successfully', type: CreateOrderResponseDto })
+  createOrder(
+    @Body() createOrderDto: CreateOrderDto,
+    @AuthUser() user: AuthenticatedUser,
+    @ClientIP() ip: string,
+  ) {
+    return this.service.createOrder(createOrderDto, user.id, ip);
   }
 
   @Get('stores/revenue')
