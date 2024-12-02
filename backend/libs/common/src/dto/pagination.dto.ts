@@ -1,5 +1,25 @@
 import { Type } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type as TType } from 'class-transformer';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
+
+export class PaginationQueryDto {
+  @IsNumber()
+  @TType(() => Number)
+  pageSize: number;
+
+  @IsNumber()
+  @TType(() => Number)
+  page: number;
+
+  @IsString()
+  @IsOptional()
+  sortBy: string;
+
+  @IsString()
+  @IsOptional()
+  sortDirection: string;
+}
 
 export class InfinityPaginationResponseDto<T> {
   data: T[];

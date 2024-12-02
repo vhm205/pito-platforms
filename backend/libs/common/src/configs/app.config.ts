@@ -16,12 +16,15 @@ export type AppConfig = {
   userGrpcUrl: string;
   orderGrpcUrl: string;
   billingGrpcUrl: string;
+  menuGrpcUrl: string;
 
   rabbitmqHost: string;
   rabbitmqPort: number;
   rabbitmqUser: string;
   rabbitmqPass: string;
   rabbitmqVhost: string;
+
+  defaultDistanceInMeters: number;
 };
 
 class AppVariablesValidator {
@@ -52,6 +55,12 @@ class AppVariablesValidator {
   BILLING_GRPC_PORT: number;
 
   @IsString()
+  MENU_GRPC_HOST: string;
+
+  @IsInt()
+  MENU_GRPC_PORT: number;
+
+  @IsString()
   RABBITMQ_HOST: string;
 
   @IsInt()
@@ -65,6 +74,9 @@ class AppVariablesValidator {
 
   @IsString()
   RABBITMQ_VHOST: string;
+
+  @IsInt()
+  DEFAULT_DISTANCE_IN_METERS: number;
 }
 
 // eslint-disable-next-line import/no-default-export
@@ -80,11 +92,14 @@ export default registerAs<AppConfig>('app', () => {
     userGrpcUrl: process.env.USER_GRPC_HOST!.concat(':', process.env.USER_GRPC_PORT!),
     orderGrpcUrl: process.env.ORDER_GRPC_HOST!.concat(':', process.env.ORDER_GRPC_PORT!),
     billingGrpcUrl: process.env.BILLING_GRPC_HOST!.concat(':', process.env.BILLING_GRPC_PORT!),
+    menuGrpcUrl: process.env.MENU_GRPC_HOST!.concat(':', process.env.MENU_GRPC_PORT!),
 
     rabbitmqHost: process.env.RABBITMQ_HOST!,
     rabbitmqPort: process.env.RABBITMQ_PORT ? parseInt(process.env.RABBITMQ_PORT, 10) : 5672,
     rabbitmqUser: process.env.RABBITMQ_USER!,
     rabbitmqPass: process.env.RABBITMQ_PASS!,
     rabbitmqVhost: process.env.RABBITMQ_VHOST!,
+
+    defaultDistanceInMeters: +process.env.DEFAULT_DISTANCE_IN_METERS!,
   };
 });

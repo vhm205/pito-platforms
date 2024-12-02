@@ -34,3 +34,9 @@ export async function retryOperation<T>(
   }
   throw new Error('Retry attempts exceeded');
 }
+
+export function getImageUrl(imagePath: string): string {
+  if (imagePath.startsWith('http')) return imagePath;
+  const baseUrl = process.env.BASE_URL;
+  return `${baseUrl}/storage/v1/render/image/public/images/${imagePath}`;
+}

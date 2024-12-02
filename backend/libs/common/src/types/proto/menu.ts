@@ -1,24 +1,236 @@
 /* eslint-disable */
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
+import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
 
 export const protobufPackage = 'menu';
+
+/** [START] Find stores by filter */
+export interface GetStoreByFilterRequest {
+  /** Page number for pagination */
+  page: number;
+  /** Number of items per page */
+  pageSize: number;
+  /** Sort by field */
+  sortBy?: string | undefined;
+  filters?: StoreFilter | undefined;
+}
+
+export interface GetStoreByFilterResponse {
+  stores: SearchStoreResult[];
+  total: number;
+}
+
+export interface Store {
+  id: string;
+  partnerId: string;
+  storeName: string;
+  introduction: string;
+  avatar: string;
+  thumbnail: string;
+  email: string;
+  phone: string;
+  isActive: boolean;
+  isVat: boolean;
+  starRating: number;
+  timelinessRate: number;
+  cover: string;
+  menuStatus: string;
+  cuisineTypes: number[];
+  specialDietaries: number[];
+  occasionEvents: number[];
+  serviceTypes: number[];
+  minParticipants: number;
+  minPreparationTime: number;
+  minOrderValue: number;
+  storeCode: string;
+  slug: string;
+  status: string;
+  openingHours: { [key: string]: Store_OpeningHours };
+  updatedAt: Date | undefined;
+}
+
+export interface Store_OpeningHours {
+  open: string;
+  close: string;
+}
+
+export interface Store_OpeningHoursEntry {
+  key: string;
+  value: Store_OpeningHours | undefined;
+}
+
+export interface SearchStoreResult {
+  store: Store | undefined;
+  distance?: number | undefined;
+  totalCompletedOrders: number;
+  isOpen: boolean;
+}
+
+export interface StoreFilter {
+  keyword?: string | undefined;
+  shippingTime?: string | undefined;
+  budgetRange?: StoreFilter_BudgetRangeFilter | undefined;
+  shippingAddress?: StoreFilter_ShippingAddressFilter | undefined;
+  occasionEvents: number[];
+  specialDietaries: number[];
+  serviceTypes: number[];
+  cuisineTypes: number[];
+  rating?: number | undefined;
+}
+
+export interface StoreFilter_ShippingAddressFilter {
+  address: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface StoreFilter_BudgetRangeFilter {
+  min: number;
+  max: number;
+}
+
+/** [START] Find products in stores */
+export interface GetItemInStoreRequest {
+  /** Page number for pagination */
+  page: number;
+  /** Number of items per page */
+  pageSize: number;
+  /** Sort by field */
+  sortBy: string;
+  filters: ItemFilter | undefined;
+}
+
+export interface GetItemInStoreResponse {
+  items: GetItemInStoreResult[];
+  total: number;
+}
+
+export interface ItemFilter {
+  storeId: string;
+  keyword?: string | undefined;
+  budgetRange?: ItemFilter_BudgetRangeFilter | undefined;
+  occasionEvents: number[];
+  specialDietaries: number[];
+  serviceTypes: number[];
+  cuisineTypes: number[];
+}
+
+export interface ItemFilter_BudgetRangeFilter {
+  min: number;
+  max: number;
+}
+
+export interface ChoiceOfOption {
+  choiceId: string;
+  name: string;
+  basePrice: number;
+  isActive: boolean;
+}
+
+export interface OptionAndChoice {
+  optionId: string;
+  name: string;
+  isRequired: boolean;
+  maxChoices: number;
+  isMultipleChoice: boolean;
+  isSelectionQuantityAllowed: boolean;
+  choices: ChoiceOfOption[];
+  isActive: boolean;
+  description: string;
+}
+
+export interface Item {
+  id: string;
+  slug: string;
+  name: string;
+  basePrice: number;
+  description: string;
+  extraDescription: string;
+  images: string[];
+  storeId: string;
+  minQuantity: number;
+  maxQuantity: number;
+  unitType: string;
+  packagingType: string;
+  eatingUtensil: string;
+  specialNote: string;
+  unitQuantity: number;
+  preparationTime: number;
+  optionsAndChoices: OptionAndChoice[];
+  specialDietaries: number[];
+  cuisineTypes: number[];
+  occasionEvents: number[];
+}
+
+export interface GetItemInStoreResult {
+  item: Item | undefined;
+  specialDietaries: FilterOption[];
+  cuisineTypes: FilterOption[];
+  occasionEvents: FilterOption[];
+}
+
+/** [START] Get filter options */
+export interface GetFilterOptionRequest {
+  keyword: string;
+}
+
+export interface GetFilterOptionResponse {
+  cuisineTypes: FilterOption[];
+  occasionEvents: FilterOption[];
+  serviceTypes: FilterOption[];
+  specialDietaries: FilterOption[];
+}
+
+export interface FilterOption {
+  id: number;
+  name: string;
+}
 
 export interface Empty {}
 
 export const MENU_PACKAGE_NAME = 'menu';
 
+wrappers['.google.protobuf.Timestamp'] = {
+  fromObject(value: Date) {
+    return { seconds: value.getTime() / 1000, nanos: (value.getTime() % 1000) * 1e6 };
+  },
+  toObject(message: { seconds: number; nanos: number }) {
+    return new Date(message.seconds * 1000 + message.nanos / 1e6);
+  },
+} as any;
+
 export interface MenusServiceClient {
-  findMenus(request: Empty): Observable<Empty>;
+  findStoresByFilter(request: GetStoreByFilterRequest): Observable<GetStoreByFilterResponse>;
+
+  findItemsInStore(request: GetItemInStoreRequest): Observable<GetItemInStoreResponse>;
+
+  getFilterOptions(request: GetFilterOptionRequest): Observable<GetFilterOptionResponse>;
 }
 
 export interface MenusServiceController {
-  findMenus(request: Empty): Promise<Empty> | Observable<Empty> | Empty;
+  findStoresByFilter(
+    request: GetStoreByFilterRequest,
+  ):
+    | Promise<GetStoreByFilterResponse>
+    | Observable<GetStoreByFilterResponse>
+    | GetStoreByFilterResponse;
+
+  findItemsInStore(
+    request: GetItemInStoreRequest,
+  ): Promise<GetItemInStoreResponse> | Observable<GetItemInStoreResponse> | GetItemInStoreResponse;
+
+  getFilterOptions(
+    request: GetFilterOptionRequest,
+  ):
+    | Promise<GetFilterOptionResponse>
+    | Observable<GetFilterOptionResponse>
+    | GetFilterOptionResponse;
 }
 
 export function MenusServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['findMenus'];
+    const grpcMethods: string[] = ['findStoresByFilter', 'findItemsInStore', 'getFilterOptions'];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod('MenusService', method)(constructor.prototype[method], method, descriptor);

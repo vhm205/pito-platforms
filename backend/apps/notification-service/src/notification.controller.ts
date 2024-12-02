@@ -5,8 +5,8 @@ import { Controller } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import * as Sentry from '@sentry/nestjs';
 
-import { sendNotificationSchema } from './dtos/send-notification.dto';
 import { NotificationService } from './notification.service';
+import { sendNotificationSchema } from './validations/send-notification.validation';
 
 @Controller()
 export class NotificationController {
