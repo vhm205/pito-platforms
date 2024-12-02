@@ -27,15 +27,22 @@ export class CatchAllErrorInterceptor implements NestInterceptor {
           const request = context.switchToHttp().getRequest();
           const method = request.method;
           const url = request.url;
+          const message = error.message || 'An unexpected error occurred';
+          const statusCode = error instanceof HttpException ? error.getStatus() : 500;
 
-          this.logger.error(`HTTP Error in ${method} ${url}: ${error.message}`, error.stack);
+          if (error.response?.errors) {
+            const errors = error.response.errors;
+            this.logger.error(
+              `HTTP Error in ${method} ${url}: ${JSON.stringify(errors)}`,
+              error.stack,
+            );
+          } else {
+            this.logger.error(`HTTP Error in ${method} ${url}: ${error.message}`, error.stack);
+          }
 
           Sentry.captureException(error, {
             level: 'error',
           });
-
-          const statusCode = error instanceof HttpException ? error.getStatus() : 500;
-          const message = error.message || 'An unexpected error occurred';
 
           return throwError(
             () =>
@@ -46,6 +53,7 @@ export class CatchAllErrorInterceptor implements NestInterceptor {
                   timestamp,
                   path: url,
                   method,
+                  errors: error.response?.errors,
                 },
                 statusCode,
               ),
