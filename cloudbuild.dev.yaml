@@ -125,7 +125,7 @@ steps:
 
         if [ \"\$changed_services\" = \"all\" ]; then
           for service in api-gateway order-service notification-service review-service menu-service user-service; do
-            docker compose pull \$service &&
+            docker compose pull \$service
             if [ \"$(docker ps -aq -f name=\${service})\" ]; then
               docker compose down \$service
             else
@@ -135,7 +135,7 @@ steps:
           done
         else
           for service in \$changed_services; do
-            docker compose pull \$service &&
+            docker compose pull \$service
             if [ \"$(docker ps -aq -f name=\${service})\" ]; then
               docker compose down \$service
             else

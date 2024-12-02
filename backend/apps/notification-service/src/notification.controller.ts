@@ -40,7 +40,9 @@ export class NotificationController {
 
       channel.ack(originalMessage);
     } catch (error) {
-      this.logger.error('Failed to process send notification', error);
+      this.logger.error('Failed to process send notification', {
+        metadata: error,
+      });
       Sentry.captureException(error);
       channel.nack(originalMessage, false, false);
     }

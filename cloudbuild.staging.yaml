@@ -1,6 +1,6 @@
 steps:
-  # Step 1: Clone the repository and checkout the branch
-  - name: 'gcr.io/cloud-builders/git'
+  # Step 1: Verify the repository is cloned correctly
+  - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
@@ -26,7 +26,7 @@ steps:
     args:
       - '-c'
       - |
-        cd /workspace/pito-platform/backend &&
+        cd /workspace/backend &&
         changed_services=""
 
         if git diff --name-only HEAD~1 | grep -q 'backend/libs/common/'; then
@@ -58,7 +58,7 @@ steps:
     args:
       - '-c'
       - |
-        cd /workspace/pito-platform/backend &&
+        cd /workspace/backend &&
         changed_services=$(cat changed_services.txt)
 
         shared_cache="${_IMAGE_ZONE}.pkg.dev/${_PROJECT_ID}/pito-platform/shared-cache:${_IMAGE_TAG}"
@@ -106,7 +106,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute scp /workspace/pito-platform/backend/changed_services.txt ${_VM_INSTANCE_NAME}:/data/pito-platform/backend/changed_services.txt --zone ${_ZONE}
+        gcloud compute scp /workspace/backend/changed_services.txt ${_VM_INSTANCE_NAME}:/data/pito-platform/changed_services.txt --zone ${_ZONE}
 
   # Step 6: SSH into VM and update relevant containers
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -125,13 +125,22 @@ steps:
 
         if [ \"\$changed_services\" = \"all\" ]; then
           for service in api-gateway order-service notification-service review-service menu-service user-service; do
-            docker compose pull \$service &&
-            docker compose down \$service &&
+            docker compose pull \$service
+            if [ \"$(docker ps -aq -f name=\${service})\" ]; then
+              docker compose down \$service
+            else
+              echo \"No container \${service} to stop.\"
+            fi
             docker compose up -d --no-deps \$service
           done
         else
           for service in \$changed_services; do
-            docker compose down \$service &&
+            docker compose pull \$service
+            if [ \"$(docker ps -aq -f name=\${service})\" ]; then
+              docker compose down \$service
+            else
+              echo \"No container \${service} to stop.\"
+            fi
             docker compose up -d --no-deps \$service
           done
         fi
@@ -187,4 +196,11 @@ substitutions:
 
 options:
   substitution_option: ALLOW_LOOSE
+
 timeout: '1200s'
+
+source:
+  repoSource:
+    projectId: pito-platform-418503
+    repoName: pitovn/pito-platform
+    branchName: staging
