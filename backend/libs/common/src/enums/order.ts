@@ -2,15 +2,16 @@
  * ORDER
  */
 export enum OrderStatus {
-  draft = 'draft',
-  waiting = 'waiting',
-  received = 'received',
-  processing = 'processing',
-  delivering = 'delivering',
-  refunding = 'refunding',
-  refunded = 'refunded',
-  canceled = 'canceled',
-  completed = 'completed',
+  DRAFT = 'draft',
+  WAITING = 'waiting',
+  RECEIVED = 'received',
+  PROCESSING = 'processing',
+  DELIVERING = 'delivering',
+  REFUNDING = 'refunding',
+  REFUNDED = 'refunded',
+  CANCELLED = 'canceled',
+  COMPLETED = 'completed',
+  DELIVERY_FAILED = 'delivery_failed',
 }
 
 export enum PartnerOrderStatus {
@@ -21,6 +22,17 @@ export enum PartnerOrderStatus {
   missed = 'missed',
   prepared = 'prepared',
   completed = 'completed',
+}
+
+export enum StoreOrderStatus {
+  PENDING = 'pending', // Chờ xác nhận
+  CONFIRMED = 'confirmed', // Đã xác nhận
+  NOT_CONFIRMED = 'not_confirmed', // Không xác nhận
+  PREPARING = 'preparing', // Đang chuẩn bị
+  PREPARED = 'prepared', // Chuẩn bị xong
+  CANCELLED = 'canceled', // Store huỷ đơn
+  COMPLETED = 'completed', // Hoàn thành
+  REJECTED = 'rejected', // Từ chối
 }
 
 export enum OrderType {
@@ -76,61 +88,4 @@ export enum DeliveryStatus {
   delivering = 'delivering',
   canceled = 'canceled',
   completed = 'completed',
-}
-
-/**
- * PAYMENT
- */
-export enum PaymentStatus {
-  created = 'created',
-  completed = 'completed',
-  failed = 'failed',
-  pending = 'pending',
-  refunded = 'refunded',
-}
-
-export enum PaymentGateway {
-  vnpay = 'vnpay',
-  acb = 'acb',
-}
-
-export enum PaymentType {
-  DP = 'DP', // direct payment
-  AP = 'AP', // debt
-  RF = 'RF', // refund
-}
-
-export enum PaymentMethod {
-  qrcode = 'qrcode',
-  atm = 'atm',
-  visa = 'visa',
-  mastercard = 'mastercard',
-  jcb = 'jcb',
-  upi = 'upi',
-  amex = 'amex',
-}
-
-export enum VNPayBankCodes {
-  VNBANK = 'VNBANK',
-  ATM = 'ATM',
-  VISA = 'VISA',
-  MASTERCARD = 'MASTERCARD',
-  JCB = 'JCB',
-  UPI = 'UPI',
-  AMEX = 'AMEX',
-}
-
-export enum TxErrorCode {
-  init = 1000,
-  success = 100,
-  insufficient_funds = 401,
-  invalid_card = 402,
-  gateway_error = 403,
-  tx_declined = 404,
-  tx_timeout = 405,
-  tx_cancelled = 406,
-  unknow_error = 407,
-  refund_error = 408,
-  refund_rejected = 409,
-  refunded = 500,
 }

@@ -1,12 +1,12 @@
 import { LoggerService, SendNotificationDto } from '@app/common';
-import { Channel } from '@app/common/enums';
+import { Channel, NotificationEventPattern } from '@app/common/enums';
 import { ZodValidationPipe } from '@app/common/pipes';
 import { Controller } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import * as Sentry from '@sentry/nestjs';
 
-import { sendNotificationSchema } from './dtos/send-notification.dto';
 import { NotificationService } from './notification.service';
+import { sendNotificationSchema } from './validations/send-notification.validation';
 
 @Controller()
 export class NotificationController {
@@ -15,7 +15,7 @@ export class NotificationController {
     private readonly logger: LoggerService,
   ) {}
 
-  @EventPattern('notification.sent')
+  @EventPattern(NotificationEventPattern.SEND)
   async sendNotification(
     @Payload(new ZodValidationPipe(sendNotificationSchema)) payload: SendNotificationDto,
     @Ctx() context: RmqContext,
@@ -40,7 +40,9 @@ export class NotificationController {
 
       channel.ack(originalMessage);
     } catch (error) {
-      this.logger.error('Failed to process send notification', error);
+      this.logger.error('Failed to process send notification', {
+        metadata: error,
+      });
       Sentry.captureException(error);
       channel.nack(originalMessage, false, false);
     }

@@ -8,6 +8,7 @@ export enum OrderEvent {
 export type OrderEventData = {
   orderCode: string;
   isUserCancelled: boolean;
+  duration: number;
   timestamps: {
     pickup?: number;
     completion?: number;

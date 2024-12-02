@@ -22,7 +22,7 @@ export class AhamoveWebhookController {
       this.logger.debug(message);
       return message;
     }
-
+    this.logger.log('Received ahamove order event', { metadata: event });
     await this.orderEventsService.processEvent(event);
     return 'Event has been processed';
   }

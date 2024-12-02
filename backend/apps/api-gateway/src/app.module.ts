@@ -7,11 +7,15 @@ import { SentryModule } from '@sentry/nestjs/setup';
 import { ClsModule } from 'nestjs-cls';
 
 import { CatchAllErrorInterceptor } from './interceptors/catch-all-error.interceptor';
+import { TransformResponseInterceptor } from './interceptors/transform-response.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
 import { FilesModule } from './modules/files/files.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { StoresModule } from './modules/stores/stores.module';
 import { UsersModule } from './modules/users/users.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
+
+const modules = [AuthModule, FilesModule, OrdersModule, StoresModule, UsersModule, WebhookModule];
 
 @Module({
   imports: [
@@ -30,17 +34,16 @@ import { WebhookModule } from './modules/webhook/webhook.module';
     LoggerModule.forRoot({
       service: 'ApiGateway',
     }),
-    AuthModule,
-    UsersModule,
-    OrdersModule,
-    WebhookModule,
-    FilesModule,
+    ...modules,
   ],
-  controllers: [],
   providers: [
     {
       provide: APP_INTERCEPTOR,
       useClass: CatchAllErrorInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformResponseInterceptor,
     },
   ],
 })

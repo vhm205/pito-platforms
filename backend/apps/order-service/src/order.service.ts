@@ -1,66 +1,61 @@
 import { pagePagination } from '@app/common';
-import { Channel } from '@app/common/enums';
-import { OrderUpdateStatusDto, SendNotificationDto } from '@app/common/types';
+import { GrpcStatus, OrderStatus } from '@app/common/enums';
+import { FindOrderRequest, UpdateOrderStatusRequest } from '@app/common/types';
 import { PaginationOptions } from '@app/common/types/common';
-import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy, RmqRecordBuilder } from '@nestjs/microservices';
+import { Injectable } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 
+import { Order } from './domain';
 import { FilterOrderDto, SortOrderDto } from './dto';
 import { OrderRepository } from './infrastructure/persistence/order.repository';
 
 @Injectable()
 export class OrderService {
-  constructor(
-    private readonly orderRepository: OrderRepository,
-    @Inject('NOTIFICATIONS_SERVICE') private rabbitClient: ClientProxy,
-  ) {}
+  constructor(private readonly orderRepository: OrderRepository) {}
 
-  updateOrderStatus(payload: OrderUpdateStatusDto) {
-    // TODO: example will be removed after
-    const message: SendNotificationDto = {
-      notificationType: 'OrderStatusUpdated',
-      channels: [Channel.EMAIL],
-      message: {
-        email: {
-          from: 'no-reply@pito.vn',
-          to: 'minh.vu@pito.vn',
-          subject: 'This is test subject',
-          templateId: 'd-106f40945f10466e807b974a0c22176e',
-          dynamicTemplateData: payload,
-        },
-        // pushNotification: {
-        //   type: PushType.TOPIC,
-        //   topic: payload.orderId,
-        //   platforms: {
-        //     android: {
-        //       priority: 'high',
-        //     },
-        //   },
-        //   data: {
-        //     title: 'This is test title',
-        //     body: 'This is test body',
-        //   },
-        // },
-      },
-    };
+  async findOneOrder(payload: FindOrderRequest) {
+    return this.orderRepository.findOne(payload);
+  }
 
-    const record = new RmqRecordBuilder(message)
-      .setOptions({
-        headers: {
-          ['x-version']: '1.0.0',
-        },
-        priority: 0,
-        persistent: true,
-      })
-      .build();
+  async updateOrderStatus(payload: UpdateOrderStatusRequest): Promise<Order> {
+    const { id, status, cancelReason, deliveryEta } = payload;
+    const order = await this.orderRepository.findOne({ id });
+    if (!order) {
+      throw new RpcException({
+        message: `Order with ID ${id} not found`,
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
 
-    this.rabbitClient.emit('notification.sent', record);
+    const timestamp = payload.timestamp ?? new Date();
+    order.status = status as OrderStatus;
+    order.updatedAt = timestamp;
 
-    return {
-      message: 'Order updated successfully',
-      statusCode: 201,
-      success: true,
-    };
+    switch (status as OrderStatus) {
+      case OrderStatus.DELIVERING:
+        order.deliveryAt = timestamp;
+        order.deliveryEta = deliveryEta ?? null;
+        break;
+      case OrderStatus.DELIVERY_FAILED:
+        order.cancelReason = cancelReason ?? '';
+        order.deliveryFailedAt = timestamp;
+        break;
+      case OrderStatus.COMPLETED:
+        order.completedAt = timestamp;
+        break;
+      default:
+        return order as Order; // don't need to process
+    }
+
+    const updatedOrder = await this.orderRepository.updateOrder(order);
+    if (!updatedOrder) {
+      throw new RpcException({
+        menubar: `Failed to update order with ID ${order.id}`,
+        status: GrpcStatus.INTERNAL,
+      });
+    }
+
+    return updatedOrder;
   }
 
   findOrders() {

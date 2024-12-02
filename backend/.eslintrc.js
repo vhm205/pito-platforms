@@ -15,13 +15,22 @@ module.exports = {
   ignorePatterns: ['.eslintrc.js'],
   rules: {
     'prettier/prettier': 'error',
-    'max-len': ['error', { code: 100 }],
+    'max-len': ['error', { code: 200 }],
     'import/order': [
       'error',
       {
         groups: ['builtin', 'external', 'internal', 'parent', ['index', 'sibling'], 'object'],
         'newlines-between': 'always',
         alphabetize: { order: 'asc', caseInsensitive: true },
+      },
+    ],
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+        args: 'after-used',
+        argsIgnorePattern: '^_',
+        ignoreRestSiblings: true,
       },
     ],
     'import/named': 'error',

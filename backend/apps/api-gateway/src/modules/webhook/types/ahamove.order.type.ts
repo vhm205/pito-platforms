@@ -62,4 +62,5 @@ export type AhamoveOrderCallback = {
   app: string;
   store_id: number;
   distance: number;
+  duration: number;
 };
