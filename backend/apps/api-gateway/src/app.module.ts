@@ -11,8 +11,11 @@ import { TransformResponseInterceptor } from './interceptors/transform-response.
 import { AuthModule } from './modules/auth/auth.module';
 import { FilesModule } from './modules/files/files.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { StoresModule } from './modules/stores/stores.module';
 import { UsersModule } from './modules/users/users.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
+
+const modules = [AuthModule, FilesModule, OrdersModule, StoresModule, UsersModule, WebhookModule];
 
 @Module({
   imports: [
@@ -28,14 +31,11 @@ import { WebhookModule } from './modules/webhook/webhook.module';
       load: [appConfig, databaseConfig, externalConfig, fileConfig],
     }),
     SentryModule.forRoot(),
-    LoggerModule.forRoot({ service: 'ApiGateway' }),
-    AuthModule,
-    UsersModule,
-    OrdersModule,
-    WebhookModule,
-    FilesModule,
+    LoggerModule.forRoot({
+      service: 'ApiGateway',
+    }),
+    ...modules,
   ],
-  controllers: [],
   providers: [
     {
       provide: APP_INTERCEPTOR,

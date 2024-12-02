@@ -1,3 +1,4 @@
+import { LoggerService } from '@app/common';
 import KeycloakAdminClient from '@keycloak/keycloak-admin-client';
 // eslint-disable-next-line max-len
 import MappingsRepresentation from '@keycloak/keycloak-admin-client/lib/defs/mappingsRepresentation';
@@ -13,6 +14,7 @@ export class KeycloakAdminService implements OnModuleInit {
 
   constructor(
     private readonly configService: ConfigService,
+    private readonly loggerService: LoggerService,
     @Inject(CACHE_MANAGER) private cacheManager: RedisStore,
   ) {}
 
@@ -22,13 +24,15 @@ export class KeycloakAdminService implements OnModuleInit {
       realmName: this.configService.get<string>('KEYCLOAK_REALM'),
     });
 
-    await this.keycloakAdmin.auth({
-      username: this.configService.get<string>('KEYCLOAK_ADMIN_USERNAME'),
-      password: this.configService.get<string>('KEYCLOAK_ADMIN_PASSWORD'),
-      grantType: 'password',
-      clientId: this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_ID') as string,
-      clientSecret: this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_SECRET'),
-    });
+    await this.keycloakAdmin
+      .auth({
+        username: this.configService.get<string>('KEYCLOAK_ADMIN_USERNAME'),
+        password: this.configService.get<string>('KEYCLOAK_ADMIN_PASSWORD'),
+        grantType: 'password',
+        clientId: this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_ID') as string,
+        clientSecret: this.configService.get<string>('KEYCLOAK_ADMIN_CLIENT_SECRET'),
+      })
+      .catch(error => this.loggerService.error(error));
   }
 
   private async refreshTokenIfExpired() {
