@@ -1,16 +1,16 @@
 import 'dotenv/config';
 import { LoggerService } from '@app/common';
 import { AllConfigType, AppConfig } from '@app/common/configs';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
 
 import './instrument';
 
 import { AppModule } from './app.module';
-import { ResolvePromisesInterceptor } from './utils/serializer.interceptor';
+// import { ResolvePromisesInterceptor } from './utils/serializer.interceptor';
 import { validationOptions } from './utils/validation-options';
 
 async function bootstrap() {
@@ -38,10 +38,10 @@ async function bootstrap() {
     because class-transformer can't do it.
     https://github.com/typestack/class-transformer/issues/549
    */
-  app.useGlobalInterceptors(
-    new ResolvePromisesInterceptor(),
-    new ClassSerializerInterceptor(app.get(Reflector)),
-  );
+  // app.useGlobalInterceptors(
+  //   new ResolvePromisesInterceptor(),
+  //   new ClassSerializerInterceptor(app.get(Reflector)),
+  // );
 
   const PORT = configService.get<AppConfig>('app.apiGatewayPort', { infer: true });
   await app.listen(PORT);

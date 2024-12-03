@@ -28,10 +28,10 @@ export class InfinityPaginationResponseDto<T> {
 
 export class PagePaginationResponseDto<T> {
   data: T[];
-  metadata: {
-    total: number;
-    totalPage: number;
-    page: number;
+  pagination: {
+    totalCount: number;
+    totalPages: number;
+    currentPage: number;
     pageSize: number;
     hasNext: boolean;
     hasPrev: boolean;
@@ -62,8 +62,9 @@ export function PagePaginationResponse<T>(classRef: Type<T>) {
 
     @ApiProperty()
     metadata: {
-      total: number;
-      page: number;
+      totalCount: number;
+      totalPages: number;
+      currentPage: number;
       pageSize: number;
       hasNext: boolean;
       hasPrev: boolean;

@@ -1,19 +1,11 @@
-import {
-  GetFilterOptionResponse,
-  ItemFilter,
-  StoreFilter,
-  getDateTimeWithOffset,
-  pagePagination,
-} from '@app/common';
+import { ItemFilter, StoreFilter, getDateTimeWithOffset } from '@app/common';
 import { AppConfig } from '@app/common/configs';
-import { PagePaginationResponseDto } from '@app/common/dto';
-import { PaginationOptions } from '@app/common/types/common';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as dayjs from 'dayjs';
 
-import { GetItemInStoreFilterDto, GetItemInStoreResult } from './dtos/get-items-in-store.dto';
-import { FindStoreByFilterResult, SearchStoreFilterDto } from './dtos/search-store.dto';
+import { GetItemInStoreFilterDto } from './dtos/get-items-in-store.dto';
+import { SearchStoreFilterDto } from './dtos/search-store.dto';
 import { ItemRepository } from './infrastructure/persistence/item.repository';
 import { StoreRepository } from './infrastructure/persistence/store.repository';
 import { mergeFilterOptions } from './utils/get-filter-option.util';
@@ -27,10 +19,13 @@ export class MenuService {
   ) {}
 
   async findStoresByFilter(
-    paginationOptions: PaginationOptions,
+    paginationOptions: {
+      page: number;
+      pageSize: number;
+    },
     sortBy?: string,
     filters?: StoreFilter,
-  ): Promise<PagePaginationResponseDto<FindStoreByFilterResult>> {
+  ) {
     const { page, pageSize } = paginationOptions;
     const shippingTimeWithTimezone =
       filters?.shippingTime && getDateTimeWithOffset(filters.shippingTime);
@@ -57,21 +52,17 @@ export class MenuService {
       pageSize,
     };
 
-    const { data: stores, count: total } =
-      await this.storeRepository.findStoresByFilter(filterPayload);
-
-    return pagePagination(stores, {
-      total,
-      page,
-      pageSize,
-    });
+    return this.storeRepository.findStoresByFilter(filterPayload);
   }
 
   async getItemsInStore(
     filters: ItemFilter,
-    paginationOptions: PaginationOptions,
+    paginationOptions: {
+      page: number;
+      pageSize: number;
+    },
     sortBy?: string,
-  ): Promise<PagePaginationResponseDto<GetItemInStoreResult>> {
+  ) {
     const { page, pageSize } = paginationOptions;
     const searchTerm = filters?.keyword && filters.keyword.trim().toLowerCase();
 
@@ -88,16 +79,11 @@ export class MenuService {
       page,
       pageSize,
     };
-    const { data: items, count: total } = await this.itemRepository.getItemsInStore(filterPayload);
 
-    return pagePagination(items, {
-      total,
-      page,
-      pageSize,
-    });
+    return this.itemRepository.getItemsInStore(filterPayload);
   }
 
-  async getFilterOptions(keyword: string): Promise<GetFilterOptionResponse> {
+  async getFilterOptions(keyword: string) {
     const [{ data: filterOptionsOfStore }, { data: filterOptionsOfItem }] = await Promise.all([
       this.storeRepository.getFilterOptionIds(keyword),
       this.itemRepository.getFilterOptionIds(keyword),
@@ -108,7 +94,6 @@ export class MenuService {
       filterOptionsOfItem,
     });
 
-    const { data: filterOptions } = await this.storeRepository.getFilterOptions(filterOptionIds);
-    return filterOptions;
+    return this.storeRepository.getFilterOptions(filterOptionIds);
   }
 }

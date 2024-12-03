@@ -1,67 +1,30 @@
-import { UpdateOrderStatusRequest, User } from '@app/common';
 import { RoleType } from '@gateway/constants';
-import { AuthUser } from '@gateway/decorators';
+import { Auth } from '@gateway/decorators';
+import { ApiPageWrapperResponse } from '@gateway/decorators';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
 import { PaginationQueryDto } from '@gateway/gateway-common/dto/query-dto';
 import { emptyPaginationResponse } from '@gateway/utils/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import {
-  Controller,
-  Get,
-  Param,
-  HttpCode,
-  HttpStatus,
-  Inject,
-  Put,
-  Body,
-  Query,
-} from '@nestjs/common';
-import type { RedisStore } from 'cache-manager-redis-yet';
+import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
-import { Auth } from '../../decorators/http.decorator';
-
 import { OrderDto } from './dto/order.dto';
-import { UserOrderHistoryDto } from './dto/query-order.dto';
-import { OrdersService } from './orders.service';
+import { OperatorOrderFilterDto } from './dto/query-order.dto';
+import { OperatorOrderService } from './operator-order.service';
 import { transformCustomer, transformFilterOrder, transformOrderItem } from './utils/transformer';
 
-@Controller('orders')
-export class OrdersController {
-  constructor(
-    private readonly service: OrdersService,
-    @Inject(CACHE_MANAGER) private cacheManager: RedisStore,
-  ) {}
-
-  @Get('test')
-  @Auth([RoleType.CUSTOMER])
-  async test() {
-    await this.cacheManager.set('key', '1.0.34', 100 * 1000);
-
-    const result = await this.cacheManager.get('key');
-
-    return { result };
-  }
-
-  @Put()
-  @HttpCode(HttpStatus.OK)
-  updateStatus(@Body() updateOrderDto: UpdateOrderStatusRequest) {
-    return this.service.updateOrderStatus(updateOrderDto);
-  }
+@Controller('operator/orders')
+export class OperatorOrdersController {
+  constructor(private readonly service: OperatorOrderService) {}
 
   @Get()
-  @Auth([RoleType.CUSTOMER])
+  @Auth([RoleType.OPERATOR])
   @HttpCode(HttpStatus.OK)
-  async getUserOrdersHistory(
-    @Query() query: PaginationQueryDto<UserOrderHistoryDto>,
-    @AuthUser() user: User,
-  ) {
+  @ApiPageWrapperResponse({ type: OrderDto })
+  async getListOrders(@Query() query: PaginationQueryDto<OperatorOrderFilterDto>) {
     const transformedQuery = Object.assign(query, {
       filter: query.filter?.map(transformFilterOrder) ?? [],
     });
-    transformedQuery.filter.push({ column: 'customerId', operator: 'eq', value: user.id });
-
     const { orders, totalCount } = await this.service.getListOrders(transformedQuery);
     if (!orders?.length) {
       return emptyPaginationResponse({
@@ -93,12 +56,5 @@ export class OrdersController {
     });
 
     return new PageDto(transformedOrders, pageMeta);
-  }
-
-  @Get(':id')
-  @Auth([])
-  @HttpCode(HttpStatus.OK)
-  findOne(@Param('id') id: string) {
-    return this.service.getOrderDetail(id);
   }
 }

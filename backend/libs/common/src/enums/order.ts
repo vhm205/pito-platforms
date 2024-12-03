@@ -1,7 +1,7 @@
 /**
  * ORDER
  */
-export enum OrderStatus {
+export enum ReadableOrderStatus {
   DRAFT = 'draft',
   WAITING = 'waiting',
   RECEIVED = 'received',
@@ -33,6 +33,12 @@ export enum StoreOrderStatus {
   CANCELLED = 'canceled', // Store huỷ đơn
   COMPLETED = 'completed', // Hoàn thành
   REJECTED = 'rejected', // Từ chối
+}
+
+export enum ReadableOrderType {
+  PX = 'XP', // it's will be changed to PX
+  PC = 'CT', // it's will be changed to PC
+  PCC = 'PCC',
 }
 
 export enum OrderType {

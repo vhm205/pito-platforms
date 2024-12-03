@@ -1,7 +1,6 @@
 import { EntityRelationalHelper } from '@app/common';
-import { OrderStatus, OrderType, PaymentMethod } from '@app/common/enums';
+import { ReadableOrderStatus, ReadableOrderType, ReadablePaymentMethod } from '@app/common/enums';
 import { NullableType } from '@app/common/types/common';
-import { OrderItem } from 'apps/order-service/src/domain';
 import {
   Column,
   Entity,
@@ -25,8 +24,13 @@ export class OrderEntity extends EntityRelationalHelper {
   @Column({ type: 'uuid', name: 'customer_id' })
   customerId: string;
 
-  @Column({ type: 'enum', enum: OrderType, name: 'order_type', default: OrderType.XP })
-  orderType: OrderType;
+  @Column({
+    type: 'enum',
+    enum: ReadableOrderType,
+    name: 'order_type',
+    default: ReadableOrderType.PX,
+  })
+  orderType: ReadableOrderType;
 
   @Column({ type: 'text', name: 'order_code' })
   orderCode: string;
@@ -48,12 +52,12 @@ export class OrderEntity extends EntityRelationalHelper {
   discountShippingFee: number;
 
   // Payment method field
-  @Column({ type: 'enum', enum: PaymentMethod, name: 'payment_method' })
-  paymentMethod: PaymentMethod;
+  @Column({ type: 'enum', enum: ReadablePaymentMethod, name: 'payment_method' })
+  paymentMethod: ReadablePaymentMethod;
 
   // Order status and related dates
-  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.DRAFT })
-  status: OrderStatus;
+  @Column({ type: 'enum', enum: ReadableOrderStatus, default: ReadableOrderStatus.DRAFT })
+  status: ReadableOrderStatus;
 
   @Column({ type: 'timestamp', name: 'delivery_at', nullable: true })
   deliveryAt: NullableType<Date>;
@@ -80,8 +84,8 @@ export class OrderEntity extends EntityRelationalHelper {
   @Column({ type: 'text', name: 'delivery_address' })
   deliveryAddress: string;
 
-  @Column({ type: 'time', name: 'delivery_time', nullable: true })
-  deliveryTime: NullableType<string>;
+  // @Column({ type: 'time', name: 'delivery_time', nullable: true })
+  // deliveryTime: NullableType<string>;
 
   @Column({ type: 'numeric', name: 'delivery_eta', nullable: true })
   deliveryEta: NullableType<number>;
@@ -106,7 +110,7 @@ export class OrderEntity extends EntityRelationalHelper {
   note: NullableType<string>;
 
   @Column({ type: 'jsonb', name: 'order_items', nullable: true })
-  orderItems: Array<OrderItem>;
+  orderItems: Array<any>; // we will need to create a new entity for this
 
   @Column({ type: 'jsonb', name: 'vat_info', nullable: true })
   vatInfo: NullableType<object>;

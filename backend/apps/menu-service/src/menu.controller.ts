@@ -1,4 +1,6 @@
 import {
+  FindStoresRequest,
+  FindStoresResponse,
   GetFilterOptionRequest,
   GetFilterOptionResponse,
   GetItemInStoreRequest,
@@ -13,24 +15,28 @@ import {
 import { Controller } from '@nestjs/common';
 
 import { MenuService } from './menu.service';
+import { StoreService } from './store.service';
 
 @Controller()
 @MenusServiceControllerMethods()
 export class MenuController implements MenusServiceController {
-  constructor(private readonly menuService: MenuService) {}
+  constructor(
+    private readonly menuService: MenuService,
+    private readonly storeService: StoreService,
+  ) {}
 
   async findStoresByFilter(args: GetStoreByFilterRequest): Promise<GetStoreByFilterResponse> {
     const { page, pageSize, sortBy, filters } = args;
 
     const paginationOptions = { page, pageSize };
 
-    const { data, metadata } = await this.menuService.findStoresByFilter(
+    const { data, count } = await this.menuService.findStoresByFilter(
       paginationOptions,
       sortBy,
       filters,
     );
 
-    return { stores: data as SearchStoreResult[], total: metadata.total };
+    return { stores: data as SearchStoreResult[], total: count };
   }
 
   async findItemsInStore(args: GetItemInStoreRequest): Promise<GetItemInStoreResponse> {
@@ -38,17 +44,33 @@ export class MenuController implements MenusServiceController {
 
     const paginationOptions = { page, pageSize };
 
-    const { data, metadata } = await this.menuService.getItemsInStore(
+    const { data, count } = await this.menuService.getItemsInStore(
       filters!,
       paginationOptions,
       sortBy,
     );
 
-    return { items: data as GetItemInStoreResult[], total: metadata.total };
+    return { items: data as GetItemInStoreResult[], total: count };
   }
 
   async getFilterOptions(args: GetFilterOptionRequest): Promise<GetFilterOptionResponse> {
-    const result = await this.menuService.getFilterOptions(args.keyword);
-    return result;
+    const { data } = await this.menuService.getFilterOptions(args.keyword);
+    return data;
+  }
+
+  async findStores(request: FindStoresRequest): Promise<FindStoresResponse> {
+    request.filters ??= [];
+    request.sorts ??= [];
+
+    const [stores, totalCount] = await (() => {
+      return request.pagination
+        ? this.storeService.findStoresWithPagination(request)
+        : this.storeService.findStoresAndCount(request);
+    })();
+
+    return {
+      stores: stores.map(store => store.toMessage()),
+      totalCount,
+    };
   }
 }

@@ -36,7 +36,7 @@ export class PageOptionsDto {
   @Min(1)
   @Max(50)
   @IsOptional()
-  readonly take: number = 10;
+  readonly pageSize: number = 10;
 
   @ApiPropertyOptional({
     description: 'Search query string',
@@ -46,6 +46,6 @@ export class PageOptionsDto {
   readonly q?: string;
 
   skip?(): number {
-    return (this.page - 1) * this.take;
+    return (this.page - 1) * this.pageSize;
   }
 }

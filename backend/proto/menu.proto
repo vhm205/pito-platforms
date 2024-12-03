@@ -3,11 +3,13 @@ syntax = "proto3";
 package menu;
 
 import "google/protobuf/timestamp.proto";
+import "common.proto";
 
 service MenusService {
   rpc FindStoresByFilter (GetStoreByFilterRequest) returns (GetStoreByFilterResponse);
   rpc FindItemsInStore (GetItemInStoreRequest) returns (GetItemInStoreResponse);
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
+  rpc FindStores(FindStoresRequest) returns (FindStoresResponse);
 }
 
 // [START] Find stores by filter
@@ -186,3 +188,20 @@ message FilterOption {
 // [END] Get filter options
 
 message Empty {};
+
+message FindStoresRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;
+  repeated common.FilterRule filters = 3;     
+}
+
+message FindStoresResponse {
+  message StoreResponse {
+    string id = 1;
+    string name = 2;
+    string slug = 3;
+  }
+
+  repeated StoreResponse stores = 1;
+  int32 total_count = 2;
+}

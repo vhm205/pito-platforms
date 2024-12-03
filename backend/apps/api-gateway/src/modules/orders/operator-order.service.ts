@@ -5,34 +5,29 @@ import {
   ORDER_SERVICE,
   ORDERS_SERVICE_NAME,
   OrdersServiceClient,
-  UpdateOrderStatusRequest,
 } from '@app/common';
 import { PaginationQueryDto } from '@gateway/gateway-common/dto/query-dto';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { timeout, firstValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
-import { UserOrderHistoryDto } from './dto/query-order.dto';
+import { OperatorOrderFilterDto } from './dto/query-order.dto';
 
 @Injectable()
-export class OrdersService {
+export class OperatorOrderService implements OnModuleInit {
   private orderServiceClient: OrdersServiceClient;
   private menuServiceClient: MenusServiceClient;
-
   constructor(
     @Inject(ORDER_SERVICE) private readonly orderClient: ClientGrpc,
     @Inject(MENU_SERVICE) private readonly menuClient: ClientGrpc,
-  ) {
+  ) {}
+
+  onModuleInit() {
     this.orderServiceClient = this.orderClient.getService<OrdersServiceClient>(ORDERS_SERVICE_NAME);
     this.menuServiceClient = this.menuClient.getService<MenusServiceClient>(MENUS_SERVICE_NAME);
   }
 
-  updateOrderStatus(payload: UpdateOrderStatusRequest) {
-    const source$ = this.orderServiceClient.updateOrderStatus(payload).pipe(timeout(2000));
-    return firstValueFrom(source$);
-  }
-
-  getListOrders(query: PaginationQueryDto<UserOrderHistoryDto>) {
+  async getListOrders(query: PaginationQueryDto<OperatorOrderFilterDto>) {
     return firstValueFrom(
       this.orderServiceClient.findOrders({
         filters: query.filter,
@@ -40,10 +35,6 @@ export class OrdersService {
         sorts: query.sort,
       }),
     );
-  }
-
-  getOrderDetail(id: string) {
-    return this.orderServiceClient.findOrder({ id });
   }
 
   async getStoresByIds(storeIds: string[]) {

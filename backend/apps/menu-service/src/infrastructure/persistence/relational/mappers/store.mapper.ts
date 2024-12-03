@@ -1,6 +1,8 @@
 import { getImageUrl } from '@app/common';
+import { PartnerStore } from 'apps/menu-service/src/domain/partner-store.domain';
 import { Store } from 'apps/menu-service/src/domain/store.domain';
 
+import { PartnerStoreEntity } from '../entities/partner-store.entity';
 import { StoreEntity } from '../entities/store.entity';
 
 export class StoreMapper {
@@ -31,5 +33,22 @@ export class StoreMapper {
     const entity = new StoreEntity();
     entity.id = domainEntity.id;
     return entity;
+  }
+}
+
+export class PartnerStoreMapper {
+  static toDomain(raw: PartnerStoreEntity): PartnerStore {
+    const domain = new PartnerStore();
+
+    domain.id = raw.id;
+    domain.storeName = raw.storeName;
+    domain.status = raw.status;
+    domain.isVat = raw.isVat;
+    domain.slug = raw.slug;
+
+    domain.createdAt = raw.createdAt;
+    domain.updatedAt = raw.updatedAt;
+
+    return domain;
   }
 }

@@ -9,20 +9,15 @@ import {
   FindOrderRequest,
   FindStoreOrderRequest,
   FindStoreOrderResponse,
-  Order,
-  OrderFilterDto,
-  Orders,
+  FindOrdersRequest,
+  FindOrdersResponse,
   OrdersServiceController,
-  OrderWithPagination,
-  QueryOrderWithPagination,
-  SortDirection,
   UpdateStoreOrderResponse,
   UpdateStoreOrderStatusRequest,
 } from '@app/common/types';
 import { Controller } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
-import { SortOrderDto } from './dto';
 import { NotificationService } from './notification.service';
 import { OrderService } from './order.service';
 import { StoreOrderService } from './store-order.service';
@@ -40,7 +35,7 @@ export class OrderController implements OrdersServiceController {
     const updatedOrder = await this.orderService.updateOrderStatus(request);
     this.notificationService.notifyOrder(updatedOrder);
 
-    return { order: updatedOrder as Order };
+    return { order: updatedOrder.toMessage() };
   }
 
   async updateStoreOrderStatus(
@@ -64,17 +59,7 @@ export class OrderController implements OrdersServiceController {
       });
     }
 
-    return {
-      order: {
-        id: order.id,
-        orderCode: order.orderCode,
-        totalPrice: order.totalPrice,
-        status: order.status,
-        paymentMethod: order.paymentMethod,
-        createdAt: order.createdAt,
-        deliveryDate: order.deliveryAt ?? undefined,
-      },
-    };
+    return { order: order.toMessage() };
   }
 
   async findStoreOrder(request: FindStoreOrderRequest): Promise<FindStoreOrderResponse> {
@@ -91,27 +76,19 @@ export class OrderController implements OrdersServiceController {
     };
   }
 
-  async findOrders(dto: OrderFilterDto): Promise<Orders> {
-    // eslint-disable-next-line no-console
-    console.log('Finding orders', { metadata: dto });
-    await this.orderService.findOrders(); // we will implement this method in the next steps
-    return Promise.resolve({ orders: [], total: 0 });
-  }
+  async findOrders(request: FindOrdersRequest): Promise<FindOrdersResponse> {
+    request.filters ??= [];
+    request.sorts ??= [];
 
-  async findOrdersWithPagination(args: QueryOrderWithPagination): Promise<OrderWithPagination> {
-    const { page, pageSize, sorts } = args;
+    const [orders, totalCount] = await (() => {
+      return request.pagination
+        ? this.orderService.findOrdersWithPagination(request)
+        : this.orderService.findAllOrders(request);
+    })();
 
-    const paginationOptions = { page, pageSize };
-    const sortsFormatted = sorts?.map(sort => ({
-      column: sort.field,
-      direction: sort.direction === SortDirection.ASC ? 'ASC' : 'DESC',
-    })) as SortOrderDto[];
-
-    const { metadata } = await this.orderService.findOrdersWithPagination({
-      paginationOptions,
-      sorts: sortsFormatted ?? [],
-    });
-
-    return { orders: [], total: metadata.total };
+    return {
+      orders: orders.map(order => order.toMessage()),
+      totalCount,
+    };
   }
 }

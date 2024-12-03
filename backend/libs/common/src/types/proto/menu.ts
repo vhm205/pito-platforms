@@ -2,6 +2,7 @@
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
+import { FilterRule, PaginationRequest, SortRule } from './common';
 
 export const protobufPackage = 'menu';
 
@@ -189,6 +190,23 @@ export interface FilterOption {
 
 export interface Empty {}
 
+export interface FindStoresRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface FindStoresResponse {
+  stores: FindStoresResponse_StoreResponse[];
+  totalCount: number;
+}
+
+export interface FindStoresResponse_StoreResponse {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -206,6 +224,8 @@ export interface MenusServiceClient {
   findItemsInStore(request: GetItemInStoreRequest): Observable<GetItemInStoreResponse>;
 
   getFilterOptions(request: GetFilterOptionRequest): Observable<GetFilterOptionResponse>;
+
+  findStores(request: FindStoresRequest): Observable<FindStoresResponse>;
 }
 
 export interface MenusServiceController {
@@ -226,11 +246,20 @@ export interface MenusServiceController {
     | Promise<GetFilterOptionResponse>
     | Observable<GetFilterOptionResponse>
     | GetFilterOptionResponse;
+
+  findStores(
+    request: FindStoresRequest,
+  ): Promise<FindStoresResponse> | Observable<FindStoresResponse> | FindStoresResponse;
 }
 
 export function MenusServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['findStoresByFilter', 'findItemsInStore', 'getFilterOptions'];
+    const grpcMethods: string[] = [
+      'findStoresByFilter',
+      'findItemsInStore',
+      'getFilterOptions',
+      'findStores',
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod('MenusService', method)(constructor.prototype[method], method, descriptor);
