@@ -3,7 +3,7 @@
   "compilerOptions": {
     "declaration": false,
     "outDir": "../../dist/apps/menu-service",
-    "noUnusedLocals": false, // we need to find another way to enforce this
+    "noUnusedLocals": false, // TODO: we need to find another way to enforce this
     "noUnusedParameters": false
   },
   "include": ["src/**/*"],

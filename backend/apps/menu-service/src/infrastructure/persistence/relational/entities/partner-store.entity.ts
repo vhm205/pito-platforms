@@ -32,4 +32,24 @@ export class PartnerStoreEntity {
 
   @Column({ type: 'text', nullable: false })
   slug: string;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
+  @Column({ type: 'jsonb', name: 'contacts_info', nullable: true })
+  contacts: {
+    email: string;
+    phone: string;
+    full_name: string;
+  }[];
+
+  @Column({ type: 'jsonb', nullable: true })
+  location: {
+    ward: string;
+    region: string;
+    address: string;
+    district: string;
+    latitude: number;
+    longitude: number;
+  };
 }

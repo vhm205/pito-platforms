@@ -1,4 +1,6 @@
 import {
+  DEFAULT_PAGE_NUMBER,
+  FindOrderRequest,
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
@@ -6,12 +8,12 @@ import {
   ORDERS_SERVICE_NAME,
   OrdersServiceClient,
 } from '@app/common';
-import { PaginationQueryDto } from '@gateway/gateway-common/dto/query-dto';
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
-import { OperatorOrderFilterDto } from './dto/query-order.dto';
+import { OperatorQueryOrderDto } from './dto/query-order.dto';
+import { transformCustomer } from './utils/transformer';
 
 @Injectable()
 export class OperatorOrderService implements OnModuleInit {
@@ -27,14 +29,25 @@ export class OperatorOrderService implements OnModuleInit {
     this.menuServiceClient = this.menuClient.getService<MenusServiceClient>(MENUS_SERVICE_NAME);
   }
 
-  async getListOrders(query: PaginationQueryDto<OperatorOrderFilterDto>) {
+  async getListOrders(query: OperatorQueryOrderDto) {
     return firstValueFrom(
       this.orderServiceClient.findOrders({
-        filters: query.filter,
+        filters: query.filters,
         pagination: { currentPage: query.page, pageSize: query.pageSize },
-        sorts: query.sort,
+        sorts: query.sorts,
       }),
     );
+  }
+
+  async getOrderDetails({ id, orderCode }: Pick<FindOrderRequest, 'id' | 'orderCode'>) {
+    const { order } = await firstValueFrom(this.orderServiceClient.findOrder({ id, orderCode }));
+    if (!order) throw new NotFoundException('We could not find the order');
+
+    const store = await firstValueFrom(
+      this.menuServiceClient.findStore({ id: order.storeId }),
+    ).then(({ store }) => store!);
+
+    return Object.assign(order, { store, customer: transformCustomer(order) });
   }
 
   async getStoresByIds(storeIds: string[]) {
@@ -47,7 +60,7 @@ export class OperatorOrderService implements OnModuleInit {
             value: storeIds.join(','),
           },
         ],
-        pagination: undefined,
+        pagination: { currentPage: DEFAULT_PAGE_NUMBER, pageSize: storeIds.length },
         sorts: [],
       }),
     );

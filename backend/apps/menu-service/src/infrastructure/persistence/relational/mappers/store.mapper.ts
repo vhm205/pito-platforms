@@ -45,6 +45,12 @@ export class PartnerStoreMapper {
     domain.status = raw.status;
     domain.isVat = raw.isVat;
     domain.slug = raw.slug;
+    domain.description = raw.description;
+    domain.contacts = raw.contacts?.map(({ full_name, ...restOfContact }) => ({
+      ...restOfContact,
+      fullName: full_name,
+    }));
+    domain.location = raw.location;
 
     domain.createdAt = raw.createdAt;
     domain.updatedAt = raw.updatedAt;

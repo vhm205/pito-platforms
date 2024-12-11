@@ -1,4 +1,5 @@
 import {
+  DEFAULT_PAGE_NUMBER,
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
@@ -7,12 +8,11 @@ import {
   OrdersServiceClient,
   UpdateOrderStatusRequest,
 } from '@app/common';
-import { PaginationQueryDto } from '@gateway/gateway-common/dto/query-dto';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { timeout, firstValueFrom } from 'rxjs';
 
-import { UserOrderHistoryDto } from './dto/query-order.dto';
+import { UserQueryOrderHistoryDto } from './dto/query-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -32,12 +32,12 @@ export class OrdersService {
     return firstValueFrom(source$);
   }
 
-  getListOrders(query: PaginationQueryDto<UserOrderHistoryDto>) {
+  getListOrders(query: UserQueryOrderHistoryDto) {
     return firstValueFrom(
       this.orderServiceClient.findOrders({
-        filters: query.filter,
+        filters: query.filters,
         pagination: { currentPage: query.page, pageSize: query.pageSize },
-        sorts: query.sort,
+        sorts: query.sorts,
       }),
     );
   }
@@ -56,7 +56,7 @@ export class OrdersService {
             value: storeIds.join(','),
           },
         ],
-        pagination: undefined,
+        pagination: { currentPage: DEFAULT_PAGE_NUMBER, pageSize: storeIds.length },
         sorts: [],
       }),
     );

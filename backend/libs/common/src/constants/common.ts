@@ -10,29 +10,31 @@ export const PARTNER_DB_SOURCE = 'PARTNER_DB_SOURCE';
 // Map OrderStatus to ReadableOrderStatus
 export const orderStatusToReadable: { [key in OrderStatus]?: ReadableOrderStatus } = {
   [OrderStatus.DRAFT]: ReadableOrderStatus.DRAFT,
-  [OrderStatus.WAITING]: ReadableOrderStatus.WAITING,
-  [OrderStatus.RECEIVED]: ReadableOrderStatus.RECEIVED,
-  [OrderStatus.PROCESSING]: ReadableOrderStatus.PROCESSING,
+  [OrderStatus.PAYMENT_FAILED]: ReadableOrderStatus.PAYMENT_FAILED,
+  [OrderStatus.WAITING_FOR_CONFIRMATION]: ReadableOrderStatus.WAITING_FOR_CONFIRMATION,
+  [OrderStatus.CANCELED]: ReadableOrderStatus.CANCELED,
+  [OrderStatus.REJECTED]: ReadableOrderStatus.REJECTED,
+  [OrderStatus.UNCONFIRMED]: ReadableOrderStatus.UNCONFIRMED,
+  [OrderStatus.CONFIRMED]: ReadableOrderStatus.CONFIRMED,
+  [OrderStatus.PREPARING]: ReadableOrderStatus.PREPARING,
   [OrderStatus.DELIVERING]: ReadableOrderStatus.DELIVERING,
-  [OrderStatus.REFUNDING]: ReadableOrderStatus.REFUNDING,
-  [OrderStatus.REFUNDED]: ReadableOrderStatus.REFUNDED,
-  [OrderStatus.CANCELLED]: ReadableOrderStatus.CANCELLED,
-  [OrderStatus.COMPLETED]: ReadableOrderStatus.COMPLETED,
   [OrderStatus.DELIVERY_FAILED]: ReadableOrderStatus.DELIVERY_FAILED,
+  [OrderStatus.COMPLETED]: ReadableOrderStatus.COMPLETED,
 };
 
 // Reverse map ReadableOrderStatus to OrderStatus
 export const readableToOrderStatus: { [key in ReadableOrderStatus]: OrderStatus } = {
   [ReadableOrderStatus.DRAFT]: OrderStatus.DRAFT,
-  [ReadableOrderStatus.WAITING]: OrderStatus.WAITING,
-  [ReadableOrderStatus.RECEIVED]: OrderStatus.RECEIVED,
-  [ReadableOrderStatus.PROCESSING]: OrderStatus.PROCESSING,
+  [ReadableOrderStatus.PAYMENT_FAILED]: OrderStatus.PAYMENT_FAILED,
+  [ReadableOrderStatus.WAITING_FOR_CONFIRMATION]: OrderStatus.WAITING_FOR_CONFIRMATION,
+  [ReadableOrderStatus.CANCELED]: OrderStatus.CANCELED,
+  [ReadableOrderStatus.REJECTED]: OrderStatus.REJECTED,
+  [ReadableOrderStatus.UNCONFIRMED]: OrderStatus.UNCONFIRMED,
+  [ReadableOrderStatus.CONFIRMED]: OrderStatus.CONFIRMED,
+  [ReadableOrderStatus.PREPARING]: OrderStatus.PREPARING,
   [ReadableOrderStatus.DELIVERING]: OrderStatus.DELIVERING,
-  [ReadableOrderStatus.REFUNDING]: OrderStatus.REFUNDING,
-  [ReadableOrderStatus.REFUNDED]: OrderStatus.REFUNDED,
-  [ReadableOrderStatus.CANCELLED]: OrderStatus.CANCELLED,
-  [ReadableOrderStatus.COMPLETED]: OrderStatus.COMPLETED,
   [ReadableOrderStatus.DELIVERY_FAILED]: OrderStatus.DELIVERY_FAILED,
+  [ReadableOrderStatus.COMPLETED]: OrderStatus.COMPLETED,
 };
 
 // Map ReadablePaymentMethod to PaymentMethod

@@ -1,4 +1,4 @@
-import { FindStoresRequest, transformFilterRule } from '@app/common';
+import { FindStoreRequest, FindStoresRequest, transformFilterRule } from '@app/common';
 import { Injectable } from '@nestjs/common';
 
 import { PartnerStoreRepository } from './infrastructure/persistence/partner-store.repository';
@@ -17,5 +17,9 @@ export class StoreService {
       filters: filters.map(transformFilterRule),
       sorts,
     });
+  }
+
+  async findStore({ id, slug }: FindStoreRequest) {
+    return this.repository.findOne({ id, slug });
   }
 }

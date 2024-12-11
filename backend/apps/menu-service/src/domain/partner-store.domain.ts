@@ -7,6 +7,21 @@ export class PartnerStore {
   status: StoreStatus;
   isVat: boolean;
   slug: string;
+  storeCode: string;
+  description: string;
+  contacts: {
+    email: string;
+    phone: string;
+    fullName: string;
+  }[];
+  location: {
+    ward: string;
+    region: string;
+    address: string;
+    district: string;
+    latitude: number;
+    longitude: number;
+  };
 
   createdAt: Date;
   updatedAt: NullableType<Date>;
@@ -16,6 +31,10 @@ export class PartnerStore {
       id: this.id,
       name: this.storeName,
       slug: this.slug,
+      description: this.description,
+      storeCode: this.storeCode,
+      contacts: this.contacts,
+      location: this.location,
     };
   }
 }

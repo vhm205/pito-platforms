@@ -50,11 +50,11 @@ export class OrderController implements OrdersServiceController {
     };
   }
 
-  async findOrder(payload: FindOrderRequest): Promise<FindOrderResponse> {
-    const order = await this.orderService.findOneOrder(payload);
+  async findOrder(request: FindOrderRequest): Promise<FindOrderResponse> {
+    const order = await this.orderService.findOneOrder(request);
     if (!order) {
       throw new RpcException({
-        message: 'Order not found for the provided payload',
+        message: 'Order not found for the provided request',
         status: GrpcStatus.NOT_FOUND,
       });
     }
@@ -80,11 +80,7 @@ export class OrderController implements OrdersServiceController {
     request.filters ??= [];
     request.sorts ??= [];
 
-    const [orders, totalCount] = await (() => {
-      return request.pagination
-        ? this.orderService.findOrdersWithPagination(request)
-        : this.orderService.findAllOrders(request);
-    })();
+    const [orders, totalCount] = await this.orderService.findOrdersWithPagination(request);
 
     return {
       orders: orders.map(order => order.toMessage()),

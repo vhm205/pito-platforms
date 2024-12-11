@@ -1,17 +1,18 @@
 import { RoleType } from '@gateway/constants';
 import { Auth } from '@gateway/decorators';
 import { ApiPageWrapperResponse } from '@gateway/decorators';
+import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
-import { PaginationQueryDto } from '@gateway/gateway-common/dto/query-dto';
-import { emptyPaginationResponse } from '@gateway/utils/common';
-import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import { emptyPaginationResponse, isValidUUID } from '@gateway/utils/common';
+import { Controller, Get, HttpCode, HttpStatus, Param, Query } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
-import { OrderDto } from './dto/order.dto';
-import { OperatorOrderFilterDto } from './dto/query-order.dto';
+import { OrderDetailDto } from './dto/order-detail.dto';
+import { OrderListingDto } from './dto/order-listing.dto';
+import { OperatorQueryOrderDto } from './dto/query-order.dto';
 import { OperatorOrderService } from './operator-order.service';
-import { transformCustomer, transformFilterOrder, transformOrderItem } from './utils/transformer';
+import { transformCustomer } from './utils/transformer';
 
 @Controller('operator/orders')
 export class OperatorOrdersController {
@@ -20,12 +21,9 @@ export class OperatorOrdersController {
   @Get()
   @Auth([RoleType.OPERATOR])
   @HttpCode(HttpStatus.OK)
-  @ApiPageWrapperResponse({ type: OrderDto })
-  async getListOrders(@Query() query: PaginationQueryDto<OperatorOrderFilterDto>) {
-    const transformedQuery = Object.assign(query, {
-      filter: query.filter?.map(transformFilterOrder) ?? [],
-    });
-    const { orders, totalCount } = await this.service.getListOrders(transformedQuery);
+  @ApiPageWrapperResponse({ type: OrderListingDto })
+  async getListOrders(@Query() query: OperatorQueryOrderDto) {
+    const { orders, totalCount } = await this.service.getListOrders(query);
     if (!orders?.length) {
       return emptyPaginationResponse({
         page: query.page,
@@ -40,12 +38,11 @@ export class OperatorOrdersController {
       .then(({ stores }) => new Map(stores.map(store => [store.id, store])));
 
     const transformedOrders = plainToInstance(
-      OrderDto,
+      OrderListingDto,
       orders.map(order =>
         Object.assign(order, {
           store: storesMap.get(order.storeId),
           customer: transformCustomer(order),
-          orderItems: order.orderItems.map(transformOrderItem),
         }),
       ),
       { excludeExtraneousValues: true },
@@ -55,6 +52,23 @@ export class OperatorOrdersController {
       totalCount,
     });
 
-    return new PageDto(transformedOrders, pageMeta);
+    return new PageDto<OrderListingDto>(transformedOrders, pageMeta);
+  }
+
+  @Get('/:orderIdentifier')
+  @Auth([RoleType.OPERATOR])
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: OrderDetailDto })
+  async getOrderDetails(@Param('orderIdentifier') orderIdentifier: string) {
+    const queryParam = isValidUUID(orderIdentifier)
+      ? { id: orderIdentifier }
+      : { orderCode: orderIdentifier };
+
+    const order = await this.service.getOrderDetails(queryParam);
+    const transformedOrder = plainToInstance(OrderDetailDto, order, {
+      excludeExtraneousValues: true,
+    });
+
+    return transformedOrder;
   }
 }

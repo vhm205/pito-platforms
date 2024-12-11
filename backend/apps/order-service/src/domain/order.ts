@@ -1,9 +1,4 @@
-import {
-  Order as OrderMessage,
-  readableToOrderStatus,
-  readableToOrderType,
-  readableToPaymentMethod,
-} from '@app/common';
+import { Order as OrderMessage, readableToOrderType, readableToPaymentMethod } from '@app/common';
 import { ReadableOrderStatus, ReadableOrderType, ReadablePaymentMethod } from '@app/common/enums';
 import { NullableType } from '@app/common/types/common';
 
@@ -38,6 +33,7 @@ export class Order {
   paymentMethod: ReadablePaymentMethod;
   // Order status and related dates
   status: ReadableOrderStatus;
+  statusCode: number;
   deliveryAt: NullableType<Date>;
   deliveryFailedAt: NullableType<Date>;
   completedAt: NullableType<Date>;
@@ -81,7 +77,7 @@ export class Order {
       discountAmount: this.discountAmount,
       discountShippingFee: this.discountShippingFee,
       paymentMethod: readableToPaymentMethod[this.paymentMethod],
-      status: readableToOrderStatus[this.status],
+      status: this.statusCode,
       deliveryAt: this.deliveryAt ?? undefined,
       deliveryFailedAt: this.deliveryFailedAt ?? undefined,
       completedAt: this.completedAt ?? undefined,

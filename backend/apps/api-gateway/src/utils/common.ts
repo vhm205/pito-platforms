@@ -41,3 +41,9 @@ export function emptyPaginationResponse({
 
   return new PageDto([], emptyPageMeta);
 }
+
+export function isValidUUID(str: string) {
+  const uuidRegex =
+    /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/i;
+  return uuidRegex.test(str);
+}

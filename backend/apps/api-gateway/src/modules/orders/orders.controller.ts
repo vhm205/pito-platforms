@@ -1,9 +1,8 @@
 import { UpdateOrderStatusRequest, User } from '@app/common';
 import { RoleType } from '@gateway/constants';
-import { AuthUser } from '@gateway/decorators';
+import { ApiPageWrapperResponse, AuthUser } from '@gateway/decorators';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
-import { PaginationQueryDto } from '@gateway/gateway-common/dto/query-dto';
 import { emptyPaginationResponse } from '@gateway/utils/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
@@ -22,10 +21,10 @@ import { plainToInstance } from 'class-transformer';
 
 import { Auth } from '../../decorators/http.decorator';
 
-import { OrderDto } from './dto/order.dto';
-import { UserOrderHistoryDto } from './dto/query-order.dto';
+import { OrderListingDto } from './dto/order-listing.dto';
+import { UserQueryOrderHistoryDto } from './dto/query-order.dto';
 import { OrdersService } from './orders.service';
-import { transformCustomer, transformFilterOrder, transformOrderItem } from './utils/transformer';
+import { transformCustomer } from './utils/transformer';
 
 @Controller('orders')
 export class OrdersController {
@@ -53,16 +52,11 @@ export class OrdersController {
   @Get()
   @Auth([RoleType.CUSTOMER])
   @HttpCode(HttpStatus.OK)
-  async getUserOrdersHistory(
-    @Query() query: PaginationQueryDto<UserOrderHistoryDto>,
-    @AuthUser() user: User,
-  ) {
-    const transformedQuery = Object.assign(query, {
-      filter: query.filter?.map(transformFilterOrder) ?? [],
-    });
-    transformedQuery.filter.push({ column: 'customerId', operator: 'eq', value: user.id });
+  @ApiPageWrapperResponse({ type: OrderListingDto })
+  async getUserOrdersHistory(@Query() query: UserQueryOrderHistoryDto, @AuthUser() user: User) {
+    query.filters.push({ column: 'customerId', operator: 'eq', value: user.id });
+    const { orders, totalCount } = await this.service.getListOrders(query);
 
-    const { orders, totalCount } = await this.service.getListOrders(transformedQuery);
     if (!orders?.length) {
       return emptyPaginationResponse({
         page: query.page,
@@ -77,12 +71,11 @@ export class OrdersController {
       .then(({ stores }) => new Map(stores.map(store => [store.id, store])));
 
     const transformedOrders = plainToInstance(
-      OrderDto,
+      OrderListingDto,
       orders.map(order =>
         Object.assign(order, {
           store: storesMap.get(order.storeId),
           customer: transformCustomer(order),
-          orderItems: order.orderItems.map(transformOrderItem),
         }),
       ),
       { excludeExtraneousValues: true },

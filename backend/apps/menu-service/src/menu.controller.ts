@@ -1,4 +1,6 @@
 import {
+  FindStoreRequest,
+  FindStoreResponse,
   FindStoresRequest,
   FindStoresResponse,
   GetFilterOptionRequest,
@@ -62,15 +64,16 @@ export class MenuController implements MenusServiceController {
     request.filters ??= [];
     request.sorts ??= [];
 
-    const [stores, totalCount] = await (() => {
-      return request.pagination
-        ? this.storeService.findStoresWithPagination(request)
-        : this.storeService.findStoresAndCount(request);
-    })();
+    const [stores, totalCount] = await this.storeService.findStoresWithPagination(request);
 
     return {
       stores: stores.map(store => store.toMessage()),
       totalCount,
     };
+  }
+
+  async findStore(request: FindStoreRequest): Promise<FindStoreResponse> {
+    const store = await this.storeService.findStore(request).then(store => store?.toMessage());
+    return { store };
   }
 }

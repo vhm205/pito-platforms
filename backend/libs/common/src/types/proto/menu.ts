@@ -207,6 +207,40 @@ export interface FindStoresResponse_StoreResponse {
   slug: string;
 }
 
+export interface FindStoreRequest {
+  id?: string | undefined;
+  slug?: string | undefined;
+}
+
+export interface FindStoreResponse {
+  store: FindStoreResponse_StoreResponse | undefined;
+}
+
+export interface FindStoreResponse_StoreResponse {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  storeCode: string;
+  location: FindStoreResponse_StoreResponse_Location | undefined;
+  contacts: FindStoreResponse_StoreResponse_ContactInfo[];
+}
+
+export interface FindStoreResponse_StoreResponse_Location {
+  ward: string;
+  region: string;
+  address: string;
+  district: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface FindStoreResponse_StoreResponse_ContactInfo {
+  email: string;
+  phone: string;
+  fullName: string;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -226,6 +260,8 @@ export interface MenusServiceClient {
   getFilterOptions(request: GetFilterOptionRequest): Observable<GetFilterOptionResponse>;
 
   findStores(request: FindStoresRequest): Observable<FindStoresResponse>;
+
+  findStore(request: FindStoreRequest): Observable<FindStoreResponse>;
 }
 
 export interface MenusServiceController {
@@ -250,6 +286,10 @@ export interface MenusServiceController {
   findStores(
     request: FindStoresRequest,
   ): Promise<FindStoresResponse> | Observable<FindStoresResponse> | FindStoresResponse;
+
+  findStore(
+    request: FindStoreRequest,
+  ): Promise<FindStoreResponse> | Observable<FindStoreResponse> | FindStoreResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -259,6 +299,7 @@ export function MenusServiceControllerMethods() {
       'findItemsInStore',
       'getFilterOptions',
       'findStores',
+      'findStore',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

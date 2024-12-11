@@ -59,6 +59,12 @@ export class OrderEntity extends EntityRelationalHelper {
   @Column({ type: 'enum', enum: ReadableOrderStatus, default: ReadableOrderStatus.DRAFT })
   status: ReadableOrderStatus;
 
+  @Column({ type: 'int4', name: 'status_code' })
+  statusCode: number;
+
+  @Column({ type: 'int4', name: 'operator_status_code' })
+  operatorStatusCode: number;
+
   @Column({ type: 'timestamp', name: 'delivery_at', nullable: true })
   deliveryAt: NullableType<Date>;
 

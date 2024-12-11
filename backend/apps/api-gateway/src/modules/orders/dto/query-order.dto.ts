@@ -1,14 +1,43 @@
-import { OrderType } from '@app/common/enums';
+import {
+  FilterRuleDto,
+  PaginationQueryDto,
+  parseFilter,
+  parseSort,
+  SortRule,
+} from '@gateway/gateway-common/dto/query-dto';
+import { Expose, Transform } from 'class-transformer';
+import { IsArray } from 'class-validator';
 
-export class OperatorOrderFilterDto {
-  search: string;
-  status: string;
-  deliveryDate: string;
-  orderType: OrderType;
+import { transformFilterOrder } from '../utils/transformer';
+
+function normalizeArray<T>(value: T | T[]): T[] {
+  return (Array.isArray(value) ? value : [value]).filter(Boolean);
 }
 
-export class UserOrderHistoryDto {
-  status: string;
-  storeId: string;
-  userId: string;
+export class OperatorQueryOrderDto extends PaginationQueryDto {
+  @Expose({ name: 'filter' })
+  @IsArray()
+  @Transform(({ value }) => normalizeArray(value), { toClassOnly: true })
+  @Transform(({ value }) => parseFilter(value).map(transformFilterOrder))
+  filters: FilterRuleDto[];
+
+  @Expose({ name: 'sort' })
+  @IsArray()
+  @Transform(({ value }) => normalizeArray(value), { toClassOnly: true })
+  @Transform(({ value }) => parseSort(value))
+  sorts: SortRule[];
+}
+
+export class UserQueryOrderHistoryDto extends PaginationQueryDto {
+  @Expose({ name: 'filter' })
+  @IsArray()
+  @Transform(({ value }) => normalizeArray(value), { toClassOnly: true })
+  @Transform(({ value }) => parseFilter(value).map(transformFilterOrder))
+  filters: FilterRuleDto[];
+
+  @Expose({ name: 'sort' })
+  @IsArray()
+  @Transform(({ value }) => normalizeArray(value), { toClassOnly: true })
+  @Transform(({ value }) => parseSort(value))
+  sorts: SortRule[];
 }

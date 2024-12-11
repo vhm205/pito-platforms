@@ -22,6 +22,7 @@ export class OrderMapper {
     domain.paymentMethod = raw.paymentMethod;
     // Order status and related dates
     domain.status = raw.status;
+    domain.statusCode = raw.statusCode;
     if (raw.deliveryAt) domain.deliveryAt = raw.deliveryAt;
     if (raw.completedAt) domain.completedAt = raw.completedAt;
     if (raw.cancelledAt) domain.cancelledAt = raw.cancelledAt;
