@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package common;
+
+message PaginationRequest {
+  int32 current_page = 1;
+  int32 page_size = 2;
+}
+  
+message PaginationMetadata {
+  int32 current_page = 1;
+  int32 page_size = 2;
+  int32 total_pages = 3;
+  int32 total_count = 4;
+}
+
+message FilterRule {
+  string column = 1;
+  string operator = 2;
+  string value = 3;
+}
+
+
+message SortRule {
+  string column = 1;
+  string direction = 2;
+}
+
+enum OrderType {
+  PX = 0;
+  PC = 1;
+  PCC = 2;
+}
+
+enum OrderStatus {
+  DRAFT = 0;
+  PAYMENT_FAILED = 10;
+  WAITING_FOR_CONFIRMATION = 20;
+  CANCELED = 30;
+  REJECTED = 31;
+  CONFIRMED = 40;
+  UNCONFIRMED = 41;
+  PREPARING = 50;
+  PREPARED = 51;
+  DELIVERING = 60;
+  DELIVERY_FAILED = 61;
+  COMPLETED = 100;
+}
+
+enum PaymentMethod {
+  PAYMENT_METHOD_QRCODE = 0;
+  PAYMENT_METHOD_ATM = 1;
+  PAYMENT_METHOD_VISA = 2;
+  PAYMENT_METHOD_MASTERCARD = 3;
+  PAYMENT_METHOD_JCB = 4;
+  PAYMENT_METHOD_UPI = 5;
+  PAYMENT_METHOD_AMEX = 6;
+}

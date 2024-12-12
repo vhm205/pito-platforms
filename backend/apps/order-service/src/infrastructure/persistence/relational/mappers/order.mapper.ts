@@ -22,6 +22,7 @@ export class OrderMapper {
     domain.paymentMethod = raw.paymentMethod;
     // Order status and related dates
     domain.status = raw.status;
+    domain.statusCode = raw.statusCode;
     if (raw.deliveryAt) domain.deliveryAt = raw.deliveryAt;
     if (raw.completedAt) domain.completedAt = raw.completedAt;
     if (raw.cancelledAt) domain.cancelledAt = raw.cancelledAt;
@@ -31,7 +32,7 @@ export class OrderMapper {
     domain.receiverName = raw.receiverName;
     domain.receiverPhone = raw.receiverPhone;
     domain.deliveryAddress = raw.deliveryAddress;
-    if (raw.deliveryTime) domain.deliveryTime = raw.deliveryTime;
+    // if (raw.deliveryTime) domain.deliveryTime = raw.deliveryTime;
     if (raw.deliveryEta) domain.deliveryEta = raw.deliveryEta;
     if (raw.trackingUrl) domain.trackingUrl = raw.trackingUrl;
     if (raw.deliveryDate) domain.deliveryDate = raw.deliveryDate;
@@ -40,7 +41,6 @@ export class OrderMapper {
     if (raw.cancelReason) domain.cancelReason = raw.cancelReason;
     if (raw.deliveryLater !== null) domain.deliveryLater = raw.deliveryLater;
     if (raw.note) domain.note = raw.note;
-    if (raw.orderItems) domain.orderItems = raw.orderItems;
     if (raw.vatInfo) domain.vatInfo = raw.vatInfo;
     if (raw.orderCount) domain.orderCount = raw.orderCount;
     if (raw.errorCode) domain.errorCode = raw.errorCode;
@@ -49,6 +49,18 @@ export class OrderMapper {
     // Timestamps
     domain.createdAt = raw.createdAt;
     if (raw.updatedAt) domain.updatedAt = raw.updatedAt;
+    domain.orderItems = raw.orderItems.map(item => ({
+      totalPrice: item.total_price ?? item.price * item.quantity,
+      quantity: item.quantity,
+      notes: item.notes ?? '',
+      item: {
+        id: item.item.id,
+        name: item.item.name,
+        slug: item.item.slug,
+        images: item.item.images,
+        basePrice: item.item.base_price,
+      },
+    }));
 
     return domain;
   }
@@ -81,7 +93,7 @@ export class OrderMapper {
     entity.receiverName = domainEntity.receiverName;
     entity.receiverPhone = domainEntity.receiverPhone;
     entity.deliveryAddress = domainEntity.deliveryAddress;
-    entity.deliveryTime = domainEntity.deliveryTime;
+    // entity.deliveryTime = domainEntity.deliveryTime;
     entity.deliveryEta = domainEntity.deliveryEta;
     entity.trackingUrl = domainEntity.trackingUrl;
     entity.deliveryDate = domainEntity.deliveryDate;

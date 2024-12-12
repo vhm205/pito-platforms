@@ -3,14 +3,15 @@ syntax = "proto3";
 package order;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "common.proto";
 
 service OrdersService {
   rpc UpdateOrderStatus (UpdateOrderStatusRequest) returns (UpdateOrderResponse);
   rpc UpdateStoreOrderStatus(UpdateStoreOrderStatusRequest) returns (UpdateStoreOrderResponse);
   rpc FindOrder (FindOrderRequest) returns (FindOrderResponse);
   rpc FindStoreOrder (FindStoreOrderRequest) returns (FindStoreOrderResponse);
-  rpc FindOrders (OrderFilterDto) returns (Orders);
-  rpc FindOrdersWithPagination (QueryOrderWithPagination) returns (OrderWithPagination);
+  rpc FindOrders (FindOrdersRequest) returns (FindOrdersResponse);
 }
 
 // Request message for UpdateOrderStatus
@@ -63,75 +64,86 @@ message FindStoreOrderResponse {
   StoreOrder store_order = 1;
 }
 
-message OrderFilterDto {
-  string user_id = 1;
-  string keyword = 2;
-  string status = 3;
-  string from_date = 4;
-  string to_date = 5;
-  string delivery_date = 6;
-  string sort_by = 7;
-  string sort_direction = 8;
-  string page_size = 9;
-  string from = 10;
-}
+// message OrderFilterDto {
+//   string user_id = 1;
+//   string keyword = 2;
+//   string status = 3;
+//   string from_date = 4;
+//   string to_date = 5;
+//   string delivery_date = 6;
+//   string sort_by = 7;
+//   string sort_direction = 8;
+//   string page_size = 9;
+//   string from = 10;
+// }
 
 // Message for Order Items
 message OrderItem {
-  string item_id = 1;
-  string item_name = 2;
-  string item_slug = 3;
-  float price = 4;
-  int32 quantity = 5;
-  float total_price = 6;
-  string notes = 7;
-  repeated string raw_options_choices = 8;
+  float total_price = 1;
+  int32 quantity = 2;
+  string notes = 3;
+  // repeated string raw_options_choices = 8;
 
   message Item {
     string id = 1;
     string name = 2;
     string slug = 3;
-    int32 index = 4;
-    repeated string images = 5;
-    string store_id = 6;
-    bool is_active = 7;
-    string unit_type = 8;
-    float base_price = 9;
-    string created_at = 10;
-    string deleted_at = 11;
-    string fts_vector = 12;
-    string updated_at = 13;
-    string description = 14;
-    bool setup_party = 15;
-    int32 max_quantity = 16;
-    int32 min_quantity = 17;
-    string special_note = 18;
-    repeated int32 cuisine_types = 19;
-    repeated int32 service_types = 20;
-    int32 unit_quantity = 21;
-    string eating_utensil = 22;
-    string packaging_type = 23;
-    repeated string occasion_events = 24;
-    string menu_category_id = 25;
-    int32 preparation_time = 26;
-    bool server_available = 27;
-    string extra_description = 28;
-    repeated int32 special_dietaries = 29;
-    string options_and_choices = 30;
+    repeated string images = 4;
+    float base_price = 5;
   }
 
-  Item item = 9;
+  Item item = 4;
 }
 
 // Message for Order
 message Order {
   string id = 1;
-  string order_code = 2;
-  float total_price = 3;
-  string status = 4;
-  string payment_method = 5;
-  google.protobuf.Timestamp created_at = 6;
-  google.protobuf.Timestamp delivery_date = 7;
+  string store_id = 2;
+  string user_id = 3;
+  common.OrderType order_type = 4;
+  string order_code = 5;
+
+  // Price-related fields
+  double total_price = 6;
+  double sub_total_price = 7;
+  double shipping_fee = 8;
+  double discount_amount = 9;
+  double discount_shipping_fee = 10;
+
+  // Payment method
+  common.PaymentMethod payment_method = 11;
+
+  // Status and dates
+  common.OrderStatus status = 12;
+  google.protobuf.Timestamp delivery_at = 13;
+  google.protobuf.Timestamp delivery_failed_at = 14;
+  google.protobuf.Timestamp completed_at = 15;
+  google.protobuf.Timestamp cancelled_at = 16;
+  google.protobuf.Timestamp prepared_at = 17;
+  google.protobuf.Timestamp confirmed_at = 18;
+
+  // Delivery-related information
+  string receiver_name = 19;
+  string receiver_phone = 20;
+  string delivery_address = 21;
+  int32 delivery_eta = 22;
+  optional string tracking_url = 23;
+  google.protobuf.Timestamp delivery_date = 24;
+
+  // Cancellation and additional details
+  optional string cancel_reason = 25;
+  bool delivery_later = 26;
+  optional string note = 27;
+  repeated OrderItem order_items = 28;
+  google.protobuf.Struct vat_info = 29;
+  string order_count = 30;
+  int32 error_code = 31;
+  google.protobuf.Struct metadata = 32;
+  string receiver_email = 33;
+
+  // Timestamps
+  google.protobuf.Timestamp created_at = 34;
+  google.protobuf.Timestamp updated_at = 35;
 }
 
 // Message for Store Order
@@ -145,36 +157,25 @@ message Orders {
   int32 total = 2;
 }
 
-// Enum for sorting direction
-enum SortDirection {
-  ASC = 0;
-  DESC = 1;
-}
-
 // GetOrderRequest with pagination
-message QueryOrderWithPagination {
-  int32 page = 1;        // Page number for pagination
-  int32 page_size = 2;   // Number of items per page
+message FindOrdersRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;     
 
   // Filtering criteria
-  message OrderFilter {
-    optional string status = 1;
-    optional string keyword = 2;
-    optional string from_date = 3;
-    optional string to_date = 4;
-  }
+  // message OrderFilter {
+  //   optional string status = 1;
+  //   optional string user_id = 2;
+  //   optional string order_code = 3; 
+  //   optional string from_date = 4;
+  //   optional string to_date = 5;
+  //   optional string store_id = 6;
+  // }
 
-  // Sorting criteria
-  message OrderSort {
-    string field = 1;
-    SortDirection direction = 2;
-  }
-
-  OrderFilter filters = 3; // List of filters for querying orders
-  repeated OrderSort sorts = 4;     // List of sorting criteria
+  repeated common.FilterRule filters = 3;
 }
 
-message OrderWithPagination {
+message FindOrdersResponse {
   repeated Order orders = 1;
-  int32 total = 2;
+  int32 total_count = 2;
 }

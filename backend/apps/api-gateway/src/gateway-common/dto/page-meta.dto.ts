@@ -5,7 +5,7 @@ import { PageOptionsDto } from './page-options.dto';
 
 interface IPageMetaDtoParameters {
   pageOptions: PageOptionsDto;
-  itemCount: number;
+  totalCount: number;
 }
 
 export class PageMetaDto {
@@ -23,21 +23,21 @@ export class PageMetaDto {
   })
   @IsInt()
   @Min(1)
-  readonly take: number;
+  readonly pageSize: number;
 
   @ApiProperty({
     description: 'Total number of items',
     type: Number,
   })
   @IsInt()
-  readonly itemCount: number;
+  readonly total: number;
 
   @ApiProperty({
     description: 'Total number of pages',
     type: Number,
   })
   @IsInt()
-  readonly pageCount: number;
+  readonly totalPages: number;
 
   @ApiProperty({
     description: 'Whether there is a previous page',
@@ -53,12 +53,12 @@ export class PageMetaDto {
   @IsBoolean()
   readonly hasNextPage: boolean;
 
-  constructor({ pageOptions, itemCount }: IPageMetaDtoParameters) {
+  constructor({ pageOptions, totalCount }: IPageMetaDtoParameters) {
     this.page = pageOptions.page;
-    this.take = pageOptions.take;
-    this.itemCount = itemCount;
-    this.pageCount = Math.ceil(this.itemCount / this.take);
+    this.pageSize = pageOptions.pageSize;
+    this.total = totalCount;
+    this.totalPages = Math.ceil(this.total / this.pageSize);
     this.hasPreviousPage = this.page > 1;
-    this.hasNextPage = this.page < this.pageCount;
+    this.hasNextPage = this.page < this.totalPages;
   }
 }

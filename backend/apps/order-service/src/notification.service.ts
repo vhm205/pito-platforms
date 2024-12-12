@@ -3,7 +3,7 @@ import {
   Channel,
   NotificationEventPattern,
   NotificationType,
-  OrderStatus,
+  ReadableOrderStatus,
 } from '@app/common/enums';
 import { SendNotificationDto } from '@app/common/types';
 import { Inject, Injectable } from '@nestjs/common';
@@ -26,9 +26,9 @@ export class NotificationService {
 
   async notifyOrder(order: Order) {
     const shouldNotify = [
-      OrderStatus.COMPLETED,
-      OrderStatus.DELIVERING,
-      OrderStatus.DELIVERY_FAILED,
+      ReadableOrderStatus.COMPLETED,
+      ReadableOrderStatus.DELIVERING,
+      ReadableOrderStatus.DELIVERY_FAILED,
       // Additional order statuses that require notifications can be added here
     ].includes(order.status);
 
@@ -107,7 +107,7 @@ export class NotificationService {
       time: order.createdAt, // need to format
       items: order.orderItems.map(orderItem => ({
         name: orderItem.item.name,
-        amount: formatCurrency(orderItem.total_price),
+        amount: formatCurrency(orderItem.totalPrice),
         quantity: orderItem.quantity,
         notes: orderItem.notes,
       })),
@@ -121,7 +121,7 @@ export class NotificationService {
     };
 
     switch (order.status) {
-      case OrderStatus.COMPLETED:
+      case ReadableOrderStatus.COMPLETED:
         return {
           subject: `Đơn hàng ${order.orderCode} đã được giao thành công`,
           user_name: order.receiverName,
@@ -136,7 +136,7 @@ export class NotificationService {
           total_paid: order.totalPrice,
           link: 'https://pito.vn/tim-kiem',
         };
-      case OrderStatus.DELIVERY_FAILED: {
+      case ReadableOrderStatus.DELIVERY_FAILED: {
         orderPayload['cancel_reason'] = order.cancelReason;
         break;
       }

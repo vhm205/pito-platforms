@@ -1,8 +1,9 @@
-import { UpdateOrderStatusRequest, User, Order } from '@app/common';
+import { UpdateOrderStatusRequest, User } from '@app/common';
 import { RoleType } from '@gateway/constants';
-import { ApiPageWrapperResponse } from '@gateway/decorators';
+import { ApiPageWrapperResponse, AuthUser } from '@gateway/decorators';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
+import { emptyPaginationResponse } from '@gateway/utils/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   Controller,
@@ -10,26 +11,25 @@ import {
   Param,
   HttpCode,
   HttpStatus,
-  Query,
   Inject,
   Put,
   Body,
+  Query,
 } from '@nestjs/common';
-import { RedisStore } from 'cache-manager-redis-yet';
+import type { RedisStore } from 'cache-manager-redis-yet';
 import { plainToInstance } from 'class-transformer';
 
-import { AuthUser } from '../../decorators/auth-user.decorator';
 import { Auth } from '../../decorators/http.decorator';
-import { ZodValidationPipe } from '../../pipes/zod-validation.pipe';
 
-import { GetListOrderDto, getListOrderSchema } from './dto/get-list-order.dto';
-import { OrderDto } from './dto/order.dto';
+import { OrderListingDto } from './dto/order-listing.dto';
+import { UserQueryOrderHistoryDto } from './dto/query-order.dto';
 import { OrdersService } from './orders.service';
+import { transformCustomer } from './utils/transformer';
 
 @Controller('orders')
 export class OrdersController {
   constructor(
-    private readonly ordersService: OrdersService,
+    private readonly service: OrdersService,
     @Inject(CACHE_MANAGER) private cacheManager: RedisStore,
   ) {}
 
@@ -46,44 +46,52 @@ export class OrdersController {
   @Put()
   @HttpCode(HttpStatus.OK)
   updateStatus(@Body() updateOrderDto: UpdateOrderStatusRequest) {
-    return this.ordersService.updateOrderStatus(updateOrderDto);
-  }
-
-  @Get('test-partner')
-  @Auth([RoleType.PARTNER])
-  async testPartner() {
-    await this.cacheManager.set('key', '1.0.34', 100 * 1000);
-
-    const result = await this.cacheManager.get('key');
-
-    return { result };
+    return this.service.updateOrderStatus(updateOrderDto);
   }
 
   @Get()
-  @Auth([])
+  @Auth([RoleType.CUSTOMER])
   @HttpCode(HttpStatus.OK)
-  @ApiPageWrapperResponse({ type: OrderDto })
-  async getList(
-    @Query(new ZodValidationPipe(getListOrderSchema)) getListOrderDto: GetListOrderDto,
-    @AuthUser() user: User,
-  ) {
-    const orders = await this.ordersService.getHistoryOrders(user.id, getListOrderDto);
+  @ApiPageWrapperResponse({ type: OrderListingDto })
+  async getUserOrdersHistory(@Query() query: UserQueryOrderHistoryDto, @AuthUser() user: User) {
+    query.filters.push({ column: 'customerId', operator: 'eq', value: user.id });
+    const { orders, totalCount } = await this.service.getListOrders(query);
 
+    if (!orders?.length) {
+      return emptyPaginationResponse({
+        page: query.page,
+        pageSize: query.pageSize,
+        totalCount,
+      });
+    }
+
+    const storeIds = Array.from(new Set(orders.map(order => order.storeId)));
+    const storesMap = await this.service
+      .getStoresByIds([...storeIds])
+      .then(({ stores }) => new Map(stores.map(store => [store.id, store])));
+
+    const transformedOrders = plainToInstance(
+      OrderListingDto,
+      orders.map(order =>
+        Object.assign(order, {
+          store: storesMap.get(order.storeId),
+          customer: transformCustomer(order),
+        }),
+      ),
+      { excludeExtraneousValues: true },
+    );
     const pageMeta = new PageMetaDto({
-      pageOptions: { page: 1, take: 10 },
-      itemCount: orders.total || 0,
+      pageOptions: { page: query.page, pageSize: query.pageSize },
+      totalCount,
     });
 
-    const transformedOrders = plainToInstance(OrderDto, orders.orders || []);
-    const response = new PageDto<Order>(transformedOrders || [], pageMeta);
-
-    return response;
+    return new PageDto(transformedOrders, pageMeta);
   }
 
   @Get(':id')
   @Auth([])
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id') id: string) {
-    return this.ordersService.getOrderDetail(id);
+    return this.service.getOrderDetail(id);
   }
 }

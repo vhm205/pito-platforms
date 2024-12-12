@@ -57,8 +57,8 @@ export class StoresController {
     });
 
     const pageMeta = new PageMetaDto({
-      pageOptions: { page, take: pageSize },
-      itemCount: total,
+      pageOptions: { page, pageSize },
+      totalCount: total,
     });
     const transformedDto = plainToInstance(SearchStoreResponseDto, stores);
     const response = new PageDto<SearchStoreResult>(transformedDto || [], pageMeta);
@@ -102,8 +102,8 @@ export class StoresController {
     });
 
     const pageMeta = new PageMetaDto({
-      pageOptions: { page, take: pageSize },
-      itemCount: total,
+      pageOptions: { page, pageSize },
+      totalCount: total,
     });
     const transformedDto = plainToInstance(GetItemInStoreResponseDto, items);
     const response = new PageDto<GetItemInStoreResult>(transformedDto || [], pageMeta);
