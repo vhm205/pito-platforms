@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
+import * as compression from 'compression';
 
 import './instrument';
 
@@ -17,6 +18,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors();
+  app.use(compression());
 
   const options = new DocumentBuilder()
     .setTitle('PITO API')
