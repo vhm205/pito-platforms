@@ -63,7 +63,10 @@ export class OrderController implements OrdersServiceController {
   }
 
   async findStoreOrder(request: FindStoreOrderRequest): Promise<FindStoreOrderResponse> {
-    const storeOrder = await this.storeOrderService.findOneStoreOrder(request);
+    const storeOrder = await this.storeOrderService
+      .findOneStoreOrder(request)
+      .then(order => order?.toMessage());
+
     if (!storeOrder) {
       throw new RpcException({
         message: 'Store order not found for the provided payload',

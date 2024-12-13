@@ -1,4 +1,5 @@
 import { Order } from 'apps/order-service/src/domain';
+import { map } from 'lodash';
 
 import { OrderEntity } from '../entities/order.entity';
 
@@ -49,16 +50,16 @@ export class OrderMapper {
     // Timestamps
     domain.createdAt = raw.createdAt;
     if (raw.updatedAt) domain.updatedAt = raw.updatedAt;
-    domain.orderItems = raw.orderItems.map(item => ({
-      totalPrice: item.total_price ?? item.price * item.quantity,
+    domain.orderItems = map(raw.orderItems, item => ({
+      totalPrice: item.totalPrice ?? item.price * item.quantity,
       quantity: item.quantity,
-      notes: item.notes ?? '',
+      notes: item.notes,
       item: {
         id: item.item.id,
         name: item.item.name,
         slug: item.item.slug,
         images: item.item.images,
-        basePrice: item.item.base_price,
+        basePrice: item.item.basePrice,
       },
     }));
 

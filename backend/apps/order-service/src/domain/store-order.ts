@@ -1,5 +1,6 @@
 import { ServiceFeeUnit, SourceSystemType, StoreOrderStatus } from '@app/common/enums';
 import { NullableType } from '@app/common/types/common';
+import { StoreOrder as StoreOrderMessage } from '@app/common/types/proto/order';
 
 export type StoreOrderDeliveryContact = {
   email: string;
@@ -91,4 +92,23 @@ export class StoreOrder {
   metadata: StoreOrderMetadata;
   invoiceRequest: NullableType<StoreOrderInvoiceRequest>;
   orderLogs: StoreOrderLogs;
+
+  toMessage(): StoreOrderMessage {
+    return {
+      id: this.id,
+      storeId: this.storeId,
+      orderId: this.orderId,
+      status: this.status,
+      orderCode: this.orderCode,
+      invoiceRequest: {
+        taxCode: this.invoiceRequest?.tax_code ?? '',
+        companyName: this.invoiceRequest?.company_name ?? '',
+        address: this.invoiceRequest?.address ?? '',
+        email: this.invoiceRequest?.email ?? '',
+      },
+      metadata: {
+        invoiceUrl: this.metadata.invoice_url ?? '',
+      },
+    };
+  }
 }

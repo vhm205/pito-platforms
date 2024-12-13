@@ -126,7 +126,23 @@ export interface Order {
 /** Message for Store Order */
 export interface StoreOrder {
   id: string;
+  storeId: string;
+  orderId: string;
   status: string;
+  orderCode: string;
+  invoiceRequest?: StoreOrder_InvoiceRequest | undefined;
+  metadata?: StoreOrder_StoreOrderMeta | undefined;
+}
+
+export interface StoreOrder_InvoiceRequest {
+  email: string;
+  address: string;
+  taxCode: string;
+  companyName: string;
+}
+
+export interface StoreOrder_StoreOrderMeta {
+  invoiceUrl?: string | undefined;
 }
 
 export interface Orders {

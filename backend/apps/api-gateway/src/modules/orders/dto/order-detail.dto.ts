@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude, Expose, plainToInstance, Transform, Type } from 'class-transformer';
 
 import { StoreDto, CustomerDto, OrderDto, LocationDto } from './common.dto';
@@ -125,6 +125,54 @@ class OrderNoteDto {
 export class OrderDetailDto extends OrderDto {
   @Exclude()
   deliveryEta: number;
+
+  @ApiPropertyOptional({
+    description: 'Time for the order to be confirmed',
+    example: '2021-09-01T00:00:00.000Z',
+    type: Date,
+  })
+  @Expose()
+  confirmedAt: Date;
+
+  @ApiPropertyOptional({
+    description: 'Time for the order to be prepared',
+    example: '2021-09-01T00:00:00.000Z',
+    type: Date,
+  })
+  @Expose()
+  preparedAt: Date;
+
+  @ApiPropertyOptional({
+    description: 'Time for the order to be delivered',
+    example: '2021-09-01T00:00:00.000Z',
+    type: Date,
+  })
+  @Expose()
+  deliveryAt: Date;
+
+  @ApiPropertyOptional({
+    description: 'Time for the order to be completed',
+    example: '2021-09-01T00:00:00.000Z',
+    type: Date,
+  })
+  @Expose()
+  completedAt: Date;
+
+  @ApiPropertyOptional({
+    description: 'Time for the order to be canceled',
+    example: '2021-09-01T00:00:00.000Z',
+    type: Date,
+  })
+  @Expose({ name: 'cancelledAt' })
+  canceledAt: Date;
+
+  @ApiPropertyOptional({
+    description: 'The reason for the order to be canceled',
+    example: 'The order is canceled',
+    type: String,
+  })
+  @Expose()
+  cancelReason: string;
 
   @ApiProperty({
     description: 'The history of the order status changes',
