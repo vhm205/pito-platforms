@@ -72,12 +72,12 @@ export class OrdersController {
 
     const transformedOrders = plainToInstance(
       OrderListingDto,
-      orders.map(order =>
-        Object.assign(order, {
-          store: storesMap.get(order.storeId),
-          customer: transformCustomer(order),
-        }),
-      ),
+      orders.map(order => ({
+        ...order,
+        status: order.statusCode,
+        store: storesMap.get(order.storeId),
+        customer: transformCustomer(order),
+      })),
       { excludeExtraneousValues: true },
     );
     const pageMeta = new PageMetaDto({

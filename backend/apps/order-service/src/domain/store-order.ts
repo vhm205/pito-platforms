@@ -73,6 +73,7 @@ export class StoreOrder {
   orderCode: string;
 
   status: StoreOrderStatus | string;
+  statusCode: number;
   createdAt: Date;
   updatedAt: NullableType<Date>;
   deliveryTime: Date;

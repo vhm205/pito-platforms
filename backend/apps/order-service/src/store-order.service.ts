@@ -1,5 +1,6 @@
 import { FindStoreOrderRequest, UpdateStoreOrderStatusRequest } from '@app/common';
 import { GrpcStatus, StoreOrderStatus } from '@app/common/enums';
+import { OrderStatus } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
@@ -29,26 +30,33 @@ export class StoreOrderService {
     switch (status as StoreOrderStatus) {
       case StoreOrderStatus.CONFIRMED:
         storeOrder.orderLogs.confirmed_at = currentTimestamp;
+        storeOrder.statusCode = OrderStatus.CONFIRMED;
         break;
       case StoreOrderStatus.NOT_CONFIRMED:
         storeOrder.orderLogs.not_confirmed_at = currentTimestamp;
+        storeOrder.statusCode = OrderStatus.UNCONFIRMED;
         break;
       case StoreOrderStatus.CANCELLED:
         storeOrder.orderLogs.canceled_at = currentTimestamp;
+        storeOrder.statusCode = OrderStatus.CANCELED;
         break;
       case StoreOrderStatus.REJECTED:
         storeOrder.orderLogs.rejected_at = currentTimestamp;
+        storeOrder.statusCode = OrderStatus.REJECTED;
         break;
       case StoreOrderStatus.PREPARING:
         storeOrder.orderLogs.preparing_at = currentTimestamp;
+        storeOrder.statusCode = OrderStatus.PREPARING;
         break;
       case StoreOrderStatus.PREPARED:
         storeOrder.orderLogs.prepared_at = currentTimestamp;
         storeOrder.metadata.before_delivery_images = [];
+        storeOrder.statusCode = OrderStatus.PREPARED;
         break;
       case StoreOrderStatus.COMPLETED:
         storeOrder.orderLogs.completed_at = currentTimestamp;
         storeOrder.metadata.after_delivery_images = [];
+        storeOrder.statusCode = OrderStatus.COMPLETED;
         break;
     }
 

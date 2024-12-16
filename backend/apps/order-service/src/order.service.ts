@@ -1,6 +1,7 @@
 import { transformFilterRule } from '@app/common';
 import { GrpcStatus, ReadableOrderStatus } from '@app/common/enums';
 import { FindOrderRequest, FindOrdersRequest, UpdateOrderStatusRequest } from '@app/common/types';
+import { OrderStatus } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
@@ -32,14 +33,20 @@ export class OrderService {
     switch (status as ReadableOrderStatus) {
       case ReadableOrderStatus.DELIVERING:
         order.deliveryAt = timestamp;
+        order.statusCode = OrderStatus.DELIVERING;
+        order.operatorStatusCode = OrderStatus.DELIVERING;
         order.deliveryEta = deliveryEta ?? null;
         break;
       case ReadableOrderStatus.DELIVERY_FAILED:
         order.cancelReason = cancelReason ?? '';
         order.deliveryFailedAt = timestamp;
+        order.statusCode = OrderStatus.DELIVERY_FAILED;
+        order.operatorStatusCode = OrderStatus.DELIVERY_FAILED;
         break;
       case ReadableOrderStatus.COMPLETED:
         order.completedAt = timestamp;
+        order.statusCode = OrderStatus.COMPLETED;
+        order.operatorStatusCode = OrderStatus.COMPLETED;
         break;
       default:
         return order as Order; // don't need to process
