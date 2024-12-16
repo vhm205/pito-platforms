@@ -114,36 +114,38 @@ message Order {
   common.PaymentMethod payment_method = 11;
 
   // Status and dates
-  common.OrderStatus status = 12;
-  google.protobuf.Timestamp delivery_at = 13;
-  google.protobuf.Timestamp delivery_failed_at = 14;
-  google.protobuf.Timestamp completed_at = 15;
-  google.protobuf.Timestamp cancelled_at = 16;
-  google.protobuf.Timestamp prepared_at = 17;
-  google.protobuf.Timestamp confirmed_at = 18;
+  // common.OrderStatus status = 12;
+  int32 status_code = 12;
+  int32 operator_status_code = 13;
+  google.protobuf.Timestamp delivery_at = 14;
+  google.protobuf.Timestamp delivery_failed_at = 15;
+  google.protobuf.Timestamp completed_at = 16;
+  google.protobuf.Timestamp cancelled_at = 17;
+  google.protobuf.Timestamp prepared_at = 18;
+  google.protobuf.Timestamp confirmed_at = 19;
 
   // Delivery-related information
-  string receiver_name = 19;
-  string receiver_phone = 20;
-  string delivery_address = 21;
-  int32 delivery_eta = 22;
-  optional string tracking_url = 23;
-  google.protobuf.Timestamp delivery_date = 24;
+  string receiver_name = 20;
+  string receiver_phone = 21;
+  string delivery_address = 22;
+  int32 delivery_eta = 23;
+  optional string tracking_url = 24;
+  google.protobuf.Timestamp delivery_date = 25;
 
   // Cancellation and additional details
-  optional string cancel_reason = 25;
-  bool delivery_later = 26;
-  optional string note = 27;
-  repeated OrderItem order_items = 28;
-  google.protobuf.Struct vat_info = 29;
-  string order_count = 30;
-  int32 error_code = 31;
-  google.protobuf.Struct metadata = 32;
-  string receiver_email = 33;
+  optional string cancel_reason = 26;
+  bool delivery_later = 27;
+  optional string note = 28;
+  repeated OrderItem order_items = 29;
+  google.protobuf.Struct vat_info = 30;
+  string order_count = 31;
+  int32 error_code = 32;
+  google.protobuf.Struct metadata = 33;
+  string receiver_email = 34;
 
   // Timestamps
-  google.protobuf.Timestamp created_at = 34;
-  google.protobuf.Timestamp updated_at = 35;
+  google.protobuf.Timestamp created_at = 35;
+  google.protobuf.Timestamp updated_at = 36;
 }
 
 // Message for Store Order

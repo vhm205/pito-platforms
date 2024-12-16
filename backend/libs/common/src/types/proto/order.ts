@@ -3,14 +3,7 @@ import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
 import { Struct } from '../google/protobuf/struct';
-import {
-  FilterRule,
-  OrderStatus,
-  OrderType,
-  PaginationRequest,
-  PaymentMethod,
-  SortRule,
-} from './common';
+import { FilterRule, OrderType, PaginationRequest, PaymentMethod, SortRule } from './common';
 
 export const protobufPackage = 'order';
 
@@ -93,8 +86,12 @@ export interface Order {
   discountShippingFee: number;
   /** Payment method */
   paymentMethod: PaymentMethod;
-  /** Status and dates */
-  status: OrderStatus;
+  /**
+   * Status and dates
+   * common.OrderStatus status = 12;
+   */
+  statusCode: number;
+  operatorStatusCode: number;
   deliveryAt: Date | undefined;
   deliveryFailedAt: Date | undefined;
   completedAt: Date | undefined;

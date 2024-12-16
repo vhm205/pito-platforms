@@ -34,6 +34,7 @@ export class Order {
   // Order status and related dates
   status: ReadableOrderStatus;
   statusCode: number;
+  operatorStatusCode: number;
   deliveryAt: NullableType<Date>;
   deliveryFailedAt: NullableType<Date>;
   completedAt: NullableType<Date>;
@@ -77,7 +78,8 @@ export class Order {
       discountAmount: this.discountAmount,
       discountShippingFee: this.discountShippingFee,
       paymentMethod: readableToPaymentMethod[this.paymentMethod],
-      status: this.statusCode,
+      statusCode: this.statusCode,
+      operatorStatusCode: this.operatorStatusCode,
       deliveryAt: this.deliveryAt ?? undefined,
       deliveryFailedAt: this.deliveryFailedAt ?? undefined,
       completedAt: this.completedAt ?? undefined,

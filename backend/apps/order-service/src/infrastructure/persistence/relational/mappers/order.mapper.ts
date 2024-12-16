@@ -24,6 +24,7 @@ export class OrderMapper {
     // Order status and related dates
     domain.status = raw.status;
     domain.statusCode = raw.statusCode;
+    domain.operatorStatusCode = raw.operatorStatusCode;
     if (raw.deliveryAt) domain.deliveryAt = raw.deliveryAt;
     if (raw.completedAt) domain.completedAt = raw.completedAt;
     if (raw.cancelledAt) domain.cancelledAt = raw.cancelledAt;
@@ -85,6 +86,8 @@ export class OrderMapper {
     entity.paymentMethod = domainEntity.paymentMethod;
     // Order status and related dates
     entity.status = domainEntity.status;
+    entity.statusCode = domainEntity.statusCode;
+    entity.operatorStatusCode = domainEntity.operatorStatusCode;
     entity.deliveryAt = domainEntity.deliveryAt;
     entity.completedAt = domainEntity.completedAt;
     entity.cancelledAt = domainEntity.cancelledAt;

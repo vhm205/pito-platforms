@@ -33,6 +33,12 @@ export class OperatorOrdersController {
   @HttpCode(HttpStatus.OK)
   @ApiPageWrapperResponse({ type: OrderListingDto })
   async getListOrders(@Query() query: OperatorQueryOrderDto) {
+    const transformedFilters = query.filters.map(filter => {
+      if (filter.column === 'status') return { ...filter, column: 'operatorStatusCode' };
+      return filter;
+    });
+    query.filters = transformedFilters;
+
     const { orders, totalCount } = await this.service.getListOrders(query);
     if (!orders?.length) {
       return emptyPaginationResponse({
@@ -49,12 +55,12 @@ export class OperatorOrdersController {
 
     const transformedOrders = plainToInstance(
       OrderListingDto,
-      orders.map(order =>
-        Object.assign(order, {
-          store: storesMap.get(order.storeId),
-          customer: transformCustomer(order),
-        }),
-      ),
+      orders.map(order => ({
+        ...order,
+        status: order.operatorStatusCode,
+        store: storesMap.get(order.storeId),
+        customer: transformCustomer(order),
+      })),
       { excludeExtraneousValues: true },
     );
     const pageMeta = new PageMetaDto({
@@ -73,9 +79,13 @@ export class OperatorOrdersController {
     const queryParam = isValidUUID(identifier) ? { id: identifier } : { orderCode: identifier };
 
     const order = await this.service.getOrderDetails(queryParam);
-    const transformedOrder = plainToInstance(OrderDetailDto, order, {
-      excludeExtraneousValues: true,
-    });
+    const transformedOrder = plainToInstance(
+      OrderDetailDto,
+      Object.assign(order, { status: order.operatorStatusCode }),
+      {
+        excludeExtraneousValues: true,
+      },
+    );
 
     return transformedOrder;
   }

@@ -12,6 +12,7 @@ export class StoreOrderMapper {
     domain.orderCode = raw.orderCode;
 
     domain.status = raw.status;
+    domain.statusCode = raw.statusCode;
     domain.createdAt = raw.createdAt;
     domain.updatedAt = raw.updatedAt;
     domain.deliveryTime = raw.deliveryTime;
@@ -44,6 +45,7 @@ export class StoreOrderMapper {
     entity.orderCode = domainEntity.orderCode;
 
     entity.status = domainEntity.status;
+    entity.statusCode = domainEntity.statusCode;
     entity.createdAt = domainEntity.createdAt;
     entity.updatedAt = domainEntity.updatedAt;
     entity.deliveryTime = domainEntity.deliveryTime;

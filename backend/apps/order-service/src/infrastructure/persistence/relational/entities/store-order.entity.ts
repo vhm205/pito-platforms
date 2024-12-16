@@ -1,6 +1,7 @@
 import { EntityRelationalHelper } from '@app/common';
 import { SourceSystemType, StoreOrderStatus } from '@app/common/enums';
 import { NullableType } from '@app/common/types/common';
+import { OrderStatus } from '@app/common/types/proto/common';
 import {
   StoreOrderDeliveryAddress,
   StoreOrderDeliveryContact,
@@ -42,6 +43,13 @@ export class StoreOrderEntity extends EntityRelationalHelper {
     default: 'pending',
   })
   status: StoreOrderStatus | string;
+
+  @Column({
+    name: 'status_code',
+    type: 'int4',
+    default: OrderStatus.WAITING_FOR_CONFIRMATION,
+  })
+  statusCode: number;
 
   @Column({ name: 'delivery_time', type: 'timestamp', nullable: false })
   deliveryTime: Date;

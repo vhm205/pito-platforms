@@ -151,6 +151,14 @@ export class OrderDetailDto extends OrderDto {
   deliveryAt: Date;
 
   @ApiPropertyOptional({
+    description: 'Time for the order to be failed to deliver',
+    example: '2021-09-01T00:00:00.000Z',
+    type: Date,
+  })
+  @Expose()
+  deliveryFailedAt: Date;
+
+  @ApiPropertyOptional({
     description: 'Time for the order to be completed',
     example: '2021-09-01T00:00:00.000Z',
     type: Date,
