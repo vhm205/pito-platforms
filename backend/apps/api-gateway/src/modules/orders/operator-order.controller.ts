@@ -5,9 +5,19 @@ import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.dec
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
 import { emptyPaginationResponse, isValidUUID } from '@gateway/utils/common';
-import { Controller, Get, HttpCode, HttpStatus, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
+import { get, isEmpty } from 'lodash';
 
+import { InvoiceRequestDto } from './dto/invoice-request.dto';
 import { OrderDetailDto } from './dto/order-detail.dto';
 import { OrderListingDto } from './dto/order-listing.dto';
 import { OperatorQueryOrderDto } from './dto/query-order.dto';
@@ -59,10 +69,8 @@ export class OperatorOrdersController {
   @Auth([RoleType.OPERATOR])
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: OrderDetailDto })
-  async getOrderDetails(@Param('orderIdentifier') orderIdentifier: string) {
-    const queryParam = isValidUUID(orderIdentifier)
-      ? { id: orderIdentifier }
-      : { orderCode: orderIdentifier };
+  async getOrderDetails(@Param('orderIdentifier') identifier: string) {
+    const queryParam = isValidUUID(identifier) ? { id: identifier } : { orderCode: identifier };
 
     const order = await this.service.getOrderDetails(queryParam);
     const transformedOrder = plainToInstance(OrderDetailDto, order, {
@@ -70,5 +78,33 @@ export class OperatorOrdersController {
     });
 
     return transformedOrder;
+  }
+
+  @Get('/:orderIdentifier/vat-info')
+  @Auth([RoleType.OPERATOR])
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: InvoiceRequestDto })
+  async getVatInfo(@Param('orderIdentifier') identifier: string) {
+    const queryParam = isValidUUID(identifier)
+      ? { orderId: identifier }
+      : { orderCode: identifier };
+
+    const { storeOrder } = await this.service.getStoreOrderDetails(queryParam);
+    if (!storeOrder)
+      throw new NotFoundException('We could not find the order with the provided identifier');
+
+    return plainToInstance(
+      InvoiceRequestDto,
+      {
+        orderId: storeOrder.orderId,
+        storeId: storeOrder.storeId,
+        orderCode: storeOrder.orderCode,
+        invoiceRequested: !isEmpty(storeOrder.invoiceRequest),
+        invoiceUrlAvailable: !isEmpty(storeOrder.metadata?.invoiceUrl),
+        vatInfo: get(storeOrder, 'invoiceRequest'),
+        invoiceUrl: storeOrder.metadata?.invoiceUrl,
+      },
+      { excludeExtraneousValues: true },
+    );
   }
 }

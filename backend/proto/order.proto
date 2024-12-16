@@ -149,7 +149,23 @@ message Order {
 // Message for Store Order
 message StoreOrder {
   string id = 1;
-  string status = 2;
+  string store_id = 2;
+  string order_id = 3;
+  string status = 4;
+  string order_code = 5;
+  
+  message InvoiceRequest  {
+    string email = 1;
+    string address = 2;
+    string tax_code = 3;
+    string company_name = 4;
+  }
+  optional InvoiceRequest invoice_request = 6;
+
+  message StoreOrderMeta {
+    optional string invoice_url = 1;
+  }
+  optional StoreOrderMeta metadata = 7;
 }
 
 message Orders {

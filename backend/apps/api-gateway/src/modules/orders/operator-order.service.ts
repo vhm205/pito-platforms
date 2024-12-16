@@ -1,6 +1,7 @@
 import {
   DEFAULT_PAGE_NUMBER,
   FindOrderRequest,
+  FindStoreOrderRequest,
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
@@ -64,5 +65,9 @@ export class OperatorOrderService implements OnModuleInit {
         sorts: [],
       }),
     );
+  }
+
+  async getStoreOrderDetails(args: Pick<FindStoreOrderRequest, 'id' | 'orderCode' | 'orderId'>) {
+    return firstValueFrom(this.orderServiceClient.findStoreOrder(args));
   }
 }
