@@ -1,11 +1,11 @@
 import { CUSTOMER_DB_SOURCE, LoggerService } from '@app/common';
-import { NullableType, PaginationOptions } from '@app/common/types/common';
+import { NullableType } from '@app/common/types/common';
+import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import type { FindOptionsWhere, Repository } from 'typeorm';
+import type { FindOperator, FindOptionsWhere, Repository } from 'typeorm';
 
 import { Order } from '../../../../domain/order';
-import { FilterOrderDto, SortOrderDto } from '../../../../dto';
 import { OrderRepository } from '../../order.repository';
 import { OrderEntity } from '../entities/order.entity';
 import { OrderMapper } from '../mappers/order.mapper';
@@ -25,30 +25,23 @@ export class OrderRelationalRepository implements OrderRepository {
     return entity ? OrderMapper.toDomain(entity) : null;
   }
 
-  findAllOrders(): Promise<Order[]> {
-    throw new Error('Method not implemented.');
+  async findAllOrders(filters: Record<string, FindOperator<unknown>>[]): Promise<Order[]> {
+    const entities = await this.orderRepository.find({
+      where: filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
+    });
+    return entities.map(entity => OrderMapper.toDomain(entity));
   }
 
   async findOrdersWithPagination(options: {
-    paginationOptions: PaginationOptions;
-    sorts: Array<SortOrderDto>;
-    filters?: FilterOrderDto;
+    pagination: PaginationRequest;
+    filters: Record<string, FindOperator<unknown>>[];
+    sorts: SortRule[];
   }): Promise<[Order[], number]> {
-    const {
-      paginationOptions: { page, pageSize },
-      sorts,
-      filters,
-    } = options;
-
-    const where: FindOptionsWhere<OrderEntity> = {};
-    if (filters?.orderCode) {
-      where.orderCode = filters.orderCode;
-    }
-
+    const { pagination, sorts, filters } = options;
     const [entities, total] = await this.orderRepository.findAndCount({
-      skip: (page - 1) * pageSize, // 1-based index
-      take: pageSize,
-      where,
+      skip: (pagination.currentPage - 1) * pagination.pageSize, // 1-based index
+      take: pagination.pageSize,
+      where: filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
       order: Object.fromEntries(sorts.map(sort => [sort.column, sort.direction])),
     });
 

@@ -1,14 +1,17 @@
-import { OrderStatus, OrderType, PaymentMethod } from '@app/common/enums';
+import { Order as OrderMessage, readableToOrderType, readableToPaymentMethod } from '@app/common';
+import { ReadableOrderStatus, ReadableOrderType, ReadablePaymentMethod } from '@app/common/enums';
 import { NullableType } from '@app/common/types/common';
 
 export type OrderItem = {
   item: {
     id: string;
     name: string;
+    slug: string;
+    images: string[];
+    basePrice: number;
   };
   quantity: number;
-  base_price: number;
-  total_price: number;
+  totalPrice: number;
   notes: string;
 };
 
@@ -17,7 +20,7 @@ export class Order {
   // partnerId: string;
   storeId: string;
   userId: string;
-  orderType: OrderType;
+  orderType: ReadableOrderType;
   orderCode: string;
 
   // Price-related columns
@@ -27,9 +30,11 @@ export class Order {
   discountAmount: number;
   discountShippingFee: number;
   // Payment method field
-  paymentMethod: PaymentMethod;
+  paymentMethod: ReadablePaymentMethod;
   // Order status and related dates
-  status: OrderStatus;
+  status: ReadableOrderStatus;
+  statusCode: number;
+  operatorStatusCode: number;
   deliveryAt: NullableType<Date>;
   deliveryFailedAt: NullableType<Date>;
   completedAt: NullableType<Date>;
@@ -40,7 +45,7 @@ export class Order {
   receiverName: string;
   receiverPhone: string;
   deliveryAddress: string;
-  deliveryTime: NullableType<string>;
+  // deliveryTime: NullableType<string>;
   deliveryEta: NullableType<number>;
   trackingUrl: NullableType<string>;
   deliveryDate: NullableType<Date>;
@@ -59,4 +64,46 @@ export class Order {
   // Timestamps
   createdAt: Date;
   updatedAt: NullableType<Date>;
+
+  toMessage(): OrderMessage {
+    return {
+      id: this.id,
+      storeId: this.storeId,
+      userId: this.userId,
+      orderType: readableToOrderType[this.orderType],
+      orderCode: this.orderCode,
+      totalPrice: this.totalPrice,
+      subTotalPrice: this.subTotalPrice,
+      shippingFee: this.shippingFee,
+      discountAmount: this.discountAmount,
+      discountShippingFee: this.discountShippingFee,
+      paymentMethod: readableToPaymentMethod[this.paymentMethod],
+      statusCode: this.statusCode,
+      operatorStatusCode: this.operatorStatusCode,
+      deliveryAt: this.deliveryAt ?? undefined,
+      deliveryFailedAt: this.deliveryFailedAt ?? undefined,
+      completedAt: this.completedAt ?? undefined,
+      cancelledAt: this.cancelledAt ?? undefined,
+      preparedAt: this.preparedAt ?? undefined,
+      confirmedAt: this.confirmedAt ?? undefined,
+      receiverName: this.receiverName,
+      receiverPhone: this.receiverPhone,
+      deliveryAddress: this.deliveryAddress,
+      // deliveryTime: 'this.deliveryTime',
+      deliveryEta: this.deliveryEta ?? 0,
+      trackingUrl: this.trackingUrl ?? undefined,
+      deliveryDate: this.deliveryDate ?? undefined,
+      cancelReason: this.cancelReason ?? undefined,
+      deliveryLater: Boolean(this.deliveryLater),
+      note: this.note ?? undefined,
+      orderItems: this.orderItems,
+      vatInfo: this.vatInfo as Record<string, unknown>,
+      orderCount: this.orderCount!,
+      errorCode: 0, //  this.errorCode
+      metadata: this.metadata as Record<string, unknown>,
+      receiverEmail: this.receiverEmail!,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt ?? undefined,
+    };
+  }
 }

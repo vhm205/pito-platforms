@@ -20,14 +20,14 @@ export enum PaymentType {
   RF = 'RF', // refund
 }
 
-export enum PaymentMethod {
-  qrcode = 'qrcode',
-  atm = 'atm',
-  visa = 'visa',
-  mastercard = 'mastercard',
-  jcb = 'jcb',
-  upi = 'upi',
-  amex = 'amex',
+export enum ReadablePaymentMethod {
+  QR_CODE = 'qrcode',
+  ATM = 'atm',
+  VISA = 'visa',
+  MASTERCARD = 'mastercard',
+  JCB = 'jcb',
+  UPI = 'upi',
+  AMEX = 'amex',
 }
 
 export enum VNPayBankCodes {

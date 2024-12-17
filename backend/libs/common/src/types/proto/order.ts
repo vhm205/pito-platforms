@@ -2,15 +2,10 @@
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
+import { Struct } from '../google/protobuf/struct';
+import { FilterRule, OrderType, PaginationRequest, PaymentMethod, SortRule } from './common';
 
 export const protobufPackage = 'order';
-
-/** Enum for sorting direction */
-export enum SortDirection {
-  ASC = 0,
-  DESC = 1,
-  UNRECOGNIZED = -1,
-}
 
 /** Request message for UpdateOrderStatus */
 export interface UpdateOrderStatusRequest {
@@ -59,29 +54,12 @@ export interface FindStoreOrderResponse {
   storeOrder: StoreOrder | undefined;
 }
 
-export interface OrderFilterDto {
-  userId: string;
-  keyword: string;
-  status: string;
-  fromDate: string;
-  toDate: string;
-  deliveryDate: string;
-  sortBy: string;
-  sortDirection: string;
-  pageSize: string;
-  from: string;
-}
-
 /** Message for Order Items */
 export interface OrderItem {
-  itemId: string;
-  itemName: string;
-  itemSlug: string;
-  price: number;
-  quantity: number;
   totalPrice: number;
+  quantity: number;
+  /** repeated string raw_options_choices = 8; */
   notes: string;
-  rawOptionsChoices: string[];
   item: OrderItem_Item | undefined;
 }
 
@@ -89,50 +67,79 @@ export interface OrderItem_Item {
   id: string;
   name: string;
   slug: string;
-  index: number;
   images: string[];
-  storeId: string;
-  isActive: boolean;
-  unitType: string;
   basePrice: number;
-  createdAt: string;
-  deletedAt: string;
-  ftsVector: string;
-  updatedAt: string;
-  description: string;
-  setupParty: boolean;
-  maxQuantity: number;
-  minQuantity: number;
-  specialNote: string;
-  cuisineTypes: number[];
-  serviceTypes: number[];
-  unitQuantity: number;
-  eatingUtensil: string;
-  packagingType: string;
-  occasionEvents: string[];
-  menuCategoryId: string;
-  preparationTime: number;
-  serverAvailable: boolean;
-  extraDescription: string;
-  specialDietaries: number[];
-  optionsAndChoices: string;
 }
 
 /** Message for Order */
 export interface Order {
   id: string;
+  storeId: string;
+  userId: string;
+  orderType: OrderType;
   orderCode: string;
+  /** Price-related fields */
   totalPrice: number;
-  status: string;
-  paymentMethod: string;
-  createdAt: Date | undefined;
+  subTotalPrice: number;
+  shippingFee: number;
+  discountAmount: number;
+  discountShippingFee: number;
+  /** Payment method */
+  paymentMethod: PaymentMethod;
+  /**
+   * Status and dates
+   * common.OrderStatus status = 12;
+   */
+  statusCode: number;
+  operatorStatusCode: number;
+  deliveryAt: Date | undefined;
+  deliveryFailedAt: Date | undefined;
+  completedAt: Date | undefined;
+  cancelledAt: Date | undefined;
+  preparedAt: Date | undefined;
+  confirmedAt: Date | undefined;
+  /** Delivery-related information */
+  receiverName: string;
+  receiverPhone: string;
+  deliveryAddress: string;
+  deliveryEta: number;
+  trackingUrl?: string | undefined;
   deliveryDate: Date | undefined;
+  /** Cancellation and additional details */
+  cancelReason?: string | undefined;
+  deliveryLater: boolean;
+  note?: string | undefined;
+  orderItems: OrderItem[];
+  vatInfo: { [key: string]: any } | undefined;
+  orderCount: string;
+  errorCode: number;
+  metadata: { [key: string]: any } | undefined;
+  receiverEmail: string;
+  /** Timestamps */
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
 }
 
 /** Message for Store Order */
 export interface StoreOrder {
   id: string;
+  storeId: string;
+  orderId: string;
   status: string;
+  orderCode: string;
+  invoiceRequest?: StoreOrder_InvoiceRequest | undefined;
+  metadata?: StoreOrder_StoreOrderMeta | undefined;
+}
+
+export interface StoreOrder_InvoiceRequest {
+  email: string;
+  address: string;
+  taxCode: string;
+  companyName: string;
+}
+
+export interface StoreOrder_StoreOrderMeta {
+  invoiceUrl?: string | undefined;
 }
 
 export interface Orders {
@@ -141,34 +148,15 @@ export interface Orders {
 }
 
 /** GetOrderRequest with pagination */
-export interface QueryOrderWithPagination {
-  /** Page number for pagination */
-  page: number;
-  /** Number of items per page */
-  pageSize: number;
-  /** List of filters for querying orders */
-  filters: QueryOrderWithPagination_OrderFilter | undefined;
-  /** List of sorting criteria */
-  sorts: QueryOrderWithPagination_OrderSort[];
+export interface FindOrdersRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
 }
 
-/** Filtering criteria */
-export interface QueryOrderWithPagination_OrderFilter {
-  status?: string | undefined;
-  keyword?: string | undefined;
-  fromDate?: string | undefined;
-  toDate?: string | undefined;
-}
-
-/** Sorting criteria */
-export interface QueryOrderWithPagination_OrderSort {
-  field: string;
-  direction: SortDirection;
-}
-
-export interface OrderWithPagination {
+export interface FindOrdersResponse {
   orders: Order[];
-  total: number;
+  totalCount: number;
 }
 
 export const ORDER_PACKAGE_NAME = 'order';
@@ -182,6 +170,8 @@ wrappers['.google.protobuf.Timestamp'] = {
   },
 } as any;
 
+wrappers['.google.protobuf.Struct'] = { fromObject: Struct.wrap, toObject: Struct.unwrap } as any;
+
 export interface OrdersServiceClient {
   updateOrderStatus(request: UpdateOrderStatusRequest): Observable<UpdateOrderResponse>;
 
@@ -193,9 +183,7 @@ export interface OrdersServiceClient {
 
   findStoreOrder(request: FindStoreOrderRequest): Observable<FindStoreOrderResponse>;
 
-  findOrders(request: OrderFilterDto): Observable<Orders>;
-
-  findOrdersWithPagination(request: QueryOrderWithPagination): Observable<OrderWithPagination>;
+  findOrders(request: FindOrdersRequest): Observable<FindOrdersResponse>;
 }
 
 export interface OrdersServiceController {
@@ -218,11 +206,9 @@ export interface OrdersServiceController {
     request: FindStoreOrderRequest,
   ): Promise<FindStoreOrderResponse> | Observable<FindStoreOrderResponse> | FindStoreOrderResponse;
 
-  findOrders(request: OrderFilterDto): Promise<Orders> | Observable<Orders> | Orders;
-
-  findOrdersWithPagination(
-    request: QueryOrderWithPagination,
-  ): Promise<OrderWithPagination> | Observable<OrderWithPagination> | OrderWithPagination;
+  findOrders(
+    request: FindOrdersRequest,
+  ): Promise<FindOrdersResponse> | Observable<FindOrdersResponse> | FindOrdersResponse;
 }
 
 export function OrdersServiceControllerMethods() {
@@ -233,7 +219,6 @@ export function OrdersServiceControllerMethods() {
       'findOrder',
       'findStoreOrder',
       'findOrders',
-      'findOrdersWithPagination',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

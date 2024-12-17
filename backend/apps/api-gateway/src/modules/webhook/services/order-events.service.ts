@@ -1,9 +1,14 @@
-import { Order, ORDER_SERVICE, ORDERS_SERVICE_NAME, OrdersServiceClient } from '@app/common';
-import { OrderStatus, StoreOrderStatus } from '@app/common/enums';
+import {
+  Order,
+  ORDER_SERVICE,
+  ORDERS_SERVICE_NAME,
+  OrdersServiceClient,
+  StoreOrder as StoreOrderMessage,
+} from '@app/common';
+import { ReadableOrderStatus, StoreOrderStatus } from '@app/common/enums';
 import { WebhookEvent, OrderEvent, OrderEventData } from '@gateway/modules/webhook/types';
 import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { StoreOrder } from 'apps/order-service/src/domain';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -33,12 +38,12 @@ export class OrderEventsService implements OnModuleInit {
     return order!;
   }
 
-  protected async getStoreOrderByCode(orderCode: string): Promise<StoreOrder> {
+  protected async getStoreOrderByCode(orderCode: string): Promise<StoreOrderMessage> {
     const { storeOrder } = await firstValueFrom(this.orderService.findStoreOrder({ orderCode }));
     if (!storeOrder) {
       throw new NotFoundException(`Store Order with code ${orderCode} does not exist`);
     }
-    return storeOrder as StoreOrder;
+    return storeOrder;
   }
 
   protected async handleOrderDelivering(data: OrderEventData): Promise<void> {
@@ -50,7 +55,7 @@ export class OrderEventsService implements OnModuleInit {
     const promises = [
       this.orderService.updateOrderStatus({
         id: order.id,
-        status: OrderStatus.DELIVERING,
+        status: ReadableOrderStatus.DELIVERING,
         deliveryEta: data.duration,
       }),
       this.orderService.updateStoreOrderStatus({
@@ -68,7 +73,7 @@ export class OrderEventsService implements OnModuleInit {
     const promises = [
       this.orderService.updateOrderStatus({
         id: order.id,
-        status: OrderStatus.COMPLETED,
+        status: ReadableOrderStatus.COMPLETED,
       }),
     ];
 
@@ -81,7 +86,7 @@ export class OrderEventsService implements OnModuleInit {
     const promises = [
       this.orderService.updateOrderStatus({
         id: order.id,
-        status: OrderStatus.DELIVERY_FAILED,
+        status: ReadableOrderStatus.DELIVERY_FAILED,
         cancelReason: data.cancelInfo?.reason,
       }),
     ];

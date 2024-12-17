@@ -3,11 +3,14 @@ syntax = "proto3";
 package menu;
 
 import "google/protobuf/timestamp.proto";
+import "common.proto";
 
 service MenusService {
   rpc FindStoresByFilter (GetStoreByFilterRequest) returns (GetStoreByFilterResponse);
   rpc FindItemsInStore (GetItemInStoreRequest) returns (GetItemInStoreResponse);
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
+  rpc FindStores(FindStoresRequest) returns (FindStoresResponse);
+  rpc FindStore(FindStoreRequest) returns (FindStoreResponse);
 }
 
 // [START] Find stores by filter
@@ -186,3 +189,57 @@ message FilterOption {
 // [END] Get filter options
 
 message Empty {};
+
+message FindStoresRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;
+  repeated common.FilterRule filters = 3;     
+}
+
+message FindStoresResponse {
+  message StoreResponse {
+    string id = 1;
+    string name = 2;
+    string slug = 3;
+  }
+
+  repeated StoreResponse stores = 1;
+  int32 total_count = 2;
+}
+
+
+message FindStoreRequest {
+  optional string id = 1;
+  optional string slug = 2;
+}
+
+message FindStoreResponse {
+  message StoreResponse {
+
+    message Location {
+      string ward = 1;
+      string region = 2;
+      string address = 3;
+      string district = 4;
+      double latitude = 5;
+      double longitude = 6;
+    }
+  
+    message ContactInfo {
+      string email = 1;
+      string phone = 2;
+      string full_name = 3;
+    }
+
+    string id = 1;
+    string name = 2;
+    string slug = 3;
+    string description = 4;
+    string store_code = 5;
+
+    Location location = 6;
+    repeated ContactInfo contacts = 7;
+  }
+
+  StoreResponse store = 1;
+}

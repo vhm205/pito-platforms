@@ -1,12 +1,11 @@
-import { pagePagination } from '@app/common';
-import { GrpcStatus, OrderStatus } from '@app/common/enums';
-import { FindOrderRequest, UpdateOrderStatusRequest } from '@app/common/types';
-import { PaginationOptions } from '@app/common/types/common';
+import { transformFilterRule } from '@app/common';
+import { GrpcStatus, ReadableOrderStatus } from '@app/common/enums';
+import { FindOrderRequest, FindOrdersRequest, UpdateOrderStatusRequest } from '@app/common/types';
+import { OrderStatus } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
 import { Order } from './domain';
-import { FilterOrderDto, SortOrderDto } from './dto';
 import { OrderRepository } from './infrastructure/persistence/order.repository';
 
 @Injectable()
@@ -28,20 +27,26 @@ export class OrderService {
     }
 
     const timestamp = payload.timestamp ?? new Date();
-    order.status = status as OrderStatus;
+    order.status = status as ReadableOrderStatus;
     order.updatedAt = timestamp;
 
-    switch (status as OrderStatus) {
-      case OrderStatus.DELIVERING:
+    switch (status as ReadableOrderStatus) {
+      case ReadableOrderStatus.DELIVERING:
         order.deliveryAt = timestamp;
+        order.statusCode = OrderStatus.DELIVERING;
+        order.operatorStatusCode = OrderStatus.DELIVERING;
         order.deliveryEta = deliveryEta ?? null;
         break;
-      case OrderStatus.DELIVERY_FAILED:
+      case ReadableOrderStatus.DELIVERY_FAILED:
         order.cancelReason = cancelReason ?? '';
         order.deliveryFailedAt = timestamp;
+        order.statusCode = OrderStatus.DELIVERY_FAILED;
+        order.operatorStatusCode = OrderStatus.DELIVERY_FAILED;
         break;
-      case OrderStatus.COMPLETED:
+      case ReadableOrderStatus.COMPLETED:
         order.completedAt = timestamp;
+        order.statusCode = OrderStatus.COMPLETED;
+        order.operatorStatusCode = OrderStatus.COMPLETED;
         break;
       default:
         return order as Order; // don't need to process
@@ -58,25 +63,21 @@ export class OrderService {
     return updatedOrder;
   }
 
-  findOrders() {
-    return Promise.resolve([[], 0]);
+  async findAllOrders({ filters }: FindOrdersRequest): Promise<[Order[], number]> {
+    return this.orderRepository
+      .findAllOrders(filters.map(transformFilterRule))
+      .then(orders => [orders, orders.length]);
   }
 
-  async findOrdersWithPagination(options: {
-    paginationOptions: PaginationOptions;
-    sorts: SortOrderDto[];
-    filters?: FilterOrderDto;
-  }) {
-    const [orders, count] = await this.orderRepository.findOrdersWithPagination({
-      paginationOptions: options.paginationOptions,
-      sorts: options.sorts,
-      filters: options.filters,
-    });
-
-    return pagePagination(orders, {
-      total: count,
-      page: options.paginationOptions.page,
-      pageSize: options.paginationOptions.pageSize,
+  async findOrdersWithPagination({
+    pagination,
+    filters,
+    sorts,
+  }: FindOrdersRequest): Promise<[Order[], number]> {
+    return this.orderRepository.findOrdersWithPagination({
+      pagination: pagination!,
+      filters: filters.map(transformFilterRule),
+      sorts,
     });
   }
 }
