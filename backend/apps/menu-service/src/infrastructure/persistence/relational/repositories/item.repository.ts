@@ -7,8 +7,11 @@ import {
   GetItemInStoreFilterDto,
   GetItemInStoreResult,
 } from 'apps/menu-service/src/dtos/get-items-in-store.dto';
+import { CuisineTypeEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/cuisine-type.entity';
+import { OccasionEventEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/occasion-event.entity';
+import { SpecialDietaryEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/special-dietaries.entity';
 import { collectUniqueValues } from 'apps/menu-service/src/utils/get-filter-option.util';
-import type { Repository } from 'typeorm';
+import { In, type Repository } from 'typeorm';
 
 import { ItemRepository } from '../../item.repository';
 import { ItemEntity } from '../entities/item.entity';
@@ -19,6 +22,15 @@ export class ItemRelationalRepository implements ItemRepository {
   constructor(
     @InjectRepository(ItemEntity, CUSTOMER_DB_SOURCE)
     private itemRepository: Repository<ItemEntity>,
+
+    @InjectRepository(CuisineTypeEntity, CUSTOMER_DB_SOURCE)
+    private cuisineTypeRepository: Repository<CuisineTypeEntity>,
+
+    @InjectRepository(SpecialDietaryEntity, CUSTOMER_DB_SOURCE)
+    private specialDietaryRepository: Repository<SpecialDietaryEntity>,
+
+    @InjectRepository(OccasionEventEntity, CUSTOMER_DB_SOURCE)
+    private occasionEventRepository: Repository<OccasionEventEntity>,
   ) {}
 
   async getItemsInStore(
@@ -62,5 +74,32 @@ export class ItemRelationalRepository implements ItemRepository {
 
     const results = await queryBuilder.getMany();
     return { data: collectUniqueValues(results) };
+  }
+
+  async findAllCuisineTypes(ids?: number[]) {
+    const cuisineTypes = await this.cuisineTypeRepository.find(
+      ids ? { where: { id: In(ids) } } : {},
+    );
+    return cuisineTypes.map(cuisineType => ({ id: cuisineType.id, name: cuisineType.name }));
+  }
+
+  async findAllSpecialDietaries(ids?: number[]) {
+    const specialDietaries = await this.specialDietaryRepository.find(
+      ids ? { where: { id: In(ids) } } : {},
+    );
+    return specialDietaries.map(specialDietary => ({
+      id: specialDietary.id,
+      name: specialDietary.name,
+    }));
+  }
+
+  async findAllOccasionEvents(ids?: number[]) {
+    const occasionEvents = await this.occasionEventRepository.find(
+      ids ? { where: { id: In(ids) } } : {},
+    );
+    return occasionEvents.map(occasionEvent => ({
+      id: occasionEvent.id,
+      name: occasionEvent.name,
+    }));
   }
 }

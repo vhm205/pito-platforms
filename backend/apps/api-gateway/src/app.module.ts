@@ -1,5 +1,6 @@
 import { LoggerModule } from '@app/common';
 import { appConfig, databaseConfig, externalConfig, fileConfig } from '@app/common/configs';
+import { MenusModule } from '@gateway/modules/menus/menus.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
@@ -15,7 +16,15 @@ import { StoresModule } from './modules/stores/stores.module';
 import { UsersModule } from './modules/users/users.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
 
-const modules = [AuthModule, FilesModule, OrdersModule, StoresModule, UsersModule, WebhookModule];
+const modules = [
+  AuthModule,
+  MenusModule,
+  FilesModule,
+  OrdersModule,
+  StoresModule,
+  UsersModule,
+  WebhookModule,
+];
 
 @Module({
   imports: [

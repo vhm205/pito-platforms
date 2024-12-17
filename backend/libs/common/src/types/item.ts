@@ -16,3 +16,27 @@ export interface RawItemOptionAndChoice {
   is_multiple_choice: boolean;
   is_selection_quantity_allowed: boolean;
 }
+
+// Partner
+export interface RawPartnerItemChoice {
+  name: string;
+  id: string;
+  price: number;
+}
+
+export interface RawPartnerItemOptionAndChoice {
+  name: string;
+  choices: RawPartnerItemChoice[];
+  id: string;
+  description: string;
+  is_required: boolean;
+  max_choices: number;
+  allow_multiple_selection: boolean;
+  allow_quantity_selection: boolean;
+}
+
+export interface RawPartnerItemMetadata {
+  has_notes: boolean;
+  has_utensils: boolean;
+  rejection_reason?: string;
+}
