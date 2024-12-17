@@ -190,6 +190,73 @@ export interface FilterOption {
 
 export interface Empty {}
 
+/** PARTNER */
+export interface Metadata {
+  hasNotes: boolean;
+  hasUtensils: boolean;
+  rejectionReason?: string | undefined;
+}
+
+export interface PartnerChoiceOfOption {
+  id: string;
+  name: string;
+  price?: number | undefined;
+}
+
+export interface PartnerOptionsChoices {
+  id: string;
+  allowMultipleSelection: boolean;
+  allowQuantitySelection: boolean;
+  name: string;
+  description?: string | undefined;
+  isRequired: boolean;
+  maxChoices: number;
+  choices: PartnerChoiceOfOption[];
+}
+
+export interface PartnerItemRequest {
+  name: string;
+  basePrice?: number | undefined;
+  description?: string | undefined;
+  specialDietaries: number[];
+  cuisineTypes: number[];
+  occasionEvents: number[];
+  menuCategory: string;
+  images: string[];
+  minQuantity: number;
+  packagingType: string;
+  packagingUnit: string;
+  participant: number;
+  preparationTime: number;
+  storeId: string;
+  optionsChoices: PartnerOptionsChoices[];
+  metadata: Metadata | undefined;
+  menuId: string;
+  status?: string | undefined;
+}
+
+export interface PartnerItem {
+  id: string;
+  name: string;
+  basePrice: number;
+  description: string;
+  specialDietaries: FilterOption[];
+  cuisineTypes: FilterOption[];
+  occasionEvents: FilterOption[];
+  menuCategory: string;
+  images: string[];
+  minQuantity: number;
+  packagingType: string;
+  packagingUnit: string;
+  participant: number;
+  preparationTime: number;
+  storeId: string;
+  optionsChoices: PartnerOptionsChoices[];
+  metadata: Metadata | undefined;
+  slug: string;
+  status: string;
+}
+
 export interface FindStoresRequest {
   pagination: PaginationRequest | undefined;
   sorts: SortRule[];
@@ -259,6 +326,8 @@ export interface MenusServiceClient {
 
   getFilterOptions(request: GetFilterOptionRequest): Observable<GetFilterOptionResponse>;
 
+  insertMenuItem(request: PartnerItemRequest): Observable<PartnerItem>;
+
   findStores(request: FindStoresRequest): Observable<FindStoresResponse>;
 
   findStore(request: FindStoreRequest): Observable<FindStoreResponse>;
@@ -283,6 +352,10 @@ export interface MenusServiceController {
     | Observable<GetFilterOptionResponse>
     | GetFilterOptionResponse;
 
+  insertMenuItem(
+    request: PartnerItemRequest,
+  ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
+
   findStores(
     request: FindStoresRequest,
   ): Promise<FindStoresResponse> | Observable<FindStoresResponse> | FindStoresResponse;
@@ -298,6 +371,7 @@ export function MenusServiceControllerMethods() {
       'findStoresByFilter',
       'findItemsInStore',
       'getFilterOptions',
+      'insertMenuItem',
       'findStores',
       'findStore',
     ];

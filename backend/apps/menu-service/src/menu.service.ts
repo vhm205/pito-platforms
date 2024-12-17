@@ -1,8 +1,19 @@
-import { ItemFilter, StoreFilter, getDateTimeWithOffset } from '@app/common';
+import {
+  ItemFilter,
+  PartnerItemRequest,
+  PartnerItem,
+  StoreFilter,
+  getDateTimeWithOffset,
+} from '@app/common';
 import { AppConfig } from '@app/common/configs';
+import { GrpcStatus } from '@app/common/enums';
+import { ItemStatus } from '@app/common/enums/item';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as dayjs from 'dayjs';
+import { RpcException } from '@nestjs/microservices';
+import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
+import { generateSlug } from 'apps/menu-service/src/utils/slug.util';
+import dayjs from 'dayjs';
 
 import { GetItemInStoreFilterDto } from './dtos/get-items-in-store.dto';
 import { SearchStoreFilterDto } from './dtos/search-store.dto';
@@ -16,6 +27,7 @@ export class MenuService {
     private readonly configService: ConfigService,
     private readonly storeRepository: StoreRepository,
     private readonly itemRepository: ItemRepository,
+    private readonly partnerItemRepository: PartnerItemRepository,
   ) {}
 
   async findStoresByFilter(
@@ -95,5 +107,79 @@ export class MenuService {
     });
 
     return this.storeRepository.getFilterOptions(filterOptionIds);
+  }
+
+  async insertMenuItem(payload: PartnerItemRequest): Promise<PartnerItem> {
+    const [menuCategory, isSlugExist] = await Promise.all([
+      this.partnerItemRepository.getMenuCategoryById(payload.menuCategory),
+      this.partnerItemRepository.getMenuItemBySlug(generateSlug(payload.name)),
+    ]);
+
+    if (!menuCategory) {
+      throw new RpcException({
+        message: 'Menu category not found',
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    if (
+      payload.status &&
+      ![ItemStatus.DRAFT, ItemStatus.PENDING_APPROVAL].includes(payload.status as ItemStatus)
+    ) {
+      throw new RpcException({
+        message: 'Invalid status',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
+    const savedItem = await this.partnerItemRepository.insertItem({
+      ...payload,
+      slug: isSlugExist
+        ? `${generateSlug(payload.name)}-${Date.now()}`
+        : generateSlug(payload.name),
+      cateringPackages: menuCategory.packageId ? [menuCategory.packageId] : [],
+      status: payload.status ?? ItemStatus.DRAFT,
+    });
+
+    if (!savedItem) {
+      throw new RpcException({
+        message: 'Failed to insert menu item',
+        status: GrpcStatus.INTERNAL,
+      });
+    }
+
+    const [cuisineTypes, dietaries, occasionEvents] = await Promise.allSettled([
+      this.itemRepository.findAllCuisineTypes(savedItem?.cuisineTypes),
+      this.itemRepository.findAllSpecialDietaries(savedItem?.specialDietaries),
+      this.itemRepository.findAllOccasionEvents(savedItem?.occasionEvents),
+    ]);
+
+    return {
+      ...savedItem,
+      description: savedItem?.description ?? '',
+      cuisineTypes: cuisineTypes.status === 'fulfilled' ? cuisineTypes.value : [],
+      specialDietaries: dietaries.status === 'fulfilled' ? dietaries.value : [],
+      occasionEvents: occasionEvents.status === 'fulfilled' ? occasionEvents.value : [],
+      optionsChoices:
+        savedItem?.optionsChoices?.map(option => ({
+          id: option?.id,
+          name: option?.name,
+          description: option?.description,
+          choices: option?.choices?.map(choice => ({
+            id: choice?.id,
+            name: choice?.name,
+            price: choice?.price,
+          })),
+          isRequired: option?.is_required ?? false,
+          maxChoices: option?.max_choices ?? 0,
+          allowMultipleSelection: option?.allow_multiple_selection ?? false,
+          allowQuantitySelection: option?.allow_quantity_selection ?? false,
+        })) ?? [],
+      metadata: {
+        hasNotes: savedItem?.metadata?.has_notes ?? false,
+        hasUtensils: savedItem?.metadata?.has_utensils ?? false,
+        rejectionReason: savedItem?.metadata?.rejection_reason,
+      },
+    };
   }
 }

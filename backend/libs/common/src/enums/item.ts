@@ -4,6 +4,8 @@ export enum UnitType {
   SET = 'set',
   PART = 'part',
   BOX = 'box',
+  BOTTLE = 'bottle',
+  TRAY = 'tray',
 }
 
 export enum PackagingType {
@@ -18,4 +20,14 @@ export enum PackagingType {
 export enum EatingUtensil {
   YES = 'yes',
   NO = 'no',
+}
+
+export enum ItemStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  UNSTOCKED = 'unstocked',
+  PENDING_APPROVAL = 'pending_approval',
+  REJECTED = 'rejected',
+  APPROVED = 'approved',
+  DRAFT = 'draft',
 }
