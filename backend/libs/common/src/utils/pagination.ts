@@ -48,6 +48,8 @@ export function transformFilterRule(filter: FilterRule) {
       return { [column]: Any(value.split(',').map(v => v.trim())) };
     case 'is':
       return { [column]: IsNull() };
+    case 'nis':
+      return { [column]: Not(IsNull()) };
     case 'cs':
       return { [column]: ArrayContains(value.split(',').map(v => v.trim())) };
     case 'cd':

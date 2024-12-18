@@ -272,6 +272,34 @@ export interface FindStoresResponse_StoreResponse {
   id: string;
   name: string;
   slug: string;
+  description: string;
+  storeCode: string;
+  location: FindStoresResponse_StoreResponse_Location | undefined;
+  contacts: FindStoresResponse_StoreResponse_ContactInfo[];
+  isVat: boolean;
+  bankAccount: FindStoresResponse_StoreResponse_BankAccount | undefined;
+}
+
+export interface FindStoresResponse_StoreResponse_Location {
+  ward: string;
+  region: string;
+  address: string;
+  district: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface FindStoresResponse_StoreResponse_ContactInfo {
+  email: string;
+  phone: string;
+  fullName: string;
+}
+
+export interface FindStoresResponse_StoreResponse_BankAccount {
+  bankName: string;
+  bankBranch: string;
+  accountHolder: string;
+  accountNumber: string;
 }
 
 export interface FindStoreRequest {

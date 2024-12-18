@@ -14,6 +14,8 @@ import {
   OrdersServiceController,
   UpdateStoreOrderResponse,
   UpdateStoreOrderStatusRequest,
+  FindStoreOrdersRequest,
+  FindStoreOrdersResponse,
 } from '@app/common/types';
 import { Controller } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
@@ -62,6 +64,18 @@ export class OrderController implements OrdersServiceController {
     return { order: order.toMessage() };
   }
 
+  async findOrders(request: FindOrdersRequest): Promise<FindOrdersResponse> {
+    request.filters ??= [];
+    request.sorts ??= [];
+
+    const [orders, totalCount] = await this.orderService.findOrdersWithPagination(request);
+
+    return {
+      orders: orders.map(order => order.toMessage()),
+      totalCount,
+    };
+  }
+
   async findStoreOrder(request: FindStoreOrderRequest): Promise<FindStoreOrderResponse> {
     const storeOrder = await this.storeOrderService
       .findOneStoreOrder(request)
@@ -79,14 +93,15 @@ export class OrderController implements OrdersServiceController {
     };
   }
 
-  async findOrders(request: FindOrdersRequest): Promise<FindOrdersResponse> {
+  async findStoreOrders(request: FindStoreOrdersRequest): Promise<FindStoreOrdersResponse> {
     request.filters ??= [];
     request.sorts ??= [];
 
-    const [orders, totalCount] = await this.orderService.findOrdersWithPagination(request);
+    const [storeOrders, totalCount] =
+      await this.storeOrderService.findStoreOrdersWithPagination(request);
 
     return {
-      orders: orders.map(order => order.toMessage()),
+      orders: storeOrders.map(order => order.toMessage()),
       totalCount,
     };
   }

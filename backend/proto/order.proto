@@ -10,8 +10,9 @@ service OrdersService {
   rpc UpdateOrderStatus (UpdateOrderStatusRequest) returns (UpdateOrderResponse);
   rpc UpdateStoreOrderStatus(UpdateStoreOrderStatusRequest) returns (UpdateStoreOrderResponse);
   rpc FindOrder (FindOrderRequest) returns (FindOrderResponse);
-  rpc FindStoreOrder (FindStoreOrderRequest) returns (FindStoreOrderResponse);
   rpc FindOrders (FindOrdersRequest) returns (FindOrdersResponse);
+  rpc FindStoreOrder (FindStoreOrderRequest) returns (FindStoreOrderResponse);
+  rpc FindStoreOrders (FindStoreOrdersRequest) returns (FindStoreOrdersResponse);
 }
 
 // Request message for UpdateOrderStatus
@@ -62,6 +63,17 @@ message FindStoreOrderRequest {
 }
 message FindStoreOrderResponse {
   StoreOrder store_order = 1;
+}
+
+message FindStoreOrdersRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;     
+  repeated common.FilterRule filters = 3;
+}
+
+message FindStoreOrdersResponse {
+  repeated StoreOrder orders = 1;
+  int32 total_count = 2;
 }
 
 // message OrderFilterDto {
@@ -154,7 +166,9 @@ message StoreOrder {
   string store_id = 2;
   string order_id = 3;
   string status = 4;
-  string order_code = 5;
+  int32 status_code = 5;
+  string order_code = 6;
+  float total_price = 7;
   
   message InvoiceRequest  {
     string email = 1;
@@ -162,12 +176,16 @@ message StoreOrder {
     string tax_code = 3;
     string company_name = 4;
   }
-  optional InvoiceRequest invoice_request = 6;
+  optional InvoiceRequest invoice_request = 8;
 
   message StoreOrderMeta {
     optional string invoice_url = 1;
   }
-  optional StoreOrderMeta metadata = 7;
+  optional StoreOrderMeta metadata = 9;
+  int32 invoice_status = 10;
+  int32 payment_status = 11;
+
+  google.protobuf.Timestamp delivery_date = 12;
 }
 
 message Orders {

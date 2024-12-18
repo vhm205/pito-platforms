@@ -36,3 +36,8 @@ export function transformOrderItem(orderItem: OrderItem) {
     selectedOptions: [],
   };
 }
+
+export function transformStoreOrderFilter(f: FilterRule) {
+  if (f.column === 'status') f.column = 'statusCode';
+  return f;
+}

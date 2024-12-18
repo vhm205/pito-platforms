@@ -73,10 +73,12 @@ export class StoreOrder {
   orderCode: string;
 
   status: StoreOrderStatus | string;
+  invoiceStatus: number;
+  paymentStatus: number;
   statusCode: number;
   createdAt: Date;
   updatedAt: NullableType<Date>;
-  deliveryTime: Date;
+  deliveryDate: Date;
   estimationTime: number;
 
   deliveryContact: StoreOrderDeliveryContact;
@@ -100,7 +102,12 @@ export class StoreOrder {
       storeId: this.storeId,
       orderId: this.orderId,
       status: this.status,
+      statusCode: this.statusCode,
       orderCode: this.orderCode,
+      totalPrice: this.totalPrice,
+      invoiceStatus: this.invoiceStatus,
+      paymentStatus: this.paymentStatus,
+      deliveryDate: this.deliveryDate,
       invoiceRequest: {
         taxCode: this.invoiceRequest?.tax_code ?? '',
         companyName: this.invoiceRequest?.company_name ?? '',

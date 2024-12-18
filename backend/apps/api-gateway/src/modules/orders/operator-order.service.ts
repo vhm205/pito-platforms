@@ -1,5 +1,4 @@
 import {
-  DEFAULT_PAGE_NUMBER,
   FindOrderRequest,
   FindStoreOrderRequest,
   MENU_SERVICE,
@@ -9,11 +8,12 @@ import {
   ORDERS_SERVICE_NAME,
   OrdersServiceClient,
 } from '@app/common';
+import { FilterRule } from '@app/common/types/proto/common';
 import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
-import { OperatorQueryOrderDto } from './dto/query-order.dto';
+import { OperatorQueryOrderDto, OperatorQueryStoreOrderDto } from './dto/query-order.dto';
 import { transformCustomer } from './utils/transformer';
 
 @Injectable()
@@ -51,17 +51,11 @@ export class OperatorOrderService implements OnModuleInit {
     return Object.assign(order, { store, customer: transformCustomer(order) });
   }
 
-  async getStoresByIds(storeIds: string[]) {
+  async filterStores(filters: FilterRule | FilterRule[], page: number, pageSize: number) {
     return firstValueFrom(
       this.menuServiceClient.findStores({
-        filters: [
-          {
-            column: 'id',
-            operator: 'in',
-            value: storeIds.join(','),
-          },
-        ],
-        pagination: { currentPage: DEFAULT_PAGE_NUMBER, pageSize: storeIds.length },
+        filters: Array.isArray(filters) ? filters : [filters],
+        pagination: { currentPage: page, pageSize },
         sorts: [],
       }),
     );
@@ -69,5 +63,15 @@ export class OperatorOrderService implements OnModuleInit {
 
   async getStoreOrderDetails(args: Pick<FindStoreOrderRequest, 'id' | 'orderCode' | 'orderId'>) {
     return firstValueFrom(this.orderServiceClient.findStoreOrder(args));
+  }
+
+  async getListStoreOrders(query: OperatorQueryStoreOrderDto) {
+    return firstValueFrom(
+      this.orderServiceClient.findStoreOrders({
+        filters: query.filters,
+        pagination: { currentPage: query.page, pageSize: query.pageSize },
+        sorts: query.sorts,
+      }),
+    );
   }
 }

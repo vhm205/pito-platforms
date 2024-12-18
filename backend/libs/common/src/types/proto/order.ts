@@ -54,6 +54,17 @@ export interface FindStoreOrderResponse {
   storeOrder: StoreOrder | undefined;
 }
 
+export interface FindStoreOrdersRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface FindStoreOrdersResponse {
+  orders: StoreOrder[];
+  totalCount: number;
+}
+
 /** Message for Order Items */
 export interface OrderItem {
   totalPrice: number;
@@ -126,9 +137,14 @@ export interface StoreOrder {
   storeId: string;
   orderId: string;
   status: string;
+  statusCode: number;
   orderCode: string;
+  totalPrice: number;
   invoiceRequest?: StoreOrder_InvoiceRequest | undefined;
   metadata?: StoreOrder_StoreOrderMeta | undefined;
+  invoiceStatus: number;
+  paymentStatus: number;
+  deliveryDate: Date | undefined;
 }
 
 export interface StoreOrder_InvoiceRequest {
@@ -181,9 +197,11 @@ export interface OrdersServiceClient {
 
   findOrder(request: FindOrderRequest): Observable<FindOrderResponse>;
 
+  findOrders(request: FindOrdersRequest): Observable<FindOrdersResponse>;
+
   findStoreOrder(request: FindStoreOrderRequest): Observable<FindStoreOrderResponse>;
 
-  findOrders(request: FindOrdersRequest): Observable<FindOrdersResponse>;
+  findStoreOrders(request: FindStoreOrdersRequest): Observable<FindStoreOrdersResponse>;
 }
 
 export interface OrdersServiceController {
@@ -202,13 +220,20 @@ export interface OrdersServiceController {
     request: FindOrderRequest,
   ): Promise<FindOrderResponse> | Observable<FindOrderResponse> | FindOrderResponse;
 
+  findOrders(
+    request: FindOrdersRequest,
+  ): Promise<FindOrdersResponse> | Observable<FindOrdersResponse> | FindOrdersResponse;
+
   findStoreOrder(
     request: FindStoreOrderRequest,
   ): Promise<FindStoreOrderResponse> | Observable<FindStoreOrderResponse> | FindStoreOrderResponse;
 
-  findOrders(
-    request: FindOrdersRequest,
-  ): Promise<FindOrdersResponse> | Observable<FindOrdersResponse> | FindOrdersResponse;
+  findStoreOrders(
+    request: FindStoreOrdersRequest,
+  ):
+    | Promise<FindStoreOrdersResponse>
+    | Observable<FindStoreOrdersResponse>
+    | FindStoreOrdersResponse;
 }
 
 export function OrdersServiceControllerMethods() {
@@ -217,8 +242,9 @@ export function OrdersServiceControllerMethods() {
       'updateOrderStatus',
       'updateStoreOrderStatus',
       'findOrder',
-      'findStoreOrder',
       'findOrders',
+      'findStoreOrder',
+      'findStoreOrders',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

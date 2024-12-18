@@ -1,5 +1,4 @@
 import {
-  DEFAULT_PAGE_NUMBER,
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
@@ -8,6 +7,7 @@ import {
   OrdersServiceClient,
   UpdateOrderStatusRequest,
 } from '@app/common';
+import { FilterRule } from '@app/common/types/proto/common';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { timeout, firstValueFrom } from 'rxjs';
@@ -46,17 +46,11 @@ export class OrdersService {
     return this.orderServiceClient.findOrder({ id });
   }
 
-  async getStoresByIds(storeIds: string[]) {
+  async filterStores(filters: FilterRule | FilterRule[], page: number, pageSize: number) {
     return firstValueFrom(
       this.menuServiceClient.findStores({
-        filters: [
-          {
-            column: 'id',
-            operator: 'in',
-            value: storeIds.join(','),
-          },
-        ],
-        pagination: { currentPage: DEFAULT_PAGE_NUMBER, pageSize: storeIds.length },
+        filters: Array.isArray(filters) ? filters : [filters],
+        pagination: { currentPage: page, pageSize },
         sorts: [],
       }),
     );
