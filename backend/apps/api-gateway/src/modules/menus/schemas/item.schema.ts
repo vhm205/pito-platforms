@@ -1,0 +1,95 @@
+import { capitalize, capitalizeFirstLetter } from '@app/common';
+import { ItemStatus, PackagingType, UnitType } from '@app/common/enums/item';
+import { z } from 'zod';
+
+const ChoiceSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  price: z.number().min(0).nullable().optional(),
+});
+
+const OptionChoicesSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  description: z.string().optional(),
+  choices: z.array(ChoiceSchema),
+  isRequired: z.boolean(),
+  maxChoices: z.number().int().min(0),
+  allowMultipleSelection: z.boolean(),
+  allowQuantitySelection: z.boolean(),
+});
+
+export const ItemSchema = z.object({
+  id: z.string().uuid(),
+  storeId: z.string().uuid(),
+  menuId: z.string().uuid(),
+  menuCategory: z.string().uuid(),
+  slug: z.string(),
+  cateringPackages: z.array(z.number()),
+  cuisineTypes: z.array(z.number()).optional(),
+  specialDietaries: z.array(z.number()).optional(),
+  occasionEvents: z.array(z.number()).optional(),
+  basePrice: z.number().min(0).optional(),
+  name: z.string().transform(capitalize),
+  description: z.string().transform(capitalizeFirstLetter).optional(),
+  images: z.array(z.string()).optional(),
+  minQuantity: z.number().int().min(1),
+  participant: z.number().int().min(1),
+  preparationTime: z.number().int().min(0),
+  status: z
+    .union([
+      z.literal(ItemStatus.ACTIVE),
+      z.literal(ItemStatus.INACTIVE),
+      z.literal(ItemStatus.UNSTOCKED),
+      z.literal(ItemStatus.PENDING_APPROVAL),
+      z.literal(ItemStatus.REJECTED),
+      z.literal(ItemStatus.APPROVED),
+      z.literal(ItemStatus.DRAFT),
+    ])
+    .optional(),
+  packagingType: z.union([
+    z.literal(PackagingType.PAPER),
+    z.literal(PackagingType.BAGASSE),
+    z.literal(PackagingType.PLASTIC_FOAM),
+    z.literal(PackagingType.ALUMINUM_TRAY),
+    z.literal(PackagingType.REUSABLE_PACKAGING),
+    z.literal(PackagingType.GLASS),
+  ]),
+  packagingUnit: z.union([
+    z.literal(UnitType.BOTTLE),
+    z.literal(UnitType.SET),
+    z.literal(UnitType.PART),
+    z.literal(UnitType.BOX),
+    z.literal(UnitType.TRAY),
+  ]),
+  optionsChoices: z.array(OptionChoicesSchema),
+  metadata: z.object({
+    hasNotes: z.boolean(),
+    hasUtensils: z.boolean(),
+    rejectionReason: z.string().optional(),
+  }),
+  createdAt: z.string().optional().nullable(),
+  updatedAt: z.string().optional().nullable(),
+});
+
+export const InsertItemSchema = ItemSchema.omit({
+  id: true,
+  menuId: true,
+  slug: true,
+  cateringPackages: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const UpdateItemSchema = ItemSchema.omit({
+  id: true,
+  menuId: true,
+  slug: true,
+  cateringPackages: true,
+  createdAt: true,
+  updatedAt: true,
+})
+  .partial()
+  .refine(d => Object.keys(d).length > 0, {
+    message: 'At least one field must be updated',
+  });

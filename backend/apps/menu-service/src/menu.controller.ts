@@ -14,6 +14,7 @@ import {
   MenusServiceControllerMethods,
   PartnerItemRequest,
   SearchStoreResult,
+  UpdateItemRequest,
 } from '@app/common';
 import { Controller } from '@nestjs/common';
 
@@ -80,5 +81,9 @@ export class MenuController implements MenusServiceController {
 
   async insertMenuItem(request: PartnerItemRequest) {
     return this.menuService.insertMenuItem(request);
+  }
+
+  async updateMenuItem(request: UpdateItemRequest) {
+    return this.menuService.updateMenuItem(request);
   }
 }

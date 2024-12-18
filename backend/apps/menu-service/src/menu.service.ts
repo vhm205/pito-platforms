@@ -4,6 +4,8 @@ import {
   PartnerItem,
   StoreFilter,
   getDateTimeWithOffset,
+  UpdateItemRequest,
+  FilterOption,
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
 import { GrpcStatus } from '@app/common/enums';
@@ -110,9 +112,14 @@ export class MenuService {
   }
 
   async insertMenuItem(payload: PartnerItemRequest): Promise<PartnerItem> {
-    const [menuCategory, isSlugExist] = await Promise.all([
+    const [menuCategory, isSlugExist, cuisineTypes, dietaries, occasionEvents] = await Promise.all([
       this.partnerItemRepository.getMenuCategoryById(payload.menuCategory),
-      this.partnerItemRepository.getMenuItemBySlug(generateSlug(payload.name)),
+      this.partnerItemRepository.findOne({
+        slug: generateSlug(payload.name),
+      }),
+      this.itemRepository.findAllCuisineTypes(payload.cuisineTypes),
+      this.itemRepository.findAllSpecialDietaries(payload.specialDietaries),
+      this.itemRepository.findAllOccasionEvents(payload.occasionEvents),
     ]);
 
     if (!menuCategory) {
@@ -122,12 +129,20 @@ export class MenuService {
       });
     }
 
-    if (
+    const isInvalidStatus =
       payload.status &&
-      ![ItemStatus.DRAFT, ItemStatus.PENDING_APPROVAL].includes(payload.status as ItemStatus)
-    ) {
+      ![ItemStatus.DRAFT, ItemStatus.PENDING_APPROVAL].includes(payload.status as ItemStatus);
+
+    if (isInvalidStatus) {
       throw new RpcException({
         message: 'Invalid status',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
+    if (cuisineTypes.length === 0 || dietaries.length === 0 || occasionEvents.length === 0) {
+      throw new RpcException({
+        message: 'Invalid related data',
         status: GrpcStatus.INVALID_ARGUMENT,
       });
     }
@@ -148,18 +163,12 @@ export class MenuService {
       });
     }
 
-    const [cuisineTypes, dietaries, occasionEvents] = await Promise.allSettled([
-      this.itemRepository.findAllCuisineTypes(savedItem?.cuisineTypes),
-      this.itemRepository.findAllSpecialDietaries(savedItem?.specialDietaries),
-      this.itemRepository.findAllOccasionEvents(savedItem?.occasionEvents),
-    ]);
-
     return {
       ...savedItem,
       description: savedItem?.description ?? '',
-      cuisineTypes: cuisineTypes.status === 'fulfilled' ? cuisineTypes.value : [],
-      specialDietaries: dietaries.status === 'fulfilled' ? dietaries.value : [],
-      occasionEvents: occasionEvents.status === 'fulfilled' ? occasionEvents.value : [],
+      cuisineTypes,
+      specialDietaries: dietaries,
+      occasionEvents,
       optionsChoices:
         savedItem?.optionsChoices?.map(option => ({
           id: option?.id,
@@ -179,6 +188,155 @@ export class MenuService {
         hasNotes: savedItem?.metadata?.has_notes ?? false,
         hasUtensils: savedItem?.metadata?.has_utensils ?? false,
         rejectionReason: savedItem?.metadata?.rejection_reason,
+      },
+    };
+  }
+
+  async updateMenuItem(payload: UpdateItemRequest): Promise<PartnerItem> {
+    const { id, updateItemRequest } = payload;
+
+    const item = await this.partnerItemRepository.findOne({
+      id,
+    });
+
+    if (!item) {
+      throw new RpcException({
+        message: 'Menu item not found',
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    const isInvalidStatus =
+      item.status &&
+      ![ItemStatus.DRAFT, ItemStatus.PENDING_APPROVAL].includes(item.status as ItemStatus);
+
+    if (isInvalidStatus) {
+      throw new RpcException({
+        message: 'Invalid status',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
+    const newStatus =
+      item.status === ItemStatus.REJECTED ? ItemStatus.PENDING_APPROVAL : updateItemRequest?.status;
+
+    let cuisineTypes: FilterOption[] = [];
+    let dietaries: FilterOption[] = [];
+    let occasionEvents: FilterOption[] = [];
+
+    if (updateItemRequest?.cuisineTypes?.length) {
+      cuisineTypes = await this.itemRepository.findAllCuisineTypes(updateItemRequest.cuisineTypes);
+
+      if (cuisineTypes.length !== updateItemRequest.cuisineTypes.length) {
+        throw new RpcException({
+          message: 'Invalid related data',
+          status: GrpcStatus.INVALID_ARGUMENT,
+        });
+      }
+    }
+
+    if (updateItemRequest?.specialDietaries?.length) {
+      dietaries = await this.itemRepository.findAllSpecialDietaries(
+        updateItemRequest.specialDietaries,
+      );
+      if (dietaries.length !== updateItemRequest.specialDietaries.length) {
+        throw new RpcException({
+          message: 'Invalid related data',
+          status: GrpcStatus.INVALID_ARGUMENT,
+        });
+      }
+    }
+
+    if (updateItemRequest?.occasionEvents?.length) {
+      occasionEvents = await this.itemRepository.findAllOccasionEvents(
+        updateItemRequest.occasionEvents,
+      );
+      if (occasionEvents.length !== updateItemRequest.occasionEvents.length) {
+        throw new RpcException({
+          message: 'Invalid related data',
+          status: GrpcStatus.INVALID_ARGUMENT,
+        });
+      }
+    }
+
+    const updatedItem = await this.partnerItemRepository.updateItem({
+      id,
+      updateItemRequest: {
+        ...item,
+        ...updateItemRequest,
+        description: updateItemRequest?.description ?? item.description ?? '',
+        metadata: updateItemRequest?.metadata
+          ? (updateItemRequest?.metadata ?? undefined)
+          : {
+              hasNotes: item?.metadata?.has_notes ?? false,
+              hasUtensils: item?.metadata?.has_utensils ?? false,
+              rejectionReason: item?.metadata?.rejection_reason,
+            },
+        status: newStatus ?? ItemStatus.DRAFT,
+        optionsChoices: updateItemRequest?.optionsChoices
+          ? updateItemRequest?.optionsChoices?.map(option => ({
+              id: option?.id,
+              name: option?.name,
+              description: option?.description,
+              allowMultipleSelection: option?.allowMultipleSelection ?? false,
+              allowQuantitySelection: option?.allowQuantitySelection ?? false,
+              isRequired: option?.isRequired ?? false,
+              maxChoices: option?.maxChoices ?? 0,
+              choices: option?.choices?.map(choice => ({
+                id: choice?.id,
+                name: choice?.name,
+                price: choice?.price,
+              })),
+            }))
+          : (item.optionsChoices?.map(option => ({
+              id: option?.id,
+              name: option?.name,
+              description: option?.description,
+              allowMultipleSelection: option?.allow_multiple_selection ?? false,
+              allowQuantitySelection: option?.allow_quantity_selection ?? false,
+              isRequired: option?.is_required ?? false,
+              maxChoices: option?.max_choices ?? 0,
+              choices: option?.choices?.map(choice => ({
+                id: choice?.id,
+                name: choice?.name,
+                price: choice?.price,
+              })),
+            })) ?? []),
+      },
+    });
+
+    if (!updatedItem) {
+      throw new RpcException({
+        message: 'Failed to update menu item',
+        status: GrpcStatus.INTERNAL,
+      });
+    }
+
+    return {
+      ...updatedItem,
+      description: updatedItem?.description ?? '',
+      cuisineTypes: cuisineTypes.length ? cuisineTypes : [],
+      specialDietaries: dietaries.length ? dietaries : [],
+      occasionEvents: occasionEvents.length ? occasionEvents : [],
+      optionsChoices:
+        updatedItem?.optionsChoices?.map(option => ({
+          id: option?.id,
+          name: option?.name,
+          description: option?.description,
+          choices: option?.choices?.map(choice => ({
+            id: choice?.id,
+            name: choice?.name,
+            price: choice?.price,
+          })),
+          isRequired: option?.is_required ?? false,
+          maxChoices: option?.max_choices ?? 0,
+          allowMultipleSelection: option?.allow_multiple_selection ?? false,
+          allowQuantitySelection: option?.allow_quantity_selection ?? false,
+        })) ?? [],
+      metadata: {
+        hasNotes: updatedItem?.metadata?.has_notes ?? false,
+        hasUtensils: updatedItem?.metadata?.has_utensils ?? false,
+        rejectionReason: updatedItem?.metadata?.rejection_reason,
       },
     };
   }

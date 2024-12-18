@@ -27,4 +27,24 @@ export class MenusService {
       })),
     });
   }
+
+  async updateMenuItem(payload: Partial<InsertItemDto> & { itemId: string }) {
+    return this.menusService.updateMenuItem({
+      id: payload.itemId,
+      updateItemRequest: {
+        ...payload,
+        specialDietaries: payload?.specialDietaries as number[],
+        cuisineTypes: payload?.cuisineTypes as number[],
+        occasionEvents: payload?.occasionEvents as number[],
+        images: payload?.images as string[],
+        optionsChoices: (payload.optionsChoices ?? []).map(option => ({
+          ...option,
+          choices: option.choices.map(choice => ({
+            ...choice,
+            price: choice?.price as number,
+          })),
+        })),
+      },
+    });
+  }
 }
