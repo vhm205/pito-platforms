@@ -20,12 +20,8 @@ const OptionChoicesSchema = z.object({
 });
 
 export const ItemSchema = z.object({
-  id: z.string().uuid(),
   storeId: z.string().uuid(),
-  menuId: z.string().uuid(),
   menuCategory: z.string().uuid(),
-  slug: z.string(),
-  cateringPackages: z.array(z.number()),
   cuisineTypes: z.array(z.number()).optional(),
   specialDietaries: z.array(z.number()).optional(),
   occasionEvents: z.array(z.number()).optional(),
@@ -68,28 +64,10 @@ export const ItemSchema = z.object({
     hasUtensils: z.boolean(),
     rejectionReason: z.string().optional(),
   }),
-  createdAt: z.string().optional().nullable(),
-  updatedAt: z.string().optional().nullable(),
 });
 
-export const InsertItemSchema = ItemSchema.omit({
-  id: true,
-  menuId: true,
-  slug: true,
-  cateringPackages: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const InsertItemSchema = ItemSchema;
 
-export const UpdateItemSchema = ItemSchema.omit({
-  id: true,
-  menuId: true,
-  slug: true,
-  cateringPackages: true,
-  createdAt: true,
-  updatedAt: true,
-})
-  .partial()
-  .refine(d => Object.keys(d).length > 0, {
-    message: 'At least one field must be updated',
-  });
+export const UpdateItemSchema = ItemSchema.partial().refine(d => Object.keys(d).length > 0, {
+  message: 'At least one field must be updated',
+});

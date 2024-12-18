@@ -1,11 +1,10 @@
 import {
-  ItemFilter,
-  PartnerItemRequest,
-  PartnerItem,
-  StoreFilter,
   getDateTimeWithOffset,
+  ItemFilter,
+  PartnerItem,
+  PartnerItemRequest,
+  StoreFilter,
   UpdateItemRequest,
-  FilterOption,
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
 import { GrpcStatus } from '@app/common/enums';
@@ -14,6 +13,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
+import { PartnerItemMapper } from 'apps/menu-service/src/infrastructure/persistence/relational/mappers/partner-item.mapper';
 import { generateSlug } from 'apps/menu-service/src/utils/slug.util';
 import dayjs from 'dayjs';
 
@@ -163,41 +163,39 @@ export class MenuService {
       });
     }
 
+    const itemMapper = PartnerItemMapper.toDomain(savedItem);
+
     return {
-      ...savedItem,
-      description: savedItem?.description ?? '',
+      ...itemMapper,
       cuisineTypes,
       specialDietaries: dietaries,
       occasionEvents,
-      optionsChoices:
-        savedItem?.optionsChoices?.map(option => ({
-          id: option?.id,
-          name: option?.name,
-          description: option?.description,
-          choices: option?.choices?.map(choice => ({
-            id: choice?.id,
-            name: choice?.name,
-            price: choice?.price,
-          })),
-          isRequired: option?.is_required ?? false,
-          maxChoices: option?.max_choices ?? 0,
-          allowMultipleSelection: option?.allow_multiple_selection ?? false,
-          allowQuantitySelection: option?.allow_quantity_selection ?? false,
-        })) ?? [],
-      metadata: {
-        hasNotes: savedItem?.metadata?.has_notes ?? false,
-        hasUtensils: savedItem?.metadata?.has_utensils ?? false,
-        rejectionReason: savedItem?.metadata?.rejection_reason,
-      },
     };
   }
 
   async updateMenuItem(payload: UpdateItemRequest): Promise<PartnerItem> {
     const { id, updateItemRequest } = payload;
 
-    const item = await this.partnerItemRepository.findOne({
-      id,
-    });
+    const findItemPromise = this.partnerItemRepository.findOne({ id });
+
+    const cuisineTypesPromise = updateItemRequest?.cuisineTypes?.length
+      ? this.itemRepository.findAllCuisineTypes(updateItemRequest.cuisineTypes)
+      : Promise.resolve([]);
+
+    const dietariesPromise = updateItemRequest?.specialDietaries?.length
+      ? this.itemRepository.findAllSpecialDietaries(updateItemRequest.specialDietaries)
+      : Promise.resolve([]);
+
+    const occasionEventsPromise = updateItemRequest?.occasionEvents?.length
+      ? this.itemRepository.findAllOccasionEvents(updateItemRequest.occasionEvents)
+      : Promise.resolve([]);
+
+    const [item, cuisineTypes, dietaries, occasionEvents] = await Promise.all([
+      findItemPromise,
+      cuisineTypesPromise,
+      dietariesPromise,
+      occasionEventsPromise,
+    ]);
 
     if (!item) {
       throw new RpcException({
@@ -207,8 +205,10 @@ export class MenuService {
     }
 
     const isInvalidStatus =
-      item.status &&
-      ![ItemStatus.DRAFT, ItemStatus.PENDING_APPROVAL].includes(item.status as ItemStatus);
+      updateItemRequest?.status &&
+      ![ItemStatus.DRAFT, ItemStatus.PENDING_APPROVAL].includes(
+        updateItemRequest?.status as ItemStatus,
+      );
 
     if (isInvalidStatus) {
       throw new RpcException({
@@ -217,47 +217,38 @@ export class MenuService {
       });
     }
 
+    if (
+      updateItemRequest?.cuisineTypes?.length &&
+      cuisineTypes.length !== updateItemRequest.cuisineTypes.length
+    ) {
+      throw new RpcException({
+        message: 'Some provided cuisines are invalid or do not exist',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
+    if (
+      updateItemRequest?.specialDietaries?.length &&
+      dietaries.length !== updateItemRequest.specialDietaries.length
+    ) {
+      throw new RpcException({
+        message: 'Some provided special dietaries are invalid or do not exist',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
+    if (
+      updateItemRequest?.occasionEvents?.length &&
+      occasionEvents.length !== updateItemRequest.occasionEvents.length
+    ) {
+      throw new RpcException({
+        message: 'Some provided occasion events are invalid or do not exist',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
     const newStatus =
       item.status === ItemStatus.REJECTED ? ItemStatus.PENDING_APPROVAL : updateItemRequest?.status;
-
-    let cuisineTypes: FilterOption[] = [];
-    let dietaries: FilterOption[] = [];
-    let occasionEvents: FilterOption[] = [];
-
-    if (updateItemRequest?.cuisineTypes?.length) {
-      cuisineTypes = await this.itemRepository.findAllCuisineTypes(updateItemRequest.cuisineTypes);
-
-      if (cuisineTypes.length !== updateItemRequest.cuisineTypes.length) {
-        throw new RpcException({
-          message: 'Invalid related data',
-          status: GrpcStatus.INVALID_ARGUMENT,
-        });
-      }
-    }
-
-    if (updateItemRequest?.specialDietaries?.length) {
-      dietaries = await this.itemRepository.findAllSpecialDietaries(
-        updateItemRequest.specialDietaries,
-      );
-      if (dietaries.length !== updateItemRequest.specialDietaries.length) {
-        throw new RpcException({
-          message: 'Invalid related data',
-          status: GrpcStatus.INVALID_ARGUMENT,
-        });
-      }
-    }
-
-    if (updateItemRequest?.occasionEvents?.length) {
-      occasionEvents = await this.itemRepository.findAllOccasionEvents(
-        updateItemRequest.occasionEvents,
-      );
-      if (occasionEvents.length !== updateItemRequest.occasionEvents.length) {
-        throw new RpcException({
-          message: 'Invalid related data',
-          status: GrpcStatus.INVALID_ARGUMENT,
-        });
-      }
-    }
 
     const updatedItem = await this.partnerItemRepository.updateItem({
       id,
@@ -312,32 +303,13 @@ export class MenuService {
       });
     }
 
+    const itemMapper = PartnerItemMapper.toDomain(updatedItem);
+
     return {
-      ...updatedItem,
-      description: updatedItem?.description ?? '',
-      cuisineTypes: cuisineTypes.length ? cuisineTypes : [],
-      specialDietaries: dietaries.length ? dietaries : [],
-      occasionEvents: occasionEvents.length ? occasionEvents : [],
-      optionsChoices:
-        updatedItem?.optionsChoices?.map(option => ({
-          id: option?.id,
-          name: option?.name,
-          description: option?.description,
-          choices: option?.choices?.map(choice => ({
-            id: choice?.id,
-            name: choice?.name,
-            price: choice?.price,
-          })),
-          isRequired: option?.is_required ?? false,
-          maxChoices: option?.max_choices ?? 0,
-          allowMultipleSelection: option?.allow_multiple_selection ?? false,
-          allowQuantitySelection: option?.allow_quantity_selection ?? false,
-        })) ?? [],
-      metadata: {
-        hasNotes: updatedItem?.metadata?.has_notes ?? false,
-        hasUtensils: updatedItem?.metadata?.has_utensils ?? false,
-        rejectionReason: updatedItem?.metadata?.rejection_reason,
-      },
+      ...itemMapper,
+      cuisineTypes,
+      specialDietaries: dietaries,
+      occasionEvents,
     };
   }
 }
