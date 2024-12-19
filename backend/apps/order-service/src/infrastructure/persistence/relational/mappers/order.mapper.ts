@@ -60,7 +60,7 @@ export class OrderMapper {
         name: item.item.name,
         slug: item.item.slug,
         images: item.item.images,
-        basePrice: item.item.basePrice,
+        basePrice: item.item.base_price,
       },
     }));
 

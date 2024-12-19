@@ -1,3 +1,4 @@
+import { DEFAULT_PAGE_NUMBER } from '@app/common';
 import { RoleType } from '@gateway/constants';
 import { Auth } from '@gateway/decorators';
 import { ApiPageWrapperResponse } from '@gateway/decorators';
@@ -15,20 +16,21 @@ import {
   Query,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { get, isEmpty } from 'lodash';
+import { get, identity, isEmpty, map, pickBy } from 'lodash';
 
 import { InvoiceRequestDto } from './dto/invoice-request.dto';
 import { OrderDetailDto } from './dto/order-detail.dto';
 import { OrderListingDto } from './dto/order-listing.dto';
-import { OperatorQueryOrderDto } from './dto/query-order.dto';
+import { OperatorQueryOrderDto, OperatorQueryStoreOrderDto } from './dto/query-order.dto';
+import { StoreOrderListingDto } from './dto/store-order-listing.dto';
 import { OperatorOrderService } from './operator-order.service';
 import { transformCustomer } from './utils/transformer';
 
-@Controller('operator/orders')
+@Controller('operator')
 export class OperatorOrdersController {
   constructor(private readonly service: OperatorOrderService) {}
 
-  @Get()
+  @Get('/orders')
   @Auth([RoleType.OPERATOR])
   @HttpCode(HttpStatus.OK)
   @ApiPageWrapperResponse({ type: OrderListingDto })
@@ -40,7 +42,7 @@ export class OperatorOrdersController {
     query.filters = transformedFilters;
 
     const { orders, totalCount } = await this.service.getListOrders(query);
-    if (!orders?.length) {
+    if (isEmpty(orders)) {
       return emptyPaginationResponse({
         page: query.page,
         pageSize: query.pageSize,
@@ -50,14 +52,22 @@ export class OperatorOrdersController {
 
     const storeIds = Array.from(new Set(orders.map(order => order.storeId)));
     const storesMap = await this.service
-      .getStoresByIds([...storeIds])
+      .filterStores(
+        {
+          column: 'id',
+          operator: 'in',
+          value: storeIds.join(','),
+        },
+        DEFAULT_PAGE_NUMBER,
+        storeIds.length,
+      )
       .then(({ stores }) => new Map(stores.map(store => [store.id, store])));
 
     const transformedOrders = plainToInstance(
       OrderListingDto,
-      orders.map(order => ({
+      map(orders, order => ({
         ...order,
-        status: order.operatorStatusCode,
+        status: order.statusCode,
         store: storesMap.get(order.storeId),
         customer: transformCustomer(order),
       })),
@@ -71,7 +81,7 @@ export class OperatorOrdersController {
     return new PageDto<OrderListingDto>(transformedOrders, pageMeta);
   }
 
-  @Get('/:orderIdentifier')
+  @Get('/orders/:orderIdentifier')
   @Auth([RoleType.OPERATOR])
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: OrderDetailDto })
@@ -90,7 +100,7 @@ export class OperatorOrdersController {
     return transformedOrder;
   }
 
-  @Get('/:orderIdentifier/vat-info')
+  @Get('/orders/:orderIdentifier/vat-info')
   @Auth([RoleType.OPERATOR])
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: InvoiceRequestDto })
@@ -100,8 +110,9 @@ export class OperatorOrdersController {
       : { orderCode: identifier };
 
     const { storeOrder } = await this.service.getStoreOrderDetails(queryParam);
-    if (!storeOrder)
+    if (isEmpty(storeOrder)) {
       throw new NotFoundException('We could not find the order with the provided identifier');
+    }
 
     return plainToInstance(
       InvoiceRequestDto,
@@ -109,12 +120,86 @@ export class OperatorOrdersController {
         orderId: storeOrder.orderId,
         storeId: storeOrder.storeId,
         orderCode: storeOrder.orderCode,
-        invoiceRequested: !isEmpty(storeOrder.invoiceRequest),
+        invoiceRequested: !isEmpty(pickBy(storeOrder.invoiceRequest, identity)),
         invoiceUrlAvailable: !isEmpty(storeOrder.metadata?.invoiceUrl),
         vatInfo: get(storeOrder, 'invoiceRequest'),
         invoiceUrl: storeOrder.metadata?.invoiceUrl,
       },
       { excludeExtraneousValues: true },
     );
+  }
+
+  @Get('/store-orders')
+  @Auth([RoleType.OPERATOR])
+  @ApiPageWrapperResponse({ type: StoreOrderListingDto })
+  async getListStoreOrders(@Query() query: OperatorQueryStoreOrderDto) {
+    const storesMap = new Map();
+    const vatFilter = query.filters.find(filter => filter.column === 'isVat');
+
+    if (vatFilter) {
+      const { stores } = await this.service.filterStores(
+        {
+          column: vatFilter.column,
+          operator: 'eq',
+          value: vatFilter.value,
+        },
+        query.page,
+        query.pageSize,
+      );
+
+      if (isEmpty(stores)) {
+        return emptyPaginationResponse({
+          page: query.page,
+          pageSize: query.pageSize,
+          totalCount: 0,
+        });
+      }
+
+      // Update filters by removing VAT and adding store filter
+      query.filters = query.filters.filter(filter => filter.column !== vatFilter.column);
+      query.filters.push({
+        column: 'storeId',
+        operator: 'in',
+        value: map(stores, store => store.id).join(','),
+      });
+
+      stores.forEach(store => storesMap.set(store.id, store));
+    }
+
+    const { orders, totalCount } = await this.service.getListStoreOrders(query);
+    if (isEmpty(orders)) {
+      return emptyPaginationResponse({
+        page: query.page,
+        pageSize: query.pageSize,
+        totalCount,
+      });
+    }
+
+    // If has vat is not present, fetch store details for each order
+    if (!vatFilter) {
+      const storeIds = Array.from(new Set(orders.map(order => order.storeId)));
+      const { stores } = await this.service.filterStores(
+        {
+          column: 'id',
+          operator: 'in',
+          value: storeIds.join(','),
+        },
+        DEFAULT_PAGE_NUMBER,
+        storeIds.length,
+      );
+      stores.forEach(store => storesMap.set(store.id, store));
+    }
+
+    const transformedOrders = plainToInstance(
+      StoreOrderListingDto,
+      map(orders, order => Object.assign(order, { store: storesMap.get(order.storeId) })),
+      { excludeExtraneousValues: true },
+    );
+    const pageMeta = new PageMetaDto({
+      pageOptions: { page: query.page, pageSize: query.pageSize },
+      totalCount,
+    });
+
+    return new PageDto<StoreOrderListingDto>(transformedOrders, pageMeta);
   }
 }

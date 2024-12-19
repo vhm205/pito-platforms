@@ -1,4 +1,9 @@
-import { FindStoreOrderRequest, UpdateStoreOrderStatusRequest } from '@app/common';
+import {
+  FindStoreOrderRequest,
+  FindStoreOrdersRequest,
+  transformFilterRule,
+  UpdateStoreOrderStatusRequest,
+} from '@app/common';
 import { GrpcStatus, StoreOrderStatus } from '@app/common/enums';
 import { OrderStatus } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
@@ -15,6 +20,17 @@ export class StoreOrderService {
     return this.repository.findOne(filters);
   }
 
+  async findStoreOrdersWithPagination({
+    pagination,
+    filters,
+    sorts,
+  }: FindStoreOrdersRequest): Promise<[StoreOrder[], number]> {
+    return this.repository.findWithPagination({
+      pagination: pagination!,
+      filters: filters.map(transformFilterRule),
+      sorts,
+    });
+  }
   async updateStoreOrderStatus({ id, status }: UpdateStoreOrderStatusRequest): Promise<StoreOrder> {
     const storeOrder = await this.repository.findOne({ id });
     if (!storeOrder) {

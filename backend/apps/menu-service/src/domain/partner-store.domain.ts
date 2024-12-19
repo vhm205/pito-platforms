@@ -22,6 +22,12 @@ export class PartnerStore {
     latitude: number;
     longitude: number;
   };
+  bankAccount: {
+    bankName: string;
+    bankBranch: string;
+    accountHolder: string;
+    accountNumber: string;
+  };
 
   createdAt: Date;
   updatedAt: NullableType<Date>;
@@ -35,6 +41,8 @@ export class PartnerStore {
       storeCode: this.storeCode,
       contacts: this.contacts,
       location: this.location,
+      isVat: this.isVat,
+      bankAccount: this.bankAccount,
     };
   }
 }

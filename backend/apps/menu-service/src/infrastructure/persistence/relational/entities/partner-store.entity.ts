@@ -52,4 +52,12 @@ export class PartnerStoreEntity {
     latitude: number;
     longitude: number;
   };
+
+  @Column({ type: 'jsonb', name: 'bank_account', nullable: true })
+  bankAccount: {
+    bank_name: string;
+    bank_branch: string;
+    account_holder: string;
+    account_number: string;
+  };
 }

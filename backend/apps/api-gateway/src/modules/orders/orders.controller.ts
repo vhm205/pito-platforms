@@ -1,4 +1,4 @@
-import { UpdateOrderStatusRequest, User } from '@app/common';
+import { DEFAULT_PAGE_NUMBER, UpdateOrderStatusRequest, User } from '@app/common';
 import { RoleType } from '@gateway/constants';
 import { ApiPageWrapperResponse, AuthUser } from '@gateway/decorators';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
@@ -67,7 +67,15 @@ export class OrdersController {
 
     const storeIds = Array.from(new Set(orders.map(order => order.storeId)));
     const storesMap = await this.service
-      .getStoresByIds([...storeIds])
+      .filterStores(
+        {
+          column: 'id',
+          operator: 'in',
+          value: storeIds.join(','),
+        },
+        DEFAULT_PAGE_NUMBER,
+        storeIds.length,
+      )
       .then(({ stores }) => new Map(stores.map(store => [store.id, store])));
 
     const transformedOrders = plainToInstance(

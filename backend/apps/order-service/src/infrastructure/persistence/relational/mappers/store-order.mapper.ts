@@ -15,7 +15,7 @@ export class StoreOrderMapper {
     domain.statusCode = raw.statusCode;
     domain.createdAt = raw.createdAt;
     domain.updatedAt = raw.updatedAt;
-    domain.deliveryTime = raw.deliveryTime;
+    domain.deliveryDate = raw.deliveryDate;
     domain.estimationTime = raw.estimationTime;
 
     domain.deliveryContact = raw.deliveryContact;
@@ -31,7 +31,9 @@ export class StoreOrderMapper {
     domain.notes = raw.notes;
     domain.metadata = raw.metadata;
     domain.invoiceRequest = raw.invoiceRequest;
+    domain.invoiceStatus = raw.invoiceStatus;
     domain.orderLogs = raw.orderLogs;
+    domain.paymentStatus = raw.paymentStatus;
 
     return domain;
   }
@@ -48,7 +50,7 @@ export class StoreOrderMapper {
     entity.statusCode = domainEntity.statusCode;
     entity.createdAt = domainEntity.createdAt;
     entity.updatedAt = domainEntity.updatedAt;
-    entity.deliveryTime = domainEntity.deliveryTime;
+    entity.deliveryDate = domainEntity.deliveryDate;
     if (domainEntity.estimationTime) entity.estimationTime = domainEntity.estimationTime;
 
     entity.deliveryContact = domainEntity.deliveryContact;
@@ -64,7 +66,9 @@ export class StoreOrderMapper {
     entity.notes = domainEntity.notes;
     entity.metadata = domainEntity.metadata;
     entity.invoiceRequest = domainEntity.invoiceRequest;
+    entity.invoiceStatus = domainEntity.invoiceStatus;
     entity.orderLogs = domainEntity.orderLogs;
+    entity.paymentStatus = domainEntity.paymentStatus;
 
     return entity;
   }
