@@ -1,24 +1,31 @@
 import { DEFAULT_PAGE_NUMBER } from '@app/common';
 import { RoleType } from '@gateway/constants';
-import { Auth } from '@gateway/decorators';
+import { Auth, AuthUser } from '@gateway/decorators';
 import { ApiPageWrapperResponse } from '@gateway/decorators';
 import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
 import { emptyPaginationResponse, isValidUUID } from '@gateway/utils/common';
 import {
+  BadRequestException,
+  Body,
   Controller,
   Get,
   HttpCode,
   HttpStatus,
   NotFoundException,
   Param,
+  Put,
   Query,
 } from '@nestjs/common';
+import { ApiBody } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { get, identity, isEmpty, map, pickBy } from 'lodash';
 
+import { AuthenticatedUser } from '../auth/auth-user.interface';
+
 import { InvoiceRequestDto } from './dto/invoice-request.dto';
+import { OperatorUpdateOrderDto } from './dto/operator-update-order.dto';
 import { OrderDetailDto } from './dto/order-detail.dto';
 import { OrderListingDto } from './dto/order-listing.dto';
 import { OperatorQueryOrderDto, OperatorQueryStoreOrderDto } from './dto/query-order.dto';
@@ -67,7 +74,7 @@ export class OperatorOrdersController {
       OrderListingDto,
       map(orders, order => ({
         ...order,
-        status: order.statusCode,
+        status: order.operatorStatusCode,
         store: storesMap.get(order.storeId),
         customer: transformCustomer(order),
       })),
@@ -88,10 +95,18 @@ export class OperatorOrdersController {
   async getOrderDetails(@Param('orderIdentifier') identifier: string) {
     const queryParam = isValidUUID(identifier) ? { id: identifier } : { orderCode: identifier };
 
-    const order = await this.service.getOrderDetails(queryParam);
+    const { order } = await this.service.getOrderDetails(queryParam);
+    if (!order) {
+      throw new NotFoundException('We could not find the order with the provided identifier');
+    }
+    const store = await this.service.getStoreById(order.storeId).then(({ store }) => store!);
     const transformedOrder = plainToInstance(
       OrderDetailDto,
-      Object.assign(order, { status: order.operatorStatusCode }),
+      Object.assign(order, {
+        store,
+        status: order.operatorStatusCode,
+        customer: transformCustomer(order),
+      }),
       {
         excludeExtraneousValues: true,
       },
@@ -130,23 +145,14 @@ export class OperatorOrdersController {
   }
 
   @Get('/store-orders')
-  @Auth([RoleType.OPERATOR])
+  // @Auth([RoleType.OPERATOR])
   @ApiPageWrapperResponse({ type: StoreOrderListingDto })
   async getListStoreOrders(@Query() query: OperatorQueryStoreOrderDto) {
     const storesMap = new Map();
     const vatFilter = query.filters.find(filter => filter.column === 'isVat');
 
     if (vatFilter) {
-      const { stores } = await this.service.filterStores(
-        {
-          column: vatFilter.column,
-          operator: 'eq',
-          value: vatFilter.value,
-        },
-        query.page,
-        query.pageSize,
-      );
-
+      const { stores } = await this.service.filterStores(vatFilter, DEFAULT_PAGE_NUMBER, 1000); // TODO: Need to change this later
       if (isEmpty(stores)) {
         return emptyPaginationResponse({
           page: query.page,
@@ -201,5 +207,26 @@ export class OperatorOrdersController {
     });
 
     return new PageDto<StoreOrderListingDto>(transformedOrders, pageMeta);
+  }
+
+  @Put('/orders/:orderIdentifier')
+  @Auth([RoleType.OPERATOR])
+  @HttpCode(HttpStatus.OK)
+  // @ApiWrapperResponse({ type: InvoiceRequestDto }) // TODO: Add response type later
+  @ApiBody({ type: OperatorUpdateOrderDto })
+  async operatorUpdateOrder(
+    @AuthUser() user: AuthenticatedUser,
+    @Param('orderIdentifier') identifier: string,
+    @Body() updateOrderPayload: OperatorUpdateOrderDto,
+  ) {
+    if (isEmpty(updateOrderPayload)) throw new BadRequestException('Body is required');
+
+    const queryParam = isValidUUID(identifier) ? { id: identifier } : { orderCode: identifier };
+    const { order } = await this.service.getOrderDetails(queryParam);
+    if (!order) {
+      throw new NotFoundException('We could not find the order with the provided identifier');
+    }
+
+    return this.service.operatorUpdateOrder({ user, order, updateOrderPayload });
   }
 }

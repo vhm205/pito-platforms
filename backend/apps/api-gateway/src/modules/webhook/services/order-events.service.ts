@@ -5,7 +5,7 @@ import {
   OrdersServiceClient,
   StoreOrder as StoreOrderMessage,
 } from '@app/common';
-import { ReadableOrderStatus, StoreOrderStatus } from '@app/common/enums';
+import { OrderStatus } from '@app/common/types/proto/common';
 import { WebhookEvent, OrderEvent, OrderEventData } from '@gateway/modules/webhook/types';
 import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -55,12 +55,12 @@ export class OrderEventsService implements OnModuleInit {
     const promises = [
       this.orderService.updateOrderStatus({
         id: order.id,
-        status: ReadableOrderStatus.DELIVERING,
+        status: OrderStatus.DELIVERING,
         deliveryEta: data.duration,
       }),
       this.orderService.updateStoreOrderStatus({
         id: storeOrder.id,
-        status: StoreOrderStatus.COMPLETED,
+        status: OrderStatus.COMPLETED,
       }),
     ];
 
@@ -73,7 +73,7 @@ export class OrderEventsService implements OnModuleInit {
     const promises = [
       this.orderService.updateOrderStatus({
         id: order.id,
-        status: ReadableOrderStatus.COMPLETED,
+        status: OrderStatus.COMPLETED,
       }),
     ];
 
@@ -86,7 +86,7 @@ export class OrderEventsService implements OnModuleInit {
     const promises = [
       this.orderService.updateOrderStatus({
         id: order.id,
-        status: ReadableOrderStatus.DELIVERY_FAILED,
+        status: OrderStatus.DELIVERY_FAILED,
         cancelReason: data.cancelInfo?.reason,
       }),
     ];

@@ -4,15 +4,22 @@ import {
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
+  Order,
   ORDER_SERVICE,
   ORDERS_SERVICE_NAME,
   OrdersServiceClient,
 } from '@app/common';
 import { FilterRule } from '@app/common/types/proto/common';
+import { constructFullName } from '@gateway/utils/common';
 import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
+import { assign, get } from 'lodash';
 import { firstValueFrom } from 'rxjs';
 
+import { AuthenticatedUser } from '../auth/auth-user.interface';
+
+import { OrderNoteDto } from './dto/common.dto';
+import { OperatorUpdateOrderDto } from './dto/operator-update-order.dto';
 import { OperatorQueryOrderDto, OperatorQueryStoreOrderDto } from './dto/query-order.dto';
 import { transformCustomer } from './utils/transformer';
 
@@ -40,7 +47,7 @@ export class OperatorOrderService implements OnModuleInit {
     );
   }
 
-  async getOrderDetails({ id, orderCode }: Pick<FindOrderRequest, 'id' | 'orderCode'>) {
+  async getOrderWithStore({ id, orderCode }: Pick<FindOrderRequest, 'id' | 'orderCode'>) {
     const { order } = await firstValueFrom(this.orderServiceClient.findOrder({ id, orderCode }));
     if (!order) throw new NotFoundException('We could not find the order');
 
@@ -49,6 +56,14 @@ export class OperatorOrderService implements OnModuleInit {
     ).then(({ store }) => store!);
 
     return Object.assign(order, { store, customer: transformCustomer(order) });
+  }
+
+  async getStoreById(storeId: string) {
+    return firstValueFrom(this.menuServiceClient.findStore({ id: storeId }));
+  }
+
+  async getOrderDetails(args: Pick<FindOrderRequest, 'id' | 'orderCode'>) {
+    return firstValueFrom(this.orderServiceClient.findOrder(args));
   }
 
   async filterStores(filters: FilterRule | FilterRule[], page: number, pageSize: number) {
@@ -73,5 +88,43 @@ export class OperatorOrderService implements OnModuleInit {
         sorts: query.sorts,
       }),
     );
+  }
+
+  async operatorUpdateOrder(args: {
+    user: AuthenticatedUser;
+    order: Order;
+    updateOrderPayload: OperatorUpdateOrderDto;
+  }) {
+    const { user, order, updateOrderPayload } = args;
+    if (updateOrderPayload.operationNote) {
+      const operationNotes: OrderNoteDto[] = get(order, 'metadata.operationNotes', []);
+      operationNotes.push({
+        note: updateOrderPayload.operationNote,
+        createdBy: constructFullName(user.firstName, user.lastName) || user.email,
+        createdAt: new Date().toISOString(),
+      });
+      order.metadata = assign(order.metadata, { operationNotes });
+    }
+
+    if (updateOrderPayload.status) {
+      const statusHistory = get(order, 'metadata.statusHistory', []);
+      statusHistory.push({
+        previousStatus: order.operatorStatusCode,
+        newStatus: updateOrderPayload.status,
+        changedAt: new Date().toISOString(),
+        changedBy: constructFullName(user.firstName, user.lastName) || user.email,
+      });
+      order.metadata = assign(order.metadata, { statusHistory });
+      order.operatorStatusCode = updateOrderPayload.status;
+      order.statusCode = updateOrderPayload.status;
+    }
+
+    return this.orderServiceClient.updateOrder({
+      id: order.id,
+      operatorStatusCode: order.operatorStatusCode,
+      statusCode: order.statusCode,
+      operationNotes: get(order, 'metadata.operationNotes', []),
+      statusHistory: get(order, 'metadata.statusHistory', []),
+    });
   }
 }
