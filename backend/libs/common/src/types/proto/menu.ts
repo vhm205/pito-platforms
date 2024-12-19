@@ -231,7 +231,7 @@ export interface PartnerItemRequest {
   storeId: string;
   optionsChoices: PartnerOptionsChoices[];
   metadata: Metadata | undefined;
-  menuId: string;
+  menuId?: string | undefined;
   status?: string | undefined;
 }
 
@@ -336,6 +336,32 @@ export interface FindStoreResponse_StoreResponse_ContactInfo {
   fullName: string;
 }
 
+export interface UpdateItemDetailsRequest {
+  name?: string | undefined;
+  basePrice?: number | undefined;
+  description?: string | undefined;
+  specialDietaries: number[];
+  cuisineTypes: number[];
+  occasionEvents: number[];
+  menuCategory?: string | undefined;
+  images: string[];
+  minQuantity?: number | undefined;
+  packagingType?: string | undefined;
+  packagingUnit?: string | undefined;
+  participant?: number | undefined;
+  preparationTime?: number | undefined;
+  storeId?: string | undefined;
+  optionsChoices: PartnerOptionsChoices[];
+  metadata?: Metadata | undefined;
+  menuId?: string | undefined;
+  status?: string | undefined;
+}
+
+export interface UpdateItemRequest {
+  id: string;
+  updateItemRequest: UpdateItemDetailsRequest | undefined;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -355,6 +381,8 @@ export interface MenusServiceClient {
   getFilterOptions(request: GetFilterOptionRequest): Observable<GetFilterOptionResponse>;
 
   insertMenuItem(request: PartnerItemRequest): Observable<PartnerItem>;
+
+  updateMenuItem(request: UpdateItemRequest): Observable<PartnerItem>;
 
   findStores(request: FindStoresRequest): Observable<FindStoresResponse>;
 
@@ -384,6 +412,10 @@ export interface MenusServiceController {
     request: PartnerItemRequest,
   ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
 
+  updateMenuItem(
+    request: UpdateItemRequest,
+  ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
+
   findStores(
     request: FindStoresRequest,
   ): Promise<FindStoresResponse> | Observable<FindStoresResponse> | FindStoresResponse;
@@ -400,6 +432,7 @@ export function MenusServiceControllerMethods() {
       'findItemsInStore',
       'getFilterOptions',
       'insertMenuItem',
+      'updateMenuItem',
       'findStores',
       'findStore',
     ];

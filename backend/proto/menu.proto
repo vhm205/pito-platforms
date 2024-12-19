@@ -10,6 +10,7 @@ service MenusService {
   rpc FindItemsInStore (GetItemInStoreRequest) returns (GetItemInStoreResponse);
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
   rpc InsertMenuItem (PartnerItemRequest) returns (PartnerItem);
+  rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
   rpc FindStores(FindStoresRequest) returns (FindStoresResponse);
   rpc FindStore(FindStoreRequest) returns (FindStoreResponse);
 }
@@ -232,7 +233,7 @@ message PartnerItemRequest {
   string store_id = 14;
   repeated PartnerOptionsChoices options_choices = 15;
   Metadata metadata = 16;
-  string menuId = 17;
+  optional string menuId = 17;
   optional string status = 18;
 }
 
@@ -341,4 +342,30 @@ message FindStoreResponse {
   }
 
   StoreResponse store = 1;
+}
+
+message UpdateItemDetailsRequest {
+  optional string name = 1;
+  optional float base_price = 2;
+  optional string description = 3;
+  repeated int32 special_dietaries = 4;
+  repeated int32 cuisine_types = 5;
+  repeated int32 occasion_events = 6;
+  optional string menu_category = 7;
+  repeated string images = 8;
+  optional int32 min_quantity = 9;
+  optional string packaging_type = 10;
+  optional string packaging_unit = 11;
+  optional int32 participant = 12;
+  optional int32 preparation_time = 13;
+  optional string store_id = 14;
+  repeated PartnerOptionsChoices options_choices = 15;
+  optional Metadata metadata = 16;
+  optional string menuId = 17;
+  optional string status = 18;
+}
+
+message UpdateItemRequest {
+  string id = 1;
+  UpdateItemDetailsRequest update_item_request = 2;
 }

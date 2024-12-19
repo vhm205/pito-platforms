@@ -1,3 +1,4 @@
+import { FilterOption } from '@app/common';
 import { PackagingType, ItemStatus, UnitType } from '@app/common/enums/item';
 import { NullableType } from '@app/common/types/common';
 
@@ -31,9 +32,9 @@ export class PartnerItem {
   menuCategory: string;
   slug: string;
   cateringPackages: number[];
-  cuisineTypes?: { id: number; name: string }[];
-  specialDietaries?: { id: number; name: string }[];
-  occasionEvents?: { id: number; name: string }[];
+  cuisineTypes?: FilterOption[];
+  specialDietaries?: FilterOption[];
+  occasionEvents?: FilterOption[];
   basePrice: NullableType<number>;
   name: string;
   description: NullableType<string>;
