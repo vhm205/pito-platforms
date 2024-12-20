@@ -11,6 +11,7 @@ import { CatchAllErrorInterceptor } from './interceptors/catch-all-error.interce
 import { TransformResponseInterceptor } from './interceptors/transform-response.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
 import { FilesModule } from './modules/files/files.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { StoresModule } from './modules/stores/stores.module';
 import { UsersModule } from './modules/users/users.module';
@@ -24,6 +25,7 @@ const modules = [
   StoresModule,
   UsersModule,
   WebhookModule,
+  NotificationsModule,
 ];
 
 @Module({

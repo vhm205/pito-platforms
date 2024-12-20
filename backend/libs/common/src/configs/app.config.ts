@@ -18,6 +18,7 @@ export type AppConfig = {
   orderGrpcUrl: string;
   billingGrpcUrl: string;
   menuGrpcUrl: string;
+  notificationGrpcUrl: string;
 
   rabbitmqHost: string;
   rabbitmqPort: number;
@@ -63,6 +64,12 @@ class AppVariablesValidator {
   MENU_GRPC_PORT: number;
 
   @IsString()
+  NOTIFICATION_GRPC_HOST: string;
+
+  @IsInt()
+  NOTIFICATION_GRPC_PORT: number;
+
+  @IsString()
   RABBITMQ_HOST: string;
 
   @IsInt()
@@ -98,6 +105,10 @@ export default registerAs<AppConfig>('app', () => {
     orderGrpcUrl: process.env.ORDER_GRPC_HOST!.concat(':', process.env.ORDER_GRPC_PORT!),
     billingGrpcUrl: process.env.BILLING_GRPC_HOST!.concat(':', process.env.BILLING_GRPC_PORT!),
     menuGrpcUrl: process.env.MENU_GRPC_HOST!.concat(':', process.env.MENU_GRPC_PORT!),
+    notificationGrpcUrl: process.env.NOTIFICATION_GRPC_HOST!.concat(
+      ':',
+      process.env.NOTIFICATION_GRPC_PORT!,
+    ),
 
     rabbitmqHost: process.env.RABBITMQ_HOST!,
     rabbitmqPort: process.env.RABBITMQ_PORT ? parseInt(process.env.RABBITMQ_PORT, 10) : 5672,
