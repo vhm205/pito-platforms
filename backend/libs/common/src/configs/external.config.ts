@@ -150,6 +150,9 @@ class ExternalVariablesValidator {
 
   @IsString()
   KEYCLOAK_REALM_ID: string;
+
+  @IsString()
+  SLACK_WEBHOOK_URL: string;
 }
 
 // eslint-disable-next-line import/no-default-export
@@ -186,6 +189,9 @@ export default registerAs<ExternalConfig>('external', () => {
       serviceId: process.env.AHAMOVE_SERVICE_ID!,
       systemToken: process.env.AHAMOVE_SYSTEM_TOKEN!,
       orderEventsApiKey: process.env.AHAMOVE_ORDER_EVENTS_API_KEY!,
+    },
+    slack: {
+      webhookUrl: process.env.SLACK_WEBHOOK_URL!,
     },
   };
 });
