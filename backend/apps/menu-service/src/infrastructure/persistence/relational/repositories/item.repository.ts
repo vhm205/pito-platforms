@@ -77,15 +77,17 @@ export class ItemRelationalRepository implements ItemRepository {
   }
 
   async findAllCuisineTypes(ids?: number[]) {
+    const validIds = ids?.filter(id => Number.isInteger(id) && id > 0);
     const cuisineTypes = await this.cuisineTypeRepository.find(
-      ids ? { where: { id: In(ids) } } : {},
+      validIds ? { where: { id: In(validIds) } } : {},
     );
     return cuisineTypes.map(cuisineType => ({ id: cuisineType.id, name: cuisineType.name }));
   }
 
   async findAllSpecialDietaries(ids?: number[]) {
+    const validIds = ids?.filter(id => Number.isInteger(id) && id > 0);
     const specialDietaries = await this.specialDietaryRepository.find(
-      ids ? { where: { id: In(ids) } } : {},
+      validIds ? { where: { id: In(validIds) } } : {},
     );
     return specialDietaries.map(specialDietary => ({
       id: specialDietary.id,
@@ -94,8 +96,9 @@ export class ItemRelationalRepository implements ItemRepository {
   }
 
   async findAllOccasionEvents(ids?: number[]) {
+    const validIds = ids?.filter(id => Number.isInteger(id) && id > 0);
     const occasionEvents = await this.occasionEventRepository.find(
-      ids ? { where: { id: In(ids) } } : {},
+      validIds ? { where: { id: In(validIds) } } : {},
     );
     return occasionEvents.map(occasionEvent => ({
       id: occasionEvent.id,

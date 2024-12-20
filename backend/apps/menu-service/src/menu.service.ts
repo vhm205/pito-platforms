@@ -117,15 +117,48 @@ export class MenuService {
       this.partnerItemRepository.findOne({
         slug: generateSlug(payload.name),
       }),
-      this.itemRepository.findAllCuisineTypes(payload.cuisineTypes),
-      this.itemRepository.findAllSpecialDietaries(payload.specialDietaries),
-      this.itemRepository.findAllOccasionEvents(payload.occasionEvents),
+      payload?.cuisineTypes?.length
+        ? this.itemRepository.findAllCuisineTypes(payload.cuisineTypes)
+        : Promise.resolve([]),
+      payload?.specialDietaries?.length
+        ? this.itemRepository.findAllSpecialDietaries(payload.specialDietaries)
+        : Promise.resolve([]),
+      payload?.occasionEvents?.length
+        ? this.itemRepository.findAllOccasionEvents(payload.occasionEvents)
+        : Promise.resolve([]),
     ]);
 
     if (!menuCategory) {
       throw new RpcException({
         message: 'Menu category not found',
         status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    if (payload?.cuisineTypes?.length && cuisineTypes?.length !== payload?.cuisineTypes?.length) {
+      throw new RpcException({
+        message: 'Some provided cuisines are invalid or do not exist',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
+    if (
+      payload?.specialDietaries?.length &&
+      dietaries?.length !== payload?.specialDietaries?.length
+    ) {
+      throw new RpcException({
+        message: 'Some provided special dietaries are invalid or do not exist',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
+    if (
+      payload?.occasionEvents?.length &&
+      occasionEvents.length !== payload?.occasionEvents?.length
+    ) {
+      throw new RpcException({
+        message: 'Some provided occasion events are invalid or do not exist',
+        status: GrpcStatus.INVALID_ARGUMENT,
       });
     }
 
@@ -140,15 +173,11 @@ export class MenuService {
       });
     }
 
-    if (cuisineTypes.length === 0 || dietaries.length === 0 || occasionEvents.length === 0) {
-      throw new RpcException({
-        message: 'Invalid related data',
-        status: GrpcStatus.INVALID_ARGUMENT,
-      });
-    }
-
     const savedItem = await this.partnerItemRepository.insertItem({
       ...payload,
+      cuisineTypes: cuisineTypes?.map(cuisine => cuisine.id),
+      specialDietaries: dietaries?.map(dietary => dietary.id),
+      occasionEvents: occasionEvents?.map(event => event.id),
       slug: isSlugExist
         ? `${generateSlug(payload.name)}-${Date.now()}`
         : generateSlug(payload.name),
@@ -249,6 +278,21 @@ export class MenuService {
 
     const newStatus =
       item.status === ItemStatus.REJECTED ? ItemStatus.PENDING_APPROVAL : updateItemRequest?.status;
+
+    if (updateItemRequest?.name && updateItemRequest.name !== item.name) {
+      const newSlug = generateSlug(updateItemRequest.name);
+
+      const isSlugExist = await this.partnerItemRepository.findOne({ slug: newSlug });
+
+      if (isSlugExist && isSlugExist.id !== id) {
+        throw new RpcException({
+          message: 'Slug conflict: another item with the same name exists',
+          status: GrpcStatus.INVALID_ARGUMENT,
+        });
+      }
+
+      updateItemRequest.slug = isSlugExist ? `${newSlug}-${Date.now()}` : newSlug;
+    }
 
     const updatedItem = await this.partnerItemRepository.updateItem({
       id,

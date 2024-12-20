@@ -363,6 +363,7 @@ message UpdateItemDetailsRequest {
   optional Metadata metadata = 16;
   optional string menuId = 17;
   optional string status = 18;
+  optional string slug = 19;
 }
 
 message UpdateItemRequest {

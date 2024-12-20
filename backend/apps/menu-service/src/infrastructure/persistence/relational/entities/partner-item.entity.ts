@@ -27,7 +27,7 @@ export class PartnerItemEntity extends EntityRelationalHelper {
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: NullableType<Date>;
 
-  @Column('bigint', { name: 'cuisine_types', array: true, nullable: false })
+  @Column('bigint', { name: 'cuisine_types', array: true, nullable: true })
   cuisineTypes: number[];
 
   @Column('bigint', { name: 'special_dietaries', array: true })
@@ -85,7 +85,7 @@ export class PartnerItemEntity extends EntityRelationalHelper {
     name: 'packaging_unit',
     type: 'enum',
     enum: UnitType,
-    nullable: false,
+    nullable: true,
   })
   packagingUnit: UnitType;
 

@@ -355,6 +355,7 @@ export interface UpdateItemDetailsRequest {
   metadata?: Metadata | undefined;
   menuId?: string | undefined;
   status?: string | undefined;
+  slug?: string | undefined;
 }
 
 export interface UpdateItemRequest {
