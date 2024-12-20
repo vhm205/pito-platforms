@@ -1,4 +1,4 @@
-import { LoggerService, formatCurrency } from '@app/common';
+import { LoggerService, formatCurrency, formatTimestamp } from '@app/common';
 import { Channel, NotificationEventPattern, NotificationType } from '@app/common/enums';
 import { SendNotificationDto } from '@app/common/types';
 import { OrderStatus } from '@app/common/types/proto/common';
@@ -104,19 +104,12 @@ export class NotificationService {
   private getDynamicTemplateData(order: Order, store: Store): Record<string, unknown> {
     const orderPayload = {
       code: order.orderCode,
-      createdAt: new Date(order.createdAt).toLocaleString('vi-VN', {
-        timeZone: 'Asia/Ho_Chi_Minh',
-      }), // TODO: i will write a helper function to format this
-      deliveryDate:
-        order.deliveryDate &&
-        new Date(order.deliveryDate).toLocaleDateString('vi-VN', {
-          timeZone: 'Asia/Ho_Chi_Minh',
-        }),
-      time: new Date(order.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
+      createdAt: formatTimestamp(order.createdAt),
+      deliveryTime: order.deliveryDate && formatTimestamp(order.deliveryDate),
       statusCode: order.statusCode,
       canceledByCustomer: order.canceledByUser,
       items: order.orderItems.map(orderItem => ({
-        name: orderItem.item.name,
+        name: orderItem.item?.name,
         amount: formatCurrency(orderItem.totalPrice),
         quantity: orderItem.quantity,
         notes: orderItem.notes,
@@ -137,13 +130,13 @@ export class NotificationService {
           user_name: order.receiverName,
           store_name: store.storeName,
           order_code: order.orderCode,
-          order_time: order.createdAt,
+          order_time: formatTimestamp(order.createdAt),
 
-          total_sub_amount: order.subTotalPrice,
-          shipping_fee: order.shippingFee,
-          discount_shipping_fee: order.discountShippingFee,
-          voucher: order.discountAmount,
-          total_paid: order.totalPrice,
+          total_sub_amount: formatCurrency(order.subTotalPrice),
+          shipping_fee: formatCurrency(order.shippingFee),
+          discount_shipping_fee: formatCurrency(order.discountShippingFee),
+          voucher: formatCurrency(order.discountAmount),
+          total_paid: formatCurrency(order.totalPrice),
           link: 'https://pito.vn/tim-kiem',
         };
       case OrderStatus.DELIVERY_FAILED: {

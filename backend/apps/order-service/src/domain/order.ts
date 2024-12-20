@@ -1,19 +1,24 @@
-import { Order as OrderMessage, readableToOrderType, readableToPaymentMethod } from '@app/common';
+import {
+  OrderItem,
+  Order as OrderMessage,
+  readableToOrderType,
+  readableToPaymentMethod,
+} from '@app/common';
 import { ReadableOrderStatus, ReadableOrderType, ReadablePaymentMethod } from '@app/common/enums';
 import { NullableType } from '@app/common/types/common';
 
-export type OrderItem = {
-  item: {
-    id: string;
-    name: string;
-    slug: string;
-    images: string[];
-    basePrice: number;
-  };
-  quantity: number;
-  totalPrice: number;
-  notes: string;
-};
+// export type OrderItem = {
+//   item: {
+//     id: string;
+//     name: string;
+//     slug: string;
+//     images: string[];
+//     basePrice: number;
+//   };
+//   quantity: number;
+//   totalPrice: number;
+//   notes: string;
+// };
 
 export class Order {
   id: string;

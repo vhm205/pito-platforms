@@ -22,3 +22,14 @@ export function getDateTimeWithOffset(datetime: string | Date, offset = 7) {
 
   return formattedDate;
 }
+
+export function formatTimestamp(timestamp: Date | string) {
+  try {
+    if (typeof timestamp === 'string') timestamp = new Date(timestamp);
+    return timestamp.toLocaleString('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+    });
+  } catch {
+    return timestamp;
+  }
+}

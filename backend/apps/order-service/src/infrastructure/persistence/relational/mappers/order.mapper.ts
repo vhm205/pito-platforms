@@ -53,18 +53,41 @@ export class OrderMapper {
     // Timestamps
     domain.createdAt = raw.createdAt;
     if (raw.updatedAt) domain.updatedAt = raw.updatedAt;
-    domain.orderItems = map(raw.orderItems, item => ({
-      totalPrice: item.total_price,
-      quantity: item.quantity,
-      notes: item.notes,
-      item: {
-        id: item.item.id,
-        name: item.item.name,
-        slug: item.item.slug,
-        images: item.item.images,
-        basePrice: item.item.base_price,
-      },
-    }));
+    domain.orderItems = map(raw.orderItems, item => {
+      return {
+        totalPrice: item.total_price,
+        quantity: item.quantity,
+        notes: item.notes,
+        item: {
+          id: item.item.id,
+          name: item.item.name,
+          slug: item.item.slug,
+          images: item.item.images,
+          basePrice: item.item.base_price,
+          unitQuantity: item.item.unit_quantity,
+          optionsAndChoices: map(item.item?.options_and_choices, ({ choices, ...option }) => {
+            return {
+              optionId: option.option_id,
+              name: option.name,
+              choices: map(choices, choice => ({
+                choiceId: choice.choice_id,
+                name: choice.name,
+                basePrice: choice.base_price,
+              })),
+            };
+          }),
+        },
+        rawOptionsChoices: item.raw_options_choices.map(({ choices, ...option }) => {
+          return {
+            optionId: option.option_id,
+            choices: map(choices, choice => ({
+              quantity: choice.quantity,
+              choiceId: choice.choice_id,
+            })),
+          };
+        }),
+      };
+    });
 
     return domain;
   }
