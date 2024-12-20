@@ -263,7 +263,7 @@ export class MenuService {
               hasUtensils: item?.metadata?.has_utensils ?? false,
               rejectionReason: item?.metadata?.rejection_reason,
             },
-        status: newStatus ?? ItemStatus.DRAFT,
+        status: newStatus ?? item.status,
         optionsChoices: updateItemRequest?.optionsChoices
           ? updateItemRequest?.optionsChoices?.map(option => ({
               id: option?.id,
