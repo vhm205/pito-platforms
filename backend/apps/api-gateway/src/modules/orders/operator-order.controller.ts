@@ -145,7 +145,7 @@ export class OperatorOrdersController {
   }
 
   @Get('/store-orders')
-  // @Auth([RoleType.OPERATOR])
+  @Auth([RoleType.OPERATOR])
   @ApiPageWrapperResponse({ type: StoreOrderListingDto })
   async getListStoreOrders(@Query() query: OperatorQueryStoreOrderDto) {
     const storesMap = new Map();
