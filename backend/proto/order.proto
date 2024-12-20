@@ -128,9 +128,33 @@ message OrderItem {
     string slug = 3;
     repeated string images = 4;
     float base_price = 5;
+    int32 unit_quantity = 6;
+
+    message OptionsAndChoices {
+      string option_id = 1;
+      string name = 2;
+      message Choice {
+        string choice_id = 1;
+        string name = 2;
+        float base_price = 3;
+      }
+      repeated Choice choices = 3;
+    }
+    repeated OptionsAndChoices options_and_choices = 7;
   }
 
   Item item = 4;
+
+  message RawOptionsChoices {
+    string option_id = 1;
+    message Choice {
+      int32 quantity = 1;
+      string choice_id = 2;
+    }
+    repeated Choice choices = 2;
+  }
+
+  repeated RawOptionsChoices raw_options_choices = 5;
 }
 
 // Message for Order

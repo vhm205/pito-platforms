@@ -109,6 +109,7 @@ export interface OrderItem {
   /** repeated string raw_options_choices = 8; */
   notes: string;
   item: OrderItem_Item | undefined;
+  rawOptionsChoices: OrderItem_RawOptionsChoices[];
 }
 
 export interface OrderItem_Item {
@@ -117,6 +118,30 @@ export interface OrderItem_Item {
   slug: string;
   images: string[];
   basePrice: number;
+  unitQuantity: number;
+  optionsAndChoices: OrderItem_Item_OptionsAndChoices[];
+}
+
+export interface OrderItem_Item_OptionsAndChoices {
+  optionId: string;
+  name: string;
+  choices: OrderItem_Item_OptionsAndChoices_Choice[];
+}
+
+export interface OrderItem_Item_OptionsAndChoices_Choice {
+  choiceId: string;
+  name: string;
+  basePrice: number;
+}
+
+export interface OrderItem_RawOptionsChoices {
+  optionId: string;
+  choices: OrderItem_RawOptionsChoices_Choice[];
+}
+
+export interface OrderItem_RawOptionsChoices_Choice {
+  quantity: number;
+  choiceId: string;
 }
 
 /** Message for Order */

@@ -89,7 +89,7 @@ export class OperatorOrdersController {
   }
 
   @Get('/orders/:orderIdentifier')
-  @Auth([RoleType.OPERATOR])
+  // @Auth([RoleType.OPERATOR])
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: OrderDetailDto })
   async getOrderDetails(@Param('orderIdentifier') identifier: string) {
