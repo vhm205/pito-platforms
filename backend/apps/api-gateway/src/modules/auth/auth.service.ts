@@ -61,6 +61,7 @@ export class AuthService {
 
       const savedUser = this.userRepository.create({
         id,
+        username: temporaryEmail,
         email: temporaryEmail,
         emailConstraint: temporaryEmail,
         enabled: true,

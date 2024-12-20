@@ -1,20 +1,18 @@
-/**
- * ORDER
- */
-export enum OrderStatus {
+export enum ReadableOrderStatus {
   DRAFT = 'draft',
-  WAITING = 'waiting',
-  RECEIVED = 'received',
-  PROCESSING = 'processing',
+  PAYMENT_FAILED = 'payment_failed',
+  WAITING_FOR_CONFIRMATION = 'waiting',
+  CANCELED = 'canceled',
+  REJECTED = 'rejected',
+  UNCONFIRMED = 'unconfirmed',
+  CONFIRMED = 'confirmed',
+  PREPARING = 'preparing',
   DELIVERING = 'delivering',
-  REFUNDING = 'refunding',
-  REFUNDED = 'refunded',
-  CANCELLED = 'canceled',
-  COMPLETED = 'completed',
   DELIVERY_FAILED = 'delivery_failed',
+  COMPLETED = 'completed',
 }
 
-export enum PartnerOrderStatus {
+export enum ReadableStoreOrderStatus {
   created = 'created',
   processing = 'processing',
   canceled = 'canceled',
@@ -33,6 +31,12 @@ export enum StoreOrderStatus {
   CANCELLED = 'canceled', // Store huỷ đơn
   COMPLETED = 'completed', // Hoàn thành
   REJECTED = 'rejected', // Từ chối
+}
+
+export enum ReadableOrderType {
+  PX = 'XP', // it's will be changed to PX
+  PC = 'CT', // it's will be changed to PC
+  PCC = 'PCC',
 }
 
 export enum OrderType {

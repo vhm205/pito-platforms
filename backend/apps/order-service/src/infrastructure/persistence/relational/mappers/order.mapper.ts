@@ -1,4 +1,5 @@
 import { Order } from 'apps/order-service/src/domain';
+import { map } from 'lodash';
 
 import { OrderEntity } from '../entities/order.entity';
 
@@ -22,25 +23,28 @@ export class OrderMapper {
     domain.paymentMethod = raw.paymentMethod;
     // Order status and related dates
     domain.status = raw.status;
+    domain.statusCode = raw.statusCode;
+    domain.operatorStatusCode = raw.operatorStatusCode;
     if (raw.deliveryAt) domain.deliveryAt = raw.deliveryAt;
     if (raw.completedAt) domain.completedAt = raw.completedAt;
     if (raw.cancelledAt) domain.cancelledAt = raw.cancelledAt;
     if (raw.preparedAt) domain.preparedAt = raw.preparedAt;
+    if (raw.preparingAt) domain.preparingAt = raw.preparingAt;
     if (raw.confirmedAt) domain.confirmedAt = raw.confirmedAt;
     // Delivery-related information
     domain.receiverName = raw.receiverName;
     domain.receiverPhone = raw.receiverPhone;
     domain.deliveryAddress = raw.deliveryAddress;
-    if (raw.deliveryTime) domain.deliveryTime = raw.deliveryTime;
+    // if (raw.deliveryTime) domain.deliveryTime = raw.deliveryTime;
     if (raw.deliveryEta) domain.deliveryEta = raw.deliveryEta;
     if (raw.trackingUrl) domain.trackingUrl = raw.trackingUrl;
     if (raw.deliveryDate) domain.deliveryDate = raw.deliveryDate;
     if (raw.deliveryFailedAt) domain.deliveryFailedAt = raw.deliveryFailedAt;
     // Cancellation and additional details
     if (raw.cancelReason) domain.cancelReason = raw.cancelReason;
+    domain.canceledByUser = raw.canceledByUser;
     if (raw.deliveryLater !== null) domain.deliveryLater = raw.deliveryLater;
     if (raw.note) domain.note = raw.note;
-    if (raw.orderItems) domain.orderItems = raw.orderItems;
     if (raw.vatInfo) domain.vatInfo = raw.vatInfo;
     if (raw.orderCount) domain.orderCount = raw.orderCount;
     if (raw.errorCode) domain.errorCode = raw.errorCode;
@@ -49,6 +53,18 @@ export class OrderMapper {
     // Timestamps
     domain.createdAt = raw.createdAt;
     if (raw.updatedAt) domain.updatedAt = raw.updatedAt;
+    domain.orderItems = map(raw.orderItems, item => ({
+      totalPrice: item.total_price,
+      quantity: item.quantity,
+      notes: item.notes,
+      item: {
+        id: item.item.id,
+        name: item.item.name,
+        slug: item.item.slug,
+        images: item.item.images,
+        basePrice: item.item.base_price,
+      },
+    }));
 
     return domain;
   }
@@ -72,25 +88,29 @@ export class OrderMapper {
     entity.paymentMethod = domainEntity.paymentMethod;
     // Order status and related dates
     entity.status = domainEntity.status;
+    entity.statusCode = domainEntity.statusCode;
+    entity.operatorStatusCode = domainEntity.operatorStatusCode;
     entity.deliveryAt = domainEntity.deliveryAt;
     entity.completedAt = domainEntity.completedAt;
     entity.cancelledAt = domainEntity.cancelledAt;
     entity.preparedAt = domainEntity.preparedAt;
+    entity.preparingAt = domainEntity.preparingAt;
     entity.confirmedAt = domainEntity.confirmedAt;
     // Delivery-related information
     entity.receiverName = domainEntity.receiverName;
     entity.receiverPhone = domainEntity.receiverPhone;
     entity.deliveryAddress = domainEntity.deliveryAddress;
-    entity.deliveryTime = domainEntity.deliveryTime;
+    // entity.deliveryTime = domainEntity.deliveryTime;
     entity.deliveryEta = domainEntity.deliveryEta;
     entity.trackingUrl = domainEntity.trackingUrl;
     entity.deliveryDate = domainEntity.deliveryDate;
     entity.deliveryFailedAt = domainEntity.deliveryFailedAt;
     // Cancellation and additional details
     entity.cancelReason = domainEntity.cancelReason;
+    entity.canceledByUser = domainEntity.canceledByUser;
     entity.deliveryLater = domainEntity.deliveryLater;
     entity.note = domainEntity.note;
-    entity.orderItems = domainEntity.orderItems ?? [];
+    // entity.orderItems = domainEntity.orderItems ?? [];
     entity.vatInfo = domainEntity.vatInfo;
     entity.orderCount = domainEntity.orderCount;
     entity.errorCode = domainEntity.errorCode;

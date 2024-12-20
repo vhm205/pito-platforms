@@ -1,11 +1,7 @@
 import { LoggerService, formatCurrency } from '@app/common';
-import {
-  Channel,
-  NotificationEventPattern,
-  NotificationType,
-  OrderStatus,
-} from '@app/common/enums';
+import { Channel, NotificationEventPattern, NotificationType } from '@app/common/enums';
 import { SendNotificationDto } from '@app/common/types';
+import { OrderStatus } from '@app/common/types/proto/common';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RmqRecord, RmqRecordBuilder } from '@nestjs/microservices';
 
@@ -29,8 +25,12 @@ export class NotificationService {
       OrderStatus.COMPLETED,
       OrderStatus.DELIVERING,
       OrderStatus.DELIVERY_FAILED,
+
+      OrderStatus.CANCELED,
+      OrderStatus.REJECTED,
+      OrderStatus.UNCONFIRMED,
       // Additional order statuses that require notifications can be added here
-    ].includes(order.status);
+    ].includes(order.statusCode);
 
     if (!shouldNotify) {
       this.logger.log(`Don't need to send a notification for order status: ${order.status}`, {
@@ -88,7 +88,7 @@ export class NotificationService {
           email: {
             from: this.fromEmail,
             to: order.receiverEmail!,
-            templateId: templateIds[order.status],
+            templateId: templateIds[order.statusCode],
             dynamicTemplateData: this.getDynamicTemplateData(order, store),
           },
         },
@@ -104,10 +104,20 @@ export class NotificationService {
   private getDynamicTemplateData(order: Order, store: Store): Record<string, unknown> {
     const orderPayload = {
       code: order.orderCode,
-      time: order.createdAt, // need to format
+      createdAt: new Date(order.createdAt).toLocaleString('vi-VN', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+      }), // TODO: i will write a helper function to format this
+      deliveryDate:
+        order.deliveryDate &&
+        new Date(order.deliveryDate).toLocaleDateString('vi-VN', {
+          timeZone: 'Asia/Ho_Chi_Minh',
+        }),
+      time: new Date(order.createdAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
+      statusCode: order.statusCode,
+      canceledByCustomer: order.canceledByUser,
       items: order.orderItems.map(orderItem => ({
         name: orderItem.item.name,
-        amount: formatCurrency(orderItem.total_price),
+        amount: formatCurrency(orderItem.totalPrice),
         quantity: orderItem.quantity,
         notes: orderItem.notes,
       })),
@@ -120,7 +130,7 @@ export class NotificationService {
       },
     };
 
-    switch (order.status) {
+    switch (order.statusCode) {
       case OrderStatus.COMPLETED:
         return {
           subject: `Đơn hàng ${order.orderCode} đã được giao thành công`,
@@ -151,6 +161,8 @@ export class NotificationService {
       order: orderPayload,
       extraLinks: {
         deliveryTrackingURL: order.trackingUrl,
+        searchPageURL: process.env.CUSTOMER_CLIENT_URL,
+        orderDetailURL: `${process.env.CUSTOMER_CLIENT_URL}/don-hang/${order.id}`, // Maybe need to change this to orderCode in the future
       },
     };
   }

@@ -9,20 +9,18 @@ import {
   FindOrderRequest,
   FindStoreOrderRequest,
   FindStoreOrderResponse,
-  Order,
-  OrderFilterDto,
-  Orders,
+  FindOrdersRequest,
+  FindOrdersResponse,
   OrdersServiceController,
-  OrderWithPagination,
-  QueryOrderWithPagination,
-  SortDirection,
   UpdateStoreOrderResponse,
   UpdateStoreOrderStatusRequest,
+  FindStoreOrdersRequest,
+  FindStoreOrdersResponse,
+  UpdateOrderRequest,
 } from '@app/common/types';
 import { Controller } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
-import { SortOrderDto } from './dto';
 import { NotificationService } from './notification.service';
 import { OrderService } from './order.service';
 import { StoreOrderService } from './store-order.service';
@@ -40,7 +38,7 @@ export class OrderController implements OrdersServiceController {
     const updatedOrder = await this.orderService.updateOrderStatus(request);
     this.notificationService.notifyOrder(updatedOrder);
 
-    return { order: updatedOrder as Order };
+    return { order: updatedOrder.toMessage() };
   }
 
   async updateStoreOrderStatus(
@@ -55,30 +53,35 @@ export class OrderController implements OrdersServiceController {
     };
   }
 
-  async findOrder(payload: FindOrderRequest): Promise<FindOrderResponse> {
-    const order = await this.orderService.findOneOrder(payload);
+  async findOrder(request: FindOrderRequest): Promise<FindOrderResponse> {
+    const order = await this.orderService.findOneOrder(request);
     if (!order) {
       throw new RpcException({
-        message: 'Order not found for the provided payload',
+        message: 'Order not found for the provided request',
         status: GrpcStatus.NOT_FOUND,
       });
     }
 
+    return { order: order.toMessage() };
+  }
+
+  async findOrders(request: FindOrdersRequest): Promise<FindOrdersResponse> {
+    request.filters ??= [];
+    request.sorts ??= [];
+
+    const [orders, totalCount] = await this.orderService.findOrdersWithPagination(request);
+
     return {
-      order: {
-        id: order.id,
-        orderCode: order.orderCode,
-        totalPrice: order.totalPrice,
-        status: order.status,
-        paymentMethod: order.paymentMethod,
-        createdAt: order.createdAt,
-        deliveryDate: order.deliveryAt ?? undefined,
-      },
+      orders: orders.map(order => order.toMessage()),
+      totalCount,
     };
   }
 
   async findStoreOrder(request: FindStoreOrderRequest): Promise<FindStoreOrderResponse> {
-    const storeOrder = await this.storeOrderService.findOneStoreOrder(request);
+    const storeOrder = await this.storeOrderService
+      .findOneStoreOrder(request)
+      .then(order => order?.toMessage());
+
     if (!storeOrder) {
       throw new RpcException({
         message: 'Store order not found for the provided payload',
@@ -91,27 +94,28 @@ export class OrderController implements OrdersServiceController {
     };
   }
 
-  async findOrders(dto: OrderFilterDto): Promise<Orders> {
-    // eslint-disable-next-line no-console
-    console.log('Finding orders', { metadata: dto });
-    await this.orderService.findOrders(); // we will implement this method in the next steps
-    return Promise.resolve({ orders: [], total: 0 });
+  async updateOrder(request: UpdateOrderRequest): Promise<UpdateOrderResponse> {
+    const updatedOrder = await this.orderService.updateOrder(request);
+    if (!updatedOrder) {
+      throw new RpcException({
+        message: 'Failed to update order',
+        status: GrpcStatus.INTERNAL,
+      });
+    }
+
+    return { order: updatedOrder.toMessage() };
   }
 
-  async findOrdersWithPagination(args: QueryOrderWithPagination): Promise<OrderWithPagination> {
-    const { page, pageSize, sorts } = args;
+  async findStoreOrders(request: FindStoreOrdersRequest): Promise<FindStoreOrdersResponse> {
+    request.filters ??= [];
+    request.sorts ??= [];
 
-    const paginationOptions = { page, pageSize };
-    const sortsFormatted = sorts?.map(sort => ({
-      column: sort.field,
-      direction: sort.direction === SortDirection.ASC ? 'ASC' : 'DESC',
-    })) as SortOrderDto[];
+    const [storeOrders, totalCount] =
+      await this.storeOrderService.findStoreOrdersWithPagination(request);
 
-    const { metadata } = await this.orderService.findOrdersWithPagination({
-      paginationOptions,
-      sorts: sortsFormatted ?? [],
-    });
-
-    return { orders: [], total: metadata.total };
+    return {
+      orders: storeOrders.map(order => order.toMessage()),
+      totalCount,
+    };
   }
 }

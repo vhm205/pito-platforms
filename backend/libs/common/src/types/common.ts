@@ -8,11 +8,6 @@ export type NullableType<T> = T | null;
 
 export type OrNeverType<T> = T | never;
 
-export type PaginationOptions = {
-  page: number;
-  pageSize: number;
-};
-
 export interface RetryOptions {
   maxRetries?: number;
   delay?: number;

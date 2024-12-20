@@ -2,6 +2,7 @@
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
+import { FilterRule, PaginationRequest, SortRule } from './common';
 
 export const protobufPackage = 'menu';
 
@@ -189,6 +190,178 @@ export interface FilterOption {
 
 export interface Empty {}
 
+/** PARTNER */
+export interface Metadata {
+  hasNotes: boolean;
+  hasUtensils: boolean;
+  rejectionReason?: string | undefined;
+}
+
+export interface PartnerChoiceOfOption {
+  id: string;
+  name: string;
+  price?: number | undefined;
+}
+
+export interface PartnerOptionsChoices {
+  id: string;
+  allowMultipleSelection: boolean;
+  allowQuantitySelection: boolean;
+  name: string;
+  description?: string | undefined;
+  isRequired: boolean;
+  maxChoices: number;
+  choices: PartnerChoiceOfOption[];
+}
+
+export interface PartnerItemRequest {
+  name: string;
+  basePrice?: number | undefined;
+  description?: string | undefined;
+  specialDietaries: number[];
+  cuisineTypes: number[];
+  occasionEvents: number[];
+  menuCategory: string;
+  images: string[];
+  minQuantity: number;
+  packagingType: string;
+  packagingUnit: string;
+  participant: number;
+  preparationTime: number;
+  storeId: string;
+  optionsChoices: PartnerOptionsChoices[];
+  metadata: Metadata | undefined;
+  menuId?: string | undefined;
+  status?: string | undefined;
+}
+
+export interface PartnerItem {
+  id: string;
+  name: string;
+  basePrice: number;
+  description: string;
+  specialDietaries: FilterOption[];
+  cuisineTypes: FilterOption[];
+  occasionEvents: FilterOption[];
+  menuCategory: string;
+  images: string[];
+  minQuantity: number;
+  packagingType: string;
+  packagingUnit: string;
+  participant: number;
+  preparationTime: number;
+  storeId: string;
+  optionsChoices: PartnerOptionsChoices[];
+  metadata: Metadata | undefined;
+  slug: string;
+  status: string;
+}
+
+export interface FindStoresRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface FindStoresResponse {
+  stores: FindStoresResponse_StoreResponse[];
+  totalCount: number;
+}
+
+export interface FindStoresResponse_StoreResponse {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  storeCode: string;
+  location: FindStoresResponse_StoreResponse_Location | undefined;
+  contacts: FindStoresResponse_StoreResponse_ContactInfo[];
+  isVat: boolean;
+  bankAccount: FindStoresResponse_StoreResponse_BankAccount | undefined;
+}
+
+export interface FindStoresResponse_StoreResponse_Location {
+  ward: string;
+  region: string;
+  address: string;
+  district: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface FindStoresResponse_StoreResponse_ContactInfo {
+  email: string;
+  phone: string;
+  fullName: string;
+}
+
+export interface FindStoresResponse_StoreResponse_BankAccount {
+  bankName: string;
+  bankBranch: string;
+  accountHolder: string;
+  accountNumber: string;
+}
+
+export interface FindStoreRequest {
+  id?: string | undefined;
+  slug?: string | undefined;
+}
+
+export interface FindStoreResponse {
+  store: FindStoreResponse_StoreResponse | undefined;
+}
+
+export interface FindStoreResponse_StoreResponse {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  storeCode: string;
+  location: FindStoreResponse_StoreResponse_Location | undefined;
+  contacts: FindStoreResponse_StoreResponse_ContactInfo[];
+}
+
+export interface FindStoreResponse_StoreResponse_Location {
+  ward: string;
+  region: string;
+  address: string;
+  district: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface FindStoreResponse_StoreResponse_ContactInfo {
+  email: string;
+  phone: string;
+  fullName: string;
+}
+
+export interface UpdateItemDetailsRequest {
+  name?: string | undefined;
+  basePrice?: number | undefined;
+  description?: string | undefined;
+  specialDietaries: number[];
+  cuisineTypes: number[];
+  occasionEvents: number[];
+  menuCategory?: string | undefined;
+  images: string[];
+  minQuantity?: number | undefined;
+  packagingType?: string | undefined;
+  packagingUnit?: string | undefined;
+  participant?: number | undefined;
+  preparationTime?: number | undefined;
+  storeId?: string | undefined;
+  optionsChoices: PartnerOptionsChoices[];
+  metadata?: Metadata | undefined;
+  menuId?: string | undefined;
+  status?: string | undefined;
+}
+
+export interface UpdateItemRequest {
+  id: string;
+  updateItemRequest: UpdateItemDetailsRequest | undefined;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -206,6 +379,14 @@ export interface MenusServiceClient {
   findItemsInStore(request: GetItemInStoreRequest): Observable<GetItemInStoreResponse>;
 
   getFilterOptions(request: GetFilterOptionRequest): Observable<GetFilterOptionResponse>;
+
+  insertMenuItem(request: PartnerItemRequest): Observable<PartnerItem>;
+
+  updateMenuItem(request: UpdateItemRequest): Observable<PartnerItem>;
+
+  findStores(request: FindStoresRequest): Observable<FindStoresResponse>;
+
+  findStore(request: FindStoreRequest): Observable<FindStoreResponse>;
 }
 
 export interface MenusServiceController {
@@ -226,11 +407,35 @@ export interface MenusServiceController {
     | Promise<GetFilterOptionResponse>
     | Observable<GetFilterOptionResponse>
     | GetFilterOptionResponse;
+
+  insertMenuItem(
+    request: PartnerItemRequest,
+  ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
+
+  updateMenuItem(
+    request: UpdateItemRequest,
+  ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
+
+  findStores(
+    request: FindStoresRequest,
+  ): Promise<FindStoresResponse> | Observable<FindStoresResponse> | FindStoresResponse;
+
+  findStore(
+    request: FindStoreRequest,
+  ): Promise<FindStoreResponse> | Observable<FindStoreResponse> | FindStoreResponse;
 }
 
 export function MenusServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['findStoresByFilter', 'findItemsInStore', 'getFilterOptions'];
+    const grpcMethods: string[] = [
+      'findStoresByFilter',
+      'findItemsInStore',
+      'getFilterOptions',
+      'insertMenuItem',
+      'updateMenuItem',
+      'findStores',
+      'findStore',
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod('MenusService', method)(constructor.prototype[method], method, descriptor);

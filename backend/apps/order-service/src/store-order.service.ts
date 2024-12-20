@@ -1,7 +1,12 @@
-import { FindStoreOrderRequest, UpdateStoreOrderStatusRequest } from '@app/common';
-import { GrpcStatus, StoreOrderStatus } from '@app/common/enums';
+import {
+  FindStoreOrderRequest,
+  FindStoreOrdersRequest,
+  transformFilterRule,
+  UpdateStoreOrderStatusRequest,
+} from '@app/common';
+import { StoreOrderStatus } from '@app/common/enums';
+import { OrderStatus } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
 
 import { StoreOrder } from './domain';
 import { StoreOrderRepository } from './infrastructure/persistence/store-order.repository';
@@ -14,41 +19,53 @@ export class StoreOrderService {
     return this.repository.findOne(filters);
   }
 
+  async findStoreOrdersWithPagination({
+    pagination,
+    filters,
+    sorts,
+  }: FindStoreOrdersRequest): Promise<[StoreOrder[], number]> {
+    return this.repository.findWithPagination({
+      pagination: pagination!,
+      filters: filters.map(transformFilterRule),
+      sorts,
+    });
+  }
   async updateStoreOrderStatus({ id, status }: UpdateStoreOrderStatusRequest): Promise<StoreOrder> {
-    const storeOrder = await this.repository.findOne({ id });
-    if (!storeOrder) {
-      throw new RpcException({
-        message: `Store Order with ID ${id} not found`,
-        status: GrpcStatus.NOT_FOUND,
-      });
-    }
+    const storeOrder = await this.repository.findOne({ id }).then(order => order!);
 
     const currentTimestamp = new Date();
-    storeOrder.status = status as StoreOrderStatus;
+    storeOrder.statusCode = status;
 
-    switch (status as StoreOrderStatus) {
-      case StoreOrderStatus.CONFIRMED:
+    switch (status) {
+      case OrderStatus.CONFIRMED:
         storeOrder.orderLogs.confirmed_at = currentTimestamp;
+        storeOrder.status = StoreOrderStatus.CONFIRMED;
         break;
-      case StoreOrderStatus.NOT_CONFIRMED:
+      case OrderStatus.UNCONFIRMED:
         storeOrder.orderLogs.not_confirmed_at = currentTimestamp;
+        storeOrder.status = StoreOrderStatus.NOT_CONFIRMED;
         break;
-      case StoreOrderStatus.CANCELLED:
+      case OrderStatus.CANCELED:
         storeOrder.orderLogs.canceled_at = currentTimestamp;
+        storeOrder.status = StoreOrderStatus.CANCELLED;
         break;
-      case StoreOrderStatus.REJECTED:
+      case OrderStatus.REJECTED:
         storeOrder.orderLogs.rejected_at = currentTimestamp;
+        storeOrder.status = StoreOrderStatus.REJECTED;
         break;
-      case StoreOrderStatus.PREPARING:
+      case OrderStatus.PREPARING:
         storeOrder.orderLogs.preparing_at = currentTimestamp;
+        storeOrder.status = StoreOrderStatus.PREPARING;
         break;
-      case StoreOrderStatus.PREPARED:
+      case OrderStatus.PREPARED:
         storeOrder.orderLogs.prepared_at = currentTimestamp;
         storeOrder.metadata.before_delivery_images = [];
+        storeOrder.status = StoreOrderStatus.PREPARED;
         break;
-      case StoreOrderStatus.COMPLETED:
+      case OrderStatus.COMPLETED:
         storeOrder.orderLogs.completed_at = currentTimestamp;
         storeOrder.metadata.after_delivery_images = [];
+        storeOrder.status = StoreOrderStatus.COMPLETED;
         break;
     }
 

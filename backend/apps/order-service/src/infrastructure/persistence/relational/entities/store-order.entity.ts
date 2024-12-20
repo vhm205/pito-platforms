@@ -1,6 +1,7 @@
 import { EntityRelationalHelper } from '@app/common';
 import { SourceSystemType, StoreOrderStatus } from '@app/common/enums';
 import { NullableType } from '@app/common/types/common';
+import { OrderStatus } from '@app/common/types/proto/common';
 import {
   StoreOrderDeliveryAddress,
   StoreOrderDeliveryContact,
@@ -43,8 +44,15 @@ export class StoreOrderEntity extends EntityRelationalHelper {
   })
   status: StoreOrderStatus | string;
 
+  @Column({
+    name: 'status_code',
+    type: 'int4',
+    default: OrderStatus.WAITING_FOR_CONFIRMATION,
+  })
+  statusCode: number;
+
   @Column({ name: 'delivery_time', type: 'timestamp', nullable: false })
-  deliveryTime: Date;
+  deliveryDate: Date;
 
   @Column({ name: 'delivery_contact', type: 'jsonb', nullable: false })
   deliveryContact: StoreOrderDeliveryContact;
@@ -87,4 +95,10 @@ export class StoreOrderEntity extends EntityRelationalHelper {
 
   @Column({ name: 'estimation_time', type: 'int', nullable: true })
   estimationTime: number;
+
+  @Column({ name: 'invoice_status', type: 'int2', nullable: false })
+  invoiceStatus: number;
+
+  @Column({ name: 'payment_status', type: 'int2', nullable: false })
+  paymentStatus: number;
 }

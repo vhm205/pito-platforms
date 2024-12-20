@@ -1,22 +1,33 @@
 import 'dotenv/config';
 
-import { CUSTOMER_DB_SOURCE, LoggerModule } from '@app/common';
-import { AllConfigType, appConfig, databaseConfig } from '@app/common/configs';
+import { CUSTOMER_DB_SOURCE, LoggerModule, PARTNER_DB_SOURCE } from '@app/common';
+import {
+  AllConfigType,
+  appConfig,
+  databaseConfig,
+  Environment,
+  externalConfig,
+} from '@app/common/configs';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CateringPackageEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/catering-package.entity';
+import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
+import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 
 import { CategoryEntity } from './infrastructure/persistence/relational/entities/category.entity';
 import { CuisineTypeEntity } from './infrastructure/persistence/relational/entities/cuisine-type.entity';
 import { ItemEntity } from './infrastructure/persistence/relational/entities/item.entity';
 import { OccasionEventEntity } from './infrastructure/persistence/relational/entities/occasion-event.entity';
+import { PartnerStoreEntity } from './infrastructure/persistence/relational/entities/partner-store.entity';
 import { SpecialDietaryEntity } from './infrastructure/persistence/relational/entities/special-dietaries.entity';
 import { StoreEntity } from './infrastructure/persistence/relational/entities/store.entity';
 import { RelationalMenuPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { MenuController } from './menu.controller';
 import { MenuService } from './menu.service';
+import { StoreService } from './store.service';
 
-const entities = [
+const customerEntities = [
   StoreEntity,
   ItemEntity,
   CuisineTypeEntity,
@@ -25,13 +36,20 @@ const entities = [
   CategoryEntity,
 ];
 
+const partnerEntities = [
+  CateringPackageEntity,
+  PartnerItemEntity,
+  PartnerMenuCategoriesEntity,
+  PartnerStoreEntity,
+];
+
 @Module({
   imports: [
     LoggerModule.forRoot({ service: MenuService.name }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
-      load: [appConfig, databaseConfig],
+      load: [appConfig, databaseConfig, externalConfig],
     }),
     TypeOrmModule.forRootAsync({
       name: CUSTOMER_DB_SOURCE,
@@ -43,12 +61,41 @@ const entities = [
         username: configService.get('database.username', { infer: true }),
         password: configService.get('database.password', { infer: true }),
         database: configService.get('database.name', { infer: true }),
-        entities,
+        logging: configService.get('app.nodeEnv', { infer: true }) !== Environment.PRODUCTION,
+        entities: customerEntities,
+      }),
+    }),
+    TypeOrmModule.forRootAsync({
+      name: PARTNER_DB_SOURCE,
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.getOrThrow<string>('PARTNER_DB_HOST', { infer: true }),
+        port: configService.getOrThrow<number>('PARTNER_DB_PORT', { infer: true }),
+        username: configService.getOrThrow<string>('PARTNER_DB_USER', { infer: true }),
+        password: configService.getOrThrow<string>('PARTNER_DB_PASSWORD', { infer: true }),
+        database: configService.getOrThrow<string>('PARTNER_DB_NAME', { infer: true }),
+        logging: configService.get('app.nodeEnv', { infer: true }) !== Environment.PRODUCTION,
+        entities: partnerEntities,
+      }),
+    }),
+    TypeOrmModule.forRootAsync({
+      name: PARTNER_DB_SOURCE,
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.getOrThrow<string>('PARTNER_DB_HOST', { infer: true }),
+        port: configService.getOrThrow<number>('PARTNER_DB_PORT', { infer: true }),
+        username: configService.getOrThrow<string>('PARTNER_DB_USER', { infer: true }),
+        password: configService.getOrThrow<string>('PARTNER_DB_PASSWORD', { infer: true }),
+        database: configService.getOrThrow<string>('PARTNER_DB_NAME', { infer: true }),
+        logging: configService.get('app.nodeEnv', { infer: true }) !== Environment.PRODUCTION,
+        entities: [PartnerStoreEntity],
       }),
     }),
     RelationalMenuPersistenceModule,
   ],
   controllers: [MenuController],
-  providers: [MenuService],
+  providers: [MenuService, StoreService],
 })
 export class MenuModule {}

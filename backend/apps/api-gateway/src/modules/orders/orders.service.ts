@@ -1,47 +1,58 @@
 import {
+  MENU_SERVICE,
+  MENUS_SERVICE_NAME,
+  MenusServiceClient,
   ORDER_SERVICE,
   ORDERS_SERVICE_NAME,
   OrdersServiceClient,
   UpdateOrderStatusRequest,
 } from '@app/common';
+import { FilterRule } from '@app/common/types/proto/common';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { timeout, firstValueFrom } from 'rxjs';
 
-import { GetListOrderDto } from './dto/get-list-order.dto';
+import { UserQueryOrderHistoryDto } from './dto/query-order.dto';
 
 @Injectable()
 export class OrdersService {
-  private ordersService: OrdersServiceClient;
+  private orderServiceClient: OrdersServiceClient;
+  private menuServiceClient: MenusServiceClient;
 
-  constructor(@Inject(ORDER_SERVICE) private client: ClientGrpc) {
-    this.ordersService = this.client.getService<OrdersServiceClient>(ORDERS_SERVICE_NAME);
+  constructor(
+    @Inject(ORDER_SERVICE) private readonly orderClient: ClientGrpc,
+    @Inject(MENU_SERVICE) private readonly menuClient: ClientGrpc,
+  ) {
+    this.orderServiceClient = this.orderClient.getService<OrdersServiceClient>(ORDERS_SERVICE_NAME);
+    this.menuServiceClient = this.menuClient.getService<MenusServiceClient>(MENUS_SERVICE_NAME);
   }
 
   updateOrderStatus(payload: UpdateOrderStatusRequest) {
-    const source$ = this.ordersService.updateOrderStatus(payload).pipe(timeout(2000));
+    const source$ = this.orderServiceClient.updateOrderStatus(payload).pipe(timeout(2000));
     return firstValueFrom(source$);
   }
 
-  getHistoryOrders(userId: string, getListOrderDto: GetListOrderDto) {
+  getListOrders(query: UserQueryOrderHistoryDto) {
     return firstValueFrom(
-      this.ordersService.findOrders({
-        userId,
-        keyword: '',
-        status: '',
-        fromDate: '',
-        toDate: '',
-        deliveryDate: '',
-        ...getListOrderDto,
-        sortBy: '',
-        sortDirection: '',
-        pageSize: '',
-        from: '',
+      this.orderServiceClient.findOrders({
+        filters: query.filters,
+        pagination: { currentPage: query.page, pageSize: query.pageSize },
+        sorts: query.sorts,
       }),
     );
   }
 
   getOrderDetail(id: string) {
-    return this.ordersService.findOrder({ id });
+    return this.orderServiceClient.findOrder({ id });
+  }
+
+  async filterStores(filters: FilterRule | FilterRule[], page: number, pageSize: number) {
+    return firstValueFrom(
+      this.menuServiceClient.findStores({
+        filters: Array.isArray(filters) ? filters : [filters],
+        pagination: { currentPage: page, pageSize },
+        sorts: [],
+      }),
+    );
   }
 }
