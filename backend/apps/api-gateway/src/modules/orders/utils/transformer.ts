@@ -31,8 +31,14 @@ export function transformOrderItem(orderItem: OrderItem) {
     quantity: orderItem.quantity,
     totalPrice: orderItem.totalPrice,
     note: orderItem.notes,
+    // peopleCount: -1, // TODO: Implement this later
     images:
       orderItem.item?.images?.map(path => generatePublicImageUrl(path, IMAGE_BASE_URLS.item)) ?? [],
-    selectedOptions: [],
+    selectedOptions: [], // TODO: Implement this later
   };
+}
+
+export function transformStoreOrderFilter(f: FilterRule) {
+  if (f.column === 'status') f.column = 'statusCode';
+  return f;
 }

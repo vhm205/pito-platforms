@@ -7,6 +7,7 @@ export enum Environment {
   DEVELOPMENT = 'development',
   PRODUCTION = 'production',
   TEST = 'test',
+  STAGING = 'staging',
 }
 
 export type AppConfig = {
@@ -25,6 +26,7 @@ export type AppConfig = {
   rabbitmqVhost: string;
 
   defaultDistanceInMeters: number;
+  customerClientUrl: string;
 };
 
 class AppVariablesValidator {
@@ -77,6 +79,9 @@ class AppVariablesValidator {
 
   @IsInt()
   DEFAULT_DISTANCE_IN_METERS: number;
+
+  @IsString()
+  CUSTOMER_CLIENT_URL: string;
 }
 
 // eslint-disable-next-line import/no-default-export
@@ -101,5 +106,6 @@ export default registerAs<AppConfig>('app', () => {
     rabbitmqVhost: process.env.RABBITMQ_VHOST!,
 
     defaultDistanceInMeters: +process.env.DEFAULT_DISTANCE_IN_METERS!,
+    customerClientUrl: process.env.CUSTOMER_CLIENT_URL!,
   };
 });

@@ -9,6 +9,8 @@ service MenusService {
   rpc FindStoresByFilter (GetStoreByFilterRequest) returns (GetStoreByFilterResponse);
   rpc FindItemsInStore (GetItemInStoreRequest) returns (GetItemInStoreResponse);
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
+  rpc InsertMenuItem (PartnerItemRequest) returns (PartnerItem);
+  rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
   rpc FindStores(FindStoresRequest) returns (FindStoresResponse);
   rpc FindStore(FindStoreRequest) returns (FindStoreResponse);
 }
@@ -190,17 +192,115 @@ message FilterOption {
 
 message Empty {};
 
+// PARTNER
+message Metadata {
+  bool has_notes = 1;
+  bool has_utensils = 2;
+  optional string rejection_reason = 3;
+}
+
+message PartnerChoiceOfOption {
+  string id = 1;
+  string name = 2;
+  optional float price = 3;
+}
+
+message PartnerOptionsChoices {
+  string id = 1;
+  bool allow_multiple_selection = 2;
+  bool allow_quantity_selection = 3;
+  string name = 4;
+  optional string description = 5;
+  bool is_required = 6;
+  int32 max_choices = 7;
+  repeated PartnerChoiceOfOption choices = 8;
+}
+
+message PartnerItemRequest {
+  string name = 1;
+  optional float base_price = 2;
+  optional string description = 3;
+  repeated int32 special_dietaries = 4;
+  repeated int32 cuisine_types = 5;
+  repeated int32 occasion_events = 6;
+  string menu_category = 7;
+  repeated string images = 8;
+  int32 min_quantity = 9;
+  string packaging_type = 10;
+  string packaging_unit = 11;
+  int32 participant = 12;
+  int32 preparation_time = 13;
+  string store_id = 14;
+  repeated PartnerOptionsChoices options_choices = 15;
+  Metadata metadata = 16;
+  optional string menuId = 17;
+  optional string status = 18;
+}
+
+message PartnerItem {
+  string id = 1;
+  string name = 2;
+  float base_price = 3;
+  string description = 4;
+  repeated FilterOption special_dietaries = 5;
+  repeated FilterOption cuisine_types = 6;
+  repeated FilterOption occasion_events = 7;
+  string menu_category = 8;
+  repeated string images = 9;
+  int32 min_quantity = 10;
+  string packaging_type = 11;
+  string packaging_unit = 12;
+  int32 participant = 13;
+  int32 preparation_time = 14;
+  string store_id = 15;
+  repeated PartnerOptionsChoices options_choices = 16;
+  Metadata metadata = 17;
+  string slug = 18;
+  string status = 19;
+}
+
 message FindStoresRequest {
   common.PaginationRequest pagination = 1;
   repeated common.SortRule sorts = 2;
-  repeated common.FilterRule filters = 3;     
+  repeated common.FilterRule filters = 3;
 }
 
 message FindStoresResponse {
   message StoreResponse {
+
+    message Location {
+      string ward = 1;
+      string region = 2;
+      string address = 3;
+      string district = 4;
+      double latitude = 5;
+      double longitude = 6;
+    }
+  
+    message ContactInfo {
+      string email = 1;
+      string phone = 2;
+      string full_name = 3;
+    }
+
     string id = 1;
     string name = 2;
     string slug = 3;
+    string description = 4;
+    string store_code = 5;
+
+    Location location = 6;
+    repeated ContactInfo contacts = 7;
+    bool is_vat = 8;
+
+    message BankAccount {
+      string bank_name = 1;
+      string bank_branch = 2;
+      string account_holder = 3;
+      string account_number = 4;
+    }
+
+    BankAccount bank_account = 9;
   }
 
   repeated StoreResponse stores = 1;
@@ -242,4 +342,30 @@ message FindStoreResponse {
   }
 
   StoreResponse store = 1;
+}
+
+message UpdateItemDetailsRequest {
+  optional string name = 1;
+  optional float base_price = 2;
+  optional string description = 3;
+  repeated int32 special_dietaries = 4;
+  repeated int32 cuisine_types = 5;
+  repeated int32 occasion_events = 6;
+  optional string menu_category = 7;
+  repeated string images = 8;
+  optional int32 min_quantity = 9;
+  optional string packaging_type = 10;
+  optional string packaging_unit = 11;
+  optional int32 participant = 12;
+  optional int32 preparation_time = 13;
+  optional string store_id = 14;
+  repeated PartnerOptionsChoices options_choices = 15;
+  optional Metadata metadata = 16;
+  optional string menuId = 17;
+  optional string status = 18;
+}
+
+message UpdateItemRequest {
+  string id = 1;
+  UpdateItemDetailsRequest update_item_request = 2;
 }

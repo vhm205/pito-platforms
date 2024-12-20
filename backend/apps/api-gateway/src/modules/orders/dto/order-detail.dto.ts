@@ -1,7 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude, Expose, plainToInstance, Transform, Type } from 'class-transformer';
+import { get } from 'lodash';
 
-import { StoreDto, CustomerDto, OrderDto, LocationDto } from './common.dto';
+import { StoreDto, CustomerDto, OrderDto, LocationDto, OrderNoteDto } from './common.dto';
 
 class StoreContactDto {
   @ApiProperty({
@@ -93,35 +94,6 @@ class StatusChangeDto {
   reason?: string;
 }
 
-class OrderNoteDto {
-  @ApiProperty({
-    description: 'The note of the operation',
-    example: 'The order is accepted',
-    type: String,
-  })
-  @Expose()
-  @Type(() => String)
-  note: string;
-
-  @ApiProperty({
-    description: 'The time the note was created',
-    example: '2021-09-01T00:00:00.000Z',
-    type: Date,
-  })
-  @Expose()
-  @Type(() => Date)
-  createdAt: Date;
-
-  @ApiProperty({
-    description: 'The name of the user who created the note',
-    example: 'John Doe',
-    type: String,
-  })
-  @Expose()
-  @Type(() => String)
-  createdBy: string;
-}
-
 export class OrderDetailDto extends OrderDto {
   @Exclude()
   deliveryEta: number;
@@ -133,6 +105,14 @@ export class OrderDetailDto extends OrderDto {
   })
   @Expose()
   confirmedAt: Date;
+
+  @ApiPropertyOptional({
+    description: 'Time for the order to be prepared',
+    example: '2021-09-01T00:00:00.000Z',
+    type: Date,
+  })
+  @Expose()
+  preparingAt: Date;
 
   @ApiPropertyOptional({
     description: 'Time for the order to be prepared',
@@ -188,7 +168,7 @@ export class OrderDetailDto extends OrderDto {
   })
   @Expose()
   @Type(() => StatusChangeDto)
-  @Transform(({ value }) => value ?? [])
+  @Transform(({ obj }) => get(obj, 'metadata.statusHistory', []))
   statusHistory: StatusChangeDto[];
 
   @ApiProperty({
@@ -197,7 +177,7 @@ export class OrderDetailDto extends OrderDto {
   })
   @Expose()
   @Type(() => OrderNoteDto)
-  @Transform(({ value }) => value ?? [])
+  @Transform(({ obj }) => get(obj, 'metadata.operationNotes', []))
   operationNotes: OrderNoteDto[];
 
   @ApiProperty({
@@ -223,4 +203,13 @@ export class OrderDetailDto extends OrderDto {
     }),
   )
   customer: CustomerDto;
+
+  @ApiProperty({
+    description: 'The name of the person who referred the customer',
+    example: 'John Doe',
+    type: String,
+  })
+  @Expose()
+  @Transform(({ obj }) => get(obj, 'metadata.introducer_name'))
+  referralPerson: string;
 }

@@ -9,15 +9,42 @@ import "common.proto";
 service OrdersService {
   rpc UpdateOrderStatus (UpdateOrderStatusRequest) returns (UpdateOrderResponse);
   rpc UpdateStoreOrderStatus(UpdateStoreOrderStatusRequest) returns (UpdateStoreOrderResponse);
+  rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
   rpc FindOrder (FindOrderRequest) returns (FindOrderResponse);
-  rpc FindStoreOrder (FindStoreOrderRequest) returns (FindStoreOrderResponse);
   rpc FindOrders (FindOrdersRequest) returns (FindOrdersResponse);
+  rpc FindStoreOrder (FindStoreOrderRequest) returns (FindStoreOrderResponse);
+  rpc FindStoreOrders (FindStoreOrdersRequest) returns (FindStoreOrdersResponse);
+}
+
+
+message UpdateOrderRequest {
+  message OrderNote {
+    string note = 1;      // The note of the operation
+    string createdAt = 2; // String format of the timestampz
+    string createdBy = 3; // The name of the user who created the note
+  }
+
+  message StatusHistory {
+    int32 previousStatus = 1;  // The previous status of the order
+    int32 newStatus = 2;       // The new status of the order
+    string changedAt = 3;       // String format of the timestampzs
+    string changedBy = 4;       // The name of the user who changed the status
+    string reason = 5;          // The reason for the status change
+  }
+
+  string id = 1;
+  repeated OrderNote operation_notes = 2;
+  repeated StatusHistory status_history = 3;
+  oneof extra_fields {
+    int32 status_code = 4;
+    int32 operator_status_code = 5;
+  }
 }
 
 // Request message for UpdateOrderStatus
 message UpdateOrderStatusRequest {
   string id = 1;
-  string status = 2;
+  common.OrderStatus status = 2;
   oneof extra_fields {
     string cancel_reason = 3;
     google.protobuf.Timestamp timestamp = 4;
@@ -31,7 +58,7 @@ message UpdateOrderResponse {
 // Request message for UpdateStoreOrderStatus
 message UpdateStoreOrderStatusRequest {
   string id = 1;
-  string status = 2;
+  common.OrderStatus status = 2;
 }
 message UpdateStoreOrderResponse {
   string id = 1;
@@ -62,6 +89,17 @@ message FindStoreOrderRequest {
 }
 message FindStoreOrderResponse {
   StoreOrder store_order = 1;
+}
+
+message FindStoreOrdersRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;     
+  repeated common.FilterRule filters = 3;
+}
+
+message FindStoreOrdersResponse {
+  repeated StoreOrder orders = 1;
+  int32 total_count = 2;
 }
 
 // message OrderFilterDto {
@@ -146,6 +184,9 @@ message Order {
   // Timestamps
   google.protobuf.Timestamp created_at = 35;
   google.protobuf.Timestamp updated_at = 36;
+  google.protobuf.Timestamp preparing_at = 37;
+
+  bool canceled_by_user = 38;
 }
 
 // Message for Store Order
@@ -154,7 +195,9 @@ message StoreOrder {
   string store_id = 2;
   string order_id = 3;
   string status = 4;
-  string order_code = 5;
+  int32 status_code = 5;
+  string order_code = 6;
+  float total_price = 7;
   
   message InvoiceRequest  {
     string email = 1;
@@ -162,12 +205,16 @@ message StoreOrder {
     string tax_code = 3;
     string company_name = 4;
   }
-  optional InvoiceRequest invoice_request = 6;
+  optional InvoiceRequest invoice_request = 8;
 
   message StoreOrderMeta {
     optional string invoice_url = 1;
   }
-  optional StoreOrderMeta metadata = 7;
+  optional StoreOrderMeta metadata = 9;
+  int32 invoice_status = 10;
+  int32 payment_status = 11;
+
+  google.protobuf.Timestamp delivery_date = 12;
 }
 
 message Orders {

@@ -51,6 +51,12 @@ export class PartnerStoreMapper {
       fullName: full_name,
     }));
     domain.location = raw.location;
+    domain.bankAccount = {
+      bankName: raw.bankAccount.bank_name,
+      bankBranch: raw.bankAccount.bank_branch,
+      accountHolder: raw.bankAccount.account_holder,
+      accountNumber: raw.bankAccount.account_number,
+    };
 
     domain.createdAt = raw.createdAt;
     domain.updatedAt = raw.updatedAt;

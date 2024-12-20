@@ -1,6 +1,11 @@
 import { CUSTOMER_DB_SOURCE, PARTNER_DB_SOURCE } from '@app/common';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
+import { CateringPackageEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/catering-package.entity';
+import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
+import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
+import { PartnerItemRelationalRepository } from 'apps/menu-service/src/infrastructure/persistence/relational/repositories/partner-item.repository';
 
 import { ItemRepository } from '../item.repository';
 import { PartnerStoreRepository } from '../partner-store.repository';
@@ -17,20 +22,26 @@ import { ItemRelationalRepository } from './repositories/item.repository';
 import { PartnerStoreRelationalRepository } from './repositories/partner-store.repository';
 import { StoreRelationalRepository } from './repositories/store.repository';
 
+const customerEntities = [
+  StoreEntity,
+  ItemEntity,
+  CuisineTypeEntity,
+  OccasionEventEntity,
+  SpecialDietaryEntity,
+  CategoryEntity,
+];
+
+const partnerEntities = [
+  CateringPackageEntity,
+  PartnerItemEntity,
+  PartnerMenuCategoriesEntity,
+  PartnerStoreEntity,
+];
+
 @Module({
   imports: [
-    TypeOrmModule.forFeature(
-      [
-        StoreEntity,
-        ItemEntity,
-        CuisineTypeEntity,
-        OccasionEventEntity,
-        SpecialDietaryEntity,
-        CategoryEntity,
-      ],
-      CUSTOMER_DB_SOURCE,
-    ),
-    TypeOrmModule.forFeature([PartnerStoreEntity], PARTNER_DB_SOURCE),
+    TypeOrmModule.forFeature(customerEntities, CUSTOMER_DB_SOURCE),
+    TypeOrmModule.forFeature(partnerEntities, PARTNER_DB_SOURCE),
   ],
   providers: [
     {
@@ -42,10 +53,11 @@ import { StoreRelationalRepository } from './repositories/store.repository';
       useClass: ItemRelationalRepository,
     },
     {
-      provide: PartnerStoreRepository,
-      useClass: PartnerStoreRelationalRepository,
+      provide: PartnerItemRepository,
+      useClass: PartnerItemRelationalRepository,
     },
+    { provide: PartnerStoreRepository, useClass: PartnerStoreRelationalRepository },
   ],
-  exports: [StoreRepository, ItemRepository, PartnerStoreRepository],
+  exports: [StoreRepository, ItemRepository, PartnerItemRepository, PartnerStoreRepository],
 })
 export class RelationalMenuPersistenceModule {}

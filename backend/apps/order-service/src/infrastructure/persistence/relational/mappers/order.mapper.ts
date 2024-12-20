@@ -29,6 +29,7 @@ export class OrderMapper {
     if (raw.completedAt) domain.completedAt = raw.completedAt;
     if (raw.cancelledAt) domain.cancelledAt = raw.cancelledAt;
     if (raw.preparedAt) domain.preparedAt = raw.preparedAt;
+    if (raw.preparingAt) domain.preparingAt = raw.preparingAt;
     if (raw.confirmedAt) domain.confirmedAt = raw.confirmedAt;
     // Delivery-related information
     domain.receiverName = raw.receiverName;
@@ -41,6 +42,7 @@ export class OrderMapper {
     if (raw.deliveryFailedAt) domain.deliveryFailedAt = raw.deliveryFailedAt;
     // Cancellation and additional details
     if (raw.cancelReason) domain.cancelReason = raw.cancelReason;
+    domain.canceledByUser = raw.canceledByUser;
     if (raw.deliveryLater !== null) domain.deliveryLater = raw.deliveryLater;
     if (raw.note) domain.note = raw.note;
     if (raw.vatInfo) domain.vatInfo = raw.vatInfo;
@@ -52,7 +54,7 @@ export class OrderMapper {
     domain.createdAt = raw.createdAt;
     if (raw.updatedAt) domain.updatedAt = raw.updatedAt;
     domain.orderItems = map(raw.orderItems, item => ({
-      totalPrice: item.totalPrice ?? item.price * item.quantity,
+      totalPrice: item.total_price,
       quantity: item.quantity,
       notes: item.notes,
       item: {
@@ -60,7 +62,7 @@ export class OrderMapper {
         name: item.item.name,
         slug: item.item.slug,
         images: item.item.images,
-        basePrice: item.item.basePrice,
+        basePrice: item.item.base_price,
       },
     }));
 
@@ -92,6 +94,7 @@ export class OrderMapper {
     entity.completedAt = domainEntity.completedAt;
     entity.cancelledAt = domainEntity.cancelledAt;
     entity.preparedAt = domainEntity.preparedAt;
+    entity.preparingAt = domainEntity.preparingAt;
     entity.confirmedAt = domainEntity.confirmedAt;
     // Delivery-related information
     entity.receiverName = domainEntity.receiverName;
@@ -104,9 +107,10 @@ export class OrderMapper {
     entity.deliveryFailedAt = domainEntity.deliveryFailedAt;
     // Cancellation and additional details
     entity.cancelReason = domainEntity.cancelReason;
+    entity.canceledByUser = domainEntity.canceledByUser;
     entity.deliveryLater = domainEntity.deliveryLater;
     entity.note = domainEntity.note;
-    entity.orderItems = domainEntity.orderItems ?? [];
+    // entity.orderItems = domainEntity.orderItems ?? [];
     entity.vatInfo = domainEntity.vatInfo;
     entity.orderCount = domainEntity.orderCount;
     entity.errorCode = domainEntity.errorCode;

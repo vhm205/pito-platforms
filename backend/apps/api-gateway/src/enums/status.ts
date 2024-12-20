@@ -39,3 +39,15 @@ export enum StoreOrderStatusCode {
   PREPARED = OrderStatus.PREPARED,
   COMPLETED = OrderStatus.COMPLETED,
 }
+
+export enum StoreOrderInvoiceStatus {
+  NOT_REQUESTED = 0,
+  REQUESTED_BUT_NOT_AVAILABLE = 1,
+  REQUESTED_AND_AVAILABLE = 2,
+}
+
+export enum StoreOrderPaymentStatus {
+  NOT_PAID = 0,
+  PAID = 1,
+  REFUNDED = 2,
+}

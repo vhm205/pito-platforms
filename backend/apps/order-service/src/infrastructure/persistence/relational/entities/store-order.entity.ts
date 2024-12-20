@@ -52,7 +52,7 @@ export class StoreOrderEntity extends EntityRelationalHelper {
   statusCode: number;
 
   @Column({ name: 'delivery_time', type: 'timestamp', nullable: false })
-  deliveryTime: Date;
+  deliveryDate: Date;
 
   @Column({ name: 'delivery_contact', type: 'jsonb', nullable: false })
   deliveryContact: StoreOrderDeliveryContact;
@@ -95,4 +95,10 @@ export class StoreOrderEntity extends EntityRelationalHelper {
 
   @Column({ name: 'estimation_time', type: 'int', nullable: true })
   estimationTime: number;
+
+  @Column({ name: 'invoice_status', type: 'int2', nullable: false })
+  invoiceStatus: number;
+
+  @Column({ name: 'payment_status', type: 'int2', nullable: false })
+  paymentStatus: number;
 }

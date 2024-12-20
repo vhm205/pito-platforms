@@ -18,6 +18,7 @@ export type ExternalConfig = {
     vnpayRefundCompletedTemplateId: string;
     orderDeliveryFailedTemplateId: string;
     orderDeliveringTemplateId: string;
+    orderCanceledTemplateId: string; // for store cancel order, customer cancel order and order missing
   };
   sentry: {
     dsn: string;
@@ -75,6 +76,9 @@ class ExternalVariablesValidator {
 
   @IsString()
   SENDGRID_ORDER_DELIVERING_TEMPLATE_ID: string;
+
+  @IsString()
+  SENDGRID_ORDER_CANCELED_TEMPLATE_ID: string;
 
   @IsString()
   SENTRY_DSN: string;
@@ -150,6 +154,9 @@ class ExternalVariablesValidator {
 
   @IsString()
   KEYCLOAK_REALM_ID: string;
+
+  @IsString()
+  SLACK_WEBHOOK_URL: string;
 }
 
 // eslint-disable-next-line import/no-default-export
@@ -171,6 +178,7 @@ export default registerAs<ExternalConfig>('external', () => {
       vnpayRefundCompletedTemplateId: process.env.SENDGRID_VNPAY_REFUND_COMPLETED_TEMPLATE_ID!,
       orderDeliveryFailedTemplateId: process.env.SENDGRID_ORDER_DELIVERY_FAILED_TEMPLATE_ID!,
       orderDeliveringTemplateId: process.env.SENDGRID_ORDER_DELIVERING_TEMPLATE_ID!,
+      orderCanceledTemplateId: process.env.SENDGRID_ORDER_CANCELED_TEMPLATE_ID!,
     },
     sentry: {
       dsn: process.env.SENTRY_DSN!,
@@ -186,6 +194,9 @@ export default registerAs<ExternalConfig>('external', () => {
       serviceId: process.env.AHAMOVE_SERVICE_ID!,
       systemToken: process.env.AHAMOVE_SYSTEM_TOKEN!,
       orderEventsApiKey: process.env.AHAMOVE_ORDER_EVENTS_API_KEY!,
+    },
+    slack: {
+      webhookUrl: process.env.SLACK_WEBHOOK_URL!,
     },
   };
 });

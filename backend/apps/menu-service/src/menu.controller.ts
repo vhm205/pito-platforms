@@ -12,7 +12,9 @@ import {
   GetStoreByFilterResponse,
   MenusServiceController,
   MenusServiceControllerMethods,
+  PartnerItemRequest,
   SearchStoreResult,
+  UpdateItemRequest,
 } from '@app/common';
 import { Controller } from '@nestjs/common';
 
@@ -75,5 +77,13 @@ export class MenuController implements MenusServiceController {
   async findStore(request: FindStoreRequest): Promise<FindStoreResponse> {
     const store = await this.storeService.findStore(request).then(store => store?.toMessage());
     return { store };
+  }
+
+  async insertMenuItem(request: PartnerItemRequest) {
+    return this.menuService.insertMenuItem(request);
+  }
+
+  async updateMenuItem(request: UpdateItemRequest) {
+    return this.menuService.updateMenuItem(request);
   }
 }
