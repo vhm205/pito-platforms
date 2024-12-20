@@ -64,6 +64,8 @@ export class Order {
   // Timestamps
   createdAt: Date;
   updatedAt: NullableType<Date>;
+  preparingAt: NullableType<Date>;
+  canceledByUser: boolean;
 
   toMessage(): OrderMessage {
     return {
@@ -104,6 +106,8 @@ export class Order {
       receiverEmail: this.receiverEmail!,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt ?? undefined,
+      preparingAt: this.preparingAt ?? undefined,
+      canceledByUser: this.canceledByUser,
     };
   }
 }

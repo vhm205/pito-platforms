@@ -47,3 +47,17 @@ export function isValidUUID(str: string) {
     /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/i;
   return uuidRegex.test(str);
 }
+
+export function constructFullName(
+  firstName?: string,
+  lastName?: string,
+  order: 'first-last' | 'last-first' = 'last-first',
+) {
+  if (!firstName && !lastName) return '';
+  if (!firstName) return lastName;
+  if (!lastName) return firstName;
+
+  if (order === 'first-last') return `${firstName} ${lastName}`;
+
+  return `${lastName} ${firstName}`;
+}

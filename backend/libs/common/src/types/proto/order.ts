@@ -3,14 +3,51 @@ import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
 import { Struct } from '../google/protobuf/struct';
-import { FilterRule, OrderType, PaginationRequest, PaymentMethod, SortRule } from './common';
+import {
+  FilterRule,
+  OrderStatus,
+  OrderType,
+  PaginationRequest,
+  PaymentMethod,
+  SortRule,
+} from './common';
 
 export const protobufPackage = 'order';
+
+export interface UpdateOrderRequest {
+  id: string;
+  operationNotes: UpdateOrderRequest_OrderNote[];
+  statusHistory: UpdateOrderRequest_StatusHistory[];
+  statusCode?: number | undefined;
+  operatorStatusCode?: number | undefined;
+}
+
+export interface UpdateOrderRequest_OrderNote {
+  /** The note of the operation */
+  note: string;
+  /** String format of the timestampz */
+  createdAt: string;
+  /** The name of the user who created the note */
+  createdBy: string;
+}
+
+export interface UpdateOrderRequest_StatusHistory {
+  /** The previous status of the order */
+  previousStatus: number;
+  /** The new status of the order */
+  newStatus: number;
+  /** String format of the timestampzs */
+  changedAt: string;
+  /** The name of the user who changed the status */
+  changedBy: string;
+  /** The reason for the status change */
+  reason: string;
+}
 
 /** Request message for UpdateOrderStatus */
 export interface UpdateOrderStatusRequest {
   id: string;
-  status: string;
+  status: OrderStatus;
   cancelReason?: string | undefined;
   timestamp?: Date | undefined;
   deliveryEta?: number | undefined;
@@ -23,7 +60,7 @@ export interface UpdateOrderResponse {
 /** Request message for UpdateStoreOrderStatus */
 export interface UpdateStoreOrderStatusRequest {
   id: string;
-  status: string;
+  status: OrderStatus;
 }
 
 export interface UpdateStoreOrderResponse {
@@ -129,6 +166,8 @@ export interface Order {
   /** Timestamps */
   createdAt: Date | undefined;
   updatedAt: Date | undefined;
+  preparingAt: Date | undefined;
+  canceledByUser: boolean;
 }
 
 /** Message for Store Order */
@@ -195,6 +234,8 @@ export interface OrdersServiceClient {
     request: UpdateStoreOrderStatusRequest,
   ): Observable<UpdateStoreOrderResponse>;
 
+  updateOrder(request: UpdateOrderRequest): Observable<UpdateOrderResponse>;
+
   findOrder(request: FindOrderRequest): Observable<FindOrderResponse>;
 
   findOrders(request: FindOrdersRequest): Observable<FindOrdersResponse>;
@@ -215,6 +256,10 @@ export interface OrdersServiceController {
     | Promise<UpdateStoreOrderResponse>
     | Observable<UpdateStoreOrderResponse>
     | UpdateStoreOrderResponse;
+
+  updateOrder(
+    request: UpdateOrderRequest,
+  ): Promise<UpdateOrderResponse> | Observable<UpdateOrderResponse> | UpdateOrderResponse;
 
   findOrder(
     request: FindOrderRequest,
@@ -241,6 +286,7 @@ export function OrdersServiceControllerMethods() {
     const grpcMethods: string[] = [
       'updateOrderStatus',
       'updateStoreOrderStatus',
+      'updateOrder',
       'findOrder',
       'findOrders',
       'findStoreOrder',

@@ -77,6 +77,9 @@ export class OrderEntity extends EntityRelationalHelper {
   @Column({ type: 'timestamp', name: 'prepared_at', nullable: true })
   preparedAt: NullableType<Date>;
 
+  @Column({ type: 'timestamp', name: 'preparing_at', nullable: true })
+  preparingAt: NullableType<Date>;
+
   @Column({ type: 'timestamp', name: 'confirmed_at', nullable: true })
   confirmedAt: NullableType<Date>;
 
@@ -108,6 +111,9 @@ export class OrderEntity extends EntityRelationalHelper {
   // Cancellation and additional details
   @Column({ type: 'text', name: 'cancel_reason', nullable: true })
   cancelReason: NullableType<string>;
+
+  @Column({ type: 'boolean', name: 'cancelled_by_user', default: null, nullable: true })
+  canceledByUser: boolean;
 
   @Column({ type: 'boolean', name: 'delivery_later', nullable: true })
   deliveryLater: NullableType<boolean>;

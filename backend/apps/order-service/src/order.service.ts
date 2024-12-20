@@ -1,9 +1,16 @@
 import { transformFilterRule } from '@app/common';
 import { GrpcStatus, ReadableOrderStatus } from '@app/common/enums';
-import { FindOrderRequest, FindOrdersRequest, UpdateOrderStatusRequest } from '@app/common/types';
+import {
+  FindOrderRequest,
+  FindOrdersRequest,
+  UpdateOrderRequest,
+  UpdateOrderStatusRequest,
+} from '@app/common/types';
+import { NullableType } from '@app/common/types/common';
 import { OrderStatus } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import { assign } from 'lodash';
 
 import { Order } from './domain';
 import { OrderRepository } from './infrastructure/persistence/order.repository';
@@ -18,38 +25,60 @@ export class OrderService {
 
   async updateOrderStatus(payload: UpdateOrderStatusRequest): Promise<Order> {
     const { id, status, cancelReason, deliveryEta } = payload;
-    const order = await this.orderRepository.findOne({ id });
-    if (!order) {
-      throw new RpcException({
-        message: `Order with ID ${id} not found`,
-        status: GrpcStatus.NOT_FOUND,
-      });
-    }
+    const order = await this.orderRepository.findOne({ id }).then(order => order!); // Order must exist
 
     const timestamp = payload.timestamp ?? new Date();
-    order.status = status as ReadableOrderStatus;
+
+    order.statusCode = status;
+    order.operatorStatusCode = status;
     order.updatedAt = timestamp;
 
-    switch (status as ReadableOrderStatus) {
-      case ReadableOrderStatus.DELIVERING:
+    if (cancelReason) order.cancelReason = cancelReason;
+
+    switch (status) {
+      case OrderStatus.PAYMENT_FAILED:
+        order.status = ReadableOrderStatus.PAYMENT_FAILED;
+        order.cancelReason ??= 'Thanh toán thất bại';
+        break;
+      case OrderStatus.CANCELED:
+        order.status = ReadableOrderStatus.CANCELED;
+        order.cancelledAt = timestamp;
+        break;
+      case OrderStatus.REJECTED:
+        order.status = ReadableOrderStatus.REJECTED;
+        order.cancelledAt = timestamp;
+        break;
+      case OrderStatus.CONFIRMED:
+        order.status = ReadableOrderStatus.CONFIRMED;
+        order.confirmedAt = timestamp;
+        break;
+      case OrderStatus.PREPARING:
+        order.status = ReadableOrderStatus.PREPARING;
+        order.preparedAt = timestamp;
+        break;
+      case OrderStatus.UNCONFIRMED:
+        order.status = ReadableOrderStatus.UNCONFIRMED;
+        order.cancelledAt = timestamp;
+        break;
+      case OrderStatus.PREPARED:
+        // order.status = ReadableOrderStatus.PREPARING; // TODO: change to PREPARED
+        order.preparedAt = timestamp;
+        break;
+      case OrderStatus.DELIVERING:
+        order.status = ReadableOrderStatus.DELIVERING;
         order.deliveryAt = timestamp;
-        order.statusCode = OrderStatus.DELIVERING;
-        order.operatorStatusCode = OrderStatus.DELIVERING;
         order.deliveryEta = deliveryEta ?? null;
         break;
-      case ReadableOrderStatus.DELIVERY_FAILED:
-        order.cancelReason = cancelReason ?? '';
+      case OrderStatus.DELIVERY_FAILED:
+        order.status = ReadableOrderStatus.DELIVERY_FAILED;
         order.deliveryFailedAt = timestamp;
-        order.statusCode = OrderStatus.DELIVERY_FAILED;
-        order.operatorStatusCode = OrderStatus.DELIVERY_FAILED;
         break;
-      case ReadableOrderStatus.COMPLETED:
+      case OrderStatus.COMPLETED:
         order.completedAt = timestamp;
-        order.statusCode = OrderStatus.COMPLETED;
-        order.operatorStatusCode = OrderStatus.COMPLETED;
+        order.status = ReadableOrderStatus.COMPLETED;
         break;
       default:
-        return order as Order; // don't need to process
+        return order; // don't need to process
     }
 
     const updatedOrder = await this.orderRepository.updateOrder(order);
@@ -79,5 +108,28 @@ export class OrderService {
       filters: filters.map(transformFilterRule),
       sorts,
     });
+  }
+
+  async updateOrder(request: UpdateOrderRequest): Promise<NullableType<Order>> {
+    const order = await this.orderRepository.findOne({ id: request.id });
+    if (!order) {
+      throw new RpcException({
+        message: `We could not find the order with id ${request.id}`,
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    if (request.statusCode) order.statusCode = request.statusCode;
+    if (request.operatorStatusCode) order.operatorStatusCode = request.operatorStatusCode;
+    if (request.operationNotes) {
+      order.metadata = assign(order.metadata, { operationNotes: request.operationNotes });
+    }
+    if (request.statusHistory) {
+      order.metadata = assign(order.metadata, { statusHistory: request.statusHistory });
+    }
+
+    order.updatedAt = new Date();
+
+    return this.orderRepository.updateOrder(order);
   }
 }

@@ -428,3 +428,31 @@ export class OrderDto {
   @Transform(({ value }) => plainToInstance(OrderItemDto, value.map(transformOrderItem)))
   orderItems: OrderItemDto[];
 }
+
+export class OrderNoteDto {
+  @ApiProperty({
+    description: 'The note of the operation',
+    example: 'The order is accepted',
+    type: String,
+  })
+  @Expose()
+  @Type(() => String)
+  note: string;
+
+  @ApiProperty({
+    description: 'The time the note was created',
+    example: '2021-09-01T00:00:00.000Z',
+    type: Date,
+  })
+  @Expose()
+  createdAt: string;
+
+  @ApiProperty({
+    description: 'The name of the user who created the note',
+    example: 'John Doe',
+    type: String,
+  })
+  @Expose()
+  @Type(() => String)
+  createdBy: string;
+}

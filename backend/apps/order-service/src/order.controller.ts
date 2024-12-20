@@ -16,6 +16,7 @@ import {
   UpdateStoreOrderStatusRequest,
   FindStoreOrdersRequest,
   FindStoreOrdersResponse,
+  UpdateOrderRequest,
 } from '@app/common/types';
 import { Controller } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
@@ -91,6 +92,18 @@ export class OrderController implements OrdersServiceController {
     return {
       storeOrder,
     };
+  }
+
+  async updateOrder(request: UpdateOrderRequest): Promise<UpdateOrderResponse> {
+    const updatedOrder = await this.orderService.updateOrder(request);
+    if (!updatedOrder) {
+      throw new RpcException({
+        message: 'Failed to update order',
+        status: GrpcStatus.INTERNAL,
+      });
+    }
+
+    return { order: updatedOrder.toMessage() };
   }
 
   async findStoreOrders(request: FindStoreOrdersRequest): Promise<FindStoreOrdersResponse> {
