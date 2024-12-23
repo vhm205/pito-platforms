@@ -32,6 +32,7 @@ export const ItemSchema = z.object({
   minQuantity: z.number().int().min(1),
   participant: z.number().int().min(1),
   preparationTime: z.number().int().min(0),
+  orderDeadlineAt: z.string().datetime().optional(),
   status: z
     .union([
       z.literal(ItemStatus.ACTIVE),

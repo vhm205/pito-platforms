@@ -235,6 +235,7 @@ message PartnerItemRequest {
   Metadata metadata = 16;
   optional string menuId = 17;
   optional string status = 18;
+  optional string order_deadline_at = 19;
 }
 
 message PartnerItem {
@@ -257,6 +258,7 @@ message PartnerItem {
   Metadata metadata = 17;
   string slug = 18;
   string status = 19;
+  optional string order_deadline_at = 20;
 }
 
 message FindStoresRequest {
@@ -364,6 +366,7 @@ message UpdateItemDetailsRequest {
   optional string menuId = 17;
   optional string status = 18;
   optional string slug = 19;
+  optional string order_deadline_at = 20;
 }
 
 message UpdateItemRequest {

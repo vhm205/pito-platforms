@@ -27,6 +27,9 @@ export class PartnerItemEntity extends EntityRelationalHelper {
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: NullableType<Date>;
 
+  @Column({ type: 'timestamp', name: 'order_deadline_at', nullable: true })
+  orderDeadlineAt: NullableType<Date>;
+
   @Column('bigint', { name: 'cuisine_types', array: true, nullable: true })
   cuisineTypes: number[];
 

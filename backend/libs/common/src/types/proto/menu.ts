@@ -233,6 +233,7 @@ export interface PartnerItemRequest {
   metadata: Metadata | undefined;
   menuId?: string | undefined;
   status?: string | undefined;
+  orderDeadlineAt?: string | undefined;
 }
 
 export interface PartnerItem {
@@ -255,6 +256,7 @@ export interface PartnerItem {
   metadata: Metadata | undefined;
   slug: string;
   status: string;
+  orderDeadlineAt?: string | undefined;
 }
 
 export interface FindStoresRequest {
@@ -356,6 +358,7 @@ export interface UpdateItemDetailsRequest {
   menuId?: string | undefined;
   status?: string | undefined;
   slug?: string | undefined;
+  orderDeadlineAt?: string | undefined;
 }
 
 export interface UpdateItemRequest {

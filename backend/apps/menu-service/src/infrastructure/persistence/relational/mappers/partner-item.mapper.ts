@@ -27,6 +27,7 @@ export class PartnerItemMapper {
       specialDietaries: [],
       occasionEvents: [],
       cuisineTypes: [],
+      orderDeadlineAt: undefined,
     };
 
     domain.id = raw.id;
@@ -45,6 +46,10 @@ export class PartnerItemMapper {
     domain.packagingType = raw.packagingType;
     domain.packagingUnit = raw.packagingUnit;
     domain.optionsChoices = [];
+
+    if (raw?.orderDeadlineAt) {
+      domain.orderDeadlineAt = raw.orderDeadlineAt as unknown as string;
+    }
 
     if (raw?.optionsChoices) {
       domain.optionsChoices = raw?.optionsChoices?.map(option => {
