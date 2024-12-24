@@ -1,4 +1,4 @@
-import { User } from '@app/common';
+import { AuthenticatedUser } from '@gateway/modules/auth/auth-user.interface';
 import { ClsServiceManager } from 'nestjs-cls';
 
 export class ContextProvider {
@@ -23,11 +23,11 @@ export class ContextProvider {
     return `${ContextProvider.nameSpace}.${key}`;
   }
 
-  static setAuthUser(user: User): void {
+  static setAuthUser(user: AuthenticatedUser): void {
     ContextProvider.set(ContextProvider.authUserKey, user);
   }
 
-  static getAuthUser(): User | undefined {
-    return ContextProvider.get<User>(ContextProvider.authUserKey);
+  static getAuthUser(): AuthenticatedUser | undefined {
+    return ContextProvider.get<AuthenticatedUser>(ContextProvider.authUserKey);
   }
 }

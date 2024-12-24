@@ -1,4 +1,4 @@
-import { DEFAULT_PAGE_NUMBER, UpdateOrderStatusRequest, User } from '@app/common';
+import { DEFAULT_PAGE_NUMBER, UpdateOrderStatusRequest } from '@app/common';
 import { RoleType } from '@gateway/constants';
 import { ApiPageWrapperResponse, AuthUser } from '@gateway/decorators';
 import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
@@ -26,6 +26,7 @@ import { plainToInstance } from 'class-transformer';
 import { omit } from 'lodash';
 
 import { Auth } from '../../decorators/http.decorator';
+import { AuthenticatedUser } from '../auth/auth-user.interface';
 
 import { OrderListingDto } from './dto/order-listing.dto';
 import { UserQueryOrderHistoryDto } from './dto/query-order.dto';
@@ -60,7 +61,10 @@ export class OrdersController {
   @Auth([RoleType.CUSTOMER])
   @HttpCode(HttpStatus.OK)
   @ApiPageWrapperResponse({ type: OrderListingDto })
-  async getUserOrdersHistory(@Query() query: UserQueryOrderHistoryDto, @AuthUser() user: User) {
+  async getUserOrdersHistory(
+    @Query() query: UserQueryOrderHistoryDto,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
     query.filters.push({ column: 'customerId', operator: 'eq', value: user.id });
     const { orders, totalCount } = await this.service.getListOrders(query);
 

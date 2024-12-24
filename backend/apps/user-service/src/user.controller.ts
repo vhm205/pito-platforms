@@ -1,14 +1,12 @@
 import {
+  GetCustomerProfileRequest,
+  GetCustomerProfileResponse,
+  GetUserPartnerProfileRequest,
+  GetUserPartnerProfileResponse,
   UsersServiceController,
-  CreateUserDto,
-  UpdateUserDto,
   UsersServiceControllerMethods,
-  FindOneUserDto,
-  PaginationDto,
-  User,
 } from '@app/common';
 import { Controller } from '@nestjs/common';
-import { Observable } from 'rxjs';
 
 import { UserService } from './user.service';
 
@@ -17,36 +15,22 @@ import { UserService } from './user.service';
 export class UserController implements UsersServiceController {
   constructor(private readonly userService: UserService) {}
 
-  createUser(createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  async getCustomerProfile(
+    request: GetCustomerProfileRequest,
+  ): Promise<GetCustomerProfileResponse> {
+    const result = await this.userService.getCustomerProfile(request);
+    return result.toMessage();
   }
 
-  findAllUsers() {
-    return this.userService.findAll();
+  async getPartnerProfile(
+    request: GetUserPartnerProfileRequest,
+  ): Promise<GetUserPartnerProfileResponse> {
+    return this.userService.getUserPartnerProfile(request);
   }
 
-  async findOneUser(findOneUserDto: FindOneUserDto): Promise<User> {
-    const user = await this.userService.findOne(findOneUserDto.id);
-
-    return (
-      (user && user.toDto()) || {
-        id: 'id',
-        email: 'example@email.com',
-        encryptedPassword: 'password',
-        phone: 'phone',
-      }
-    );
-  }
-
-  updateUser(updateUserDto: UpdateUserDto) {
-    return this.userService.update(updateUserDto.id, updateUserDto);
-  }
-
-  removeUser(findOneUserDto: FindOneUserDto) {
-    return this.userService.remove(findOneUserDto.id);
-  }
-
-  queryUsers(paginationDtoStream: Observable<PaginationDto>) {
-    return this.userService.queryUsers(paginationDtoStream);
+  async getOperatorProfile(
+    request: GetUserPartnerProfileRequest,
+  ): Promise<GetUserPartnerProfileResponse> {
+    return this.userService.getUserPartnerProfile(request);
   }
 }
