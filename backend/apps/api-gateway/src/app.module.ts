@@ -1,5 +1,11 @@
 import { LoggerModule } from '@app/common';
-import { appConfig, databaseConfig, externalConfig, fileConfig } from '@app/common/configs';
+import {
+  appConfig,
+  databaseConfig,
+  externalConfig,
+  fileConfig,
+  webhookConfig,
+} from '@app/common/configs';
 import { MenusModule } from '@gateway/modules/menus/menus.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -13,6 +19,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { FilesModule } from './modules/files/files.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { SearchModule } from './modules/search/search.module';
 import { StoresModule } from './modules/stores/stores.module';
 import { UsersModule } from './modules/users/users.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
@@ -26,6 +33,7 @@ const modules = [
   UsersModule,
   WebhookModule,
   NotificationsModule,
+  SearchModule,
 ];
 
 @Module({
@@ -39,7 +47,7 @@ const modules = [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
-      load: [appConfig, databaseConfig, externalConfig, fileConfig],
+      load: [appConfig, databaseConfig, externalConfig, fileConfig, webhookConfig],
     }),
     SentryModule.forRoot(),
     LoggerModule.forRoot({

@@ -1,12 +1,14 @@
 import { LoggerService } from '@app/common';
-import { AhamoveWebhookGuard } from '@gateway/guards/ahamove.guard';
+import { WebhookAuth } from '@gateway/decorators/webhook-auth.decorator';
+import { WebhookGuard } from '@gateway/guards/webhook.guard';
 import { OrderEventsService } from '@gateway/modules/webhook/services/order-events.service';
 import { AhamoveOrderTransformer } from '@gateway/modules/webhook/transfomers';
 import { AhamoveOrderCallback } from '@gateway/modules/webhook/types';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 
 @Controller('webhook/ahamove')
-@UseGuards(AhamoveWebhookGuard)
+@UseGuards(WebhookGuard)
+@WebhookAuth('webhook.ahamoveOrderEventsApiKey')
 export class AhamoveWebhookController {
   constructor(
     private readonly logger: LoggerService,

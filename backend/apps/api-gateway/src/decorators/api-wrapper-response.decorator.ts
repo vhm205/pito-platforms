@@ -6,12 +6,13 @@ import { ApiExtraModels, ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
 import { StandardResponseWrapper } from '../gateway-common/dto/standard-response.dto';
 
 export function ApiWrapperResponse<T extends Type>(options: {
-  type: T;
+  type: T | T[];
   description?: string;
 }): MethodDecorator {
+  const types = Array.isArray(options.type) ? options.type : [options.type];
   return applyDecorators(
     ApiExtraModels(StandardResponseWrapper),
-    ApiExtraModels(options.type),
+    ...types.map(type => ApiExtraModels(type)), // Apply ApiExtraModels for each type
     ApiOkResponse({
       description: options.description,
       schema: {
@@ -19,7 +20,9 @@ export function ApiWrapperResponse<T extends Type>(options: {
           { $ref: getSchemaPath(StandardResponseWrapper) },
           {
             properties: {
-              data: { $ref: getSchemaPath(options.type) },
+              data: Array.isArray(options.type)
+                ? { type: 'array', items: { $ref: getSchemaPath(options.type[0]) } }
+                : { $ref: getSchemaPath(options.type) },
             },
           },
         ],

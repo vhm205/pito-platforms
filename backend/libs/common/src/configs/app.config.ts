@@ -28,6 +28,14 @@ export type AppConfig = {
 
   defaultDistanceInMeters: number;
   customerClientUrl: string;
+
+  typesense: {
+    apiKey: string;
+    host: string;
+    port: number;
+    protocol: string;
+    connectionTimeoutSeconds: number;
+  };
 };
 
 class AppVariablesValidator {
@@ -89,6 +97,18 @@ class AppVariablesValidator {
 
   @IsString()
   CUSTOMER_CLIENT_URL: string;
+
+  @IsString()
+  TYPESENSE_API_KEY: string;
+
+  @IsString()
+  TYPESENSE_HOST: string;
+
+  @IsInt()
+  TYPESENSE_PORT: number;
+
+  @IsString()
+  TYPESENSE_PROTOCOL: string;
 }
 
 // eslint-disable-next-line import/no-default-export
@@ -118,5 +138,12 @@ export default registerAs<AppConfig>('app', () => {
 
     defaultDistanceInMeters: +process.env.DEFAULT_DISTANCE_IN_METERS!,
     customerClientUrl: process.env.CUSTOMER_CLIENT_URL!,
+    typesense: {
+      apiKey: process.env.TYPESENSE_API_KEY!,
+      host: process.env.TYPESENSE_HOST!,
+      port: parseInt(process.env.TYPESENSE_PORT!, 10),
+      protocol: process.env.TYPESENSE_PROTOCOL!,
+      connectionTimeoutSeconds: 10,
+    },
   };
 });
