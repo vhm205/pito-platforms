@@ -1,4 +1,11 @@
 import { StoreStatus } from '@app/common/enums';
+import { NullableType, ObjectType } from '@app/common/types/common';
+import {
+  StoreBankAccount,
+  StoreContactInfo,
+  StoreImage,
+  StoreLocation,
+} from 'apps/menu-service/src/domain/partner-store.domain';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -12,14 +19,17 @@ export class PartnerStoreEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ name: 'partner_id', type: 'uuid' })
+  partnerId: string;
+
   @Column({ type: 'text', name: 'store_name', nullable: false })
   storeName: string;
 
-  @CreateDateColumn({ type: 'timestamptz', name: 'created_at', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  @Column({ name: 'store_code', type: 'text', unique: true })
+  storeCode: string;
 
-  @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at', nullable: true })
-  updatedAt: Date | null;
+  @Column({ name: 'images', type: 'jsonb', nullable: true })
+  images: NullableType<StoreImage>;
 
   @Column({
     type: 'enum',
@@ -34,30 +44,29 @@ export class PartnerStoreEntity {
   slug: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  description: NullableType<string>;
+
+  @Column({ type: 'int8', name: 'cuisine_types', array: true, nullable: true })
+  cuisineTypes: NullableType<number[]>;
 
   @Column({ type: 'jsonb', name: 'contacts_info', nullable: true })
-  contacts: {
-    email: string;
-    phone: string;
-    full_name: string;
-  }[];
+  contacts: NullableType<StoreContactInfo[]>;
 
   @Column({ type: 'jsonb', nullable: true })
-  location: {
-    ward: string;
-    region: string;
-    address: string;
-    district: string;
-    latitude: number;
-    longitude: number;
-  };
+  location: NullableType<StoreLocation>;
 
   @Column({ type: 'jsonb', name: 'bank_account', nullable: true })
-  bankAccount: {
-    bank_name: string;
-    bank_branch: string;
-    account_holder: string;
-    account_number: string;
-  };
+  bankAccount: NullableType<StoreBankAccount>;
+
+  @Column({ name: 'prep_times', type: 'jsonb', nullable: true })
+  prepTimes: NullableType<ObjectType>;
+
+  @Column({ name: 'metadata', type: 'jsonb', nullable: true })
+  metadata: NullableType<ObjectType>;
+
+  @CreateDateColumn({ type: 'timestamptz', name: 'created_at', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at', nullable: true })
+  updatedAt: NullableType<Date>;
 }

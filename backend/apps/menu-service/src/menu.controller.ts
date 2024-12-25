@@ -17,13 +17,16 @@ import {
   GetItemInStoreResult,
   GetStoreByFilterRequest,
   GetStoreByFilterResponse,
+  GetStoreDetailRequest,
+  GetStoreDetailResponse,
   MenusServiceController,
   MenusServiceControllerMethods,
   PartnerItemRequest,
   SearchStoreResult,
   UpdateItemRequest,
 } from '@app/common';
-import { Controller } from '@nestjs/common';
+import { CamelCaseResponseInterceptor } from '@app/common/interceptors/convert-to-camel-case.interceptor';
+import { Controller, UseInterceptors } from '@nestjs/common';
 
 import { MenuService } from './menu.service';
 import { StoreService } from './store.service';
@@ -69,20 +72,25 @@ export class MenuController implements MenusServiceController {
     return data;
   }
 
+  @UseInterceptors(CamelCaseResponseInterceptor)
+  async getStoreDetail(request: GetStoreDetailRequest): Promise<GetStoreDetailResponse> {
+    return this.storeService.getStoreDetailByIdOrSlug(request);
+  }
+
   async findStores(request: FindStoresRequest): Promise<FindStoresResponse> {
     request.filters ??= [];
     request.sorts ??= [];
 
-    const [stores, totalCount] = await this.storeService.findStoresWithPagination(request);
+    const { stores, totalCount } = await this.storeService.findStoresWithPagination(request);
 
     return {
-      stores: stores.map(store => store.toMessage()),
+      stores,
       totalCount,
     };
   }
 
   async findStore(request: FindStoreRequest): Promise<FindStoreResponse> {
-    const store = await this.storeService.findStore(request).then(store => store?.toMessage());
+    const store = await this.storeService.findStore(request);
     return { store };
   }
 

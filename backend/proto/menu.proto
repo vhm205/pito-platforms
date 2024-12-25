@@ -3,6 +3,7 @@ syntax = "proto3";
 package menu;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
 import "common.proto";
 
 service MenusService {
@@ -18,7 +19,7 @@ service MenusService {
   rpc FindItemsByFilters (FindItemsByFiltersRequest) returns (FindItemsByFiltersResponse);
   
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
-
+  rpc GetStoreDetail (GetStoreDetailRequest) returns (GetStoreDetailResponse);
   rpc InsertMenuItem (PartnerItemRequest) returns (PartnerItem);
   rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
 }
@@ -477,4 +478,67 @@ message FindItemsByFiltersResponse {
   }
   repeated PartnerItem items = 1;
   int32 total_count = 2;
+}
+
+message GetStoreDetailRequest {
+  string identifier = 1;
+}
+
+message GetStoreDetailResponse {
+  message Location {
+    string ward = 1;
+    string region = 2;
+    string address = 3;
+    string district = 4;
+    double latitude = 5;
+    double longitude = 6;
+  }
+
+  message ContactInfo {
+    string email = 1;
+    string phone = 2;
+    string full_name = 3;
+  }
+
+  message BankAccount {
+    string bank_name = 1;
+    string bank_branch = 2;
+    string account_holder = 3;
+    string account_number = 4;
+  }
+
+  message Image {
+    string cover = 1;
+    string avatar = 2;
+    string thumbnail = 3;
+  }
+
+  message CuisineType {
+    int32 id = 1;
+    string name = 2;
+  }
+
+  string id = 1;
+  string partner_id = 2;
+  string name = 3;
+  string store_code = 4;
+  string status = 5;
+  bool is_vat = 6;
+  string slug = 7;
+  optional string description = 8;
+
+  Location location = 9;
+  Image images = 10;
+  repeated ContactInfo contacts = 11;
+  BankAccount bank_account = 12;
+
+  google.protobuf.Struct prep_times = 13;
+  google.protobuf.Struct metadata = 14;
+
+  google.protobuf.Timestamp created_at = 15;
+  google.protobuf.Timestamp updated_at = 16;
+
+  // additional
+  repeated CuisineType cuisine_types = 17;
+  google.protobuf.Timestamp reopen_time = 18;
 }

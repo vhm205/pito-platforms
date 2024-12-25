@@ -3,7 +3,7 @@ import { ApiPageWrapperResponse } from '@gateway/decorators';
 import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
-import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Param, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 
@@ -12,6 +12,7 @@ import {
   CalculateDistanceResponseDto,
 } from './dtos/calculate-distance.dto';
 import { GetItemInStoreRequestDto, GetItemInStoreResponseDto } from './dtos/get-items-in-store.dto';
+import { GetStoreDetailResponseDto } from './dtos/get-store-detail.dto';
 import { SearchStoreRequestDto, SearchStoreResponseDto } from './dtos/search-store.dto';
 import { StoresService } from './stores.service';
 
@@ -128,6 +129,14 @@ export class StoresController {
   @ApiWrapperResponse({ type: CalculateDistanceResponseDto })
   async calculateDistance(@Query() query: CalculateDistanceRequestDto) {
     const result = await this.storeService.calculateDistance(query);
+    return result;
+  }
+
+  @Get(':identifier')
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: GetStoreDetailResponseDto })
+  async getStoreDetail(@Param('identifier') identifier: string) {
+    const result = await this.storeService.getStoreDetail({ identifier });
     return result;
   }
 }

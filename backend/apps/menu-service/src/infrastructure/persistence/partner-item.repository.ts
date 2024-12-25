@@ -18,7 +18,7 @@ export abstract class PartnerItemRepository {
   abstract getMenuCategoryById(id: string): Promise<PartnerMenuCategoriesEntity | null>;
 
   abstract findOne(
-    filter: FindOptionsWhere<Pick<PartnerItemEntity, 'id' | 'slug'>>,
+    filter: FindOptionsWhere<Pick<PartnerItem, 'id' | 'slug'>>,
   ): Promise<PartnerItem | null>;
 
   abstract updateItem(payload: UpdateItemRequest): Promise<PartnerItem | null>;

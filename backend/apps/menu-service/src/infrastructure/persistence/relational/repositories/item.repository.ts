@@ -77,10 +77,12 @@ export class ItemRelationalRepository implements ItemRepository {
   }
 
   async findAllCuisineTypes(ids?: number[]) {
-    const validIds = ids?.filter(id => Number.isInteger(id) && id > 0);
+    const validIds = ids?.filter(id => !isNaN(id) && +id > 0);
+
     const cuisineTypes = await this.cuisineTypeRepository.find(
       validIds ? { where: { id: In(validIds) } } : {},
     );
+
     return cuisineTypes.map(cuisineType => ({ id: cuisineType.id, name: cuisineType.name }));
   }
 

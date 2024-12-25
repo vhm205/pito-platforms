@@ -21,6 +21,7 @@ import { ItemEntity } from './infrastructure/persistence/relational/entities/ite
 import { OccasionEventEntity } from './infrastructure/persistence/relational/entities/occasion-event.entity';
 import { PartnerStoreEntity } from './infrastructure/persistence/relational/entities/partner-store.entity';
 import { SpecialDietaryEntity } from './infrastructure/persistence/relational/entities/special-dietaries.entity';
+import { StoreServiceEntity } from './infrastructure/persistence/relational/entities/store-service.entity';
 import { StoreEntity } from './infrastructure/persistence/relational/entities/store.entity';
 import { RelationalMenuPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { MenuController } from './menu.controller';
@@ -41,6 +42,7 @@ const partnerEntities = [
   PartnerItemEntity,
   PartnerMenuCategoriesEntity,
   PartnerStoreEntity,
+  StoreServiceEntity,
 ];
 
 @Module({
@@ -77,20 +79,6 @@ const partnerEntities = [
         database: configService.getOrThrow<string>('PARTNER_DB_NAME', { infer: true }),
         logging: configService.get('app.nodeEnv', { infer: true }) !== Environment.PRODUCTION,
         entities: partnerEntities,
-      }),
-    }),
-    TypeOrmModule.forRootAsync({
-      name: PARTNER_DB_SOURCE,
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.getOrThrow<string>('PARTNER_DB_HOST', { infer: true }),
-        port: configService.getOrThrow<number>('PARTNER_DB_PORT', { infer: true }),
-        username: configService.getOrThrow<string>('PARTNER_DB_USER', { infer: true }),
-        password: configService.getOrThrow<string>('PARTNER_DB_PASSWORD', { infer: true }),
-        database: configService.getOrThrow<string>('PARTNER_DB_NAME', { infer: true }),
-        logging: configService.get('app.nodeEnv', { infer: true }) !== Environment.PRODUCTION,
-        entities: [PartnerStoreEntity],
       }),
     }),
     RelationalMenuPersistenceModule,

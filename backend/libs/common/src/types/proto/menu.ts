@@ -2,6 +2,7 @@
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
+import { Struct } from '../google/protobuf/struct';
 import { FilterRule, PaginationRequest, SortRule } from './common';
 
 export const protobufPackage = 'menu';
@@ -462,6 +463,65 @@ export interface FindItemsByFiltersResponse_PartnerItem {
   serviceSettings: FindItemsByFiltersResponse_ServiceSetting | undefined;
 }
 
+export interface GetStoreDetailRequest {
+  identifier: string;
+}
+
+export interface GetStoreDetailResponse {
+  id: string;
+  partnerId: string;
+  name: string;
+  storeCode: string;
+  status: string;
+  isVat: boolean;
+  slug: string;
+  description?: string | undefined;
+  location: GetStoreDetailResponse_Location | undefined;
+  images: GetStoreDetailResponse_Image | undefined;
+  contacts: GetStoreDetailResponse_ContactInfo[];
+  bankAccount: GetStoreDetailResponse_BankAccount | undefined;
+  prepTimes: { [key: string]: any } | undefined;
+  metadata: { [key: string]: any } | undefined;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  /** additional */
+  cuisineTypes: GetStoreDetailResponse_CuisineType[];
+  reopenTime: Date | undefined;
+}
+
+export interface GetStoreDetailResponse_Location {
+  ward: string;
+  region: string;
+  address: string;
+  district: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface GetStoreDetailResponse_ContactInfo {
+  email: string;
+  phone: string;
+  fullName: string;
+}
+
+export interface GetStoreDetailResponse_BankAccount {
+  bankName: string;
+  bankBranch: string;
+  accountHolder: string;
+  accountNumber: string;
+}
+
+export interface GetStoreDetailResponse_Image {
+  cover: string;
+  avatar: string;
+  thumbnail: string;
+}
+
+export interface GetStoreDetailResponse_CuisineType {
+  id: number;
+  name: string;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -472,6 +532,8 @@ wrappers['.google.protobuf.Timestamp'] = {
     return new Date(message.seconds * 1000 + message.nanos / 1e6);
   },
 } as any;
+
+wrappers['.google.protobuf.Struct'] = { fromObject: Struct.wrap, toObject: Struct.unwrap } as any;
 
 export interface MenusServiceClient {
   findStores(request: FindStoresRequest): Observable<FindStoresResponse>;
@@ -493,6 +555,8 @@ export interface MenusServiceClient {
   findItemsByFilters(request: FindItemsByFiltersRequest): Observable<FindItemsByFiltersResponse>;
 
   getFilterOptions(request: GetFilterOptionRequest): Observable<GetFilterOptionResponse>;
+
+  getStoreDetail(request: GetStoreDetailRequest): Observable<GetStoreDetailResponse>;
 
   insertMenuItem(request: PartnerItemRequest): Observable<PartnerItem>;
 
@@ -553,6 +617,10 @@ export interface MenusServiceController {
     | Observable<GetFilterOptionResponse>
     | GetFilterOptionResponse;
 
+  getStoreDetail(
+    request: GetStoreDetailRequest,
+  ): Promise<GetStoreDetailResponse> | Observable<GetStoreDetailResponse> | GetStoreDetailResponse;
+
   insertMenuItem(
     request: PartnerItemRequest,
   ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
@@ -575,6 +643,7 @@ export function MenusServiceControllerMethods() {
       'findAllCateringPackages',
       'findItemsByFilters',
       'getFilterOptions',
+      'getStoreDetail',
       'insertMenuItem',
       'updateMenuItem',
     ];
