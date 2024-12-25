@@ -1,11 +1,14 @@
 import { PARTNER_DB_SOURCE, PartnerItemRequest, UpdateItemRequest } from '@app/common';
 import { ItemStatus, PackagingType, UnitType } from '@app/common/enums/item';
+import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PartnerItem } from 'apps/menu-service/src/domain/partner-item.domain';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
-import { type FindOptionsWhere, type Repository } from 'typeorm';
+import { PartnerItemMapper } from 'apps/menu-service/src/infrastructure/persistence/relational/mappers/partner-item.mapper';
+import { FindOperator, type FindOptionsWhere, type Repository } from 'typeorm';
 
 @Injectable()
 export class PartnerItemRelationalRepository implements PartnerItemRepository {
@@ -23,7 +26,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
       cateringPackages: PartnerItemEntity['cateringPackages'];
     },
   ) {
-    return this.partnerItemRepository.save({
+    const insertedItem = await this.partnerItemRepository.save({
       ...payload,
       packagingUnit: payload?.packagingUnit as UnitType,
       packagingType: payload?.packagingType as PackagingType,
@@ -50,6 +53,8 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
           })),
         })) ?? [],
     });
+
+    return PartnerItemMapper.toDomain(insertedItem);
   }
 
   async getMenuCategoryById(id: string) {
@@ -59,7 +64,8 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
   }
 
   async findOne(filter: FindOptionsWhere<Pick<PartnerItemEntity, 'id' | 'slug'>>) {
-    return this.partnerItemRepository.findOne({ where: filter });
+    const item = await this.partnerItemRepository.findOne({ where: filter });
+    return item ? PartnerItemMapper.toDomain(item) : null;
   }
 
   async updateItem(payload: UpdateItemRequest) {
@@ -93,6 +99,27 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
         })) ?? [],
     });
 
-    return updatedItem;
+    return PartnerItemMapper.toDomain(updatedItem);
+  }
+
+  async findItemsWithPagination(options: {
+    pagination: PaginationRequest;
+    filters: Record<string, FindOperator<unknown>>[];
+    sorts: SortRule[];
+  }) {
+    const { pagination, sorts, filters } = options;
+
+    const [entities, total] = await this.partnerItemRepository.findAndCount({
+      skip: (pagination.currentPage - 1) * pagination.pageSize,
+      take: pagination.pageSize,
+      where: {
+        ...filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
+      },
+      order: Object.fromEntries(sorts.map(sort => [sort.column, sort.direction])),
+    });
+
+    const partnerItems = entities?.map(entity => PartnerItemMapper.toDomain(entity));
+
+    return [partnerItems, total] as [PartnerItem[], number];
   }
 }

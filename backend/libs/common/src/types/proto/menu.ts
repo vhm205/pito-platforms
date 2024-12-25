@@ -366,6 +366,17 @@ export interface UpdateItemRequest {
   updateItemRequest: UpdateItemDetailsRequest | undefined;
 }
 
+export interface FindItemsRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface FindItemsResponse {
+  items: PartnerItem[];
+  totalCount: number;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -391,6 +402,8 @@ export interface MenusServiceClient {
   findStores(request: FindStoresRequest): Observable<FindStoresResponse>;
 
   findStore(request: FindStoreRequest): Observable<FindStoreResponse>;
+
+  findItemsWithPagination(request: FindItemsRequest): Observable<FindItemsResponse>;
 }
 
 export interface MenusServiceController {
@@ -427,6 +440,10 @@ export interface MenusServiceController {
   findStore(
     request: FindStoreRequest,
   ): Promise<FindStoreResponse> | Observable<FindStoreResponse> | FindStoreResponse;
+
+  findItemsWithPagination(
+    request: FindItemsRequest,
+  ): Promise<FindItemsResponse> | Observable<FindItemsResponse> | FindItemsResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -439,6 +456,7 @@ export function MenusServiceControllerMethods() {
       'updateMenuItem',
       'findStores',
       'findStore',
+      'findItemsWithPagination',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

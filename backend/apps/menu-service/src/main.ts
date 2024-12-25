@@ -11,7 +11,10 @@ async function bootstrap() {
     transport: Transport.GRPC,
     options: {
       package: MENU_PACKAGE_NAME,
-      protoPath: join(__dirname, '../menu.proto'),
+      protoPath: [
+        join(process.cwd(), 'proto/menu.proto'),
+        join(process.cwd(), 'proto/common.proto'),
+      ],
       url: `0.0.0.0:${process.env.MENU_GRPC_PORT}`,
     },
   });

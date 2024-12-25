@@ -13,6 +13,7 @@ service MenusService {
   rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
   rpc FindStores(FindStoresRequest) returns (FindStoresResponse);
   rpc FindStore(FindStoreRequest) returns (FindStoreResponse);
+  rpc FindItemsWithPagination (FindItemsRequest) returns (FindItemsResponse);
 }
 
 // [START] Find stores by filter
@@ -372,4 +373,15 @@ message UpdateItemDetailsRequest {
 message UpdateItemRequest {
   string id = 1;
   UpdateItemDetailsRequest update_item_request = 2;
+}
+
+message FindItemsRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;     
+  repeated common.FilterRule filters = 3;
+}
+
+message FindItemsResponse {
+  repeated PartnerItem items = 1;
+  int32 total_count = 2;
 }

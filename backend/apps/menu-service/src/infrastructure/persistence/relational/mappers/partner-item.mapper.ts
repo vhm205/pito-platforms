@@ -1,4 +1,5 @@
-import { getImageUrl, PartnerItem } from '@app/common';
+import { getImageUrl } from '@app/common';
+import { PartnerItem } from 'apps/menu-service/src/domain/partner-item.domain';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 
 export class PartnerItemMapper {
@@ -30,22 +31,26 @@ export class PartnerItemMapper {
       orderDeadlineAt: undefined,
     };
 
-    domain.id = raw.id;
-    domain.storeId = raw.storeId;
-    domain.menuCategory = raw.menuCategory;
-    domain.slug = raw.slug;
+    domain.id = raw?.id;
+    domain.storeId = raw?.storeId;
+    domain.menuCategory = raw?.menuCategory;
+    domain.slug = raw?.slug;
 
-    domain.basePrice = raw.basePrice;
-    domain.name = raw.name;
-    domain.description = raw.description ?? '';
+    domain.basePrice = raw?.basePrice;
+    domain.name = raw?.name;
+    domain.description = raw?.description ?? '';
     domain.images = raw?.images?.map(image => getImageUrl(image)) ?? [];
-    domain.minQuantity = raw.minQuantity;
-    domain.participant = raw.participant;
-    domain.preparationTime = raw.preparationTime;
-    domain.status = raw.status;
-    domain.packagingType = raw.packagingType;
-    domain.packagingUnit = raw.packagingUnit;
+    domain.minQuantity = raw?.minQuantity;
+    domain.participant = raw?.participant;
+    domain.preparationTime = raw?.preparationTime;
+    domain.status = raw?.status;
+    domain.packagingType = raw?.packagingType;
+    domain.packagingUnit = raw?.packagingUnit;
     domain.optionsChoices = [];
+
+    domain.cuisineTypes = raw?.cuisineTypes ?? [];
+    domain.occasionEvents = raw?.occasionEvents ?? [];
+    domain.specialDietaries = raw?.specialDietaries ?? [];
 
     if (raw?.orderDeadlineAt) {
       domain.orderDeadlineAt = raw.orderDeadlineAt as unknown as string;
