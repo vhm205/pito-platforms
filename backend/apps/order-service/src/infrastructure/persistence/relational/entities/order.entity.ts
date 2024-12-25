@@ -145,4 +145,10 @@ export class OrderEntity extends EntityRelationalHelper {
 
   @UpdateDateColumn({ type: 'timestamp', name: 'updated_at', nullable: true, default: null })
   updatedAt: NullableType<Date>;
+
+  @Column({ type: 'int4', name: 'refund_status', nullable: true })
+  refundStatus: NullableType<number>;
+
+  @Column({ type: 'time with time zone', name: 'refunded_at', nullable: true })
+  refundedAt: NullableType<Date>;
 }

@@ -77,7 +77,7 @@ export class OrderMapper {
             };
           }),
         },
-        rawOptionsChoices: item.raw_options_choices.map(({ choices, ...option }) => {
+        rawOptionsChoices: map(item.raw_options_choices, ({ choices, ...option }) => {
           return {
             optionId: option.option_id,
             choices: map(choices, choice => ({
@@ -88,6 +88,9 @@ export class OrderMapper {
         }),
       };
     });
+
+    domain.refundStatus = raw.refundStatus;
+    domain.refundedAt = raw.refundedAt;
 
     return domain;
   }
@@ -142,6 +145,9 @@ export class OrderMapper {
 
     entity.createdAt = domainEntity.createdAt;
     if (domainEntity.updatedAt) entity.updatedAt = domainEntity.updatedAt;
+
+    entity.refundStatus = domainEntity.refundStatus;
+    entity.refundedAt = domainEntity.refundedAt;
 
     return entity;
   }

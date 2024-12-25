@@ -28,7 +28,12 @@ import { InvoiceRequestDto } from './dto/invoice-request.dto';
 import { OperatorUpdateOrderDto } from './dto/operator-update-order.dto';
 import { OrderDetailDto } from './dto/order-detail.dto';
 import { OrderListingDto } from './dto/order-listing.dto';
-import { OperatorQueryOrderDto, OperatorQueryStoreOrderDto } from './dto/query-order.dto';
+import {
+  OperatorQueryOrderDto,
+  OperatorQueryStoreOrderDto,
+  RefundOrderQueryDto,
+} from './dto/query-order.dto';
+import { RefundOrderListingDto } from './dto/refund-order-listing.dto';
 import { StoreOrderListingDto } from './dto/store-order-listing.dto';
 import { OperatorOrderService } from './operator-order.service';
 import { transformCustomer } from './utils/transformer';
@@ -228,5 +233,21 @@ export class OperatorOrdersController {
     }
 
     return this.service.operatorUpdateOrder({ user, order, updateOrderPayload });
+  }
+
+  @Get('/refund-orders')
+  @Auth([RoleType.OPERATOR])
+  @ApiPageWrapperResponse({ type: RefundOrderListingDto })
+  async getRefundOrders(@Query() query: RefundOrderQueryDto) {
+    const { orders, totalCount } = await this.service.getListRefundOrders(query);
+    const pageMeta = new PageMetaDto({
+      pageOptions: { page: query.page, pageSize: query.pageSize },
+      totalCount,
+    });
+
+    return new PageDto<RefundOrderListingDto>(
+      plainToInstance(RefundOrderListingDto, orders, { excludeExtraneousValues: true }),
+      pageMeta,
+    );
   }
 }

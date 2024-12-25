@@ -72,6 +72,9 @@ export class Order {
   preparingAt: NullableType<Date>;
   canceledByUser: boolean;
 
+  refundStatus: NullableType<number>;
+  refundedAt: NullableType<Date>;
+
   toMessage(): OrderMessage {
     return {
       id: this.id,
@@ -113,6 +116,8 @@ export class Order {
       updatedAt: this.updatedAt ?? undefined,
       preparingAt: this.preparingAt ?? undefined,
       canceledByUser: this.canceledByUser,
+      refundStatus: this.refundStatus ?? 0,
+      refundedAt: this.refundedAt ?? undefined,
     };
   }
 }

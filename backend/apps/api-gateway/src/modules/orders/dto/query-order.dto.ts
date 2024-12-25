@@ -55,3 +55,17 @@ export class OperatorQueryStoreOrderDto extends PaginationQueryDto {
   @Transform(({ value }) => parseSort(value))
   sorts: SortRule[];
 }
+
+export class RefundOrderQueryDto extends PaginationQueryDto {
+  @Expose({ name: 'filter' })
+  @IsArray()
+  @Transform(({ value }) => normalizeArray(value), { toClassOnly: true })
+  @Transform(({ value }) => parseFilter(value))
+  filters: FilterRuleDto[];
+
+  @Expose({ name: 'sort' })
+  @IsArray()
+  @Transform(({ value }) => normalizeArray(value), { toClassOnly: true })
+  @Transform(({ value }) => parseSort(value))
+  sorts: SortRule[];
+}

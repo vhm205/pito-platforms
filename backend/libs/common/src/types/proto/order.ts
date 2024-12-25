@@ -193,6 +193,8 @@ export interface Order {
   updatedAt: Date | undefined;
   preparingAt: Date | undefined;
   canceledByUser: boolean;
+  refundStatus: number;
+  refundedAt: Date | undefined;
 }
 
 /** Message for Store Order */
@@ -239,6 +241,28 @@ export interface FindOrdersResponse {
   totalCount: number;
 }
 
+export interface FindTransactionsRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface FindTransactionsResponse {
+  transactions: FindTransactionsResponse_Transaction[];
+  totalCount: number;
+}
+
+export interface FindTransactionsResponse_Transaction {
+  id: string;
+  orderId: string;
+  amount: number;
+  billCode: string;
+  transactionCode: string;
+  bankName: string;
+  bankAccountNumber: string;
+  createdAt: Date | undefined;
+}
+
 export const ORDER_PACKAGE_NAME = 'order';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -268,6 +292,8 @@ export interface OrdersServiceClient {
   findStoreOrder(request: FindStoreOrderRequest): Observable<FindStoreOrderResponse>;
 
   findStoreOrders(request: FindStoreOrdersRequest): Observable<FindStoreOrdersResponse>;
+
+  findTransactions(request: FindTransactionsRequest): Observable<FindTransactionsResponse>;
 }
 
 export interface OrdersServiceController {
@@ -304,6 +330,13 @@ export interface OrdersServiceController {
     | Promise<FindStoreOrdersResponse>
     | Observable<FindStoreOrdersResponse>
     | FindStoreOrdersResponse;
+
+  findTransactions(
+    request: FindTransactionsRequest,
+  ):
+    | Promise<FindTransactionsResponse>
+    | Observable<FindTransactionsResponse>
+    | FindTransactionsResponse;
 }
 
 export function OrdersServiceControllerMethods() {
@@ -316,6 +349,7 @@ export function OrdersServiceControllerMethods() {
       'findOrders',
       'findStoreOrder',
       'findStoreOrders',
+      'findTransactions',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

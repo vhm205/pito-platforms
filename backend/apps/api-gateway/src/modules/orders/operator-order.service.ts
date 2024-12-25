@@ -1,4 +1,5 @@
 import {
+  DEFAULT_PAGE_NUMBER,
   FindOrderRequest,
   FindStoreOrderRequest,
   MENU_SERVICE,
@@ -9,18 +10,22 @@ import {
   ORDERS_SERVICE_NAME,
   OrdersServiceClient,
 } from '@app/common';
-import { FilterRule } from '@app/common/types/proto/common';
+import { FilterRule, OrderStatus } from '@app/common/types/proto/common';
 import { constructFullName } from '@gateway/utils/common';
 import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { assign, get } from 'lodash';
+import { assign, get, map } from 'lodash';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthenticatedUser } from '../auth/auth-user.interface';
 
 import { OrderNoteDto } from './dto/common.dto';
 import { OperatorUpdateOrderDto } from './dto/operator-update-order.dto';
-import { OperatorQueryOrderDto, OperatorQueryStoreOrderDto } from './dto/query-order.dto';
+import {
+  OperatorQueryOrderDto,
+  OperatorQueryStoreOrderDto,
+  RefundOrderQueryDto,
+} from './dto/query-order.dto';
 import { transformCustomer } from './utils/transformer';
 
 @Injectable()
@@ -126,5 +131,49 @@ export class OperatorOrderService implements OnModuleInit {
       operationNotes: get(order, 'metadata.operationNotes', []),
       statusHistory: get(order, 'metadata.statusHistory', []),
     });
+  }
+
+  async getListRefundOrders(query: RefundOrderQueryDto) {
+    query.filters.push({
+      column: 'statusCode',
+      operator: 'in',
+      value: [OrderStatus.CANCELED, OrderStatus.REJECTED, OrderStatus.UNCONFIRMED].join(','),
+    });
+
+    const { orders, totalCount } = await firstValueFrom(
+      this.orderServiceClient.findOrders({
+        filters: query.filters,
+        pagination: { currentPage: query.page, pageSize: query.pageSize },
+        sorts: query.sorts,
+      }),
+    );
+
+    const orderIds = map(orders, order => order.id);
+    const { transactions } = await firstValueFrom(
+      this.orderServiceClient.findTransactions({
+        filters: [
+          {
+            column: 'orderId',
+            operator: 'in',
+            value: orderIds.join(','),
+          },
+        ],
+        pagination: { currentPage: DEFAULT_PAGE_NUMBER, pageSize: orderIds.length },
+        sorts: [],
+      }),
+    );
+
+    const transactionsMap = new Map(
+      map(transactions, transaction => [transaction.orderId, transaction]),
+    );
+    const ordersWithTransactions = map(orders, order => ({
+      ...order,
+      transaction: transactionsMap.get(order.id),
+    }));
+
+    return {
+      orders: ordersWithTransactions,
+      totalCount,
+    };
   }
 }

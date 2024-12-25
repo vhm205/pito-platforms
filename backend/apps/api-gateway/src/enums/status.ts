@@ -51,3 +51,8 @@ export enum StoreOrderPaymentStatus {
   PAID = 1,
   REFUNDED = 2,
 }
+
+export enum RefundOrderStatus {
+  PENDING = 0,
+  COMPLETED = 1,
+}

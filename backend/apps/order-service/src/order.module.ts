@@ -16,11 +16,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderEntity } from './infrastructure/persistence/relational/entities/order.entity';
 import { StoreOrderEntity } from './infrastructure/persistence/relational/entities/store-order.entity';
 import { StoreEntity } from './infrastructure/persistence/relational/entities/store.entity';
+import { TransactionEntity } from './infrastructure/persistence/relational/entities/transaction.entity';
 import { RelationalOrderPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { NotificationService } from './notification.service';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
 import { StoreOrderService } from './store-order.service';
+import { TransactionService } from './transaction.service';
 
 @Module({
   imports: [
@@ -54,7 +56,7 @@ import { StoreOrderService } from './store-order.service';
         //     cert: configService.get('database.cert', { infer: true }),
         //   },
         // },
-        entities: [OrderEntity],
+        entities: [OrderEntity, TransactionEntity],
       }),
     }),
     TypeOrmModule.forRootAsync({
@@ -100,7 +102,8 @@ import { StoreOrderService } from './store-order.service';
     OrderService,
     StoreOrderService,
     NotificationService,
+    TransactionService,
   ],
-  exports: [OrderService, StoreOrderService, NotificationService],
+  exports: [OrderService, StoreOrderService, NotificationService, TransactionService],
 })
 export class OrderModule {}

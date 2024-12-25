@@ -14,6 +14,7 @@ service OrdersService {
   rpc FindOrders (FindOrdersRequest) returns (FindOrdersResponse);
   rpc FindStoreOrder (FindStoreOrderRequest) returns (FindStoreOrderResponse);
   rpc FindStoreOrders (FindStoreOrdersRequest) returns (FindStoreOrdersResponse);
+  rpc FindTransactions (FindTransactionsRequest) returns (FindTransactionsResponse);
 }
 
 
@@ -211,6 +212,9 @@ message Order {
   google.protobuf.Timestamp preparing_at = 37;
 
   bool canceled_by_user = 38;
+
+  int32 refund_status = 39;
+  google.protobuf.Timestamp refunded_at = 40;
 }
 
 // Message for Store Order
@@ -266,5 +270,27 @@ message FindOrdersRequest {
 
 message FindOrdersResponse {
   repeated Order orders = 1;
+  int32 total_count = 2;
+}
+
+message FindTransactionsRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;
+  repeated common.FilterRule filters = 3;
+}
+
+message FindTransactionsResponse {
+  message Transaction {
+    string id = 1;
+    string order_id = 2;
+    float amount = 3;
+    string bill_code = 4;
+    string transaction_code = 5;
+    string bank_name = 6;
+    string bank_account_number = 7;
+    google.protobuf.Timestamp created_at = 8;
+  }
+
+  repeated Transaction transactions = 1;
   int32 total_count = 2;
 }

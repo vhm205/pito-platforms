@@ -17,6 +17,8 @@ import {
   FindStoreOrdersRequest,
   FindStoreOrdersResponse,
   UpdateOrderRequest,
+  FindTransactionsRequest,
+  FindTransactionsResponse,
 } from '@app/common/types';
 import { Controller } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
@@ -24,6 +26,7 @@ import { RpcException } from '@nestjs/microservices';
 import { NotificationService } from './notification.service';
 import { OrderService } from './order.service';
 import { StoreOrderService } from './store-order.service';
+import { TransactionService } from './transaction.service';
 
 @Controller()
 @OrdersServiceControllerMethods()
@@ -32,6 +35,7 @@ export class OrderController implements OrdersServiceController {
     private readonly orderService: OrderService,
     private readonly storeOrderService: StoreOrderService,
     private readonly notificationService: NotificationService,
+    private readonly transactionService: TransactionService,
   ) {}
 
   async updateOrderStatus(request: UpdateOrderStatusRequest): Promise<UpdateOrderResponse> {
@@ -115,6 +119,19 @@ export class OrderController implements OrdersServiceController {
 
     return {
       orders: storeOrders.map(order => order.toMessage()),
+      totalCount,
+    };
+  }
+
+  async findTransactions(request: FindTransactionsRequest): Promise<FindTransactionsResponse> {
+    request.filters ??= [];
+    request.sorts ??= [];
+
+    const [transactions, totalCount] =
+      await this.transactionService.findTransactionsWithPagination(request);
+
+    return {
+      transactions: transactions.map(transaction => transaction.toMessage()),
       totalCount,
     };
   }
