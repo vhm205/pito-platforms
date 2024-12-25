@@ -40,7 +40,7 @@ export class SearchController {
   @UseGuards(WebhookGuard)
   @WebhookAuth('webhook.postgresqlTrigger')
   @HttpCode(HttpStatus.OK)
-  async indxeAutocompleteFeed(@Body() { documents, action }: IndexAutocompleteFeedRequestBodyDto) {
+  async indexAutocompleteFeed(@Body() { documents, action }: IndexAutocompleteFeedRequestBodyDto) {
     try {
       await this.searchAdapter.syncAutocompleteFeed(documents, action);
       this.logger.log('Autocomplete feed indexed', {
