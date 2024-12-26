@@ -5,7 +5,7 @@ import { validateConfig } from './validate-config';
 
 export type WebhookConfig = {
   postgresqlTrigger: string;
-  ahamoveOrderEventsApiKey: string;
+  orderEventsApiKey: string;
 };
 
 class WebhookVariablesValidator {
@@ -22,6 +22,6 @@ export default registerAs<WebhookConfig>('webhook', () => {
 
   return {
     postgresqlTrigger: process.env.POSTGRESQL_TRIGGER!,
-    ahamoveOrderEventsApiKey: process.env.AHAMOVE_ORDER_EVENTS_API_KEY!,
+    orderEventsApiKey: process.env.AHAMOVE_ORDER_EVENTS_API_KEY!,
   };
 });
