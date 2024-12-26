@@ -72,3 +72,11 @@ function transformOption(item, option) {
     selectedChoices,
   };
 }
+
+export function transformRefundOrderFilter(f: FilterRule) {
+  if (f.column === 'createdAt') {
+    const [from, to] = f.value.split(',');
+    f.value = `${getBoundaryIsoStringForDay(from)},${getBoundaryIsoStringForDay(to, 'end')}`;
+  }
+  return f;
+}

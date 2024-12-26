@@ -110,7 +110,7 @@ export class AutocompleteFeedResponseDto implements AutocompleteFeedResponse {
     example: 'item',
     type: String,
   })
-  @Expose({ name: 'entityType' })
+  @Expose()
   @Transform(({ value }) => value, { toClassOnly: true })
   @IsString()
   entity_type: string;

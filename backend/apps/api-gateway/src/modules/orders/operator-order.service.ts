@@ -14,7 +14,7 @@ import { FilterRule, OrderStatus } from '@app/common/types/proto/common';
 import { constructFullName } from '@gateway/utils/common';
 import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { assign, get, isEmpty, map } from 'lodash';
+import { get, isEmpty, map } from 'lodash';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthenticatedUser } from '../auth/auth-user.interface';
@@ -101,30 +101,36 @@ export class OperatorOrderService implements OnModuleInit {
     updateOrderPayload: OperatorUpdateOrderDto;
   }) {
     const { user, order, updateOrderPayload } = args;
+    const operatorDisplayName = constructFullName(user.firstName, user.lastName) || user.email;
+    const operationNotes: OrderNoteDto[] = get(order, 'metadata.operationNotes', []);
+    const statusHistory = get(order, 'metadata.statusHistory', []);
+
     if (updateOrderPayload.operationNote) {
-      const operationNotes: OrderNoteDto[] = get(order, 'metadata.operationNotes', []);
       operationNotes.push({
         note: updateOrderPayload.operationNote,
-        createdBy: constructFullName(user.firstName, user.lastName) || user.email,
+        createdBy: operatorDisplayName,
         createdAt: new Date().toISOString(),
       });
-      order.metadata = assign(order.metadata, { operationNotes });
     }
 
     if (updateOrderPayload.status) {
-      const statusHistory = get(order, 'metadata.statusHistory', []);
       statusHistory.push({
         previousStatus: order.operatorStatusCode,
         newStatus: updateOrderPayload.status,
         changedAt: new Date().toISOString(),
-        changedBy: constructFullName(user.firstName, user.lastName) || user.email,
+        changedBy: operatorDisplayName,
       });
-      order.metadata = assign(order.metadata, { statusHistory });
+
       order.operatorStatusCode = updateOrderPayload.status;
       order.statusCode = updateOrderPayload.status;
     }
 
     if (updateOrderPayload.refundStatus) {
+      operationNotes.push({
+        note: `Đã xác nhận hoàn tiền cho khách hàng`,
+        createdBy: operatorDisplayName,
+        createdAt: new Date().toISOString(),
+      });
       order.refundStatus = updateOrderPayload.refundStatus;
     }
 
@@ -132,8 +138,8 @@ export class OperatorOrderService implements OnModuleInit {
       id: order.id,
       operatorStatusCode: order.operatorStatusCode,
       statusCode: order.statusCode,
-      operationNotes: get(order, 'metadata.operationNotes', []),
-      statusHistory: get(order, 'metadata.statusHistory', []),
+      operationNotes,
+      statusHistory,
       refundStatus: order.refundStatus,
     });
   }

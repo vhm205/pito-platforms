@@ -18,7 +18,7 @@ import { StoreOrderEntity } from './infrastructure/persistence/relational/entiti
 import { StoreEntity } from './infrastructure/persistence/relational/entities/store.entity';
 import { TransactionEntity } from './infrastructure/persistence/relational/entities/transaction.entity';
 import { RelationalOrderPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
-import { NotificationService } from './notification.service';
+import { OrderNotificationService } from './order-notification.service';
 import { OrderController } from './order.controller';
 import { OrderService } from './order.service';
 import { StoreOrderService } from './store-order.service';
@@ -84,7 +84,7 @@ import { TransactionService } from './transaction.service';
               process.env.RABBITMQ_HOST
             }:${process.env.RABBITMQ_PORT}${process.env.RABBITMQ_VHOST}`,
           ],
-          queue: 'notifications_queue',
+          queue: 'notification_queue',
           queueOptions: {
             durable: true,
             noAck: false,
@@ -101,9 +101,9 @@ import { TransactionService } from './transaction.service';
     },
     OrderService,
     StoreOrderService,
-    NotificationService,
+    OrderNotificationService,
     TransactionService,
   ],
-  exports: [OrderService, StoreOrderService, NotificationService, TransactionService],
+  exports: [OrderService, StoreOrderService, OrderNotificationService, TransactionService],
 })
 export class OrderModule {}
