@@ -1,5 +1,5 @@
 import { Transaction } from 'apps/order-service/src/domain/transaction';
-import { filter, flatMap, forOwn, get, isEmpty } from 'lodash';
+import { filter, flatMap, get } from 'lodash';
 
 import { TransactionEntity } from '../entities/transaction.entity';
 
@@ -15,9 +15,11 @@ export class TransactionMapper {
     domain.createdAt = raw.createdAt;
 
     if (raw.metadata) {
-      const transactions = extractTransactions(raw.metadata);
-      const transactionsWithEntityAttribute = flatMap(transactions, transaction =>
-        filter(transaction, transaction => !isEmpty(transaction.transactionEntityAttribute)),
+      const transactions: Record<string, any> = flatMap(raw.metadata, value =>
+        get(value, 'requestParameters.request.requestParams.transactions', []),
+      );
+      const transactionsWithEntityAttribute = filter(transactions, transaction =>
+        get(transaction, 'transactionEntityAttribute'),
       );
 
       for (const transaction of transactionsWithEntityAttribute) {
@@ -43,16 +45,4 @@ export class TransactionMapper {
 
     return entity;
   }
-}
-
-function extractTransactions(metadata: Record<string, any>) {
-  const transactions: Array<Record<string, any>> = [];
-
-  forOwn(metadata, value => {
-    if (value.requestParameters) {
-      transactions.push(get(value, 'requestParameters.request.requestParams.transactions', []));
-    }
-  });
-
-  return transactions;
 }
