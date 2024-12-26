@@ -14,7 +14,7 @@ import { FilterRule, OrderStatus } from '@app/common/types/proto/common';
 import { constructFullName } from '@gateway/utils/common';
 import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { assign, get, map } from 'lodash';
+import { assign, get, isEmpty, map } from 'lodash';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthenticatedUser } from '../auth/auth-user.interface';
@@ -124,12 +124,17 @@ export class OperatorOrderService implements OnModuleInit {
       order.statusCode = updateOrderPayload.status;
     }
 
+    if (updateOrderPayload.refundStatus) {
+      order.refundStatus = updateOrderPayload.refundStatus;
+    }
+
     return this.orderServiceClient.updateOrder({
       id: order.id,
       operatorStatusCode: order.operatorStatusCode,
       statusCode: order.statusCode,
       operationNotes: get(order, 'metadata.operationNotes', []),
       statusHistory: get(order, 'metadata.statusHistory', []),
+      refundStatus: order.refundStatus,
     });
   }
 
@@ -147,6 +152,9 @@ export class OperatorOrderService implements OnModuleInit {
         sorts: query.sorts,
       }),
     );
+
+    // return early if no orders found
+    if (isEmpty(orders)) return { orders: [], totalCount };
 
     const orderIds = map(orders, order => order.id);
     const { transactions } = await firstValueFrom(
@@ -168,6 +176,7 @@ export class OperatorOrderService implements OnModuleInit {
     );
     const ordersWithTransactions = map(orders, order => ({
       ...order,
+      customer: transformCustomer(order),
       transaction: transactionsMap.get(order.id),
     }));
 

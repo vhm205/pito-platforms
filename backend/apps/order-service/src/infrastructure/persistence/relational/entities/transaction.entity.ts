@@ -46,8 +46,8 @@ export class TransactionEntity extends EntityRelationalHelper {
   //   @JoinColumn({ name: 'store_id' })
   //   store: Store;
 
-  //   @Column('jsonb', { nullable: true })
-  //   metadata: object;
+  @Column('jsonb', { nullable: true })
+  metadata: object | null;
 
   //   @Column('enum', { enum: PayType, nullable: true })
   //   payType: PayType;

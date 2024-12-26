@@ -20,6 +20,7 @@ export interface UpdateOrderRequest {
   statusHistory: UpdateOrderRequest_StatusHistory[];
   statusCode?: number | undefined;
   operatorStatusCode?: number | undefined;
+  refundStatus?: number | undefined;
 }
 
 export interface UpdateOrderRequest_OrderNote {
@@ -258,7 +259,7 @@ export interface FindTransactionsResponse_Transaction {
   amount: number;
   billCode: string;
   transactionCode: string;
-  bankName: string;
+  bankAccountName: string;
   bankAccountNumber: string;
   createdAt: Date | undefined;
 }

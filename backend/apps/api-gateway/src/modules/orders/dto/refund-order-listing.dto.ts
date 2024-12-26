@@ -5,6 +5,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Transform, Type } from 'class-transformer';
 import { get } from 'lodash';
 
+import { CustomerDto } from './common.dto';
+
 export class RefundOrderListingDto {
   @ApiProperty({
     description: 'The unique identifier of the order',
@@ -83,8 +85,8 @@ export class RefundOrderListingDto {
     type: String,
   })
   @Expose()
-  @Transform(({ obj }) => get(obj, 'transaction.bankName', null))
-  bankName: string;
+  @Transform(({ obj }) => get(obj, 'transaction.bankAccountName', null))
+  bankAccountName: string;
 
   @ApiProperty({
     description: 'Total price of the order',
@@ -96,11 +98,17 @@ export class RefundOrderListingDto {
   totalPrice: number;
 
   @ApiProperty({
+    description: 'The customer information who placed the order',
+    type: CustomerDto,
+  })
+  @Expose()
+  customer: CustomerDto;
+
+  @ApiProperty({
     description: 'Created time of the order',
     example: '2021-09-01T00:00:00.000Z',
     type: Date,
   })
   @Expose()
-  @Transform(({ obj }) => get(obj, 'transaction.createdAt'))
   createdAt: Date;
 }

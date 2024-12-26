@@ -1,4 +1,5 @@
 import { Transaction } from 'apps/order-service/src/domain/transaction';
+import { filter, flatMap, forOwn, get, isEmpty } from 'lodash';
 
 import { TransactionEntity } from '../entities/transaction.entity';
 
@@ -12,8 +13,20 @@ export class TransactionMapper {
     domain.billCode = raw.billCode;
     domain.transactionCode = raw.txCode;
     domain.createdAt = raw.createdAt;
-    domain.bankName = 'Implement this later';
-    domain.bankAccountNumber = 'Implement this later';
+
+    if (raw.metadata) {
+      const transactions = extractTransactions(raw.metadata);
+      const transactionsWithEntityAttribute = flatMap(transactions, transaction =>
+        filter(transaction, transaction => !isEmpty(transaction.transactionEntityAttribute)),
+      );
+
+      for (const transaction of transactionsWithEntityAttribute) {
+        const entityAttribute = transaction.transactionEntityAttribute;
+        domain.bankAccountName = get(entityAttribute, 'issuerBankName', null);
+        domain.bankAccountNumber = get(entityAttribute, 'remitterAccountNumber', null);
+        domain.bankAccountHolder = get(entityAttribute, 'remitterName', null);
+      }
+    }
 
     return domain;
   }
@@ -30,4 +43,16 @@ export class TransactionMapper {
 
     return entity;
   }
+}
+
+function extractTransactions(metadata: Record<string, any>) {
+  const transactions: Array<Record<string, any>> = [];
+
+  forOwn(metadata, value => {
+    if (value.requestParameters) {
+      transactions.push(get(value, 'requestParameters.request.requestParams.transactions', []));
+    }
+  });
+
+  return transactions;
 }

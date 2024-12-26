@@ -6,8 +6,9 @@ export class Transaction {
   amount: number;
   billCode: string;
   transactionCode: string;
-  bankName: string;
+  bankAccountName: string;
   bankAccountNumber: string;
+  bankAccountHolder: string;
   createdAt: Date;
 
   toMessage() {
@@ -17,7 +18,7 @@ export class Transaction {
       amount: this.amount,
       billCode: this.billCode,
       transactionCode: this.transactionCode,
-      bankName: this.bankName,
+      bankAccountName: this.bankAccountName,
       bankAccountNumber: this.bankAccountNumber,
       createdAt: this.createdAt,
     };
