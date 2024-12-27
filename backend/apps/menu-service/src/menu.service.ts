@@ -4,6 +4,7 @@ import {
   PartnerItem,
   PartnerItemRequest,
   StoreFilter,
+  transformFilterRule,
   UpdateItemRequest,
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
@@ -13,9 +14,10 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
-import { PartnerItemMapper } from 'apps/menu-service/src/infrastructure/persistence/relational/mappers/partner-item.mapper';
+import { PartnerStoreRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-store.repository';
 import { generateSlug } from 'apps/menu-service/src/utils/slug.util';
 import dayjs from 'dayjs';
+import { compact, keyBy, uniq } from 'lodash';
 
 import { GetItemInStoreFilterDto } from './dtos/get-items-in-store.dto';
 import { SearchStoreFilterDto } from './dtos/search-store.dto';
@@ -30,6 +32,7 @@ export class MenuService {
     private readonly storeRepository: StoreRepository,
     private readonly itemRepository: ItemRepository,
     private readonly partnerItemRepository: PartnerItemRepository,
+    private readonly partnerStoreRepository: PartnerStoreRepository,
   ) {}
 
   async findStoresByFilter(
@@ -117,15 +120,48 @@ export class MenuService {
       this.partnerItemRepository.findOne({
         slug: generateSlug(payload.name),
       }),
-      this.itemRepository.findAllCuisineTypes(payload.cuisineTypes),
-      this.itemRepository.findAllSpecialDietaries(payload.specialDietaries),
-      this.itemRepository.findAllOccasionEvents(payload.occasionEvents),
+      payload?.cuisineTypes?.length
+        ? this.itemRepository.findAllCuisineTypes(payload.cuisineTypes)
+        : Promise.resolve([]),
+      payload?.specialDietaries?.length
+        ? this.itemRepository.findAllSpecialDietaries(payload.specialDietaries)
+        : Promise.resolve([]),
+      payload?.occasionEvents?.length
+        ? this.itemRepository.findAllOccasionEvents(payload.occasionEvents)
+        : Promise.resolve([]),
     ]);
 
     if (!menuCategory) {
       throw new RpcException({
         message: 'Menu category not found',
         status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    if (payload?.cuisineTypes?.length && cuisineTypes?.length !== payload?.cuisineTypes?.length) {
+      throw new RpcException({
+        message: 'Some provided cuisines are invalid or do not exist',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
+    if (
+      payload?.specialDietaries?.length &&
+      dietaries?.length !== payload?.specialDietaries?.length
+    ) {
+      throw new RpcException({
+        message: 'Some provided special dietaries are invalid or do not exist',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
+    if (
+      payload?.occasionEvents?.length &&
+      occasionEvents.length !== payload?.occasionEvents?.length
+    ) {
+      throw new RpcException({
+        message: 'Some provided occasion events are invalid or do not exist',
+        status: GrpcStatus.INVALID_ARGUMENT,
       });
     }
 
@@ -140,15 +176,11 @@ export class MenuService {
       });
     }
 
-    if (cuisineTypes.length === 0 || dietaries.length === 0 || occasionEvents.length === 0) {
-      throw new RpcException({
-        message: 'Invalid related data',
-        status: GrpcStatus.INVALID_ARGUMENT,
-      });
-    }
-
     const savedItem = await this.partnerItemRepository.insertItem({
       ...payload,
+      cuisineTypes: cuisineTypes?.map(cuisine => cuisine.id),
+      specialDietaries: dietaries?.map(dietary => dietary.id),
+      occasionEvents: occasionEvents?.map(event => event.id),
       slug: isSlugExist
         ? `${generateSlug(payload.name)}-${Date.now()}`
         : generateSlug(payload.name),
@@ -163,10 +195,8 @@ export class MenuService {
       });
     }
 
-    const itemMapper = PartnerItemMapper.toDomain(savedItem);
-
     return {
-      ...itemMapper,
+      ...savedItem,
       cuisineTypes,
       specialDietaries: dietaries,
       occasionEvents,
@@ -250,6 +280,13 @@ export class MenuService {
     const newStatus =
       item.status === ItemStatus.REJECTED ? ItemStatus.PENDING_APPROVAL : updateItemRequest?.status;
 
+    if (updateItemRequest?.name && updateItemRequest.name !== item.name) {
+      const newSlug = generateSlug(updateItemRequest.name);
+      const isSlugExist = await this.partnerItemRepository.findOne({ slug: newSlug });
+
+      updateItemRequest.slug = isSlugExist ? `${newSlug}-${Date.now()}` : newSlug;
+    }
+
     const updatedItem = await this.partnerItemRepository.updateItem({
       id,
       updateItemRequest: {
@@ -259,9 +296,9 @@ export class MenuService {
         metadata: updateItemRequest?.metadata
           ? (updateItemRequest?.metadata ?? undefined)
           : {
-              hasNotes: item?.metadata?.has_notes ?? false,
-              hasUtensils: item?.metadata?.has_utensils ?? false,
-              rejectionReason: item?.metadata?.rejection_reason,
+              hasNotes: item?.metadata?.hasNotes ?? false,
+              hasUtensils: item?.metadata?.hasUtensils ?? false,
+              rejectionReason: item?.metadata?.rejectionReason,
             },
         status: newStatus ?? item.status,
         optionsChoices: updateItemRequest?.optionsChoices
@@ -283,16 +320,17 @@ export class MenuService {
               id: option?.id,
               name: option?.name,
               description: option?.description,
-              allowMultipleSelection: option?.allow_multiple_selection ?? false,
-              allowQuantitySelection: option?.allow_quantity_selection ?? false,
-              isRequired: option?.is_required ?? false,
-              maxChoices: option?.max_choices ?? 0,
+              allowMultipleSelection: option?.allowMultipleSelection ?? false,
+              allowQuantitySelection: option?.allowQuantitySelection ?? false,
+              isRequired: option?.isRequired ?? false,
+              maxChoices: option?.maxChoices ?? 0,
               choices: option?.choices?.map(choice => ({
                 id: choice?.id,
                 name: choice?.name,
                 price: choice?.price,
               })),
             })) ?? []),
+        orderDeadlineAt: updateItemRequest?.orderDeadlineAt,
       },
     });
 
@@ -303,13 +341,57 @@ export class MenuService {
       });
     }
 
-    const itemMapper = PartnerItemMapper.toDomain(updatedItem);
-
     return {
-      ...itemMapper,
+      ...updatedItem,
       cuisineTypes,
       specialDietaries: dietaries,
       occasionEvents,
     };
+  }
+
+  async findItemsWithPagination({ pagination, filters, sorts }): Promise<[PartnerItem[], number]> {
+    if (!pagination) {
+      throw new RpcException({
+        message: 'Pagination is required',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
+    const [items, total] = await this.partnerItemRepository.findItemsWithPagination({
+      pagination,
+      filters: filters?.map(transformFilterRule),
+      sorts,
+    });
+
+    const cuisineTypeIds = uniq(
+      compact(items.flatMap(item => item.cuisineTypes ?? []).map(Number)),
+    );
+    const specialDietaryIds = uniq(
+      compact(items.flatMap(item => item.specialDietaries ?? []).map(Number)),
+    );
+    const occasionEventIds = uniq(
+      compact(items.flatMap(item => item.occasionEvents ?? []).map(Number)),
+    );
+
+    const [cuisineTypes, specialDietaries, occasionEvents] = await Promise.all([
+      this.itemRepository.findAllCuisineTypes(cuisineTypeIds),
+      this.itemRepository.findAllSpecialDietaries(specialDietaryIds),
+      this.itemRepository.findAllOccasionEvents(occasionEventIds),
+    ]);
+
+    const cuisineTypeMap = keyBy(cuisineTypes, 'id');
+    const specialDietaryMap = keyBy(specialDietaries, 'id');
+    const occasionEventMap = keyBy(occasionEvents, 'id');
+
+    const enrichedItems = items.map(item => ({
+      ...item,
+      cuisineTypes: (item.cuisineTypes ?? []).map(id => cuisineTypeMap[id]).filter(Boolean),
+      specialDietaries: (item.specialDietaries ?? [])
+        .map(id => specialDietaryMap[id])
+        .filter(Boolean),
+      occasionEvents: (item.occasionEvents ?? []).map(id => occasionEventMap[id]).filter(Boolean),
+    }));
+
+    return [enrichedItems, total];
   }
 }

@@ -18,6 +18,7 @@ export type AppConfig = {
   orderGrpcUrl: string;
   billingGrpcUrl: string;
   menuGrpcUrl: string;
+  notificationGrpcUrl: string;
 
   rabbitmqHost: string;
   rabbitmqPort: number;
@@ -27,6 +28,14 @@ export type AppConfig = {
 
   defaultDistanceInMeters: number;
   customerClientUrl: string;
+
+  typesense: {
+    apiKey: string;
+    host: string;
+    port: number;
+    protocol: string;
+    connectionTimeoutSeconds: number;
+  };
 };
 
 class AppVariablesValidator {
@@ -63,6 +72,12 @@ class AppVariablesValidator {
   MENU_GRPC_PORT: number;
 
   @IsString()
+  NOTIFICATION_GRPC_HOST: string;
+
+  @IsInt()
+  NOTIFICATION_GRPC_PORT: number;
+
+  @IsString()
   RABBITMQ_HOST: string;
 
   @IsInt()
@@ -82,6 +97,18 @@ class AppVariablesValidator {
 
   @IsString()
   CUSTOMER_CLIENT_URL: string;
+
+  @IsString()
+  TYPESENSE_API_KEY: string;
+
+  @IsString()
+  TYPESENSE_HOST: string;
+
+  @IsInt()
+  TYPESENSE_PORT: number;
+
+  @IsString()
+  TYPESENSE_PROTOCOL: string;
 }
 
 // eslint-disable-next-line import/no-default-export
@@ -98,6 +125,10 @@ export default registerAs<AppConfig>('app', () => {
     orderGrpcUrl: process.env.ORDER_GRPC_HOST!.concat(':', process.env.ORDER_GRPC_PORT!),
     billingGrpcUrl: process.env.BILLING_GRPC_HOST!.concat(':', process.env.BILLING_GRPC_PORT!),
     menuGrpcUrl: process.env.MENU_GRPC_HOST!.concat(':', process.env.MENU_GRPC_PORT!),
+    notificationGrpcUrl: process.env.NOTIFICATION_GRPC_HOST!.concat(
+      ':',
+      process.env.NOTIFICATION_GRPC_PORT!,
+    ),
 
     rabbitmqHost: process.env.RABBITMQ_HOST!,
     rabbitmqPort: process.env.RABBITMQ_PORT ? parseInt(process.env.RABBITMQ_PORT, 10) : 5672,
@@ -107,5 +138,12 @@ export default registerAs<AppConfig>('app', () => {
 
     defaultDistanceInMeters: +process.env.DEFAULT_DISTANCE_IN_METERS!,
     customerClientUrl: process.env.CUSTOMER_CLIENT_URL!,
+    typesense: {
+      apiKey: process.env.TYPESENSE_API_KEY!,
+      host: process.env.TYPESENSE_HOST!,
+      port: parseInt(process.env.TYPESENSE_PORT!, 10),
+      protocol: process.env.TYPESENSE_PROTOCOL!,
+      connectionTimeoutSeconds: 10,
+    },
   };
 });

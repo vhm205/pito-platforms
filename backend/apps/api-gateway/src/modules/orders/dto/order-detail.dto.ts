@@ -2,7 +2,14 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude, Expose, plainToInstance, Transform, Type } from 'class-transformer';
 import { get } from 'lodash';
 
-import { StoreDto, CustomerDto, OrderDto, LocationDto, OrderNoteDto } from './common.dto';
+import {
+  StoreDto,
+  CustomerDto,
+  OrderDto,
+  LocationDto,
+  OperatorNoteEntry,
+  ChangeLogEntry,
+} from './common.dto';
 
 class StoreContactDto {
   @ApiProperty({
@@ -45,53 +52,6 @@ class StoreDetailDto extends StoreDto {
   })
   @Expose()
   contacts: StoreContactDto[];
-}
-
-class StatusChangeDto {
-  @ApiProperty({
-    description: 'The previous status of the order',
-    example: 'pending',
-    type: String,
-  })
-  @Expose()
-  @Type(() => String)
-  previousStatus: string;
-
-  @ApiProperty({
-    description: 'The new status of the order',
-    example: 'accepted',
-    type: String,
-  })
-  @Expose()
-  @Type(() => String)
-  newStatus: string;
-
-  @ApiProperty({
-    description: 'The changed time of the status',
-    example: '2021-09-01T00:00:00.000Z',
-    type: Date,
-  })
-  @Expose()
-  @Type(() => Date)
-  changedAt: Date;
-
-  @ApiProperty({
-    description: 'The name of user who changed the status',
-    example: 'John Doe',
-    type: String,
-  })
-  @Expose()
-  @Type(() => String)
-  changedBy: string;
-
-  @ApiProperty({
-    description: 'The reason for the status change',
-    example: 'The order is accepted',
-    type: String,
-  })
-  @Expose()
-  @Type(() => String)
-  reason?: string;
 }
 
 export class OrderDetailDto extends OrderDto {
@@ -164,21 +124,23 @@ export class OrderDetailDto extends OrderDto {
 
   @ApiProperty({
     description: 'The history of the order status changes',
-    type: [StatusChangeDto],
+    type: [ChangeLogEntry],
   })
   @Expose()
-  @Type(() => StatusChangeDto)
-  @Transform(({ obj }) => get(obj, 'metadata.statusHistory', []))
-  statusHistory: StatusChangeDto[];
+  @Type(() => ChangeLogEntry)
+  @Transform(({ obj }) => plainToInstance(ChangeLogEntry, get(obj, 'metadata.changeLogs', [])))
+  changeLogs: ChangeLogEntry[];
 
   @ApiProperty({
     description: 'The notes of operations on the order',
-    type: [OrderNoteDto],
+    type: [OperatorNoteEntry],
   })
   @Expose()
-  @Type(() => OrderNoteDto)
-  @Transform(({ obj }) => get(obj, 'metadata.operationNotes', []))
-  operationNotes: OrderNoteDto[];
+  @Type(() => OperatorNoteEntry)
+  @Transform(({ obj }) =>
+    plainToInstance(OperatorNoteEntry, get(obj, 'metadata.operationNotes', [])),
+  )
+  operationNotes: OperatorNoteEntry[];
 
   @ApiProperty({
     description: 'The store information where the order was placed',

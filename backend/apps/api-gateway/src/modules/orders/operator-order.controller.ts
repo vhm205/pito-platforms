@@ -1,4 +1,5 @@
 import { DEFAULT_PAGE_NUMBER } from '@app/common';
+import { OrderStatus } from '@app/common/types/proto/common';
 import { RoleType } from '@gateway/constants';
 import { Auth, AuthUser } from '@gateway/decorators';
 import { ApiPageWrapperResponse } from '@gateway/decorators';
@@ -20,7 +21,7 @@ import {
 } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import { get, identity, isEmpty, map, pickBy } from 'lodash';
+import { find, get, identity, isEmpty, map, pickBy } from 'lodash';
 
 import { AuthenticatedUser } from '../auth/auth-user.interface';
 
@@ -28,7 +29,12 @@ import { InvoiceRequestDto } from './dto/invoice-request.dto';
 import { OperatorUpdateOrderDto } from './dto/operator-update-order.dto';
 import { OrderDetailDto } from './dto/order-detail.dto';
 import { OrderListingDto } from './dto/order-listing.dto';
-import { OperatorQueryOrderDto, OperatorQueryStoreOrderDto } from './dto/query-order.dto';
+import {
+  OperatorQueryOrderDto,
+  OperatorQueryStoreOrderDto,
+  RefundOrderQueryDto,
+} from './dto/query-order.dto';
+import { RefundOrderListingDto } from './dto/refund-order-listing.dto';
 import { StoreOrderListingDto } from './dto/store-order-listing.dto';
 import { OperatorOrderService } from './operator-order.service';
 import { transformCustomer } from './utils/transformer';
@@ -89,7 +95,7 @@ export class OperatorOrdersController {
   }
 
   @Get('/orders/:orderIdentifier')
-  // @Auth([RoleType.OPERATOR])
+  @Auth([RoleType.OPERATOR])
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: OrderDetailDto })
   async getOrderDetails(@Param('orderIdentifier') identifier: string) {
@@ -228,5 +234,34 @@ export class OperatorOrdersController {
     }
 
     return this.service.operatorUpdateOrder({ user, order, updateOrderPayload });
+  }
+
+  @Get('/refund-orders')
+  @Auth([RoleType.OPERATOR])
+  @ApiPageWrapperResponse({ type: RefundOrderListingDto })
+  async getRefundOrders(@Query() query: RefundOrderQueryDto) {
+    if (!find(query.filters, { column: 'refundStatus' })) {
+      query.filters.push({
+        column: 'refundStatus',
+        operator: 'is',
+        value: 'not null',
+      });
+    }
+    query.filters.push({
+      column: 'statusCode',
+      operator: 'in',
+      value: [OrderStatus.CANCELED, OrderStatus.REJECTED, OrderStatus.UNCONFIRMED].join(','),
+    });
+
+    const { orders, totalCount } = await this.service.getListRefundOrders(query);
+    const pageMeta = new PageMetaDto({
+      pageOptions: { page: query.page, pageSize: query.pageSize },
+      totalCount,
+    });
+
+    return new PageDto<RefundOrderListingDto>(
+      plainToInstance(RefundOrderListingDto, orders, { excludeExtraneousValues: true }),
+      pageMeta,
+    );
   }
 }

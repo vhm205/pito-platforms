@@ -4,6 +4,7 @@ import { OrderStatus } from '@app/common/types/proto/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, plainToInstance, Transform, Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
+import { get } from 'lodash';
 
 import { transformOrderItem } from '../utils/transformer';
 
@@ -429,7 +430,7 @@ export class OrderDto {
   orderItems: OrderItemDto[];
 }
 
-export class OrderNoteDto {
+export class OperatorNoteEntry {
   @ApiProperty({
     description: 'The note of the operation',
     example: 'The order is accepted',
@@ -437,7 +438,7 @@ export class OrderNoteDto {
   })
   @Expose()
   @Type(() => String)
-  note: string;
+  description: string;
 
   @ApiProperty({
     description: 'The time the note was created',
@@ -445,7 +446,7 @@ export class OrderNoteDto {
     type: Date,
   })
   @Expose()
-  createdAt: string;
+  timestamp: string;
 
   @ApiProperty({
     description: 'The name of the user who created the note',
@@ -454,5 +455,60 @@ export class OrderNoteDto {
   })
   @Expose()
   @Type(() => String)
-  createdBy: string;
+  user: string;
+}
+
+export enum ChangeLogType {
+  STATUS_UPDATE = 'STATUS_UPDATE',
+  REFUND_STATUS_UPDATE = 'REFUND_STATUS_UPDATE',
+}
+
+export class ChangeLogEntry {
+  @ApiProperty({
+    description: 'The name of the user who made the change',
+    example: 'John Doe',
+    type: String,
+  })
+  user: string;
+
+  @ApiProperty({
+    description: 'The type of change',
+    example: ChangeLogType.STATUS_UPDATE,
+    enum: ChangeLogType,
+  })
+  changeType: ChangeLogType;
+
+  @ApiPropertyOptional({
+    description: 'The old value of the change',
+    example: 'CONFIRMED',
+    type: String,
+  })
+  @Transform(({ value, obj }) =>
+    get(obj, 'changeType') === ChangeLogType.STATUS_UPDATE ? Number(value) : value,
+  )
+  oldValue?: string;
+
+  @ApiPropertyOptional({
+    description: 'The new value of the change',
+    example: 'COMPLETED',
+    type: String,
+  })
+  @Transform(({ value, obj }) =>
+    get(obj, 'changeType') === ChangeLogType.STATUS_UPDATE ? Number(value) : value,
+  )
+  newValue?: string;
+
+  @ApiPropertyOptional({
+    description: 'The description of the change',
+    example: 'The order is completed',
+    type: String,
+  })
+  description?: string;
+
+  @ApiProperty({
+    description: 'The time the change was made',
+    example: '2021-09-01T00:00:00.000Z',
+    type: String,
+  })
+  timestamp: string;
 }

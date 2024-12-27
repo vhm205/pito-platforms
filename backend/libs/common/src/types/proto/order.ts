@@ -16,32 +16,35 @@ export const protobufPackage = 'order';
 
 export interface UpdateOrderRequest {
   id: string;
-  operationNotes: UpdateOrderRequest_OrderNote[];
-  statusHistory: UpdateOrderRequest_StatusHistory[];
+  operationNotes: UpdateOrderRequest_OperatorNoteEntry[];
+  changeLogs: UpdateOrderRequest_ChangeLogEntry[];
   statusCode?: number | undefined;
   operatorStatusCode?: number | undefined;
+  refundStatus?: number | undefined;
 }
 
-export interface UpdateOrderRequest_OrderNote {
+export interface UpdateOrderRequest_OperatorNoteEntry {
   /** The note of the operation */
-  note: string;
+  description: string;
   /** String format of the timestampz */
-  createdAt: string;
+  timestamp: string;
   /** The name of the user who created the note */
-  createdBy: string;
+  user: string;
 }
 
-export interface UpdateOrderRequest_StatusHistory {
-  /** The previous status of the order */
-  previousStatus: number;
-  /** The new status of the order */
-  newStatus: number;
-  /** String format of the timestampzs */
-  changedAt: string;
-  /** The name of the user who changed the status */
-  changedBy: string;
-  /** The reason for the status change */
-  reason: string;
+export interface UpdateOrderRequest_ChangeLogEntry {
+  /** The name of the user who created the note */
+  user: string;
+  /** String format of the timestampz */
+  timestamp: string;
+  /** The type of the change */
+  changeType: string;
+  /** The old value */
+  oldValue?: string | undefined;
+  /** The new value */
+  newValue?: string | undefined;
+  /** The description of the change */
+  description?: string | undefined;
 }
 
 /** Request message for UpdateOrderStatus */
@@ -193,6 +196,8 @@ export interface Order {
   updatedAt: Date | undefined;
   preparingAt: Date | undefined;
   canceledByUser: boolean;
+  refundStatus: number;
+  refundedAt: Date | undefined;
 }
 
 /** Message for Store Order */
@@ -239,6 +244,28 @@ export interface FindOrdersResponse {
   totalCount: number;
 }
 
+export interface FindTransactionsRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface FindTransactionsResponse {
+  transactions: FindTransactionsResponse_Transaction[];
+  totalCount: number;
+}
+
+export interface FindTransactionsResponse_Transaction {
+  id: string;
+  orderId: string;
+  amount: number;
+  billCode: string;
+  transactionCode: string;
+  bankAccountName: string;
+  bankAccountNumber: string;
+  createdAt: Date | undefined;
+}
+
 export const ORDER_PACKAGE_NAME = 'order';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -268,6 +295,8 @@ export interface OrdersServiceClient {
   findStoreOrder(request: FindStoreOrderRequest): Observable<FindStoreOrderResponse>;
 
   findStoreOrders(request: FindStoreOrdersRequest): Observable<FindStoreOrdersResponse>;
+
+  findTransactions(request: FindTransactionsRequest): Observable<FindTransactionsResponse>;
 }
 
 export interface OrdersServiceController {
@@ -304,6 +333,13 @@ export interface OrdersServiceController {
     | Promise<FindStoreOrdersResponse>
     | Observable<FindStoreOrdersResponse>
     | FindStoreOrdersResponse;
+
+  findTransactions(
+    request: FindTransactionsRequest,
+  ):
+    | Promise<FindTransactionsResponse>
+    | Observable<FindTransactionsResponse>
+    | FindTransactionsResponse;
 }
 
 export function OrdersServiceControllerMethods() {
@@ -316,6 +352,7 @@ export function OrdersServiceControllerMethods() {
       'findOrders',
       'findStoreOrder',
       'findStoreOrders',
+      'findTransactions',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

@@ -47,9 +47,18 @@ export function transformFilterRule(filter: FilterRule) {
     case 'any':
       return { [column]: Any(value.split(',').map(v => v.trim())) };
     case 'is':
-      return { [column]: IsNull() };
-    case 'nis':
-      return { [column]: Not(IsNull()) };
+      switch (value) {
+        case 'null':
+          return { [column]: IsNull() };
+        case 'not null':
+          return { [column]: Not(IsNull()) };
+        case 'true':
+          return { [column]: Equal(true) };
+        case 'false':
+          return { [column]: Equal(false) };
+        default:
+          return {};
+      }
     case 'cs':
       return { [column]: ArrayContains(value.split(',').map(v => v.trim())) };
     case 'cd':

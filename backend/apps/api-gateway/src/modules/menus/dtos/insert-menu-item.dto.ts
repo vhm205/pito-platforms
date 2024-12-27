@@ -171,4 +171,11 @@ export class PartnerItemDto implements PartnerItem {
     hasUtensils: boolean;
     rejectionReason?: string;
   };
+
+  @ApiProperty({
+    description: 'Order Deadline At',
+    type: String,
+    example: '2021-01-01T00:00:00.000Z',
+  })
+  orderDeadlineAt: string;
 }

@@ -233,6 +233,7 @@ export interface PartnerItemRequest {
   metadata: Metadata | undefined;
   menuId?: string | undefined;
   status?: string | undefined;
+  orderDeadlineAt?: string | undefined;
 }
 
 export interface PartnerItem {
@@ -255,6 +256,7 @@ export interface PartnerItem {
   metadata: Metadata | undefined;
   slug: string;
   status: string;
+  orderDeadlineAt?: string | undefined;
 }
 
 export interface FindStoresRequest {
@@ -355,11 +357,34 @@ export interface UpdateItemDetailsRequest {
   metadata?: Metadata | undefined;
   menuId?: string | undefined;
   status?: string | undefined;
+  slug?: string | undefined;
+  orderDeadlineAt?: string | undefined;
 }
 
 export interface UpdateItemRequest {
   id: string;
   updateItemRequest: UpdateItemDetailsRequest | undefined;
+}
+
+export interface FindItemsRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface FindItemsResponse {
+  items: PartnerItem[];
+  totalCount: number;
+}
+
+export interface CalculateDistanceRequest {
+  latitude: number;
+  longitude: number;
+  geolocation: string;
+}
+
+export interface CalculateDistanceResponse {
+  distance: number;
 }
 
 export const MENU_PACKAGE_NAME = 'menu';
@@ -387,6 +412,10 @@ export interface MenusServiceClient {
   findStores(request: FindStoresRequest): Observable<FindStoresResponse>;
 
   findStore(request: FindStoreRequest): Observable<FindStoreResponse>;
+
+  findItemsWithPagination(request: FindItemsRequest): Observable<FindItemsResponse>;
+
+  calculateDistance(request: CalculateDistanceRequest): Observable<CalculateDistanceResponse>;
 }
 
 export interface MenusServiceController {
@@ -423,6 +452,17 @@ export interface MenusServiceController {
   findStore(
     request: FindStoreRequest,
   ): Promise<FindStoreResponse> | Observable<FindStoreResponse> | FindStoreResponse;
+
+  findItemsWithPagination(
+    request: FindItemsRequest,
+  ): Promise<FindItemsResponse> | Observable<FindItemsResponse> | FindItemsResponse;
+
+  calculateDistance(
+    request: CalculateDistanceRequest,
+  ):
+    | Promise<CalculateDistanceResponse>
+    | Observable<CalculateDistanceResponse>
+    | CalculateDistanceResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -435,6 +475,8 @@ export function MenusServiceControllerMethods() {
       'updateMenuItem',
       'findStores',
       'findStore',
+      'findItemsWithPagination',
+      'calculateDistance',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

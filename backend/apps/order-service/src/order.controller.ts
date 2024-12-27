@@ -17,13 +17,17 @@ import {
   FindStoreOrdersRequest,
   FindStoreOrdersResponse,
   UpdateOrderRequest,
+  FindTransactionsRequest,
+  FindTransactionsResponse,
 } from '@app/common/types';
+import { OrderStatus } from '@app/common/types/proto/common';
 import { Controller } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
-import { NotificationService } from './notification.service';
+import { OrderNotificationService } from './order-notification.service';
 import { OrderService } from './order.service';
 import { StoreOrderService } from './store-order.service';
+import { TransactionService } from './transaction.service';
 
 @Controller()
 @OrdersServiceControllerMethods()
@@ -31,12 +35,24 @@ export class OrderController implements OrdersServiceController {
   constructor(
     private readonly orderService: OrderService,
     private readonly storeOrderService: StoreOrderService,
-    private readonly notificationService: NotificationService,
+    private readonly orderNotificationService: OrderNotificationService,
+    private readonly transactionService: TransactionService,
   ) {}
 
   async updateOrderStatus(request: UpdateOrderStatusRequest): Promise<UpdateOrderResponse> {
     const updatedOrder = await this.orderService.updateOrderStatus(request);
-    this.notificationService.notifyOrder(updatedOrder);
+    const shouldNotify = [
+      OrderStatus.COMPLETED,
+      OrderStatus.DELIVERING,
+      OrderStatus.DELIVERY_FAILED,
+      OrderStatus.CANCELED,
+      OrderStatus.REJECTED,
+      OrderStatus.UNCONFIRMED,
+      // Additional order statuses that require notifications can be added here
+    ].includes(updatedOrder.statusCode);
+    if (shouldNotify) {
+      this.orderNotificationService.sendOrderStatusUpdateNotification(updatedOrder);
+    }
 
     return { order: updatedOrder.toMessage() };
   }
@@ -45,7 +61,7 @@ export class OrderController implements OrdersServiceController {
     payload: UpdateStoreOrderStatusRequest,
   ): Promise<UpdateStoreOrderResponse> {
     const updatedStoreOrder = await this.storeOrderService.updateStoreOrderStatus(payload);
-    this.notificationService.notifyStoreOrder(updatedStoreOrder);
+    // this.notificationService.notifyStoreOrder(updatedStoreOrder);
 
     return {
       id: updatedStoreOrder.id,
@@ -103,6 +119,10 @@ export class OrderController implements OrdersServiceController {
       });
     }
 
+    if (request.refundStatus) {
+      this.orderNotificationService.sendRefundStatusNotification(updatedOrder);
+    }
+
     return { order: updatedOrder.toMessage() };
   }
 
@@ -115,6 +135,19 @@ export class OrderController implements OrdersServiceController {
 
     return {
       orders: storeOrders.map(order => order.toMessage()),
+      totalCount,
+    };
+  }
+
+  async findTransactions(request: FindTransactionsRequest): Promise<FindTransactionsResponse> {
+    request.filters ??= [];
+    request.sorts ??= [];
+
+    const [transactions, totalCount] =
+      await this.transactionService.findTransactionsWithPagination(request);
+
+    return {
+      transactions: transactions.map(transaction => transaction.toMessage()),
       totalCount,
     };
   }

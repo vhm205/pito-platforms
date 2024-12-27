@@ -82,30 +82,32 @@ export class StoreRelationalRepository implements StoreRepository {
   }
 
   async getFilterOptions(payload: GetFilterOptionId): Promise<{ data: GetFilterOption }> {
+    const { cuisineTypesIds, specialDietariesIds, occasionEventsIds, serviceTypesIds } = payload;
+
     const [cuisineTypes, specialDietaries, occasionEvents, serviceTypes] = await Promise.all([
       this.cuisineTypeRepository
         .createQueryBuilder('cuisine_type')
         .select(['id', 'name'])
         .where(`cuisine_type.is_active = :isActive`, { isActive: true })
-        .andWhere(`cuisine_type.id IN (:...ids)`, { ids: payload.cuisineTypesIds })
+        .andWhere(`cuisine_type.id IN (:...ids)`, { ids: cuisineTypesIds })
         .getRawMany(),
       this.specialDietariesRepository
         .createQueryBuilder('special_dietary')
         .select(['id', 'name'])
         .where(`special_dietary.is_active = :isActive`, { isActive: true })
-        .andWhere(`special_dietary.id IN (:...ids)`, { ids: payload.specialDietariesIds })
+        .andWhere(`special_dietary.id IN (:...ids)`, { ids: specialDietariesIds })
         .getRawMany(),
       this.occasionEventRepository
         .createQueryBuilder('occasion_event')
         .select(['id', 'name'])
         .where(`occasion_event.is_active = :isActive`, { isActive: true })
-        .andWhere(`occasion_event.id IN (:...ids)`, { ids: payload.occasionEventsIds })
+        .andWhere(`occasion_event.id IN (:...ids)`, { ids: occasionEventsIds })
         .getRawMany(),
       this.categoryRepository
         .createQueryBuilder('category')
         .select(['id', 'name'])
         .where(`category.is_active = :isActive`, { isActive: true })
-        .andWhere(`category.id IN (:...ids)`, { ids: payload.serviceTypesIds })
+        .andWhere(`category.id IN (:...ids)`, { ids: serviceTypesIds })
         .getRawMany(),
     ]);
 
@@ -117,5 +119,18 @@ export class StoreRelationalRepository implements StoreRepository {
         serviceTypes,
       },
     };
+  }
+
+  async calculateDistance(
+    geolocation: string,
+    latitude: number,
+    longitude: number,
+  ): Promise<number> {
+    const result = await this.storeRepository.query(
+      `SELECT * FROM calculator_distance($1, $2, $3)`,
+      [longitude, latitude, geolocation],
+    );
+    const { calculator_distance: distance } = result[0];
+    return distance;
   }
 }

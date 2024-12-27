@@ -7,4 +7,9 @@ export abstract class StoreRepository {
   ): Promise<{ data: FindStoreByFilterResult[]; count: number }>;
   abstract getFilterOptionIds(keyword: string): Promise<{ data: GetFilterOptionId }>;
   abstract getFilterOptions(payload: GetFilterOptionId): Promise<{ data: GetFilterOption }>;
+  abstract calculateDistance(
+    geolocation: string,
+    latitude: number,
+    longitude: number,
+  ): Promise<number>;
 }

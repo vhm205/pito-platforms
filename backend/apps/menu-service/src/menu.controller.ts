@@ -1,4 +1,7 @@
 import {
+  CalculateDistanceRequest,
+  CalculateDistanceResponse,
+  FindItemsRequest,
   FindStoreRequest,
   FindStoreResponse,
   FindStoresRequest,
@@ -85,5 +88,26 @@ export class MenuController implements MenusServiceController {
 
   async updateMenuItem(request: UpdateItemRequest) {
     return this.menuService.updateMenuItem(request);
+  }
+
+  async findItemsWithPagination(request: FindItemsRequest) {
+    request.filters ??= [];
+    request.sorts ??= [];
+
+    const [items, totalCount] = await this.menuService.findItemsWithPagination({
+      filters: request.filters,
+      pagination: request.pagination,
+      sorts: request.sorts,
+    });
+
+    return {
+      items,
+      totalCount,
+    };
+  }
+
+  async calculateDistance(request: CalculateDistanceRequest): Promise<CalculateDistanceResponse> {
+    const distance = await this.storeService.calculateDistance(request);
+    return { distance };
   }
 }

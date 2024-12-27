@@ -68,6 +68,8 @@ export class KeycloakAdminService implements OnModuleInit {
       id: userId,
     });
 
+    if (!user) return null;
+
     await this.cacheManager.set(cacheKey, user, 5 * 60 * 1000);
 
     return user;
@@ -83,6 +85,8 @@ export class KeycloakAdminService implements OnModuleInit {
     await this.refreshTokenIfExpired();
 
     const roleMappings = await this.keycloakAdmin.users.listRoleMappings({ id: userId });
+
+    if (!roleMappings) return null;
 
     await this.cacheManager.set(cacheKey, roleMappings, 5 * 60 * 1000);
 

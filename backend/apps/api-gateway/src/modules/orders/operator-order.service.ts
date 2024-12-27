@@ -1,4 +1,5 @@
 import {
+  DEFAULT_PAGE_NUMBER,
   FindOrderRequest,
   FindStoreOrderRequest,
   MENU_SERVICE,
@@ -13,14 +14,18 @@ import { FilterRule } from '@app/common/types/proto/common';
 import { constructFullName } from '@gateway/utils/common';
 import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { assign, get } from 'lodash';
+import { get, isEmpty, map } from 'lodash';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthenticatedUser } from '../auth/auth-user.interface';
 
-import { OrderNoteDto } from './dto/common.dto';
+import { ChangeLogEntry, ChangeLogType, OperatorNoteEntry } from './dto/common.dto';
 import { OperatorUpdateOrderDto } from './dto/operator-update-order.dto';
-import { OperatorQueryOrderDto, OperatorQueryStoreOrderDto } from './dto/query-order.dto';
+import {
+  OperatorQueryOrderDto,
+  OperatorQueryStoreOrderDto,
+  RefundOrderQueryDto,
+} from './dto/query-order.dto';
 import { transformCustomer } from './utils/transformer';
 
 @Injectable()
@@ -96,35 +101,93 @@ export class OperatorOrderService implements OnModuleInit {
     updateOrderPayload: OperatorUpdateOrderDto;
   }) {
     const { user, order, updateOrderPayload } = args;
+    const currentTimestamp = new Date().toISOString();
+    const operatorDisplayName = constructFullName(user.firstName, user.lastName) || user.email;
+
+    const operationNotes: OperatorNoteEntry[] = get(order, 'metadata.operationNotes', []);
+    const changeLogs: ChangeLogEntry[] = get(order, 'metadata.changeLogs', []);
+
     if (updateOrderPayload.operationNote) {
-      const operationNotes: OrderNoteDto[] = get(order, 'metadata.operationNotes', []);
       operationNotes.push({
-        note: updateOrderPayload.operationNote,
-        createdBy: constructFullName(user.firstName, user.lastName) || user.email,
-        createdAt: new Date().toISOString(),
+        user: operatorDisplayName,
+        description: updateOrderPayload.operationNote,
+        timestamp: currentTimestamp,
       });
-      order.metadata = assign(order.metadata, { operationNotes });
     }
 
     if (updateOrderPayload.status) {
-      const statusHistory = get(order, 'metadata.statusHistory', []);
-      statusHistory.push({
-        previousStatus: order.operatorStatusCode,
-        newStatus: updateOrderPayload.status,
-        changedAt: new Date().toISOString(),
-        changedBy: constructFullName(user.firstName, user.lastName) || user.email,
+      changeLogs.push({
+        user: operatorDisplayName,
+        changeType: ChangeLogType.STATUS_UPDATE,
+        oldValue: order.operatorStatusCode.toString(),
+        newValue: updateOrderPayload.status.toString(),
+        timestamp: currentTimestamp,
       });
-      order.metadata = assign(order.metadata, { statusHistory });
       order.operatorStatusCode = updateOrderPayload.status;
       order.statusCode = updateOrderPayload.status;
+    }
+
+    if (updateOrderPayload.refundStatus) {
+      changeLogs.push({
+        user: operatorDisplayName,
+        changeType: ChangeLogType.REFUND_STATUS_UPDATE,
+        oldValue: order.refundStatus.toString(),
+        newValue: updateOrderPayload.refundStatus.toString(),
+        description: `Đã xác nhận hoàn tiền cho khách hàng`,
+        timestamp: currentTimestamp,
+      });
+      order.refundStatus = updateOrderPayload.refundStatus;
     }
 
     return this.orderServiceClient.updateOrder({
       id: order.id,
       operatorStatusCode: order.operatorStatusCode,
       statusCode: order.statusCode,
-      operationNotes: get(order, 'metadata.operationNotes', []),
-      statusHistory: get(order, 'metadata.statusHistory', []),
+      operationNotes,
+      changeLogs,
+      refundStatus: order.refundStatus,
     });
+  }
+
+  async getListRefundOrders(query: RefundOrderQueryDto) {
+    const { orders, totalCount } = await firstValueFrom(
+      this.orderServiceClient.findOrders({
+        filters: query.filters,
+        pagination: { currentPage: query.page, pageSize: query.pageSize },
+        sorts: query.sorts,
+      }),
+    );
+
+    // return early if no orders found
+    if (isEmpty(orders)) return { orders: [], totalCount };
+
+    const orderIds = map(orders, order => order.id);
+    const { transactions } = await firstValueFrom(
+      this.orderServiceClient.findTransactions({
+        filters: [
+          {
+            column: 'orderId',
+            operator: 'in',
+            value: orderIds.join(','),
+          },
+        ],
+        pagination: { currentPage: DEFAULT_PAGE_NUMBER, pageSize: orderIds.length },
+        sorts: [],
+      }),
+    );
+
+    const transactionsMap = new Map(
+      map(transactions, transaction => [transaction.orderId, transaction]),
+    );
+    const ordersWithTransactions = map(orders, order => ({
+      ...order,
+      customer: transformCustomer(order),
+      transaction: transactionsMap.get(order.id),
+    }));
+
+    return {
+      orders: ordersWithTransactions,
+      totalCount,
+    };
   }
 }

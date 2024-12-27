@@ -1,6 +1,11 @@
 import { LoggerService, SendNotificationDto } from '@app/common';
 import { Channel, NotificationEventPattern } from '@app/common/enums';
 import { ZodValidationPipe } from '@app/common/pipes';
+import {
+  GetTotalNotificationRequest,
+  GetTotalNotificationResponse,
+  NotificationServiceControllerMethods,
+} from '@app/common/types/proto/notification';
 import { Controller } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import * as Sentry from '@sentry/nestjs';
@@ -9,11 +14,18 @@ import { NotificationService } from './notification.service';
 import { sendNotificationSchema } from './validations/send-notification.validation';
 
 @Controller()
+@NotificationServiceControllerMethods()
 export class NotificationController {
   constructor(
     private readonly notificationService: NotificationService,
     private readonly logger: LoggerService,
   ) {}
+
+  async getTotalNotification(
+    request: GetTotalNotificationRequest,
+  ): Promise<GetTotalNotificationResponse> {
+    return this.notificationService.getTotalNotification(request);
+  }
 
   @EventPattern(NotificationEventPattern.SEND)
   async sendNotification(

@@ -1,12 +1,12 @@
 import { LoggerService } from '@app/common';
-import { AhamoveWebhookGuard } from '@gateway/guards/ahamove.guard';
+import { WebhookAuth } from '@gateway/decorators/webhook-auth.decorator';
+import { WebhookGuard } from '@gateway/guards/webhook.guard';
 import { OrderEventsService } from '@gateway/modules/webhook/services/order-events.service';
 import { AhamoveOrderTransformer } from '@gateway/modules/webhook/transfomers';
 import { AhamoveOrderCallback } from '@gateway/modules/webhook/types';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 
 @Controller('webhook/ahamove')
-@UseGuards(AhamoveWebhookGuard)
 export class AhamoveWebhookController {
   constructor(
     private readonly logger: LoggerService,
@@ -15,6 +15,8 @@ export class AhamoveWebhookController {
   ) {}
 
   @Post('order_events')
+  @UseGuards(WebhookGuard)
+  @WebhookAuth('webhook.orderEventsApiKey')
   async handleOrderEvents(@Body() payload: AhamoveOrderCallback) {
     const event = this.ahamoveOrderTransformer.transform(payload);
     if (!event.data.orderCode.startsWith('XP')) {

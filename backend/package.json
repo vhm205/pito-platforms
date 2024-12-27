@@ -67,6 +67,7 @@
     "ts-proto": "^2.2.3",
     "typeorm": "^0.3.20",
     "typeorm-transactional": "^0.5.0",
+    "typesense": "^1.8.2",
     "uuid": "^11.0.1",
     "winston": "^3.15.0",
     "winston-daily-rotate-file": "^5.0.0",

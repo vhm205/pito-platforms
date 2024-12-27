@@ -120,4 +120,7 @@ export class ItemEntity extends EntityRelationalHelper {
 
   @Column('text', { name: 'slug' })
   slug: string;
+
+  @Column({ type: 'timestamp', name: 'order_deadline_at', nullable: true })
+  orderDeadlineAt: NullableType<Date>;
 }

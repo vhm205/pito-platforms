@@ -3,8 +3,9 @@ import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.dec
 import { InsertItemDto, PartnerItemDto } from '@gateway/modules/menus/dtos/insert-menu-item.dto';
 import { UpdateItemDto } from '@gateway/modules/menus/dtos/update-menu-item.dto';
 import { MenusService } from '@gateway/modules/menus/menus.service';
+import { DraftBypassPipe } from '@gateway/modules/menus/pipes/draft-bypass.pipe';
 import { InsertItemSchema, UpdateItemSchema } from '@gateway/modules/menus/schemas/item.schema';
-import { ZodValidationPipe } from '@gateway/pipes/zod-validation.pipe';
+// import { ZodValidationPipe } from '@gateway/pipes/zod-validation.pipe';
 import { Body, Controller, Param, Post, Put } from '@nestjs/common';
 
 import { Auth } from '../../decorators/http.decorator';
@@ -17,7 +18,7 @@ export class MenusController {
   @Auth([RoleType.PARTNER])
   @ApiWrapperResponse({ type: PartnerItemDto })
   async insertMenuItem(
-    @Body(new ZodValidationPipe(InsertItemSchema)) dto: InsertItemDto,
+    @Body(new DraftBypassPipe(InsertItemSchema)) dto: InsertItemDto,
     @Param('menuId') menuId: string,
   ) {
     const newItem = await this.menusService.insertMenuItem({
@@ -32,7 +33,7 @@ export class MenusController {
   @Auth([RoleType.PARTNER])
   @ApiWrapperResponse({ type: PartnerItemDto })
   async updateMenuItem(
-    @Body(new ZodValidationPipe(UpdateItemSchema)) dto: Partial<UpdateItemDto>,
+    @Body(new DraftBypassPipe(UpdateItemSchema)) dto: Partial<UpdateItemDto>,
     @Param('itemId') itemId: string,
   ) {
     const updatedItem = await this.menusService.updateMenuItem({

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package notification;
+
+service NotificationService {
+  rpc getTotalNotification (GetTotalNotificationRequest) returns (GetTotalNotificationResponse);
+}
+
+message GetTotalNotificationRequest {
+  string userId = 1;
+};
+
+message GetTotalNotificationResponse {
+  int32 totalNotification = 1;
+  int32 totalUnreadNotification = 2;
+};

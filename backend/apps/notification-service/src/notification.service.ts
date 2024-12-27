@@ -1,12 +1,17 @@
 import { retryOperation, type PushNotificationDto, type SendEmailDto } from '@app/common';
 import { LoggerService } from '@app/common';
 import type { ExternalConfig } from '@app/common/configs';
-import { PushType } from '@app/common/enums';
+import { NotificationStatus, PushType } from '@app/common/enums';
+import {
+  GetTotalNotificationRequest,
+  GetTotalNotificationResponse,
+} from '@app/common/types/proto/notification';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as SendGrid from '@sendgrid/mail';
 import { BaseMessage, TopicMessage, AndroidConfig, ApnsConfig } from 'firebase-admin/messaging';
 
+import { NotificationRepository } from './infrastructure/persistence/notification.repository';
 import { firebaseMessaging } from './utils/firebase';
 
 @Injectable()
@@ -14,11 +19,26 @@ export class NotificationService {
   constructor(
     private readonly configService: ConfigService,
     private readonly logger: LoggerService,
+    private readonly notificationRepository: NotificationRepository,
   ) {
     const apiKey = this.configService.get<ExternalConfig>('external.sendgrid.apiKey', {
       infer: true,
     });
     SendGrid.setApiKey(apiKey);
+  }
+
+  async getTotalNotification(
+    payload: GetTotalNotificationRequest,
+  ): Promise<GetTotalNotificationResponse> {
+    const [totalNotification, totalUnreadNotification] = await Promise.all([
+      this.notificationRepository.getTotalNotificationByFilter({ userId: payload.userId }),
+      this.notificationRepository.getTotalNotificationByFilter({
+        userId: payload.userId,
+        status: NotificationStatus.SENT,
+      }),
+    ]);
+
+    return { totalNotification, totalUnreadNotification };
   }
 
   async sendEmail(payload: SendEmailDto): Promise<{ success: boolean }> {

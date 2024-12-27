@@ -40,6 +40,21 @@ services:
     networks:
       - platform_net
 
+  typesense:
+    image: typesense/typesense:27.1 # fixed version
+    environment:
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY}
+    restart: on-failure
+    ports:
+      - '8108:8108'
+    env_file:
+      - .env
+    volumes:
+      - /var/lib/typesense-data:/data
+    command: '--data-dir /data --api-key=${TYPESENSE_API_KEY}'
+    networks:
+      - platform_net
+
   api-gateway:
     image: asia-southeast1-docker.pkg.dev/pito-platform-418503/pito-platform/api-gateway:stg
     container_name: api-gateway
@@ -65,6 +80,8 @@ services:
     container_name: notification-service
     env_file:
       - .env
+    ports:
+      - '5006:5006'
     networks:
       - platform_net
 

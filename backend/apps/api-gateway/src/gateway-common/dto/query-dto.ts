@@ -18,7 +18,7 @@ export type FilterOperator =
   | 'lte'
   | 'like'
   | 'ilike'
-  | 'is' // is null
+  | 'is' // checking for (null, not null, true, false)
   | 'in' // in array
   | 'cs' // contains
   | 'cd' // contained

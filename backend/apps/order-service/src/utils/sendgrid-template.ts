@@ -1,6 +1,6 @@
 import { OrderStatus } from '@app/common/types/proto/common';
 
-export function getOrderTemplateIds() {
+export function getOrderStatusTemplateIds() {
   return {
     [OrderStatus.COMPLETED]: process.env.SENDGRID_ORDER_COMPLETED_TEMPLATE_ID!,
     [OrderStatus.DELIVERING]: process.env.SENDGRID_ORDER_DELIVERING_TEMPLATE_ID!,

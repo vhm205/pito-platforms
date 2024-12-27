@@ -1,52 +1,26 @@
-import { FilterOption } from '@app/common';
-import { PackagingType, ItemStatus, UnitType } from '@app/common/enums/item';
-import { NullableType } from '@app/common/types/common';
+import { Metadata, PartnerItem as BasePartnerItem, PartnerOptionsChoices } from '@app/common';
 
-export interface Choice {
+export class PartnerItem
+  implements Omit<BasePartnerItem, 'cuisineTypes' | 'occasionEvents' | 'specialDietaries'>
+{
   id: string;
   name: string;
-  price?: number | null;
-}
-
-export interface OptionChoices {
-  id: string;
-  name: string;
-  description?: string;
-  choices: Choice[];
-  isRequired: boolean;
-  maxChoices: number;
-  allowMultipleSelection: boolean;
-  allowQuantitySelection: boolean;
-}
-
-export interface Metadata {
-  hasNotes: boolean;
-  hasUtensils: boolean;
-  rejectionReason?: string;
-}
-
-export class PartnerItem {
-  id: string;
-  storeId: string;
-  menuId: string;
+  basePrice: number;
+  description: string;
+  cuisineTypes: number[];
+  occasionEvents: number[];
+  specialDietaries: number[];
   menuCategory: string;
-  slug: string;
-  cateringPackages: number[];
-  cuisineTypes?: FilterOption[];
-  specialDietaries?: FilterOption[];
-  occasionEvents?: FilterOption[];
-  basePrice: NullableType<number>;
-  name: string;
-  description: NullableType<string>;
-  images?: string[];
+  images: string[];
   minQuantity: number;
+  packagingType: string;
+  packagingUnit: string;
   participant: number;
   preparationTime: number;
-  status: ItemStatus;
-  packagingType: PackagingType;
-  packagingUnit: UnitType;
-  optionsChoices: OptionChoices[];
-  metadata: Metadata;
-  createdAt: Date;
-  updatedAt: NullableType<Date>;
+  storeId: string;
+  optionsChoices: PartnerOptionsChoices[];
+  metadata: Metadata | undefined;
+  slug: string;
+  status: string;
+  orderDeadlineAt?: string | undefined;
 }

@@ -139,3 +139,5 @@ dist
 .idea
 
 .docker-data
+
+/infrastructure/typesense-data/*

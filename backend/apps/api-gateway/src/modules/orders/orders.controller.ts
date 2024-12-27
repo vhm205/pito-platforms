@@ -1,9 +1,12 @@
 import { DEFAULT_PAGE_NUMBER, UpdateOrderStatusRequest, User } from '@app/common';
 import { RoleType } from '@gateway/constants';
 import { ApiPageWrapperResponse, AuthUser } from '@gateway/decorators';
+import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
-import { emptyPaginationResponse } from '@gateway/utils/common';
+import { OrderDetailDto } from '@gateway/modules/orders/dto/order-detail.dto';
+import { OperatorOrderService } from '@gateway/modules/orders/operator-order.service';
+import { emptyPaginationResponse, isValidUUID } from '@gateway/utils/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   Controller,
@@ -15,9 +18,12 @@ import {
   Put,
   Body,
   Query,
+  NotFoundException,
+  HttpException,
 } from '@nestjs/common';
 import type { RedisStore } from 'cache-manager-redis-yet';
 import { plainToInstance } from 'class-transformer';
+import { omit } from 'lodash';
 
 import { Auth } from '../../decorators/http.decorator';
 
@@ -30,6 +36,7 @@ import { transformCustomer } from './utils/transformer';
 export class OrdersController {
   constructor(
     private readonly service: OrdersService,
+    private readonly operatorOrderService: OperatorOrderService,
     @Inject(CACHE_MANAGER) private cacheManager: RedisStore,
   ) {}
 
@@ -101,5 +108,52 @@ export class OrdersController {
   @HttpCode(HttpStatus.OK)
   findOne(@Param('id') id: string) {
     return this.service.getOrderDetail(id);
+  }
+
+  @Get('/bill-of-lading/:orderIdentifier')
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: OrderDetailDto })
+  async getOrderDetails(@Param('orderIdentifier') identifier: string) {
+    try {
+      const queryParam = isValidUUID(identifier) ? { id: identifier } : { orderCode: identifier };
+      const { order } = await this.operatorOrderService.getOrderDetails(queryParam);
+
+      if (!order) {
+        throw new NotFoundException('We could not find the order with the provided identifier');
+      }
+
+      const store = await this.operatorOrderService
+        .getStoreById(order.storeId)
+        .then(({ store }) => store);
+
+      const mergedOrder = Object.assign(order, {
+        store,
+        status: order.operatorStatusCode,
+        customer: transformCustomer(order),
+      });
+
+      const transformedOrder = plainToInstance(OrderDetailDto, mergedOrder, {
+        excludeExtraneousValues: true,
+      });
+
+      const sanitizedOrder = omit(transformedOrder, [
+        'totalPrice',
+        'subTotalPrice',
+        'shippingFee',
+        'discountAmount',
+        'discountShippingFee',
+        'operationNotes',
+        'statusHistory',
+        'cancelReason',
+        'status',
+      ]);
+
+      return sanitizedOrder;
+    } catch (error) {
+      throw new HttpException(
+        `Failed to fetch order details: ${(error as Error).message}`,
+        (error as any).status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
