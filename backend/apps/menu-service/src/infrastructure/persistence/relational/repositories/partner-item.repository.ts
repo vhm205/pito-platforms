@@ -97,6 +97,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
             price: choice?.price,
           })),
         })) ?? [],
+      orderDeadlineAt: updateItemRequest?.orderDeadlineAt || null,
     });
 
     return PartnerItemMapper.toDomain(updatedItem);

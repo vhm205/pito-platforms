@@ -330,10 +330,7 @@ export class MenuService {
                 price: choice?.price,
               })),
             })) ?? []),
-        orderDeadlineAt:
-          (updateItemRequest?.orderDeadlineAt as unknown as string | undefined) ??
-          (item.orderDeadlineAt as unknown as string | undefined) ??
-          undefined,
+        orderDeadlineAt: updateItemRequest?.orderDeadlineAt,
       },
     });
 
