@@ -1,4 +1,5 @@
 import { DEFAULT_PAGE_NUMBER } from '@app/common';
+import { OrderStatus } from '@app/common/types/proto/common';
 import { RoleType } from '@gateway/constants';
 import { Auth, AuthUser } from '@gateway/decorators';
 import { ApiPageWrapperResponse } from '@gateway/decorators';
@@ -20,7 +21,7 @@ import {
 } from '@nestjs/common';
 import { ApiBody } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import { get, identity, isEmpty, map, pickBy } from 'lodash';
+import { find, get, identity, isEmpty, map, pickBy } from 'lodash';
 
 import { AuthenticatedUser } from '../auth/auth-user.interface';
 
@@ -239,6 +240,19 @@ export class OperatorOrdersController {
   @Auth([RoleType.OPERATOR])
   @ApiPageWrapperResponse({ type: RefundOrderListingDto })
   async getRefundOrders(@Query() query: RefundOrderQueryDto) {
+    if (!find(query.filters, { column: 'refundStatus' })) {
+      query.filters.push({
+        column: 'refundStatus',
+        operator: 'is',
+        value: 'not null',
+      });
+    }
+    query.filters.push({
+      column: 'statusCode',
+      operator: 'in',
+      value: [OrderStatus.CANCELED, OrderStatus.REJECTED, OrderStatus.UNCONFIRMED].join(','),
+    });
+
     const { orders, totalCount } = await this.service.getListRefundOrders(query);
     const pageMeta = new PageMetaDto({
       pageOptions: { page: query.page, pageSize: query.pageSize },

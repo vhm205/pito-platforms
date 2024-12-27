@@ -10,7 +10,7 @@ import {
   ORDERS_SERVICE_NAME,
   OrdersServiceClient,
 } from '@app/common';
-import { FilterRule, OrderStatus } from '@app/common/types/proto/common';
+import { FilterRule } from '@app/common/types/proto/common';
 import { constructFullName } from '@gateway/utils/common';
 import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -150,19 +150,6 @@ export class OperatorOrderService implements OnModuleInit {
   }
 
   async getListRefundOrders(query: RefundOrderQueryDto) {
-    query.filters.push(
-      {
-        column: 'statusCode',
-        operator: 'in',
-        value: [OrderStatus.CANCELED, OrderStatus.REJECTED, OrderStatus.UNCONFIRMED].join(','),
-      },
-      {
-        column: 'refundStatus',
-        operator: 'is',
-        value: 'not null',
-      },
-    );
-
     const { orders, totalCount } = await firstValueFrom(
       this.orderServiceClient.findOrders({
         filters: query.filters,
