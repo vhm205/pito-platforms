@@ -25,6 +25,7 @@ export class MenusService {
           price: choice?.price as number,
         })),
       })),
+      orderDeadlineAt: payload?.orderDeadlineAt as string,
     });
   }
 
@@ -44,6 +45,7 @@ export class MenusService {
             price: choice?.price as number,
           })),
         })),
+        orderDeadlineAt: payload?.orderDeadlineAt as string,
       },
     });
   }
