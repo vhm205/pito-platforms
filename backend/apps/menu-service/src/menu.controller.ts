@@ -1,4 +1,6 @@
 import {
+  CalculateDistanceRequest,
+  CalculateDistanceResponse,
   FindItemsRequest,
   FindStoreRequest,
   FindStoreResponse,
@@ -102,5 +104,10 @@ export class MenuController implements MenusServiceController {
       items,
       totalCount,
     };
+  }
+
+  async calculateDistance(request: CalculateDistanceRequest): Promise<CalculateDistanceResponse> {
+    const distance = await this.storeService.calculateDistance(request);
+    return { distance };
   }
 }

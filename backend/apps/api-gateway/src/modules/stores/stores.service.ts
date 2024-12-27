@@ -1,4 +1,5 @@
 import {
+  CalculateDistanceRequest,
   GetItemInStoreRequest,
   GetStoreByFilterRequest,
   MENU_SERVICE,
@@ -29,6 +30,11 @@ export class StoresService {
 
   getFilterOptions(keyword: string) {
     const source$ = this.menuService.getFilterOptions({ keyword }).pipe(timeout(2000));
+    return firstValueFrom(source$);
+  }
+
+  async calculateDistance(params: CalculateDistanceRequest) {
+    const source$ = this.menuService.calculateDistance(params).pipe(timeout(2000));
     return firstValueFrom(source$);
   }
 }

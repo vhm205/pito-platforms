@@ -1,11 +1,16 @@
 import { GetItemInStoreResult, ItemFilter, SearchStoreResult, StoreFilter } from '@app/common';
 import { ApiPageWrapperResponse } from '@gateway/decorators';
+import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
 import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 
+import {
+  CalculateDistanceRequestDto,
+  CalculateDistanceResponseDto,
+} from './dtos/calculate-distance.dto';
 import { GetItemInStoreRequestDto, GetItemInStoreResponseDto } from './dtos/get-items-in-store.dto';
 import { SearchStoreRequestDto, SearchStoreResponseDto } from './dtos/search-store.dto';
 import { StoresService } from './stores.service';
@@ -115,6 +120,14 @@ export class StoresController {
   @HttpCode(HttpStatus.OK)
   async getFilterOptions(@Query('keyword') keyword: string) {
     const result = await this.storeService.getFilterOptions(keyword);
+    return result;
+  }
+
+  @Get('calculate-distance')
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: CalculateDistanceResponseDto })
+  async calculateDistance(@Query() query: CalculateDistanceRequestDto) {
+    const result = await this.storeService.calculateDistance(query);
     return result;
   }
 }

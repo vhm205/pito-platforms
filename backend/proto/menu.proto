@@ -14,6 +14,7 @@ service MenusService {
   rpc FindStores(FindStoresRequest) returns (FindStoresResponse);
   rpc FindStore(FindStoreRequest) returns (FindStoreResponse);
   rpc FindItemsWithPagination (FindItemsRequest) returns (FindItemsResponse);
+  rpc CalculateDistance (CalculateDistanceRequest) returns (CalculateDistanceResponse);
 }
 
 // [START] Find stores by filter
@@ -384,4 +385,14 @@ message FindItemsRequest {
 message FindItemsResponse {
   repeated PartnerItem items = 1;
   int32 total_count = 2;
+}
+
+message CalculateDistanceRequest {
+  float latitude = 1;
+  float longitude = 2;
+  string geolocation = 3;
+}
+
+message CalculateDistanceResponse {
+  float distance = 1;
 }

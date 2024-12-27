@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8'
 services:
   # postgres:
   #   image: postgres:17
@@ -42,8 +42,6 @@ services:
 
   typesense:
     image: typesense/typesense:27.1 # fixed version
-    environment:
-      TYPESENSE_API_KEY: 6248676d48e26d29c5c0e7bd3cf35822e7dc7f75ca45153959b6e399bf399ab2
     restart: on-failure
     ports:
       - '8108:8108'
@@ -63,4 +61,4 @@ volumes:
 
 networks:
   platform_net:
-    external: true
+    driver: bridge

@@ -377,6 +377,16 @@ export interface FindItemsResponse {
   totalCount: number;
 }
 
+export interface CalculateDistanceRequest {
+  latitude: number;
+  longitude: number;
+  geolocation: string;
+}
+
+export interface CalculateDistanceResponse {
+  distance: number;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -404,6 +414,8 @@ export interface MenusServiceClient {
   findStore(request: FindStoreRequest): Observable<FindStoreResponse>;
 
   findItemsWithPagination(request: FindItemsRequest): Observable<FindItemsResponse>;
+
+  calculateDistance(request: CalculateDistanceRequest): Observable<CalculateDistanceResponse>;
 }
 
 export interface MenusServiceController {
@@ -444,6 +456,13 @@ export interface MenusServiceController {
   findItemsWithPagination(
     request: FindItemsRequest,
   ): Promise<FindItemsResponse> | Observable<FindItemsResponse> | FindItemsResponse;
+
+  calculateDistance(
+    request: CalculateDistanceRequest,
+  ):
+    | Promise<CalculateDistanceResponse>
+    | Observable<CalculateDistanceResponse>
+    | CalculateDistanceResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -457,6 +476,7 @@ export function MenusServiceControllerMethods() {
       'findStores',
       'findStore',
       'findItemsWithPagination',
+      'calculateDistance',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
