@@ -19,23 +19,24 @@ service OrdersService {
 
 
 message UpdateOrderRequest {
-  message OrderNote {
-    string note = 1;      // The note of the operation
-    string createdAt = 2; // String format of the timestampz
-    string createdBy = 3; // The name of the user who created the note
+  message OperatorNoteEntry {
+    string description = 1;      // The note of the operation
+    string timestamp = 2; // String format of the timestampz
+    string user = 3; // The name of the user who created the note
   }
 
-  message StatusHistory {
-    int32 previousStatus = 1;  // The previous status of the order
-    int32 newStatus = 2;       // The new status of the order
-    string changedAt = 3;       // String format of the timestampzs
-    string changedBy = 4;       // The name of the user who changed the status
-    string reason = 5;          // The reason for the status change
+  message ChangeLogEntry {
+    string user = 1; // The name of the user who created the note
+    string timestamp = 2; // String format of the timestampz
+    string changeType = 3; // The type of the change
+    optional string oldValue = 4; // The old value
+    optional string newValue = 5; // The new value
+    optional string description = 6; // The description of the change
   }
 
   string id = 1;
-  repeated OrderNote operation_notes = 2;
-  repeated StatusHistory status_history = 3;
+  repeated OperatorNoteEntry operation_notes = 2;
+  repeated ChangeLogEntry change_logs = 3;
   oneof extra_fields {
     int32 status_code = 4;
     int32 operator_status_code = 5;

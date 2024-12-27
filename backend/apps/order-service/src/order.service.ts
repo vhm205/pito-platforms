@@ -123,8 +123,8 @@ export class OrderService {
     if (request.operatorStatusCode) order.operatorStatusCode = request.operatorStatusCode;
     if (request.operationNotes)
       order.metadata = assign(order.metadata, { operationNotes: request.operationNotes });
-    if (request.statusHistory)
-      order.metadata = assign(order.metadata, { statusHistory: request.statusHistory });
+    if (request.changeLogs)
+      order.metadata = assign(order.metadata, { changeLogs: request.changeLogs });
     if (isNumber(request.refundStatus)) order.refundStatus = request.refundStatus;
 
     order.updatedAt = new Date();

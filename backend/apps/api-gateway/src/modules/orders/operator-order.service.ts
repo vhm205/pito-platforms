@@ -19,7 +19,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { AuthenticatedUser } from '../auth/auth-user.interface';
 
-import { OrderNoteDto } from './dto/common.dto';
+import { ChangeLogEntry, ChangeLogType, OperatorNoteEntry } from './dto/common.dto';
 import { OperatorUpdateOrderDto } from './dto/operator-update-order.dto';
 import {
   OperatorQueryOrderDto,
@@ -101,35 +101,40 @@ export class OperatorOrderService implements OnModuleInit {
     updateOrderPayload: OperatorUpdateOrderDto;
   }) {
     const { user, order, updateOrderPayload } = args;
+    const currentTimestamp = new Date().toISOString();
     const operatorDisplayName = constructFullName(user.firstName, user.lastName) || user.email;
-    const operationNotes: OrderNoteDto[] = get(order, 'metadata.operationNotes', []);
-    const statusHistory = get(order, 'metadata.statusHistory', []);
+
+    const operationNotes: OperatorNoteEntry[] = get(order, 'metadata.operationNotes', []);
+    const changeLogs: ChangeLogEntry[] = get(order, 'metadata.changeLogs', []);
 
     if (updateOrderPayload.operationNote) {
       operationNotes.push({
-        note: updateOrderPayload.operationNote,
-        createdBy: operatorDisplayName,
-        createdAt: new Date().toISOString(),
+        user: operatorDisplayName,
+        description: updateOrderPayload.operationNote,
+        timestamp: currentTimestamp,
       });
     }
 
     if (updateOrderPayload.status) {
-      statusHistory.push({
-        previousStatus: order.operatorStatusCode,
-        newStatus: updateOrderPayload.status,
-        changedAt: new Date().toISOString(),
-        changedBy: operatorDisplayName,
+      changeLogs.push({
+        user: operatorDisplayName,
+        changeType: ChangeLogType.STATUS_UPDATE,
+        oldValue: order.operatorStatusCode.toString(),
+        newValue: updateOrderPayload.status.toString(),
+        timestamp: currentTimestamp,
       });
-
       order.operatorStatusCode = updateOrderPayload.status;
       order.statusCode = updateOrderPayload.status;
     }
 
     if (updateOrderPayload.refundStatus) {
-      operationNotes.push({
-        note: `Đã xác nhận hoàn tiền cho khách hàng`,
-        createdBy: operatorDisplayName,
-        createdAt: new Date().toISOString(),
+      changeLogs.push({
+        user: operatorDisplayName,
+        changeType: ChangeLogType.REFUND_STATUS_UPDATE,
+        oldValue: order.refundStatus.toString(),
+        newValue: updateOrderPayload.refundStatus.toString(),
+        description: `Đã xác nhận hoàn tiền cho khách hàng`,
+        timestamp: currentTimestamp,
       });
       order.refundStatus = updateOrderPayload.refundStatus;
     }
@@ -139,7 +144,7 @@ export class OperatorOrderService implements OnModuleInit {
       operatorStatusCode: order.operatorStatusCode,
       statusCode: order.statusCode,
       operationNotes,
-      statusHistory,
+      changeLogs,
       refundStatus: order.refundStatus,
     });
   }

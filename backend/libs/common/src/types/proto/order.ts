@@ -16,33 +16,35 @@ export const protobufPackage = 'order';
 
 export interface UpdateOrderRequest {
   id: string;
-  operationNotes: UpdateOrderRequest_OrderNote[];
-  statusHistory: UpdateOrderRequest_StatusHistory[];
+  operationNotes: UpdateOrderRequest_OperatorNoteEntry[];
+  changeLogs: UpdateOrderRequest_ChangeLogEntry[];
   statusCode?: number | undefined;
   operatorStatusCode?: number | undefined;
   refundStatus?: number | undefined;
 }
 
-export interface UpdateOrderRequest_OrderNote {
+export interface UpdateOrderRequest_OperatorNoteEntry {
   /** The note of the operation */
-  note: string;
+  description: string;
   /** String format of the timestampz */
-  createdAt: string;
+  timestamp: string;
   /** The name of the user who created the note */
-  createdBy: string;
+  user: string;
 }
 
-export interface UpdateOrderRequest_StatusHistory {
-  /** The previous status of the order */
-  previousStatus: number;
-  /** The new status of the order */
-  newStatus: number;
-  /** String format of the timestampzs */
-  changedAt: string;
-  /** The name of the user who changed the status */
-  changedBy: string;
-  /** The reason for the status change */
-  reason: string;
+export interface UpdateOrderRequest_ChangeLogEntry {
+  /** The name of the user who created the note */
+  user: string;
+  /** String format of the timestampz */
+  timestamp: string;
+  /** The type of the change */
+  changeType: string;
+  /** The old value */
+  oldValue?: string | undefined;
+  /** The new value */
+  newValue?: string | undefined;
+  /** The description of the change */
+  description?: string | undefined;
 }
 
 /** Request message for UpdateOrderStatus */
