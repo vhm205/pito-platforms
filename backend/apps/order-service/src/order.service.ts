@@ -119,15 +119,20 @@ export class OrderService {
       });
     }
 
+    const currentDateTime = new Date();
+
     if (request.statusCode) order.statusCode = request.statusCode;
     if (request.operatorStatusCode) order.operatorStatusCode = request.operatorStatusCode;
     if (request.operationNotes)
       order.metadata = assign(order.metadata, { operationNotes: request.operationNotes });
     if (request.changeLogs)
       order.metadata = assign(order.metadata, { changeLogs: request.changeLogs });
-    if (isNumber(request.refundStatus)) order.refundStatus = request.refundStatus;
+    if (isNumber(request.refundStatus)) {
+      order.refundStatus = request.refundStatus;
+      if (order.refundStatus) order.refundedAt = currentDateTime; // if refundStatus is equal to 1
+    }
 
-    order.updatedAt = new Date();
+    order.updatedAt = currentDateTime;
 
     return this.orderRepository.updateOrder(order);
   }

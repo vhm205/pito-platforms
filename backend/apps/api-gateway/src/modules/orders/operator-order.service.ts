@@ -150,11 +150,18 @@ export class OperatorOrderService implements OnModuleInit {
   }
 
   async getListRefundOrders(query: RefundOrderQueryDto) {
-    query.filters.push({
-      column: 'statusCode',
-      operator: 'in',
-      value: [OrderStatus.CANCELED, OrderStatus.REJECTED, OrderStatus.UNCONFIRMED].join(','),
-    });
+    query.filters.push(
+      {
+        column: 'statusCode',
+        operator: 'in',
+        value: [OrderStatus.CANCELED, OrderStatus.REJECTED, OrderStatus.UNCONFIRMED].join(','),
+      },
+      {
+        column: 'refundStatus',
+        operator: 'is',
+        value: 'not null',
+      },
+    );
 
     const { orders, totalCount } = await firstValueFrom(
       this.orderServiceClient.findOrders({
