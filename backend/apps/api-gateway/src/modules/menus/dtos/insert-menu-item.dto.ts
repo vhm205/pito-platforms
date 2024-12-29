@@ -2,6 +2,7 @@ import { FilterOption, PartnerItem } from '@app/common';
 import { ItemStatus } from '@app/common/enums/item';
 import { InsertItemSchema } from '@gateway/modules/menus/schemas/item.schema';
 import { ApiProperty } from '@nestjs/swagger';
+import { Expose, Transform } from 'class-transformer';
 import { z } from 'zod';
 
 export type InsertItemDto = z.infer<typeof InsertItemSchema>;
@@ -12,6 +13,7 @@ export class PartnerItemDto implements PartnerItem {
     type: 'string',
     example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
   })
+  @Expose()
   id: string;
 
   @ApiProperty({
@@ -19,6 +21,7 @@ export class PartnerItemDto implements PartnerItem {
     type: 'string',
     example: 'Example Name',
   })
+  @Expose()
   name: string;
 
   @ApiProperty({
@@ -26,6 +29,7 @@ export class PartnerItemDto implements PartnerItem {
     type: 'number',
     example: 100,
   })
+  @Expose()
   basePrice: number;
 
   @ApiProperty({
@@ -33,20 +37,23 @@ export class PartnerItemDto implements PartnerItem {
     type: 'string',
     example: 'Example Description',
   })
+  @Expose()
   description: string;
 
-  @ApiProperty({
-    description: 'Menu ID',
-    type: 'string',
-    example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
-  })
-  menuId: string;
+  // @ApiProperty({
+  //   description: 'Menu ID',
+  //   type: 'string',
+  //   example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
+  // })
+  // @Expose()
+  // menuId: string;
 
   @ApiProperty({
     description: 'Menu category',
     type: 'string',
     example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
   })
+  @Expose()
   menuCategory: string;
 
   @ApiProperty({
@@ -54,6 +61,7 @@ export class PartnerItemDto implements PartnerItem {
     type: 'string',
     example: 'example-slug',
   })
+  @Expose()
   slug: string;
 
   @ApiProperty({
@@ -61,6 +69,7 @@ export class PartnerItemDto implements PartnerItem {
     type: 'string',
     example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
   })
+  @Expose()
   storeId: string;
 
   @ApiProperty({
@@ -68,6 +77,8 @@ export class PartnerItemDto implements PartnerItem {
     type: 'number',
     example: [1, 2, 3],
   })
+  @Expose()
+  @Transform(({ value }) => value ?? [])
   cateringPackages: number[];
 
   @ApiProperty({
@@ -78,6 +89,8 @@ export class PartnerItemDto implements PartnerItem {
       { id: 2, name: 'Chinese' },
     ],
   })
+  @Expose()
+  @Transform(({ value }) => value ?? [])
   cuisineTypes: FilterOption[];
 
   @ApiProperty({
@@ -88,6 +101,8 @@ export class PartnerItemDto implements PartnerItem {
       { id: 2, name: 'Vegan' },
     ],
   })
+  @Expose()
+  @Transform(({ value }) => value ?? [])
   specialDietaries: FilterOption[];
 
   @ApiProperty({
@@ -98,6 +113,8 @@ export class PartnerItemDto implements PartnerItem {
       { id: 2, name: 'Anniversary' },
     ],
   })
+  @Expose()
+  @Transform(({ value }) => value ?? [])
   occasionEvents: FilterOption[];
 
   @ApiProperty({
@@ -105,6 +122,8 @@ export class PartnerItemDto implements PartnerItem {
     type: 'array',
     example: ['https://example.com/image1.jpg'],
   })
+  @Expose()
+  @Transform(({ value }) => value ?? [])
   images: string[];
 
   @ApiProperty({
@@ -112,6 +131,7 @@ export class PartnerItemDto implements PartnerItem {
     type: 'number',
     example: 1,
   })
+  @Expose()
   minQuantity: number;
 
   @ApiProperty({
@@ -119,6 +139,7 @@ export class PartnerItemDto implements PartnerItem {
     type: 'number',
     example: 1,
   })
+  @Expose()
   participant: number;
 
   @ApiProperty({
@@ -126,6 +147,7 @@ export class PartnerItemDto implements PartnerItem {
     type: 'number',
     example: 30,
   })
+  @Expose()
   preparationTime: number;
 
   @ApiProperty({
@@ -133,6 +155,7 @@ export class PartnerItemDto implements PartnerItem {
     type: 'string',
     example: 'PAPER',
   })
+  @Expose()
   packagingType: string;
 
   @ApiProperty({
@@ -140,6 +163,7 @@ export class PartnerItemDto implements PartnerItem {
     type: 'string',
     example: 'BOTTLE',
   })
+  @Expose()
   packagingUnit: string;
 
   @ApiProperty({
@@ -147,6 +171,8 @@ export class PartnerItemDto implements PartnerItem {
     type: 'array',
     example: [],
   })
+  @Expose()
+  @Transform(({ value }) => value ?? [])
   optionsChoices: any[];
 
   @ApiProperty({
@@ -154,6 +180,7 @@ export class PartnerItemDto implements PartnerItem {
     type: 'string',
     example: 'DRAFT',
   })
+  @Expose()
   status: ItemStatus;
 
   @ApiProperty({
@@ -166,6 +193,7 @@ export class PartnerItemDto implements PartnerItem {
     },
     additionalProperties: true,
   })
+  @Expose()
   metadata: {
     hasNotes: boolean;
     hasUtensils: boolean;
@@ -177,5 +205,6 @@ export class PartnerItemDto implements PartnerItem {
     type: String,
     example: '2021-01-01T00:00:00.000Z',
   })
+  @Expose()
   orderDeadlineAt: string;
 }

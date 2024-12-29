@@ -6,7 +6,10 @@ import { MenusService } from '@gateway/modules/menus/menus.service';
 import { DraftBypassPipe } from '@gateway/modules/menus/pipes/draft-bypass.pipe';
 import { InsertItemSchema, UpdateItemSchema } from '@gateway/modules/menus/schemas/item.schema';
 // import { ZodValidationPipe } from '@gateway/pipes/zod-validation.pipe';
-import { Body, Controller, Param, Post, Put } from '@nestjs/common';
+import { isValidUUID } from '@gateway/utils/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import { omit } from 'lodash';
 
 import { Auth } from '../../decorators/http.decorator';
 
@@ -42,5 +45,17 @@ export class MenusController {
     });
 
     return updatedItem;
+  }
+
+  @Get('items/:identifier')
+  @Auth([RoleType.PARTNER])
+  @ApiWrapperResponse({ type: PartnerItemDto })
+  async getMenuItem(@Param('identifier') identifier: string) {
+    const filterCriteria = isValidUUID(identifier) ? { id: identifier } : { slug: identifier };
+    const item = await this.menusService.findItem(filterCriteria);
+    const itemDto = plainToInstance(PartnerItemDto, item, { excludeExtraneousValues: true });
+    const sanitizedItem = omit(itemDto, ['menuCategory', 'storeId']);
+
+    return sanitizedItem;
   }
 }

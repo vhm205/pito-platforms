@@ -1,7 +1,8 @@
-import { MENU_SERVICE, MENUS_SERVICE_NAME, MenusServiceClient } from '@app/common';
+import { FindItemRequest, MENU_SERVICE, MENUS_SERVICE_NAME, MenusServiceClient } from '@app/common';
 import { InsertItemDto } from '@gateway/modules/menus/dtos/insert-menu-item.dto';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class MenusService {
@@ -48,5 +49,9 @@ export class MenusService {
         orderDeadlineAt: payload?.orderDeadlineAt as string,
       },
     });
+  }
+
+  async findItem({ id, slug }: Pick<FindItemRequest, 'id' | 'slug'>) {
+    return firstValueFrom(this.menusService.findItem({ id, slug }));
   }
 }

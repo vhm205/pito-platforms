@@ -257,6 +257,7 @@ export interface PartnerItem {
   slug: string;
   status: string;
   orderDeadlineAt?: string | undefined;
+  cateringPackages: number[];
 }
 
 export interface FindStoresRequest {
@@ -387,6 +388,11 @@ export interface CalculateDistanceResponse {
   distance: number;
 }
 
+export interface FindItemRequest {
+  id?: string | undefined;
+  slug?: string | undefined;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -399,26 +405,36 @@ wrappers['.google.protobuf.Timestamp'] = {
 } as any;
 
 export interface MenusServiceClient {
+  findStores(request: FindStoresRequest): Observable<FindStoresResponse>;
+
+  findStore(request: FindStoreRequest): Observable<FindStoreResponse>;
+
   findStoresByFilter(request: GetStoreByFilterRequest): Observable<GetStoreByFilterResponse>;
 
+  calculateDistance(request: CalculateDistanceRequest): Observable<CalculateDistanceResponse>;
+
   findItemsInStore(request: GetItemInStoreRequest): Observable<GetItemInStoreResponse>;
+
+  findItemsWithPagination(request: FindItemsRequest): Observable<FindItemsResponse>;
+
+  findItem(request: FindItemRequest): Observable<PartnerItem>;
 
   getFilterOptions(request: GetFilterOptionRequest): Observable<GetFilterOptionResponse>;
 
   insertMenuItem(request: PartnerItemRequest): Observable<PartnerItem>;
 
   updateMenuItem(request: UpdateItemRequest): Observable<PartnerItem>;
-
-  findStores(request: FindStoresRequest): Observable<FindStoresResponse>;
-
-  findStore(request: FindStoreRequest): Observable<FindStoreResponse>;
-
-  findItemsWithPagination(request: FindItemsRequest): Observable<FindItemsResponse>;
-
-  calculateDistance(request: CalculateDistanceRequest): Observable<CalculateDistanceResponse>;
 }
 
 export interface MenusServiceController {
+  findStores(
+    request: FindStoresRequest,
+  ): Promise<FindStoresResponse> | Observable<FindStoresResponse> | FindStoresResponse;
+
+  findStore(
+    request: FindStoreRequest,
+  ): Promise<FindStoreResponse> | Observable<FindStoreResponse> | FindStoreResponse;
+
   findStoresByFilter(
     request: GetStoreByFilterRequest,
   ):
@@ -426,9 +442,22 @@ export interface MenusServiceController {
     | Observable<GetStoreByFilterResponse>
     | GetStoreByFilterResponse;
 
+  calculateDistance(
+    request: CalculateDistanceRequest,
+  ):
+    | Promise<CalculateDistanceResponse>
+    | Observable<CalculateDistanceResponse>
+    | CalculateDistanceResponse;
+
   findItemsInStore(
     request: GetItemInStoreRequest,
   ): Promise<GetItemInStoreResponse> | Observable<GetItemInStoreResponse> | GetItemInStoreResponse;
+
+  findItemsWithPagination(
+    request: FindItemsRequest,
+  ): Promise<FindItemsResponse> | Observable<FindItemsResponse> | FindItemsResponse;
+
+  findItem(request: FindItemRequest): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
 
   getFilterOptions(
     request: GetFilterOptionRequest,
@@ -444,39 +473,21 @@ export interface MenusServiceController {
   updateMenuItem(
     request: UpdateItemRequest,
   ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
-
-  findStores(
-    request: FindStoresRequest,
-  ): Promise<FindStoresResponse> | Observable<FindStoresResponse> | FindStoresResponse;
-
-  findStore(
-    request: FindStoreRequest,
-  ): Promise<FindStoreResponse> | Observable<FindStoreResponse> | FindStoreResponse;
-
-  findItemsWithPagination(
-    request: FindItemsRequest,
-  ): Promise<FindItemsResponse> | Observable<FindItemsResponse> | FindItemsResponse;
-
-  calculateDistance(
-    request: CalculateDistanceRequest,
-  ):
-    | Promise<CalculateDistanceResponse>
-    | Observable<CalculateDistanceResponse>
-    | CalculateDistanceResponse;
 }
 
 export function MenusServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
+      'findStores',
+      'findStore',
       'findStoresByFilter',
+      'calculateDistance',
       'findItemsInStore',
+      'findItemsWithPagination',
+      'findItem',
       'getFilterOptions',
       'insertMenuItem',
       'updateMenuItem',
-      'findStores',
-      'findStore',
-      'findItemsWithPagination',
-      'calculateDistance',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

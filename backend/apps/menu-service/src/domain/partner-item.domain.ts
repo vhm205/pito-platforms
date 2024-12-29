@@ -10,6 +10,7 @@ export class PartnerItem
   cuisineTypes: number[];
   occasionEvents: number[];
   specialDietaries: number[];
+  cateringPackages: number[];
   menuCategory: string;
   images: string[];
   minQuantity: number;

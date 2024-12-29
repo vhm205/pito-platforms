@@ -6,15 +6,19 @@ import "google/protobuf/timestamp.proto";
 import "common.proto";
 
 service MenusService {
+  rpc FindStores (FindStoresRequest) returns (FindStoresResponse);
+  rpc FindStore (FindStoreRequest) returns (FindStoreResponse);
   rpc FindStoresByFilter (GetStoreByFilterRequest) returns (GetStoreByFilterResponse);
+  rpc CalculateDistance (CalculateDistanceRequest) returns (CalculateDistanceResponse);
+
   rpc FindItemsInStore (GetItemInStoreRequest) returns (GetItemInStoreResponse);
+  rpc FindItemsWithPagination (FindItemsRequest) returns (FindItemsResponse);
+  rpc FindItem (FindItemRequest) returns (PartnerItem);
+  
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
+
   rpc InsertMenuItem (PartnerItemRequest) returns (PartnerItem);
   rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
-  rpc FindStores(FindStoresRequest) returns (FindStoresResponse);
-  rpc FindStore(FindStoreRequest) returns (FindStoreResponse);
-  rpc FindItemsWithPagination (FindItemsRequest) returns (FindItemsResponse);
-  rpc CalculateDistance (CalculateDistanceRequest) returns (CalculateDistanceResponse);
 }
 
 // [START] Find stores by filter
@@ -261,6 +265,7 @@ message PartnerItem {
   string slug = 18;
   string status = 19;
   optional string order_deadline_at = 20;
+  repeated int32 catering_packages = 21;
 }
 
 message FindStoresRequest {
@@ -395,4 +400,11 @@ message CalculateDistanceRequest {
 
 message CalculateDistanceResponse {
   float distance = 1;
+}
+
+message FindItemRequest {
+  oneof filter {
+    string id = 1;
+    string slug = 2;
+  }
 }

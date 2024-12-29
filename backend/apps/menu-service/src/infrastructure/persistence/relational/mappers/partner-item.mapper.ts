@@ -1,4 +1,4 @@
-import { getImageUrl } from '@app/common';
+import { getPublicImageURL } from '@app/common';
 import { PartnerItem } from 'apps/menu-service/src/domain/partner-item.domain';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 
@@ -28,6 +28,7 @@ export class PartnerItemMapper {
       specialDietaries: [],
       occasionEvents: [],
       cuisineTypes: [],
+      cateringPackages: [],
       orderDeadlineAt: undefined,
     };
 
@@ -39,7 +40,8 @@ export class PartnerItemMapper {
     domain.basePrice = raw?.basePrice;
     domain.name = raw?.name;
     domain.description = raw?.description ?? '';
-    domain.images = raw?.images?.map(image => getImageUrl(image)) ?? [];
+    domain.images = raw?.images?.map(i => getPublicImageURL('images/product/', i)) || [];
+
     domain.minQuantity = raw?.minQuantity;
     domain.participant = raw?.participant;
     domain.preparationTime = raw?.preparationTime;
@@ -48,9 +50,10 @@ export class PartnerItemMapper {
     domain.packagingUnit = raw?.packagingUnit;
     domain.optionsChoices = [];
 
-    domain.cuisineTypes = raw?.cuisineTypes ?? [];
-    domain.occasionEvents = raw?.occasionEvents ?? [];
-    domain.specialDietaries = raw?.specialDietaries ?? [];
+    domain.cuisineTypes = raw?.cuisineTypes?.map(Number) ?? [];
+    domain.occasionEvents = raw?.occasionEvents?.map(Number) ?? [];
+    domain.specialDietaries = raw?.specialDietaries?.map(Number) ?? [];
+    domain.cateringPackages = raw?.cateringPackages?.map(Number) ?? [];
 
     if (raw?.orderDeadlineAt) {
       domain.orderDeadlineAt = raw.orderDeadlineAt as unknown as string;

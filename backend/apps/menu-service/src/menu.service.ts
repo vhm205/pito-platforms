@@ -1,4 +1,5 @@
 import {
+  FindItemRequest,
   getDateTimeWithOffset,
   ItemFilter,
   PartnerItem,
@@ -393,5 +394,35 @@ export class MenuService {
     }));
 
     return [enrichedItems, total];
+  }
+
+  async findItem(payload: FindItemRequest) {
+    const item = await this.partnerItemRepository.findOne(payload);
+
+    if (!item) {
+      throw new RpcException({
+        message: 'Menu item not found',
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    const [cuisineTypes, specialDietaries, occasionEvents] = await Promise.all([
+      item?.cuisineTypes?.length
+        ? this.itemRepository.findAllCuisineTypes(item.cuisineTypes)
+        : Promise.resolve([]),
+      item?.specialDietaries?.length
+        ? this.itemRepository.findAllSpecialDietaries(item.specialDietaries)
+        : Promise.resolve([]),
+      item?.occasionEvents?.length
+        ? this.itemRepository.findAllOccasionEvents(item.occasionEvents)
+        : Promise.resolve([]),
+    ]);
+
+    return {
+      ...item,
+      cuisineTypes,
+      specialDietaries,
+      occasionEvents,
+    };
   }
 }
