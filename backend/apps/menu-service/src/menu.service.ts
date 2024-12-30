@@ -15,7 +15,6 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
-import { PartnerStoreRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-store.repository';
 import { generateSlug } from 'apps/menu-service/src/utils/slug.util';
 import dayjs from 'dayjs';
 import { compact, keyBy, uniq } from 'lodash';
@@ -33,7 +32,6 @@ export class MenuService {
     private readonly storeRepository: StoreRepository,
     private readonly itemRepository: ItemRepository,
     private readonly partnerItemRepository: PartnerItemRepository,
-    private readonly partnerStoreRepository: PartnerStoreRepository,
   ) {}
 
   async findStoresByFilter(

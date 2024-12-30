@@ -258,6 +258,7 @@ export interface PartnerItem {
   status: string;
   orderDeadlineAt?: string | undefined;
   cateringPackages: number[];
+  menuId: string;
 }
 
 export interface FindStoresRequest {

@@ -266,6 +266,7 @@ message PartnerItem {
   string status = 19;
   optional string order_deadline_at = 20;
   repeated int32 catering_packages = 21;
+  string menu_id = 22;
 }
 
 message FindStoresRequest {

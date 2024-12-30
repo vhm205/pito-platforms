@@ -19,6 +19,7 @@ export class PartnerItem
   participant: number;
   preparationTime: number;
   storeId: string;
+  menuId: string;
   optionsChoices: PartnerOptionsChoices[];
   metadata: Metadata | undefined;
   slug: string;

@@ -7,6 +7,7 @@ export class PartnerItemMapper {
     const domain: PartnerItem = {
       id: '',
       storeId: '',
+      menuId: '',
       menuCategory: '',
       slug: '',
       basePrice: 0,
@@ -34,6 +35,7 @@ export class PartnerItemMapper {
 
     domain.id = raw?.id;
     domain.storeId = raw?.storeId;
+    domain.menuId = raw?.menuId;
     domain.menuCategory = raw?.menuCategory;
     domain.slug = raw?.slug;
 

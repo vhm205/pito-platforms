@@ -54,7 +54,7 @@ export class MenusController {
     const filterCriteria = isValidUUID(identifier) ? { id: identifier } : { slug: identifier };
     const item = await this.menusService.findItem(filterCriteria);
     const itemDto = plainToInstance(PartnerItemDto, item, { excludeExtraneousValues: true });
-    const sanitizedItem = omit(itemDto, ['menuCategory', 'storeId']);
+    const sanitizedItem = omit(itemDto, ['menuCategory', 'storeId', 'menuId']);
 
     return sanitizedItem;
   }

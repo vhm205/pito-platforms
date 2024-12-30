@@ -23,7 +23,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { isEmpty, omit } from 'lodash';
+import { isEmpty } from 'lodash';
 
 @Controller('operator')
 export class OperatorMenusController {
@@ -88,8 +88,7 @@ export class OperatorMenusController {
     const filterCriteria = isValidUUID(identifier) ? { id: identifier } : { slug: identifier };
     const item = await this.menusService.findItem(filterCriteria);
     const itemDto = plainToInstance(PartnerItemDto, item, { excludeExtraneousValues: true });
-    const sanitizedItem = omit(itemDto, ['menuCategory', 'storeId']);
 
-    return sanitizedItem;
+    return itemDto;
   }
 }
