@@ -1,4 +1,9 @@
-import { Metadata, PartnerItem as BasePartnerItem, PartnerOptionsChoices } from '@app/common';
+import {
+  Metadata,
+  PartnerItem as BasePartnerItem,
+  PartnerOptionsChoices,
+  ItemServiceSettings,
+} from '@app/common';
 
 export class PartnerItem
   implements Omit<BasePartnerItem, 'cuisineTypes' | 'occasionEvents' | 'specialDietaries'>
@@ -25,4 +30,6 @@ export class PartnerItem
   slug: string;
   status: string;
   orderDeadlineAt?: string | undefined;
+  serviceType: number;
+  serviceSettings: ItemServiceSettings | undefined;
 }

@@ -33,10 +33,17 @@ export interface RawPartnerItemOptionAndChoice {
   max_choices: number;
   allow_multiple_selection: boolean;
   allow_quantity_selection: boolean;
+  type?: string;
 }
 
 export interface RawPartnerItemMetadata {
   has_notes: boolean;
   has_utensils: boolean;
   rejection_reason?: string;
+}
+
+export interface RawItemServiceSettings {
+  setup_time: number;
+  service_time: number;
+  service_person: number;
 }

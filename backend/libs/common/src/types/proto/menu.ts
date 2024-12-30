@@ -212,6 +212,13 @@ export interface PartnerOptionsChoices {
   isRequired: boolean;
   maxChoices: number;
   choices: PartnerChoiceOfOption[];
+  type?: string | undefined;
+}
+
+export interface ItemServiceSettings {
+  setupTime: number;
+  serviceTime: number;
+  servicePerson: number;
 }
 
 export interface PartnerItemRequest {
@@ -234,6 +241,8 @@ export interface PartnerItemRequest {
   menuId?: string | undefined;
   status?: string | undefined;
   orderDeadlineAt?: string | undefined;
+  serviceType: number;
+  serviceSettings: ItemServiceSettings | undefined;
 }
 
 export interface PartnerItem {
@@ -259,6 +268,8 @@ export interface PartnerItem {
   orderDeadlineAt?: string | undefined;
   cateringPackages: number[];
   menuId: string;
+  serviceType: number;
+  serviceSettings: ItemServiceSettings | undefined;
 }
 
 export interface FindStoresRequest {
@@ -361,6 +372,8 @@ export interface UpdateItemDetailsRequest {
   status?: string | undefined;
   slug?: string | undefined;
   orderDeadlineAt?: string | undefined;
+  serviceType?: number | undefined;
+  serviceSettings?: ItemServiceSettings | undefined;
 }
 
 export interface UpdateItemRequest {

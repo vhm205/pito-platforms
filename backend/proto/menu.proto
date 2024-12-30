@@ -220,6 +220,13 @@ message PartnerOptionsChoices {
   bool is_required = 6;
   int32 max_choices = 7;
   repeated PartnerChoiceOfOption choices = 8;
+  optional string type = 9;
+}
+
+message ItemServiceSettings {
+  int32 setup_time = 1;
+  int32 service_time = 2;
+  int32 service_person = 3;
 }
 
 message PartnerItemRequest {
@@ -242,6 +249,8 @@ message PartnerItemRequest {
   optional string menuId = 17;
   optional string status = 18;
   optional string order_deadline_at = 19;
+  int32 service_type = 20;
+  ItemServiceSettings service_settings = 21;
 }
 
 message PartnerItem {
@@ -267,6 +276,8 @@ message PartnerItem {
   optional string order_deadline_at = 20;
   repeated int32 catering_packages = 21;
   string menu_id = 22;
+  int32 service_type = 23;
+  ItemServiceSettings service_settings = 24;
 }
 
 message FindStoresRequest {
@@ -375,6 +386,8 @@ message UpdateItemDetailsRequest {
   optional string status = 18;
   optional string slug = 19;
   optional string order_deadline_at = 20;
+  optional int32 service_type = 21;
+  optional ItemServiceSettings service_settings = 22;
 }
 
 message UpdateItemRequest {

@@ -207,4 +207,29 @@ export class PartnerItemDto implements PartnerItem {
   })
   @Expose()
   orderDeadlineAt: string;
+
+  @ApiProperty({
+    description: 'Service Type',
+    type: 'number',
+    example: 1,
+  })
+  @Expose()
+  serviceType: number;
+
+  @ApiProperty({
+    description: 'Service Settings',
+    type: 'object',
+    example: {
+      setupTime: 10,
+      servicePerson: 2,
+      serviceTime: 30,
+    },
+    additionalProperties: true,
+  })
+  @Expose()
+  serviceSettings: {
+    setupTime: number;
+    servicePerson: number;
+    serviceTime: number;
+  };
 }

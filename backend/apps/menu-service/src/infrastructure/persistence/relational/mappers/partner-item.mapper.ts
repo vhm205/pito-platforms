@@ -31,6 +31,12 @@ export class PartnerItemMapper {
       cuisineTypes: [],
       cateringPackages: [],
       orderDeadlineAt: undefined,
+      serviceType: 1,
+      serviceSettings: {
+        setupTime: 0,
+        servicePerson: 0,
+        serviceTime: 0,
+      },
     };
 
     domain.id = raw?.id;
@@ -51,6 +57,7 @@ export class PartnerItemMapper {
     domain.packagingType = raw?.packagingType;
     domain.packagingUnit = raw?.packagingUnit;
     domain.optionsChoices = [];
+    domain.serviceType = raw?.serviceType ?? 1;
 
     domain.cuisineTypes = raw?.cuisineTypes?.map(Number) ?? [];
     domain.occasionEvents = raw?.occasionEvents?.map(Number) ?? [];
@@ -76,6 +83,7 @@ export class PartnerItemMapper {
           maxChoices: option?.max_choices,
           allowMultipleSelection: option?.allow_multiple_selection,
           allowQuantitySelection: option?.allow_quantity_selection,
+          type: option?.type,
         };
       });
     }
@@ -85,6 +93,14 @@ export class PartnerItemMapper {
         hasNotes: raw?.metadata?.has_notes ?? false,
         hasUtensils: raw?.metadata?.has_utensils ?? false,
         rejectionReason: raw?.metadata?.rejection_reason ?? '',
+      };
+    }
+
+    if (raw?.serviceSettings) {
+      domain.serviceSettings = {
+        setupTime: raw?.serviceSettings?.setup_time ?? 0,
+        servicePerson: raw?.serviceSettings?.service_person ?? 0,
+        serviceTime: raw?.serviceSettings?.service_time ?? 0,
       };
     }
 

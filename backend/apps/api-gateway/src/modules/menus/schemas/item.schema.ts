@@ -14,6 +14,7 @@ const OptionChoicesSchema = z.object({
   description: z.string().optional(),
   choices: z.array(ChoiceSchema),
   isRequired: z.boolean(),
+  type: z.string().optional(),
   maxChoices: z.number().int().min(0),
   allowMultipleSelection: z.boolean(),
   allowQuantitySelection: z.boolean(),
@@ -65,6 +66,15 @@ export const ItemSchema = z.object({
     hasUtensils: z.boolean(),
     rejectionReason: z.string().optional(),
   }),
+  serviceType: z.number().int().min(1).max(3).optional().default(1),
+  serviceSettings: z
+    .object({
+      setupTime: z.number().int().min(0).optional().default(0),
+      serviceTime: z.number().int().min(0).optional().default(0),
+      servicePerson: z.number().int().min(0).optional().default(0),
+    })
+    .optional()
+    .default({ setupTime: 0, serviceTime: 0, servicePerson: 0 }),
 });
 
 export const InsertItemSchema = ItemSchema;

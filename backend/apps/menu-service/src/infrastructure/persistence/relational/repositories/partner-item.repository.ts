@@ -37,6 +37,11 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
         has_utensils: payload.metadata?.hasUtensils,
         rejection_reason: payload.metadata?.rejectionReason,
       },
+      serviceSettings: {
+        setup_time: payload?.serviceSettings?.setupTime ?? 0,
+        service_person: payload?.serviceSettings?.servicePerson ?? 0,
+        service_time: payload?.serviceSettings?.serviceTime ?? 0,
+      },
       optionsChoices:
         payload?.optionsChoices?.map(option => ({
           id: option?.id,
@@ -46,6 +51,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
           allow_quantity_selection: option?.allowQuantitySelection ?? false,
           is_required: option?.isRequired ?? false,
           max_choices: option?.maxChoices ?? 0,
+          type: option?.type,
           choices: option?.choices?.map(choice => ({
             id: choice?.id,
             name: choice?.name,
@@ -82,6 +88,11 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
         has_utensils: updateItemRequest?.metadata?.hasUtensils,
         rejection_reason: updateItemRequest?.metadata?.rejectionReason,
       },
+      serviceSettings: {
+        setup_time: updateItemRequest?.serviceSettings?.setupTime,
+        service_person: updateItemRequest?.serviceSettings?.servicePerson,
+        service_time: updateItemRequest?.serviceSettings?.serviceTime,
+      },
       optionsChoices:
         updateItemRequest?.optionsChoices?.map(option => ({
           id: option?.id,
@@ -91,6 +102,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
           allow_quantity_selection: option?.allowQuantitySelection ?? false,
           is_required: option?.isRequired ?? false,
           max_choices: option?.maxChoices ?? 0,
+          type: option?.type,
           choices: option?.choices?.map(choice => ({
             id: choice?.id,
             name: choice?.name,

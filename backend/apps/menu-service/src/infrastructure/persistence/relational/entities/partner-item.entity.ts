@@ -1,7 +1,11 @@
 import { EntityRelationalHelper } from '@app/common';
-import { PackagingType, ItemStatus, UnitType } from '@app/common/enums/item';
+import { PackagingType, ItemStatus, UnitType, ItemServiceType } from '@app/common/enums/item';
 import { NullableType } from '@app/common/types/common';
-import { RawPartnerItemMetadata, RawPartnerItemOptionAndChoice } from '@app/common/types/item';
+import {
+  RawItemServiceSettings,
+  RawPartnerItemMetadata,
+  RawPartnerItemOptionAndChoice,
+} from '@app/common/types/item';
 import {
   Column,
   CreateDateColumn,
@@ -103,4 +107,20 @@ export class PartnerItemEntity extends EntityRelationalHelper {
 
   @Column('bigint', { name: 'catering_packages', array: true, default: '{}', nullable: false })
   cateringPackages: number[];
+
+  @Column({
+    type: 'int4',
+    name: 'service_type',
+    default: ItemServiceType.SELF_SERVICE,
+    nullable: false,
+  })
+  serviceType: number;
+
+  @Column({
+    type: 'jsonb',
+    name: 'service_settings',
+    default: '{"setup_time": 0, "service_person": 0, "service_time": 0}',
+    nullable: false,
+  })
+  serviceSettings: RawItemServiceSettings;
 }
