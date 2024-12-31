@@ -1,5 +1,6 @@
 import {
   FindItemRequest,
+  FindItemsByFiltersRequest,
   getDateTimeWithOffset,
   ItemFilter,
   PartnerItem,
@@ -19,6 +20,7 @@ import { generateSlug } from 'apps/menu-service/src/utils/slug.util';
 import dayjs from 'dayjs';
 import { compact, keyBy, uniq } from 'lodash';
 
+import { CateringPackage } from './domain/catering-package.domain';
 import { GetItemInStoreFilterDto } from './dtos/get-items-in-store.dto';
 import { SearchStoreFilterDto } from './dtos/search-store.dto';
 import { ItemRepository } from './infrastructure/persistence/item.repository';
@@ -424,5 +426,57 @@ export class MenuService {
       specialDietaries,
       occasionEvents,
     };
+  }
+
+  async findAllCateringPackages(): Promise<CateringPackage[]> {
+    return this.partnerItemRepository.findAllCateringPackages();
+  }
+
+  async findItemsByFilters({
+    pagination,
+    filters,
+    sorts,
+    latitude,
+    longitude,
+  }: FindItemsByFiltersRequest): Promise<[PartnerItem[], number]> {
+    if (!pagination) {
+      throw new RpcException({
+        message: 'Pagination is required',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
+    const [items, total] = await this.partnerItemRepository.findItemsByFilters({
+      pagination,
+      filters: filters?.map(transformFilterRule),
+      sorts,
+      latitude,
+      longitude,
+    });
+
+    const cuisineTypeIds = uniq(compact(items.flatMap(item => item.cuisineTypes ?? [])));
+    const specialDietaryIds = uniq(compact(items.flatMap(item => item.specialDietaries ?? [])));
+    const occasionEventIds = uniq(compact(items.flatMap(item => item.occasionEvents ?? [])));
+
+    const [cuisineTypes, specialDietaries, occasionEvents] = await Promise.all([
+      this.itemRepository.findAllCuisineTypes(cuisineTypeIds),
+      this.itemRepository.findAllSpecialDietaries(specialDietaryIds),
+      this.itemRepository.findAllOccasionEvents(occasionEventIds),
+    ]);
+
+    const cuisineTypeMap = keyBy(cuisineTypes, 'id');
+    const specialDietaryMap = keyBy(specialDietaries, 'id');
+    const occasionEventMap = keyBy(occasionEvents, 'id');
+
+    const enrichedItems = items.map(item => ({
+      ...item,
+      cuisineTypes: (item.cuisineTypes ?? []).map(id => cuisineTypeMap[id]).filter(Boolean),
+      specialDietaries: (item.specialDietaries ?? [])
+        .map(id => specialDietaryMap[id])
+        .filter(Boolean),
+      occasionEvents: (item.occasionEvents ?? []).map(id => occasionEventMap[id]).filter(Boolean),
+    }));
+
+    return [enrichedItems, total];
   }
 }

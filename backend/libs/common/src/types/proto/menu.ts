@@ -407,6 +407,53 @@ export interface FindItemRequest {
   slug?: string | undefined;
 }
 
+export interface FindAllCateringPackagesResponse {
+  cateringPackages: FindAllCateringPackagesResponse_CateringPackage[];
+}
+
+export interface FindAllCateringPackagesResponse_CateringPackage {
+  id: number;
+  name: string;
+  isActive: boolean;
+}
+
+export interface FindItemsByFiltersRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+  latitude?: number | undefined;
+  longitude?: number | undefined;
+}
+
+export interface FindItemsByFiltersResponse {
+  items: FindItemsByFiltersResponse_PartnerItem[];
+  totalCount: number;
+}
+
+export interface FindItemsByFiltersResponse_PartnerItem {
+  id: string;
+  name: string;
+  basePrice: number;
+  description: string;
+  specialDietaries: FilterOption[];
+  cuisineTypes: FilterOption[];
+  occasionEvents: FilterOption[];
+  menuCategory: string;
+  images: string[];
+  minQuantity: number;
+  packagingType: string;
+  packagingUnit: string;
+  participant: number;
+  preparationTime: number;
+  storeId: string;
+  optionsChoices: PartnerOptionsChoices[];
+  metadata: Metadata | undefined;
+  slug: string;
+  status: string;
+  orderDeadlineAt?: string | undefined;
+  distance?: number | undefined;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -432,6 +479,10 @@ export interface MenusServiceClient {
   findItemsWithPagination(request: FindItemsRequest): Observable<FindItemsResponse>;
 
   findItem(request: FindItemRequest): Observable<PartnerItem>;
+
+  findAllCateringPackages(request: Empty): Observable<FindAllCateringPackagesResponse>;
+
+  findItemsByFilters(request: FindItemsByFiltersRequest): Observable<FindItemsByFiltersResponse>;
 
   getFilterOptions(request: GetFilterOptionRequest): Observable<GetFilterOptionResponse>;
 
@@ -473,6 +524,20 @@ export interface MenusServiceController {
 
   findItem(request: FindItemRequest): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
 
+  findAllCateringPackages(
+    request: Empty,
+  ):
+    | Promise<FindAllCateringPackagesResponse>
+    | Observable<FindAllCateringPackagesResponse>
+    | FindAllCateringPackagesResponse;
+
+  findItemsByFilters(
+    request: FindItemsByFiltersRequest,
+  ):
+    | Promise<FindItemsByFiltersResponse>
+    | Observable<FindItemsByFiltersResponse>
+    | FindItemsByFiltersResponse;
+
   getFilterOptions(
     request: GetFilterOptionRequest,
   ):
@@ -499,6 +564,8 @@ export function MenusServiceControllerMethods() {
       'findItemsInStore',
       'findItemsWithPagination',
       'findItem',
+      'findAllCateringPackages',
+      'findItemsByFilters',
       'getFilterOptions',
       'insertMenuItem',
       'updateMenuItem',

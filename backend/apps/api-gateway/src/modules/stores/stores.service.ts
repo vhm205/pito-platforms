@@ -19,12 +19,12 @@ export class StoresService {
   }
 
   searchStores(params: GetStoreByFilterRequest) {
-    const source$ = this.menuService.findStoresByFilter(params).pipe(timeout(2000));
+    const source$ = this.menuService.findStoresByFilter(params).pipe(timeout(5000));
     return firstValueFrom(source$);
   }
 
   getItemsInStore(params: GetItemInStoreRequest) {
-    const source$ = this.menuService.findItemsInStore(params).pipe(timeout(2000));
+    const source$ = this.menuService.findItemsInStore(params).pipe(timeout(5000));
     return firstValueFrom(source$);
   }
 

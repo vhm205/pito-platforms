@@ -2,6 +2,9 @@ import {
   CalculateDistanceRequest,
   CalculateDistanceResponse,
   FindItemRequest,
+  FindAllCateringPackagesResponse,
+  FindItemsByFiltersRequest,
+  FindItemsByFiltersResponse,
   FindItemsRequest,
   FindStoreRequest,
   FindStoreResponse,
@@ -114,5 +117,24 @@ export class MenuController implements MenusServiceController {
 
   async findItem(request: FindItemRequest) {
     return this.menuService.findItem(request);
+  }
+
+  async findAllCateringPackages(): Promise<FindAllCateringPackagesResponse> {
+    const cateringPackages = await this.menuService.findAllCateringPackages();
+    return { cateringPackages };
+  }
+
+  async findItemsByFilters(
+    request: FindItemsByFiltersRequest,
+  ): Promise<FindItemsByFiltersResponse> {
+    request.filters ??= [];
+    request.sorts ??= [];
+
+    const [items, totalCount] = await this.menuService.findItemsByFilters(request);
+
+    return {
+      items,
+      totalCount,
+    };
   }
 }

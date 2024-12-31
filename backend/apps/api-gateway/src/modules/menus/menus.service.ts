@@ -2,7 +2,9 @@ import { FindItemRequest, MENU_SERVICE, MENUS_SERVICE_NAME, MenusServiceClient }
 import { InsertItemDto } from '@gateway/modules/menus/dtos/insert-menu-item.dto';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
+
+import { FindItemsQueryDto } from './dtos/query-items.dto';
 
 @Injectable()
 export class MenusService {
@@ -53,5 +55,26 @@ export class MenusService {
 
   async findItem({ id, slug }: Pick<FindItemRequest, 'id' | 'slug'>) {
     return firstValueFrom(this.menusService.findItem({ id, slug }));
+  }
+
+  async findAllCateringPackages() {
+    const source$ = this.menusService.findAllCateringPackages({}).pipe(timeout(2000));
+    return firstValueFrom(source$);
+  }
+
+  async findItemsWithFilters(query: FindItemsQueryDto) {
+    const { filters, page, pageSize, sorts, latitude, longitude } = query;
+
+    const source$ = this.menusService
+      .findItemsByFilters({
+        filters,
+        pagination: { currentPage: page, pageSize },
+        sorts,
+        latitude,
+        longitude,
+      })
+      .pipe(timeout(5000));
+
+    return firstValueFrom(source$);
   }
 }

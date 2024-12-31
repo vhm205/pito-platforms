@@ -10,9 +10,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+import { PartnerMenuCategoriesEntity } from './partner-menu-category.entity';
+import { PartnerStoreEntity } from './partner-store.entity';
 
 @Entity({ name: 'items' })
 export class PartnerItemEntity extends EntityRelationalHelper {
@@ -20,10 +26,16 @@ export class PartnerItemEntity extends EntityRelationalHelper {
   id: string;
 
   @Column('uuid', { name: 'menu_category', nullable: false })
+  @OneToOne(() => PartnerMenuCategoriesEntity)
+  @JoinColumn({ name: 'menu_category' })
   menuCategory: string;
 
   @Column('uuid', { name: 'store_id', nullable: false })
   storeId: string;
+
+  @ManyToOne(() => PartnerStoreEntity)
+  @JoinColumn({ name: 'store_id' })
+  store: PartnerStoreEntity;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -14,6 +14,8 @@ service MenusService {
   rpc FindItemsInStore (GetItemInStoreRequest) returns (GetItemInStoreResponse);
   rpc FindItemsWithPagination (FindItemsRequest) returns (FindItemsResponse);
   rpc FindItem (FindItemRequest) returns (PartnerItem);
+  rpc FindAllCateringPackages (Empty) returns (FindAllCateringPackagesResponse);
+  rpc FindItemsByFilters (FindItemsByFiltersRequest) returns (FindItemsByFiltersResponse);
   
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
 
@@ -421,4 +423,50 @@ message FindItemRequest {
     string id = 1;
     string slug = 2;
   }
+}
+
+message FindAllCateringPackagesResponse {
+  message CateringPackage {
+    int32 id = 1;
+    string name = 2;
+    bool is_active = 3; 
+  }
+
+  repeated CateringPackage catering_packages = 1;
+}
+
+message FindItemsByFiltersRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;     
+  repeated common.FilterRule filters = 3;
+  optional float latitude = 4;
+  optional float longitude = 5;
+}
+
+message FindItemsByFiltersResponse {
+  message PartnerItem {
+    string id = 1;
+    string name = 2;
+    float base_price = 3;
+    string description = 4;
+    repeated FilterOption special_dietaries = 5;
+    repeated FilterOption cuisine_types = 6;
+    repeated FilterOption occasion_events = 7;
+    string menu_category = 8;
+    repeated string images = 9;
+    int32 min_quantity = 10;
+    string packaging_type = 11;
+    string packaging_unit = 12;
+    int32 participant = 13;
+    int32 preparation_time = 14;
+    string store_id = 15;
+    repeated PartnerOptionsChoices options_choices = 16;
+    Metadata metadata = 17;
+    string slug = 18;
+    string status = 19;
+    optional string order_deadline_at = 20;
+    optional float distance = 21;
+  }
+  repeated PartnerItem items = 1;
+  int32 total_count = 2;
 }

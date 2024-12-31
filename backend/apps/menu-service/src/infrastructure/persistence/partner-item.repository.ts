@@ -5,6 +5,8 @@ import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persiste
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 import type { FindOperator, FindOptionsWhere } from 'typeorm';
 
+import { CateringPackage } from '../../domain/catering-package.domain';
+
 export abstract class PartnerItemRepository {
   abstract insertItem(
     payload: PartnerItemRequest & {
@@ -25,5 +27,14 @@ export abstract class PartnerItemRepository {
     pagination: PaginationRequest;
     filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
+  }): Promise<[PartnerItem[], number]>;
+
+  abstract findAllCateringPackages(): Promise<CateringPackage[]>;
+  abstract findItemsByFilters(options: {
+    pagination: PaginationRequest;
+    filters: Record<string, FindOperator<unknown>>[];
+    sorts: SortRule[];
+    latitude: number | undefined;
+    longitude: number | undefined;
   }): Promise<[PartnerItem[], number]>;
 }

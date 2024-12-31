@@ -1,14 +1,18 @@
 import { PARTNER_DB_SOURCE, PartnerItemRequest, UpdateItemRequest } from '@app/common';
 import { ItemStatus, PackagingType, UnitType } from '@app/common/enums/item';
+import { MenuType } from '@app/common/enums/menu';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CateringPackage } from 'apps/menu-service/src/domain/catering-package.domain';
 import { PartnerItem } from 'apps/menu-service/src/domain/partner-item.domain';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 import { PartnerItemMapper } from 'apps/menu-service/src/infrastructure/persistence/relational/mappers/partner-item.mapper';
 import { FindOperator, type FindOptionsWhere, type Repository } from 'typeorm';
+
+import { CateringPackageEntity } from '../entities/catering-package.entity';
 
 @Injectable()
 export class PartnerItemRelationalRepository implements PartnerItemRepository {
@@ -18,6 +22,9 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
 
     @InjectRepository(PartnerMenuCategoriesEntity, PARTNER_DB_SOURCE)
     private partnerMenuCategoriesRepository: Repository<PartnerMenuCategoriesEntity>,
+
+    @InjectRepository(CateringPackageEntity, PARTNER_DB_SOURCE)
+    private cateringPackageRepository: Repository<CateringPackageEntity>,
   ) {}
 
   async insertItem(
@@ -134,5 +141,80 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     const partnerItems = entities?.map(entity => PartnerItemMapper.toDomain(entity));
 
     return [partnerItems, total] as [PartnerItem[], number];
+  }
+
+  async findAllCateringPackages(): Promise<CateringPackage[]> {
+    const packages = await this.cateringPackageRepository.find();
+    return packages;
+  }
+
+  async findItemsByFilters(options: {
+    pagination: PaginationRequest;
+    filters: Record<string, FindOperator<unknown>>[];
+    sorts: SortRule[];
+    latitude: number | undefined;
+    longitude: number | undefined;
+  }) {
+    const { pagination, sorts, filters, latitude, longitude } = options;
+    const skip = (pagination.currentPage - 1) * pagination.pageSize;
+    const take = pagination.pageSize;
+
+    const queryBuilder = this.partnerItemRepository
+      .createQueryBuilder('item')
+      .innerJoinAndSelect('item.store', 'store')
+      .innerJoinAndSelect('item.menuCategory', 'menuCategory', 'menuCategory.type = :menuType', {
+        menuType: MenuType.SET,
+      });
+
+    /* WHERE clause */
+    if (filters.length) {
+      filters.forEach(filter => {
+        queryBuilder.andWhere(filter);
+      });
+    }
+
+    /* ORDER BY clause */
+    if (latitude && longitude) {
+      const distanceFormula = `
+      6371 * acos(
+        cos(radians(:userLatitude)) * cos(radians((store.location ->> 'latitude')::numeric)) *
+        cos(radians((store.location ->> 'longitude')::numeric) - radians(:userLongitude)) +
+        sin(radians(:userLatitude)) * sin(radians((store.location ->> 'latitude')::numeric))
+      )`;
+
+      queryBuilder.addSelect(distanceFormula, 'distance').setParameters({
+        userLatitude: latitude,
+        userLongitude: longitude,
+      });
+      queryBuilder.orderBy('distance', 'ASC');
+    }
+
+    if (sorts.length) {
+      sorts.forEach(sort => {
+        const column = `item.${sort.column}`;
+        const direction = sort.direction === 'asc' ? 'ASC' : 'DESC';
+        queryBuilder.addOrderBy(column, direction);
+      });
+    }
+
+    /* LIMIT clause */
+    queryBuilder.skip(skip);
+    queryBuilder.take(take);
+
+    const [total, result] = await Promise.all([
+      queryBuilder.getCount(),
+      queryBuilder.getRawAndEntities(),
+    ]);
+
+    /* Transform */
+    const entities = result.entities.map((item, index) => {
+      const raw = result.raw[index];
+      return {
+        ...PartnerItemMapper.toDomain(item),
+        distance: raw.distance,
+      };
+    });
+
+    return [entities, total] as [PartnerItem[], number];
   }
 }
