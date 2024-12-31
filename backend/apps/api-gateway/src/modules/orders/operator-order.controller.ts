@@ -39,6 +39,15 @@ import { StoreOrderListingDto } from './dto/store-order-listing.dto';
 import { OperatorOrderService } from './operator-order.service';
 import { transformCustomer } from './utils/transformer';
 
+const ORDER_STATUS_TRANSITION = new Map([
+  [
+    OrderStatus.WAITING_FOR_CONFIRMATION,
+    [OrderStatus.CONFIRMED, OrderStatus.UNCONFIRMED, OrderStatus.CANCELED],
+  ],
+  [OrderStatus.CONFIRMED, [OrderStatus.PREPARING, OrderStatus.CANCELED]],
+  [OrderStatus.PREPARING, [OrderStatus.PREPARED, OrderStatus.CANCELED]],
+]);
+
 @Controller('operator')
 export class OperatorOrdersController {
   constructor(private readonly service: OperatorOrderService) {}
@@ -225,12 +234,23 @@ export class OperatorOrdersController {
     @Param('orderIdentifier') identifier: string,
     @Body() updateOrderPayload: OperatorUpdateOrderDto,
   ) {
-    if (isEmpty(updateOrderPayload)) throw new BadRequestException('Body is required');
+    if (isEmpty(updateOrderPayload)) {
+      throw new BadRequestException('Request body must not be empty');
+    }
 
     const queryParam = isValidUUID(identifier) ? { id: identifier } : { orderCode: identifier };
     const { order } = await this.service.getOrderDetails(queryParam);
     if (!order) {
       throw new NotFoundException('We could not find the order with the provided identifier');
+    }
+
+    if (updateOrderPayload.status) {
+      const allowedStatus = ORDER_STATUS_TRANSITION.get(order.statusCode);
+      if (!allowedStatus || !allowedStatus.includes(updateOrderPayload.status)) {
+        throw new BadRequestException(
+          `Cannot transition status of order from ${order.statusCode} to ${updateOrderPayload.status}`,
+        );
+      }
     }
 
     return this.service.operatorUpdateOrder({ user, order, updateOrderPayload });

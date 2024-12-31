@@ -62,7 +62,8 @@ export interface UpdateOrderResponse {
 
 /** Request message for UpdateStoreOrderStatus */
 export interface UpdateStoreOrderStatusRequest {
-  id: string;
+  id?: string | undefined;
+  orderId?: string | undefined;
   status: OrderStatus;
 }
 

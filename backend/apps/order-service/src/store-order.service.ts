@@ -30,8 +30,12 @@ export class StoreOrderService {
       sorts,
     });
   }
-  async updateStoreOrderStatus({ id, status }: UpdateStoreOrderStatusRequest): Promise<StoreOrder> {
-    const storeOrder = await this.repository.findOne({ id }).then(order => order!);
+  async updateStoreOrderStatus({
+    id,
+    orderId,
+    status,
+  }: UpdateStoreOrderStatusRequest): Promise<StoreOrder> {
+    const storeOrder = await this.repository.findOne({ id, orderId }).then(order => order!);
 
     const currentTimestamp = new Date();
     storeOrder.statusCode = status;

@@ -60,8 +60,11 @@ message UpdateOrderResponse {
 
 // Request message for UpdateStoreOrderStatus
 message UpdateStoreOrderStatusRequest {
-  string id = 1;
-  common.OrderStatus status = 2;
+  oneof identifier {
+    string id = 1;
+    string order_id = 2;
+  }
+  common.OrderStatus status = 3;
 }
 message UpdateStoreOrderResponse {
   string id = 1;

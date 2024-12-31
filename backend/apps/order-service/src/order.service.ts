@@ -41,23 +41,23 @@ export class OrderService {
         order.cancelReason ??= 'Thanh toán thất bại';
         break;
       case OrderStatus.CANCELED:
-        order.status = ReadableOrderStatus.CANCELED;
+        // order.status = ReadableOrderStatus.CANCELED;
         order.cancelledAt = timestamp;
         break;
       case OrderStatus.REJECTED:
-        order.status = ReadableOrderStatus.REJECTED;
+        // order.status = ReadableOrderStatus.REJECTED;
         order.cancelledAt = timestamp;
         break;
       case OrderStatus.CONFIRMED:
-        order.status = ReadableOrderStatus.CONFIRMED;
+        // order.status = ReadableOrderStatus.CONFIRMED;
         order.confirmedAt = timestamp;
         break;
       case OrderStatus.PREPARING:
-        order.status = ReadableOrderStatus.PREPARING;
-        order.preparedAt = timestamp;
+        // order.status = ReadableOrderStatus.PREPARING;
+        order.preparingAt = timestamp;
         break;
       case OrderStatus.UNCONFIRMED:
-        order.status = ReadableOrderStatus.UNCONFIRMED;
+        // order.status = ReadableOrderStatus.UNCONFIRMED;
         order.cancelledAt = timestamp;
         break;
       case OrderStatus.PREPARED:
@@ -65,17 +65,17 @@ export class OrderService {
         order.preparedAt = timestamp;
         break;
       case OrderStatus.DELIVERING:
-        order.status = ReadableOrderStatus.DELIVERING;
+        // order.status = ReadableOrderStatus.DELIVERING;
         order.deliveryAt = timestamp;
         order.deliveryEta = deliveryEta ?? null;
         break;
       case OrderStatus.DELIVERY_FAILED:
-        order.status = ReadableOrderStatus.DELIVERY_FAILED;
+        // order.status = ReadableOrderStatus.DELIVERY_FAILED;
         order.deliveryFailedAt = timestamp;
         break;
       case OrderStatus.COMPLETED:
+        // order.status = ReadableOrderStatus.COMPLETED;
         order.completedAt = timestamp;
-        order.status = ReadableOrderStatus.COMPLETED;
         break;
       default:
         return order; // don't need to process

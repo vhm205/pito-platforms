@@ -10,7 +10,8 @@ import {
   ORDERS_SERVICE_NAME,
   OrdersServiceClient,
 } from '@app/common';
-import { FilterRule } from '@app/common/types/proto/common';
+import { FilterRule, OrderStatus } from '@app/common/types/proto/common';
+import { RefundOrderStatus } from '@gateway/enums/status';
 import { constructFullName } from '@gateway/utils/common';
 import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -125,6 +126,26 @@ export class OperatorOrderService implements OnModuleInit {
       });
       order.operatorStatusCode = updateOrderPayload.status;
       order.statusCode = updateOrderPayload.status;
+
+      if (updateOrderPayload.status === OrderStatus.CANCELED) {
+        order.refundStatus = RefundOrderStatus.PENDING;
+      }
+
+      await Promise.all([
+        firstValueFrom(
+          this.orderServiceClient.updateOrderStatus({
+            id: order.id,
+            status: updateOrderPayload.status,
+            timestamp: new Date(currentTimestamp),
+          }),
+        ),
+        firstValueFrom(
+          this.orderServiceClient.updateStoreOrderStatus({
+            orderId: order.id,
+            status: updateOrderPayload.status,
+          }),
+        ),
+      ]);
     }
 
     if (updateOrderPayload.refundStatus) {
@@ -141,8 +162,8 @@ export class OperatorOrderService implements OnModuleInit {
 
     return this.orderServiceClient.updateOrder({
       id: order.id,
-      operatorStatusCode: order.operatorStatusCode,
-      statusCode: order.statusCode,
+      // operatorStatusCode: order.operatorStatusCode,
+      // statusCode: order.statusCode,
       operationNotes,
       changeLogs,
       refundStatus: order.refundStatus,
