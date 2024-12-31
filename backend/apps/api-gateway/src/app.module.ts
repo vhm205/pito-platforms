@@ -20,6 +20,7 @@ import { FilesModule } from './modules/files/files.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { SearchModule } from './modules/search/search.module';
+import { SlackBotModule } from './modules/slack-bot/slack-bot.module';
 import { StoresModule } from './modules/stores/stores.module';
 import { UsersModule } from './modules/users/users.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
@@ -34,6 +35,7 @@ const modules = [
   WebhookModule,
   NotificationsModule,
   SearchModule,
+  SlackBotModule,
 ];
 
 @Module({
