@@ -3,6 +3,7 @@ import { AllConfigType } from '@app/common/configs';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { WebClient, LogLevel } from '@slack/web-api';
+import { map } from 'lodash';
 
 @Injectable()
 export class SlackBotService {
@@ -30,7 +31,7 @@ export class SlackBotService {
     const { ok, error } = await this.slackClient.filesUploadV2({
       channel_id: options?.channelId,
       initial_comment: options?.initialComment,
-      file_uploads: files.map(file => ({
+      file_uploads: map(files, file => ({
         file: file.buffer,
         filename: file.originalname,
         filetype: file.mimetype,
