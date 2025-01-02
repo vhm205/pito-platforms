@@ -16,6 +16,9 @@ async function bootstrap() {
         join(process.cwd(), 'proto/common.proto'),
       ],
       url: `0.0.0.0:${process.env.MENU_GRPC_PORT}`,
+      loader: {
+        arrays: true,
+      },
     },
   });
   app.useLogger(app.get(LoggerService));
