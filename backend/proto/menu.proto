@@ -429,7 +429,7 @@ message FindAllCateringPackagesResponse {
   message CateringPackage {
     int32 id = 1;
     string name = 2;
-    bool is_active = 3; 
+    bool is_active = 3;
   }
 
   repeated CateringPackage catering_packages = 1;
@@ -437,13 +437,19 @@ message FindAllCateringPackagesResponse {
 
 message FindItemsByFiltersRequest {
   common.PaginationRequest pagination = 1;
-  repeated common.SortRule sorts = 2;     
+  repeated common.SortRule sorts = 2;
   repeated common.FilterRule filters = 3;
   optional float latitude = 4;
   optional float longitude = 5;
 }
 
 message FindItemsByFiltersResponse {
+  message ServiceSetting {
+    int32 setup_time = 1;
+    int32 service_person = 2;
+    int32 service_time = 3;
+  }
+
   message PartnerItem {
     string id = 1;
     string name = 2;
@@ -466,6 +472,8 @@ message FindItemsByFiltersResponse {
     string status = 19;
     optional string order_deadline_at = 20;
     optional float distance = 21;
+    int32 service_type = 22;
+    ServiceSetting service_settings = 23;
   }
   repeated PartnerItem items = 1;
   int32 total_count = 2;

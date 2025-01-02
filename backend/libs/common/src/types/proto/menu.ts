@@ -430,6 +430,12 @@ export interface FindItemsByFiltersResponse {
   totalCount: number;
 }
 
+export interface FindItemsByFiltersResponse_ServiceSetting {
+  setupTime: number;
+  servicePerson: number;
+  serviceTime: number;
+}
+
 export interface FindItemsByFiltersResponse_PartnerItem {
   id: string;
   name: string;
@@ -452,6 +458,8 @@ export interface FindItemsByFiltersResponse_PartnerItem {
   status: string;
   orderDeadlineAt?: string | undefined;
   distance?: number | undefined;
+  serviceType: number;
+  serviceSettings: FindItemsByFiltersResponse_ServiceSetting | undefined;
 }
 
 export const MENU_PACKAGE_NAME = 'menu';

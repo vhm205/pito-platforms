@@ -162,7 +162,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     const queryBuilder = this.partnerItemRepository
       .createQueryBuilder('item')
       .innerJoinAndSelect('item.store', 'store')
-      .innerJoinAndSelect('item.menuCategory', 'menuCategory', 'menuCategory.type = :menuType', {
+      .innerJoin('item.menuCategory', 'menuCategory', 'menuCategory.type = :menuType', {
         menuType: MenuType.SET,
       });
 
