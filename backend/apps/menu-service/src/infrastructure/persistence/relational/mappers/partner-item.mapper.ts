@@ -20,7 +20,6 @@ export class PartnerItemMapper {
       status: '',
       packagingType: '',
       packagingUnit: '',
-      eatingUtensil: '',
       optionsChoices: [],
       metadata: {
         hasNotes: false,
@@ -64,10 +63,6 @@ export class PartnerItemMapper {
     domain.occasionEvents = raw?.occasionEvents?.map(Number) ?? [];
     domain.specialDietaries = raw?.specialDietaries?.map(Number) ?? [];
     domain.cateringPackages = raw?.cateringPackages?.map(Number) ?? [];
-
-    if (raw.eatingUtensil) {
-      domain.eatingUtensil = raw?.eatingUtensil;
-    }
 
     if (raw?.orderDeadlineAt) {
       domain.orderDeadlineAt = raw.orderDeadlineAt as unknown as string;

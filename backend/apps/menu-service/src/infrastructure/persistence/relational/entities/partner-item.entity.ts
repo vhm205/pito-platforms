@@ -1,11 +1,5 @@
 import { EntityRelationalHelper } from '@app/common';
-import {
-  PackagingType,
-  ItemStatus,
-  UnitType,
-  ItemServiceType,
-  EatingUtensil,
-} from '@app/common/enums/item';
+import { PackagingType, ItemStatus, UnitType, ItemServiceType } from '@app/common/enums/item';
 import { NullableType } from '@app/common/types/common';
 import {
   RawItemServiceSettings,
@@ -141,12 +135,4 @@ export class PartnerItemEntity extends EntityRelationalHelper {
     nullable: false,
   })
   serviceSettings: RawItemServiceSettings;
-
-  @Column({
-    name: 'eating_utensil',
-    type: 'enum',
-    enum: EatingUtensil,
-    nullable: true,
-  })
-  eatingUtensil: NullableType<EatingUtensil>;
 }

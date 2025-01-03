@@ -271,7 +271,6 @@ export interface PartnerItem {
   menuId: string;
   serviceType: number;
   serviceSettings: ItemServiceSettings | undefined;
-  eatingUtensil: string;
   storeSlug?: string | undefined;
 }
 
@@ -463,7 +462,6 @@ export interface FindItemsByFiltersResponse_PartnerItem {
   distance?: number | undefined;
   serviceType: number;
   serviceSettings: FindItemsByFiltersResponse_ServiceSetting | undefined;
-  eatingUtensil?: string | undefined;
 }
 
 export interface GetStoreDetailRequest {
