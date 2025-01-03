@@ -11,6 +11,7 @@ export enum OrderType {
 
 export enum OrderStatus {
   DRAFT = 0,
+  WAITING_FOR_DEPOSIT = 1,
   PAYMENT_FAILED = 10,
   WAITING_FOR_CONFIRMATION = 20,
   CANCELED = 30,

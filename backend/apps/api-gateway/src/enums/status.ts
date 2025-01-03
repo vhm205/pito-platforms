@@ -2,6 +2,7 @@ import { OrderStatus } from '@app/common/types/proto/common';
 
 export enum OrderStatusCode {
   DRAFT = OrderStatus.DRAFT,
+  WAITING_FOR_DEPOSIT = OrderStatus.WAITING_FOR_DEPOSIT,
   PAYMENT_FAILED = OrderStatus.PAYMENT_FAILED,
   WAITING_FOR_CONFIRMATION = OrderStatus.WAITING_FOR_CONFIRMATION,
   CANCELED = OrderStatus.CANCELED,
@@ -16,6 +17,7 @@ export enum OrderStatusCode {
 
 export enum OperatorOrderStatusCode {
   DRAFT = OrderStatus.DRAFT,
+  WAITING_FOR_DEPOSIT = OrderStatus.WAITING_FOR_DEPOSIT,
   PAYMENT_FAILED = OrderStatus.PAYMENT_FAILED,
   WAITING_FOR_CONFIRMATION = OrderStatus.WAITING_FOR_CONFIRMATION,
   CANCELED = OrderStatus.CANCELED,
