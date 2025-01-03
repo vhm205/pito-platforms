@@ -14,37 +14,19 @@ import {
 
 export const protobufPackage = 'order';
 
+/**
+ * message OperatorNoteEntry {
+ *   string description = 1;      // The note of the operation
+ *   string timestamp = 2; // String format of the timestampz
+ *   string user = 3; // The name of the user who created the note
+ * }
+ */
 export interface UpdateOrderRequest {
   id: string;
-  operationNotes: UpdateOrderRequest_OperatorNoteEntry[];
-  changeLogs: UpdateOrderRequest_ChangeLogEntry[];
   statusCode?: number | undefined;
   operatorStatusCode?: number | undefined;
   refundStatus?: number | undefined;
-}
-
-export interface UpdateOrderRequest_OperatorNoteEntry {
-  /** The note of the operation */
-  description: string;
-  /** String format of the timestampz */
-  timestamp: string;
-  /** The name of the user who created the note */
-  user: string;
-}
-
-export interface UpdateOrderRequest_ChangeLogEntry {
-  /** The name of the user who created the note */
-  user: string;
-  /** String format of the timestampz */
-  timestamp: string;
-  /** The type of the change */
-  changeType: string;
-  /** The old value */
-  oldValue?: string | undefined;
-  /** The new value */
-  newValue?: string | undefined;
-  /** The description of the change */
-  description?: string | undefined;
+  metadata?: { [key: string]: any } | undefined;
 }
 
 /** Request message for UpdateOrderStatus */
@@ -62,7 +44,8 @@ export interface UpdateOrderResponse {
 
 /** Request message for UpdateStoreOrderStatus */
 export interface UpdateStoreOrderStatusRequest {
-  id: string;
+  id?: string | undefined;
+  orderId?: string | undefined;
   status: OrderStatus;
 }
 

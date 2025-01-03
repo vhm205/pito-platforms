@@ -10,11 +10,12 @@ import {
   ORDERS_SERVICE_NAME,
   OrdersServiceClient,
 } from '@app/common';
-import { FilterRule } from '@app/common/types/proto/common';
+import { FilterRule, OrderStatus } from '@app/common/types/proto/common';
+import { RefundOrderStatus } from '@gateway/enums/status';
 import { constructFullName } from '@gateway/utils/common';
 import { Inject, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { get, isEmpty, map } from 'lodash';
+import { assign, get, isEmpty, map } from 'lodash';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthenticatedUser } from '../auth/auth-user.interface';
@@ -104,15 +105,16 @@ export class OperatorOrderService implements OnModuleInit {
     const currentTimestamp = new Date().toISOString();
     const operatorDisplayName = constructFullName(user.firstName, user.lastName) || user.email;
 
-    const operationNotes: OperatorNoteEntry[] = get(order, 'metadata.operationNotes', []);
     const changeLogs: ChangeLogEntry[] = get(order, 'metadata.changeLogs', []);
 
     if (updateOrderPayload.operationNote) {
+      const operationNotes: OperatorNoteEntry[] = get(order, 'metadata.operationNotes', []);
       operationNotes.push({
         user: operatorDisplayName,
         description: updateOrderPayload.operationNote,
         timestamp: currentTimestamp,
       });
+      order.metadata = assign(order.metadata, { operationNotes });
     }
 
     if (updateOrderPayload.status) {
@@ -123,8 +125,29 @@ export class OperatorOrderService implements OnModuleInit {
         newValue: updateOrderPayload.status.toString(),
         timestamp: currentTimestamp,
       });
+      order.metadata = assign(order.metadata, { changeLogs });
       order.operatorStatusCode = updateOrderPayload.status;
       order.statusCode = updateOrderPayload.status;
+
+      if (updateOrderPayload.status === OrderStatus.CANCELED) {
+        order.refundStatus = RefundOrderStatus.PENDING;
+      }
+
+      await Promise.all([
+        firstValueFrom(
+          this.orderServiceClient.updateOrderStatus({
+            id: order.id,
+            status: updateOrderPayload.status,
+            timestamp: new Date(currentTimestamp),
+          }),
+        ),
+        firstValueFrom(
+          this.orderServiceClient.updateStoreOrderStatus({
+            orderId: order.id,
+            status: updateOrderPayload.status,
+          }),
+        ),
+      ]);
     }
 
     if (updateOrderPayload.refundStatus) {
@@ -137,15 +160,23 @@ export class OperatorOrderService implements OnModuleInit {
         timestamp: currentTimestamp,
       });
       order.refundStatus = updateOrderPayload.refundStatus;
+      order.metadata = assign(order.metadata, { changeLogs });
+    }
+
+    if (updateOrderPayload.imageUrls) {
+      const imageUrls = get(order, 'metadata.imageUrls', []);
+      imageUrls.push(...updateOrderPayload.imageUrls);
+      order.metadata = assign(order.metadata, { imageUrls });
     }
 
     return this.orderServiceClient.updateOrder({
       id: order.id,
-      operatorStatusCode: order.operatorStatusCode,
-      statusCode: order.statusCode,
-      operationNotes,
-      changeLogs,
+      metadata: order.metadata,
       refundStatus: order.refundStatus,
+      // operatorStatusCode: order.operatorStatusCode,
+      // statusCode: order.statusCode,
+      // operationNotes,
+      // changeLogs,
     });
   }
 

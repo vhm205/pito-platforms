@@ -1,7 +1,7 @@
 import { OrderStatus } from '@app/common/types/proto/common';
 import { RefundOrderStatus } from '@gateway/enums/status';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsEnum, IsOptional, IsString } from 'class-validator';
 
 export class OperatorUpdateOrderDto {
   @ApiPropertyOptional({
@@ -31,4 +31,11 @@ export class OperatorUpdateOrderDto {
   @IsOptional()
   @IsEnum(RefundOrderStatus)
   refundStatus: RefundOrderStatus;
+
+  @ApiPropertyOptional({
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  imageUrls?: string[];
 }

@@ -10,7 +10,7 @@ import { NullableType } from '@app/common/types/common';
 import { OrderStatus } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { assign, isNumber } from 'lodash';
+import { isNumber } from 'lodash';
 
 import { Order } from './domain';
 import { OrderRepository } from './infrastructure/persistence/order.repository';
@@ -41,23 +41,23 @@ export class OrderService {
         order.cancelReason ??= 'Thanh toán thất bại';
         break;
       case OrderStatus.CANCELED:
-        order.status = ReadableOrderStatus.CANCELED;
+        // order.status = ReadableOrderStatus.CANCELED;
         order.cancelledAt = timestamp;
         break;
       case OrderStatus.REJECTED:
-        order.status = ReadableOrderStatus.REJECTED;
+        // order.status = ReadableOrderStatus.REJECTED;
         order.cancelledAt = timestamp;
         break;
       case OrderStatus.CONFIRMED:
-        order.status = ReadableOrderStatus.CONFIRMED;
+        // order.status = ReadableOrderStatus.CONFIRMED;
         order.confirmedAt = timestamp;
         break;
       case OrderStatus.PREPARING:
-        order.status = ReadableOrderStatus.PREPARING;
-        order.preparedAt = timestamp;
+        // order.status = ReadableOrderStatus.PREPARING;
+        order.preparingAt = timestamp;
         break;
       case OrderStatus.UNCONFIRMED:
-        order.status = ReadableOrderStatus.UNCONFIRMED;
+        // order.status = ReadableOrderStatus.UNCONFIRMED;
         order.cancelledAt = timestamp;
         break;
       case OrderStatus.PREPARED:
@@ -65,17 +65,17 @@ export class OrderService {
         order.preparedAt = timestamp;
         break;
       case OrderStatus.DELIVERING:
-        order.status = ReadableOrderStatus.DELIVERING;
+        // order.status = ReadableOrderStatus.DELIVERING;
         order.deliveryAt = timestamp;
         order.deliveryEta = deliveryEta ?? null;
         break;
       case OrderStatus.DELIVERY_FAILED:
-        order.status = ReadableOrderStatus.DELIVERY_FAILED;
+        // order.status = ReadableOrderStatus.DELIVERY_FAILED;
         order.deliveryFailedAt = timestamp;
         break;
       case OrderStatus.COMPLETED:
+        // order.status = ReadableOrderStatus.COMPLETED;
         order.completedAt = timestamp;
-        order.status = ReadableOrderStatus.COMPLETED;
         break;
       default:
         return order; // don't need to process
@@ -123,14 +123,15 @@ export class OrderService {
 
     if (request.statusCode) order.statusCode = request.statusCode;
     if (request.operatorStatusCode) order.operatorStatusCode = request.operatorStatusCode;
-    if (request.operationNotes)
-      order.metadata = assign(order.metadata, { operationNotes: request.operationNotes });
-    if (request.changeLogs)
-      order.metadata = assign(order.metadata, { changeLogs: request.changeLogs });
+    // if (request.operationNotes)
+    //   order.metadata = assign(order.metadata, { operationNotes: request.operationNotes });
+    // if (request.changeLogs)
+    //   order.metadata = assign(order.metadata, { changeLogs: request.changeLogs });
     if (isNumber(request.refundStatus)) {
       order.refundStatus = request.refundStatus;
       if (order.refundStatus) order.refundedAt = currentDateTime; // if refundStatus is equal to 1
     }
+    if (request.metadata) order.metadata = request.metadata;
 
     order.updatedAt = currentDateTime;
 

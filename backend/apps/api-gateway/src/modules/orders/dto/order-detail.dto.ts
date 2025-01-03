@@ -1,3 +1,4 @@
+import { getPublicImageURL } from '@app/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Exclude, Expose, plainToInstance, Transform, Type } from 'class-transformer';
 import { get } from 'lodash';
@@ -141,6 +142,18 @@ export class OrderDetailDto extends OrderDto {
     plainToInstance(OperatorNoteEntry, get(obj, 'metadata.operationNotes', [])),
   )
   operationNotes: OperatorNoteEntry[];
+
+  @ApiProperty({
+    description: 'The image URLs of the order',
+    type: [String],
+  })
+  @Expose()
+  @Transform(({ obj }) =>
+    get(obj, 'metadata.imageUrls', []).map((url: string) =>
+      getPublicImageURL('images/orders/', url),
+    ),
+  )
+  imageUrls: string[];
 
   @ApiProperty({
     description: 'The store information where the order was placed',

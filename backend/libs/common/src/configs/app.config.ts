@@ -36,6 +36,10 @@ export type AppConfig = {
     protocol: string;
     connectionTimeoutSeconds: number;
   };
+
+  slackChannel: {
+    pxPccSocialMedia: string;
+  };
 };
 
 class AppVariablesValidator {
@@ -109,6 +113,9 @@ class AppVariablesValidator {
 
   @IsString()
   TYPESENSE_PROTOCOL: string;
+
+  @IsString()
+  SLACK_CHANNEL_PX_PCC_SOCIAL_MEDIA: string;
 }
 
 // eslint-disable-next-line import/no-default-export
@@ -144,6 +151,9 @@ export default registerAs<AppConfig>('app', () => {
       port: parseInt(process.env.TYPESENSE_PORT!, 10),
       protocol: process.env.TYPESENSE_PROTOCOL!,
       connectionTimeoutSeconds: 10,
+    },
+    slackChannel: {
+      pxPccSocialMedia: process.env.SLACK_CHANNEL_PX_PCC_SOCIAL_MEDIA!,
     },
   };
 });

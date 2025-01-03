@@ -6,6 +6,7 @@ import { validateConfig } from './validate-config';
 export type WebhookConfig = {
   postgresqlTrigger: string;
   orderEventsApiKey: string;
+  slackBotToken: string;
 };
 
 class WebhookVariablesValidator {
@@ -14,6 +15,9 @@ class WebhookVariablesValidator {
 
   @IsString()
   AHAMOVE_ORDER_EVENTS_API_KEY: string;
+
+  @IsString()
+  SLACK_BOT_TOKEN: string;
 }
 
 // eslint-disable-next-line import/no-default-export
@@ -23,5 +27,6 @@ export default registerAs<WebhookConfig>('webhook', () => {
   return {
     postgresqlTrigger: process.env.POSTGRESQL_TRIGGER!,
     orderEventsApiKey: process.env.AHAMOVE_ORDER_EVENTS_API_KEY!,
+    slackBotToken: process.env.SLACK_BOT_TOKEN!,
   };
 });
