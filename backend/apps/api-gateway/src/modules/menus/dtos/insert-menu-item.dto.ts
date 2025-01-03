@@ -232,4 +232,18 @@ export class PartnerItemDto implements PartnerItem {
     servicePerson: number;
     serviceTime: number;
   };
+
+  @ApiProperty({
+    type: String,
+    example: 'yes',
+  })
+  @Expose()
+  eatingUtensil: string;
+
+  @ApiProperty({
+    type: String,
+    example: 'abc-xyz',
+  })
+  @Expose()
+  storeSlug: string;
 }

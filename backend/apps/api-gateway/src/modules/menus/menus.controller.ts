@@ -1,3 +1,4 @@
+import { ItemStatus } from '@app/common/enums/item';
 import { RoleType } from '@gateway/constants';
 import { ApiPageWrapperResponse } from '@gateway/decorators';
 import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
@@ -88,6 +89,11 @@ export class MenusController {
   @HttpCode(HttpStatus.OK)
   @ApiPageWrapperResponse({ type: FindItemsResponseDto })
   async findItemsByFilters(@Query() query: FindItemsQueryDto) {
+    query.filters = [
+      ...(query.filters || []),
+      { column: 'status', operator: 'eq', value: ItemStatus.ACTIVE },
+    ];
+
     const { items, totalCount } = await this.menusService.findItemsWithFilters(query);
     const { page, pageSize } = query;
 

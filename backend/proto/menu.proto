@@ -281,6 +281,8 @@ message PartnerItem {
   string menu_id = 22;
   int32 service_type = 23;
   ItemServiceSettings service_settings = 24;
+  string eating_utensil = 25;
+  optional string store_slug = 26;
 }
 
 message FindStoresRequest {
@@ -475,6 +477,7 @@ message FindItemsByFiltersResponse {
     optional float distance = 21;
     int32 service_type = 22;
     ServiceSetting service_settings = 23;
+    optional string eating_utensil = 24;
   }
   repeated PartnerItem items = 1;
   int32 total_count = 2;

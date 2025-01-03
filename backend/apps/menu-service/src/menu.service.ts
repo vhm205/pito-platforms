@@ -24,6 +24,7 @@ import { CateringPackage } from './domain/catering-package.domain';
 import { GetItemInStoreFilterDto } from './dtos/get-items-in-store.dto';
 import { SearchStoreFilterDto } from './dtos/search-store.dto';
 import { ItemRepository } from './infrastructure/persistence/item.repository';
+import { PartnerStoreRepository } from './infrastructure/persistence/partner-store.repository';
 import { StoreRepository } from './infrastructure/persistence/store.repository';
 import { mergeFilterOptions } from './utils/get-filter-option.util';
 
@@ -34,6 +35,7 @@ export class MenuService {
     private readonly storeRepository: StoreRepository,
     private readonly itemRepository: ItemRepository,
     private readonly partnerItemRepository: PartnerItemRepository,
+    private readonly partnerStoreRepository: PartnerStoreRepository,
   ) {}
 
   async findStoresByFilter(
@@ -408,7 +410,8 @@ export class MenuService {
       });
     }
 
-    const [cuisineTypes, specialDietaries, occasionEvents] = await Promise.all([
+    const [store, cuisineTypes, specialDietaries, occasionEvents] = await Promise.all([
+      this.partnerStoreRepository.findOne({ id: item.storeId }),
       item?.cuisineTypes?.length
         ? this.itemRepository.findAllCuisineTypes(item.cuisineTypes)
         : Promise.resolve([]),
@@ -422,6 +425,7 @@ export class MenuService {
 
     return {
       ...item,
+      storeSlug: store?.slug,
       cuisineTypes,
       specialDietaries,
       occasionEvents,
