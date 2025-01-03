@@ -10,6 +10,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
+import { ItemsController } from './item.controller';
+
 @Module({
   imports: [
     ClientsModule.registerAsync([
@@ -28,7 +30,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       },
     ]),
   ],
-  controllers: [MenusController, OperatorMenusController],
+  controllers: [MenusController, OperatorMenusController, ItemsController],
   providers: [MenusService, OperatorMenusService],
 })
 export class MenusModule {}
