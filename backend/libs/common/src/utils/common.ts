@@ -40,3 +40,9 @@ export function getImageUrl(imagePath: string): string {
   const baseUrl = process.env.BASE_URL;
   return `${baseUrl}/storage/v1/render/image/public/images/${imagePath}`;
 }
+
+export const getPublicImageURL = (bucket: string, path: string) => {
+  if (!path || path?.startsWith('https')) return path ?? '';
+  const baseUrl = process.env.STORAGE_URL!;
+  return baseUrl.concat('/v1/object/public/', bucket, path);
+};
