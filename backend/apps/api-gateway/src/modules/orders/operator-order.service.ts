@@ -125,6 +125,7 @@ export class OperatorOrderService implements OnModuleInit {
         newValue: updateOrderPayload.status.toString(),
         timestamp: currentTimestamp,
       });
+      order.metadata = assign(order.metadata, { changeLogs });
       order.operatorStatusCode = updateOrderPayload.status;
       order.statusCode = updateOrderPayload.status;
 
