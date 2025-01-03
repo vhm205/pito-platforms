@@ -19,28 +19,29 @@ service OrdersService {
 
 
 message UpdateOrderRequest {
-  message OperatorNoteEntry {
-    string description = 1;      // The note of the operation
-    string timestamp = 2; // String format of the timestampz
-    string user = 3; // The name of the user who created the note
-  }
+  // message OperatorNoteEntry {
+  //   string description = 1;      // The note of the operation
+  //   string timestamp = 2; // String format of the timestampz
+  //   string user = 3; // The name of the user who created the note
+  // }
 
-  message ChangeLogEntry {
-    string user = 1; // The name of the user who created the note
-    string timestamp = 2; // String format of the timestampz
-    string changeType = 3; // The type of the change
-    optional string oldValue = 4; // The old value
-    optional string newValue = 5; // The new value
-    optional string description = 6; // The description of the change
-  }
+  // message ChangeLogEntry {
+  //   string user = 1; // The name of the user who created the note
+  //   string timestamp = 2; // String format of the timestampz
+  //   string changeType = 3; // The type of the change
+  //   optional string oldValue = 4; // The old value
+  //   optional string newValue = 5; // The new value
+  //   optional string description = 6; // The description of the change
+  // }
 
   string id = 1;
-  repeated OperatorNoteEntry operation_notes = 2;
-  repeated ChangeLogEntry change_logs = 3;
+  // repeated OperatorNoteEntry operation_notes = 2;
+  // repeated ChangeLogEntry change_logs = 3;
   oneof extra_fields {
-    int32 status_code = 4;
-    int32 operator_status_code = 5;
-    int32 refund_status = 6;
+    int32 status_code = 2;
+    int32 operator_status_code = 3;
+    int32 refund_status = 4;
+    google.protobuf.Struct metadata = 5;
   }
 }
 

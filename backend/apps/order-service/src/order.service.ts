@@ -10,7 +10,7 @@ import { NullableType } from '@app/common/types/common';
 import { OrderStatus } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { assign, isNumber } from 'lodash';
+import { isNumber } from 'lodash';
 
 import { Order } from './domain';
 import { OrderRepository } from './infrastructure/persistence/order.repository';
@@ -123,14 +123,15 @@ export class OrderService {
 
     if (request.statusCode) order.statusCode = request.statusCode;
     if (request.operatorStatusCode) order.operatorStatusCode = request.operatorStatusCode;
-    if (request.operationNotes)
-      order.metadata = assign(order.metadata, { operationNotes: request.operationNotes });
-    if (request.changeLogs)
-      order.metadata = assign(order.metadata, { changeLogs: request.changeLogs });
+    // if (request.operationNotes)
+    //   order.metadata = assign(order.metadata, { operationNotes: request.operationNotes });
+    // if (request.changeLogs)
+    //   order.metadata = assign(order.metadata, { changeLogs: request.changeLogs });
     if (isNumber(request.refundStatus)) {
       order.refundStatus = request.refundStatus;
       if (order.refundStatus) order.refundedAt = currentDateTime; // if refundStatus is equal to 1
     }
+    if (request.metadata) order.metadata = request.metadata;
 
     order.updatedAt = currentDateTime;
 
