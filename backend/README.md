@@ -77,6 +77,12 @@ nest g app review-service
 
 # Generate new resource
 nest g resource users
+
+# Create new migration
+$ yarn migration:create database/migrations/partners/migration_name
+
+# Run migrations
+$ yarn migration:run
 ```
 
 ## Additional Links
