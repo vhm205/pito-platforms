@@ -1,4 +1,10 @@
-import { LoggerService, MENU_SERVICE, MENUS_SERVICE_NAME, MenusServiceClient } from '@app/common';
+import {
+  LoggerService,
+  MENU_SERVICE,
+  MENUS_SERVICE_NAME,
+  MenusServiceClient,
+  UpdatePartnerStatusRequest,
+} from '@app/common';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
 import { emptyPaginationResponse } from '@gateway/utils/common';
@@ -6,7 +12,7 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { plainToInstance } from 'class-transformer';
 import { isEmpty } from 'lodash';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 
 import { PartnerListDto, QueryPartnerListDto } from './dto/partner-list.dto';
 
@@ -51,5 +57,10 @@ export class OperatorPartnersService implements OnModuleInit {
 
   async getPartnerDetails(id: string) {
     return id;
+  }
+
+  updatePartnerStatusByIds(request: UpdatePartnerStatusRequest) {
+    const source$ = this.menuServiceClient.updatePartnerStatus(request).pipe(timeout(2000));
+    return firstValueFrom(source$);
   }
 }
