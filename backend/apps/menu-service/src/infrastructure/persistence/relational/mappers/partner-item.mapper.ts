@@ -84,6 +84,7 @@ export class PartnerItemMapper {
           allowMultipleSelection: option?.allow_multiple_selection,
           allowQuantitySelection: option?.allow_quantity_selection,
           type: option?.type,
+          maxQuantity: option?.max_quantity,
         };
       });
     }

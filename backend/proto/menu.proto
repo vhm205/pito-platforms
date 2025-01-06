@@ -224,6 +224,7 @@ message PartnerOptionsChoices {
   int32 max_choices = 7;
   repeated PartnerChoiceOfOption choices = 8;
   optional string type = 9;
+  optional int32 max_quantity = 10;
 }
 
 message ItemServiceSettings {

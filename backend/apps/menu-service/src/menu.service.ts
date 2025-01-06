@@ -314,6 +314,7 @@ export class MenuService {
               isRequired: option?.isRequired ?? false,
               maxChoices: option?.maxChoices ?? 0,
               type: option?.type,
+              maxQuantity: option?.maxQuantity,
               choices: option?.choices?.map(choice => ({
                 id: choice?.id,
                 name: choice?.name,
@@ -329,6 +330,7 @@ export class MenuService {
               isRequired: option?.isRequired ?? false,
               maxChoices: option?.maxChoices ?? 0,
               type: option?.type,
+              maxQuantity: option?.maxQuantity,
               choices: option?.choices?.map(choice => ({
                 id: choice?.id,
                 name: choice?.name,

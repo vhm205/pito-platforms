@@ -34,6 +34,7 @@ export interface RawPartnerItemOptionAndChoice {
   allow_multiple_selection: boolean;
   allow_quantity_selection: boolean;
   type?: string;
+  max_quantity?: number;
 }
 
 export interface RawPartnerItemMetadata {

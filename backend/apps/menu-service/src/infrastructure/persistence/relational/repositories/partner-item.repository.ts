@@ -59,6 +59,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
           is_required: option?.isRequired ?? false,
           max_choices: option?.maxChoices ?? 0,
           type: option?.type,
+          max_quantity: option?.maxQuantity,
           choices: option?.choices?.map(choice => ({
             id: choice?.id,
             name: choice?.name,
@@ -110,6 +111,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
           is_required: option?.isRequired ?? false,
           max_choices: option?.maxChoices ?? 0,
           type: option?.type,
+          max_quantity: option?.maxQuantity,
           choices: option?.choices?.map(choice => ({
             id: choice?.id,
             name: choice?.name,

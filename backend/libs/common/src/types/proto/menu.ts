@@ -214,6 +214,7 @@ export interface PartnerOptionsChoices {
   maxChoices: number;
   choices: PartnerChoiceOfOption[];
   type?: string | undefined;
+  maxQuantity?: number | undefined;
 }
 
 export interface ItemServiceSettings {
