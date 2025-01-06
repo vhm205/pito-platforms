@@ -133,7 +133,12 @@ export class OperatorOrderService implements OnModuleInit {
         order.refundStatus = RefundOrderStatus.PENDING;
       }
 
-      await Promise.all([
+      /**
+       * In some cases like updating order status to `WAITING_FOR_DEPOSIT` or `WAITING_FOR_PAYMENT`
+       * STORE_ORDER may not be created yet, so we can't update STORE_ORDER status.
+       * I used `Promise.allSettled` to make sure that the function will not throw an error
+       */
+      await Promise.allSettled([
         firstValueFrom(
           this.orderServiceClient.updateOrderStatus({
             id: order.id,
