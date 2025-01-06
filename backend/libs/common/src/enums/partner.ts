@@ -2,6 +2,8 @@ export enum PartnerStatus {
   IN_PROGRESS = 'inprogress',
   APPROVED = 'approved',
   REJECTED = 'rejected',
+  SUSPEND = 'suspend',
+  STOP_COOPERATION = 'stop_cooperation',
 }
 
 export enum PartnerType {

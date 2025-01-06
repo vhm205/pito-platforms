@@ -24,7 +24,11 @@ import {
   PartnerItemRequest,
   SearchStoreResult,
   UpdateItemRequest,
+  UpdateStoreStatusRequest,
+  UpdatePartnerStatusRequest,
 } from '@app/common';
+import { StoreStatus } from '@app/common/enums';
+import { PartnerStatus } from '@app/common/enums/partner';
 import { CamelCaseResponseInterceptor } from '@app/common/interceptors/convert-to-camel-case.interceptor';
 import { Controller, UseInterceptors } from '@nestjs/common';
 
@@ -144,5 +148,13 @@ export class MenuController implements MenusServiceController {
       items,
       totalCount,
     };
+  }
+
+  updateStoreStatus(request: UpdateStoreStatusRequest) {
+    return this.storeService.updateStoreStatus(request.ids, request.status as StoreStatus);
+  }
+
+  updatePartnerStatus(request: UpdatePartnerStatusRequest) {
+    return this.storeService.updatePartnerStatus(request.ids, request.status as PartnerStatus);
   }
 }

@@ -22,6 +22,8 @@ service MenusService {
   rpc GetStoreDetail (GetStoreDetailRequest) returns (GetStoreDetailResponse);
   rpc InsertMenuItem (PartnerItemRequest) returns (PartnerItem);
   rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
+  rpc UpdateStoreStatus (UpdateStoreStatusRequest) returns (Empty);
+  rpc UpdatePartnerStatus (UpdatePartnerStatusRequest) returns (Empty);
 }
 
 // [START] Find stores by filter
@@ -543,4 +545,14 @@ message GetStoreDetailResponse {
   // additional
   repeated CuisineType cuisine_types = 17;
   google.protobuf.Timestamp reopen_time = 18;
+}
+
+message UpdateStoreStatusRequest {
+  repeated string ids = 1;
+  string status = 2;
+}
+
+message UpdatePartnerStatusRequest {
+  repeated string ids = 1;
+  string status = 2;
 }

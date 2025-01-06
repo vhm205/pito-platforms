@@ -1,3 +1,5 @@
+import { PartnerStatus } from '@app/common/enums/partner';
+import { StoreStatus } from '@app/common/enums/store';
 import { NullableType } from '@app/common/types/common';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import type { FindOperator, FindOptionsWhere } from 'typeorm';
@@ -10,6 +12,10 @@ export abstract class PartnerStoreRepository {
     filters: FindOptionsWhere<Pick<PartnerStore, 'id' | 'status' | 'slug'>>,
   ): Promise<NullableType<PartnerStore>>;
 
+  abstract findMany(
+    filters: FindOptionsWhere<Pick<PartnerStore, 'id' | 'status' | 'slug'>>,
+  ): Promise<PartnerStore[]>;
+
   abstract findManyAndCount(
     filters: Record<string, FindOperator<unknown>>[],
   ): Promise<[PartnerStore[], number]>;
@@ -21,4 +27,7 @@ export abstract class PartnerStoreRepository {
   }): Promise<[PartnerStore[], number]>;
 
   abstract findStoreServiceByStoreId(id: string): Promise<NullableType<StoreService>>;
+
+  abstract updateStoreStatusByIds(ids: string[], status: StoreStatus): Promise<void>;
+  abstract updatePartnerStatusByIds(ids: string[], status: PartnerStatus): Promise<void>;
 }
