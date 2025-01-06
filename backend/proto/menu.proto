@@ -24,6 +24,8 @@ service MenusService {
   rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
   rpc UpdateStoreStatus (UpdateStoreStatusRequest) returns (Empty);
   rpc UpdatePartnerStatus (UpdatePartnerStatusRequest) returns (Empty);
+
+  rpc GetListPartners(GetListPartnersRequest) returns (GetListPartnersResponse);
 }
 
 // [START] Find stores by filter
@@ -555,4 +557,27 @@ message UpdateStoreStatusRequest {
 message UpdatePartnerStatusRequest {
   repeated string ids = 1;
   string status = 2;
+}
+
+message GetListPartnersRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;     
+  repeated common.FilterRule filters = 3;
+}
+
+message GetListPartnersResponse {
+  message Partner {
+    string id = 1;
+    string name = 2;
+    string status = 3;
+    google.protobuf.Struct representative_contact = 4;
+    string business_address = 5;
+    common.BusinessType business_type = 6;
+    common.Certification certificate_type = 7;
+    google.protobuf.Timestamp created_at = 8;
+    google.protobuf.Timestamp updated_at = 9;
+  }
+
+  repeated Partner partners = 1;
+  int32 total_count = 2;
 }

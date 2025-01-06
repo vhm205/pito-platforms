@@ -31,6 +31,7 @@ const modules = [
   MenusModule,
   FilesModule,
   OrdersModule,
+  PartnersModule,
   StoresModule,
   UsersModule,
   WebhookModule,

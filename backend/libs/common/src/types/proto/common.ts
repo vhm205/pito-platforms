@@ -37,6 +37,20 @@ export enum PaymentMethod {
   UNRECOGNIZED = -1,
 }
 
+export enum BusinessType {
+  COMPANY = 0,
+  INDIVIDUAL = 1,
+  BUSINESS_HOUSEHOLD = 2,
+  UNRECOGNIZED = -1,
+}
+
+export enum Certification {
+  VSATTP = 0,
+  HACCP = 1,
+  ISO = 2,
+  UNRECOGNIZED = -1,
+}
+
 export interface PaginationRequest {
   currentPage: number;
   pageSize: number;

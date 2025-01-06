@@ -57,3 +57,15 @@ enum PaymentMethod {
   PAYMENT_METHOD_UPI = 5;
   PAYMENT_METHOD_AMEX = 6;
 }
+
+enum BusinessType {
+  COMPANY = 0;     
+  INDIVIDUAL = 1;  
+  BUSINESS_HOUSEHOLD = 2;
+}
+
+enum Certification {
+  VSATTP = 0;
+  HACCP = 1;
+  ISO = 2;
+}
