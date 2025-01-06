@@ -524,6 +524,16 @@ export interface GetStoreDetailResponse_CuisineType {
   name: string;
 }
 
+export interface UpdateStoreStatusRequest {
+  ids: string[];
+  status: string;
+}
+
+export interface UpdatePartnerStatusRequest {
+  ids: string[];
+  status: string;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -563,6 +573,10 @@ export interface MenusServiceClient {
   insertMenuItem(request: PartnerItemRequest): Observable<PartnerItem>;
 
   updateMenuItem(request: UpdateItemRequest): Observable<PartnerItem>;
+
+  updateStoreStatus(request: UpdateStoreStatusRequest): Observable<Empty>;
+
+  updatePartnerStatus(request: UpdatePartnerStatusRequest): Observable<Empty>;
 }
 
 export interface MenusServiceController {
@@ -630,6 +644,12 @@ export interface MenusServiceController {
   updateMenuItem(
     request: UpdateItemRequest,
   ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
+
+  updateStoreStatus(request: UpdateStoreStatusRequest): Promise<Empty> | Observable<Empty> | Empty;
+
+  updatePartnerStatus(
+    request: UpdatePartnerStatusRequest,
+  ): Promise<Empty> | Observable<Empty> | Empty;
 }
 
 export function MenusServiceControllerMethods() {
@@ -648,6 +668,8 @@ export function MenusServiceControllerMethods() {
       'getStoreDetail',
       'insertMenuItem',
       'updateMenuItem',
+      'updateStoreStatus',
+      'updatePartnerStatus',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

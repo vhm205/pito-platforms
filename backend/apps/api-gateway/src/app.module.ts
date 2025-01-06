@@ -19,6 +19,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { FilesModule } from './modules/files/files.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { PartnersModule } from './modules/partner/partners.module';
 import { SearchModule } from './modules/search/search.module';
 import { SlackBotModule } from './modules/slack-bot/slack-bot.module';
 import { StoresModule } from './modules/stores/stores.module';
@@ -36,6 +37,7 @@ const modules = [
   NotificationsModule,
   SearchModule,
   SlackBotModule,
+  PartnersModule,
 ];
 
 @Module({

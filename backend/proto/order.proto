@@ -17,7 +17,6 @@ service OrdersService {
   rpc FindTransactions (FindTransactionsRequest) returns (FindTransactionsResponse);
 }
 
-
 message UpdateOrderRequest {
   // message OperatorNoteEntry {
   //   string description = 1;      // The note of the operation

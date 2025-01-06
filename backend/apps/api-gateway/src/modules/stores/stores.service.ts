@@ -6,6 +6,7 @@ import {
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
+  UpdateStoreStatusRequest,
 } from '@app/common';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -41,6 +42,11 @@ export class StoresService {
 
   getStoreDetail(request: GetStoreDetailRequest) {
     const source$ = this.menuService.getStoreDetail(request).pipe(timeout(2000));
+    return firstValueFrom(source$);
+  }
+
+  updateStoreStatusByIds(request: UpdateStoreStatusRequest) {
+    const source$ = this.menuService.updateStoreStatus(request).pipe(timeout(2000));
     return firstValueFrom(source$);
   }
 }

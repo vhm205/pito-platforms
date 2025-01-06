@@ -20,6 +20,7 @@ import { CuisineTypeEntity } from './infrastructure/persistence/relational/entit
 import { ItemEntity } from './infrastructure/persistence/relational/entities/item.entity';
 import { OccasionEventEntity } from './infrastructure/persistence/relational/entities/occasion-event.entity';
 import { PartnerStoreEntity } from './infrastructure/persistence/relational/entities/partner-store.entity';
+import { PartnerEntity } from './infrastructure/persistence/relational/entities/partner.entity';
 import { SpecialDietaryEntity } from './infrastructure/persistence/relational/entities/special-dietaries.entity';
 import { StoreServiceEntity } from './infrastructure/persistence/relational/entities/store-service.entity';
 import { StoreEntity } from './infrastructure/persistence/relational/entities/store.entity';
@@ -43,6 +44,7 @@ const partnerEntities = [
   PartnerMenuCategoriesEntity,
   PartnerStoreEntity,
   StoreServiceEntity,
+  PartnerEntity,
 ];
 
 @Module({
