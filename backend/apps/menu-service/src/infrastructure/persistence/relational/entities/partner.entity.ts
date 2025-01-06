@@ -1,66 +1,50 @@
-import { PartnerStatus, PartnerType, ServiceType } from '@app/common/enums/partner';
-import { NullableType } from '@app/common/types/common';
+import { EntityRelationalHelper } from '@app/common';
+import { MaybeType } from '@app/common/types/common';
 import {
-  BankAccount,
+  BankAccountInfo,
   BusinessInfo,
   BusinessOwner,
-} from 'apps/user-service/src/domain/partner.domain';
+} from 'apps/menu-service/src/domain/partner.domain';
 import {
   Entity,
   PrimaryGeneratedColumn,
-  Column,
   CreateDateColumn,
   UpdateDateColumn,
+  Column,
 } from 'typeorm';
 
 @Entity('partners')
-export class PartnerEntity {
+export class PartnerEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'partner_name', type: 'text' })
-  partnerName: string;
+  @Column({ type: 'text', name: 'partner_name', nullable: false })
+  name: string;
 
-  @Column({ name: 'partner_type', type: 'enum', enum: PartnerType })
-  partnerType: PartnerType;
+  @Column({ type: 'text', nullable: false })
+  status: string;
 
-  @Column({ name: 'is_active', type: 'boolean', default: false })
-  isActive: boolean;
+  @Column({ type: 'smallint', name: 'service_fee_rate' })
+  serviceFeeRate: number;
 
-  @Column({
-    name: 'status',
-    type: 'enum',
-    enum: PartnerStatus,
-  })
-  status: PartnerStatus;
+  @Column({ type: 'smallint', name: 'business_type' })
+  businessType: number;
 
-  @Column({ name: 'bank_account', type: 'jsonb', nullable: true })
-  bankAccount: NullableType<BankAccount>;
+  @Column({ type: 'smallint' })
+  certification: number;
 
-  @Column({ name: 'business_info', type: 'jsonb', nullable: true })
-  businessInfo: NullableType<BusinessInfo>;
+  @Column({ type: 'jsonb', name: 'bank_account', nullable: false })
+  bankAccount: BankAccountInfo;
 
-  @Column({ name: 'business_owner', type: 'jsonb', nullable: true })
-  businessOwner: NullableType<BusinessOwner>;
+  @Column({ type: 'jsonb', name: 'business_info', nullable: false })
+  businessInfo: BusinessInfo;
 
-  @Column({
-    name: 'service_types',
-    type: 'enum',
-    enum: ServiceType,
-    array: true,
-    nullable: true,
-  })
-  serviceTypes: ServiceType[];
+  @Column({ type: 'jsonb', name: 'business_owner', nullable: false })
+  businessOwner: BusinessOwner;
 
-  @Column({ name: 'service_fee_rate', type: 'smallint', nullable: true })
-  serviceFeeRate: NullableType<number>;
-
-  @Column({ name: 'is_vat', type: 'boolean', default: true })
-  isVat: boolean;
-
-  @CreateDateColumn({ name: 'created_at', type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ name: 'created_at', type: 'time with time zone' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz', nullable: true })
-  updatedAt: NullableType<Date>;
+  @UpdateDateColumn({ name: 'updated_at', type: 'time with time zone', nullable: true })
+  updatedAt: MaybeType<Date>;
 }

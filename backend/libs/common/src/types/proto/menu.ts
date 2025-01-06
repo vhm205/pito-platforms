@@ -3,7 +3,7 @@ import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
 import { Struct } from '../google/protobuf/struct';
-import { FilterRule, PaginationRequest, SortRule } from './common';
+import { BusinessType, Certification, FilterRule, PaginationRequest, SortRule } from './common';
 
 export const protobufPackage = 'menu';
 
@@ -534,6 +534,29 @@ export interface UpdatePartnerStatusRequest {
   status: string;
 }
 
+export interface GetListPartnersRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface GetListPartnersResponse {
+  partners: GetListPartnersResponse_Partner[];
+  totalCount: number;
+}
+
+export interface GetListPartnersResponse_Partner {
+  id: string;
+  name: string;
+  status: string;
+  representativeContact: { [key: string]: any } | undefined;
+  businessAddress: string;
+  businessType: BusinessType;
+  certificateType: Certification;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -577,6 +600,7 @@ export interface MenusServiceClient {
   updateStoreStatus(request: UpdateStoreStatusRequest): Observable<Empty>;
 
   updatePartnerStatus(request: UpdatePartnerStatusRequest): Observable<Empty>;
+  getListPartners(request: GetListPartnersRequest): Observable<GetListPartnersResponse>;
 }
 
 export interface MenusServiceController {
@@ -650,6 +674,12 @@ export interface MenusServiceController {
   updatePartnerStatus(
     request: UpdatePartnerStatusRequest,
   ): Promise<Empty> | Observable<Empty> | Empty;
+  getListPartners(
+    request: GetListPartnersRequest,
+  ):
+    | Promise<GetListPartnersResponse>
+    | Observable<GetListPartnersResponse>
+    | GetListPartnersResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -670,6 +700,7 @@ export function MenusServiceControllerMethods() {
       'updateMenuItem',
       'updateStoreStatus',
       'updatePartnerStatus',
+      'getListPartners',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

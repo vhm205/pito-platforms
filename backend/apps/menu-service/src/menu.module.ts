@@ -27,6 +27,7 @@ import { StoreEntity } from './infrastructure/persistence/relational/entities/st
 import { RelationalMenuPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
 import { MenuController } from './menu.controller';
 import { MenuService } from './menu.service';
+import { PartnerService } from './partner.service';
 import { StoreService } from './store.service';
 
 const customerEntities = [
@@ -39,6 +40,7 @@ const customerEntities = [
 ];
 
 const partnerEntities = [
+  PartnerEntity,
   CateringPackageEntity,
   PartnerItemEntity,
   PartnerMenuCategoriesEntity,
@@ -89,6 +91,6 @@ const partnerEntities = [
     RelationalMenuPersistenceModule,
   ],
   controllers: [MenuController],
-  providers: [MenuService, StoreService],
+  providers: [MenuService, StoreService, PartnerService],
 })
 export class MenuModule {}

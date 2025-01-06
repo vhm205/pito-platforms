@@ -26,6 +26,9 @@ import {
   UpdateItemRequest,
   UpdateStoreStatusRequest,
   UpdatePartnerStatusRequest,
+  GetListPartnersRequest,
+  GetListPartnersResponse,
+  GetListPartnersResponse_Partner,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -33,6 +36,7 @@ import { CamelCaseResponseInterceptor } from '@app/common/interceptors/convert-t
 import { Controller, UseInterceptors } from '@nestjs/common';
 
 import { MenuService } from './menu.service';
+import { PartnerService } from './partner.service';
 import { StoreService } from './store.service';
 
 @Controller()
@@ -41,6 +45,7 @@ export class MenuController implements MenusServiceController {
   constructor(
     private readonly menuService: MenuService,
     private readonly storeService: StoreService,
+    private readonly partnerService: PartnerService,
   ) {}
 
   async findStoresByFilter(args: GetStoreByFilterRequest): Promise<GetStoreByFilterResponse> {
@@ -156,5 +161,25 @@ export class MenuController implements MenusServiceController {
 
   updatePartnerStatus(request: UpdatePartnerStatusRequest) {
     return this.storeService.updatePartnerStatus(request.ids, request.status as PartnerStatus);
+  }
+
+  async getListPartners(request: GetListPartnersRequest): Promise<GetListPartnersResponse> {
+    const [partners, totalCount] = await this.partnerService.getPartnersWithPagination(request);
+    const transformedPartners: Array<GetListPartnersResponse_Partner> = partners.map(p => ({
+      id: p.id,
+      name: p.name,
+      status: p.status,
+      representativeContact: {
+        name: p.businessOwner.full_name,
+        email: p.businessOwner.email,
+        phone: p.businessOwner.phone,
+      },
+      businessType: p.businessType,
+      certificateType: p.certificateType,
+      businessAddress: p.businessInfo.registered_address,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
+    }));
+    return { partners: transformedPartners, totalCount };
   }
 }
