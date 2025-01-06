@@ -600,6 +600,7 @@ export interface MenusServiceClient {
   updateStoreStatus(request: UpdateStoreStatusRequest): Observable<Empty>;
 
   updatePartnerStatus(request: UpdatePartnerStatusRequest): Observable<Empty>;
+
   getListPartners(request: GetListPartnersRequest): Observable<GetListPartnersResponse>;
 }
 
@@ -674,6 +675,7 @@ export interface MenusServiceController {
   updatePartnerStatus(
     request: UpdatePartnerStatusRequest,
   ): Promise<Empty> | Observable<Empty> | Empty;
+
   getListPartners(
     request: GetListPartnersRequest,
   ):
