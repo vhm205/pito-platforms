@@ -439,6 +439,12 @@ export interface FindItemsByFiltersResponse_ServiceSetting {
   serviceTime: number;
 }
 
+export interface FindItemsByFiltersResponse_Store {
+  status: string;
+  reopenTime?: string | undefined;
+  prepTimes: { [key: string]: any } | undefined;
+}
+
 export interface FindItemsByFiltersResponse_PartnerItem {
   id: string;
   name: string;
@@ -463,6 +469,7 @@ export interface FindItemsByFiltersResponse_PartnerItem {
   distance?: number | undefined;
   serviceType: number;
   serviceSettings: FindItemsByFiltersResponse_ServiceSetting | undefined;
+  store: FindItemsByFiltersResponse_Store | undefined;
 }
 
 export interface GetStoreDetailRequest {

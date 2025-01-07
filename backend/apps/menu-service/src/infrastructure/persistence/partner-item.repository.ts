@@ -6,6 +6,7 @@ import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructur
 import type { FindOperator, FindOptionsWhere } from 'typeorm';
 
 import { CateringPackage } from '../../domain/catering-package.domain';
+import { FindItemsByFiltersResult } from '../../dtos/get-items-by-filter.dto';
 
 export abstract class PartnerItemRepository {
   abstract insertItem(
@@ -30,11 +31,12 @@ export abstract class PartnerItemRepository {
   }): Promise<[PartnerItem[], number]>;
 
   abstract findAllCateringPackages(): Promise<CateringPackage[]>;
+
   abstract findItemsByFilters(options: {
     pagination: PaginationRequest;
     filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
     latitude: number | undefined;
     longitude: number | undefined;
-  }): Promise<[PartnerItem[], number]>;
+  }): Promise<FindItemsByFiltersResult>;
 }
