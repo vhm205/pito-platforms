@@ -549,8 +549,9 @@ export interface GetListPartnersRequest {
 }
 
 export interface GetListPartnersResponse {
-  partners: GetListPartnersResponse_Partner[];
+  data: GetListPartnersResponse_Partner[];
   totalCount: number;
+  error?: string | undefined;
 }
 
 export interface GetListPartnersResponse_Partner {
@@ -560,9 +561,33 @@ export interface GetListPartnersResponse_Partner {
   representativeContact: { [key: string]: any } | undefined;
   businessAddress: string;
   businessType: BusinessType;
-  certificateType: Certification;
+  certification: Certification;
   createdAt: Date | undefined;
   updatedAt: Date | undefined;
+}
+
+export interface GetPartnerDetailsRequest {
+  id: string;
+}
+
+export interface GetPartnerDetailsResponse {
+  data?: GetPartnerDetailsResponse_Partner | undefined;
+  error?: string | undefined;
+}
+
+export interface GetPartnerDetailsResponse_Partner {
+  id: string;
+  name: string;
+  status: string;
+  businessType: BusinessType;
+  certification: Certification;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  businessInfo: { [key: string]: any } | undefined;
+  businessOwner: { [key: string]: any } | undefined;
+  bankAccount: { [key: string]: any } | undefined;
+  serviceTypes: string[];
+  serviceFeeRate: number;
 }
 
 export const MENU_PACKAGE_NAME = 'menu';
@@ -610,6 +635,8 @@ export interface MenusServiceClient {
   updatePartnerStatus(request: UpdatePartnerStatusRequest): Observable<UpdatePartnerStatusResponse>;
 
   getListPartners(request: GetListPartnersRequest): Observable<GetListPartnersResponse>;
+
+  getPartnerDetails(request: GetPartnerDetailsRequest): Observable<GetPartnerDetailsResponse>;
 }
 
 export interface MenusServiceController {
@@ -698,6 +725,13 @@ export interface MenusServiceController {
     | Promise<GetListPartnersResponse>
     | Observable<GetListPartnersResponse>
     | GetListPartnersResponse;
+
+  getPartnerDetails(
+    request: GetPartnerDetailsRequest,
+  ):
+    | Promise<GetPartnerDetailsResponse>
+    | Observable<GetPartnerDetailsResponse>
+    | GetPartnerDetailsResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -719,6 +753,7 @@ export function MenusServiceControllerMethods() {
       'updateStoreStatus',
       'updatePartnerStatus',
       'getListPartners',
+      'getPartnerDetails',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

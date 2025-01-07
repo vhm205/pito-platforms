@@ -48,7 +48,7 @@ export class PartnerItemMapper {
     domain.basePrice = raw?.basePrice;
     domain.name = raw?.name;
     domain.description = raw?.description ?? '';
-    domain.images = raw?.images?.map(i => getPublicImageURL('images/product/', i)) || [];
+    domain.images = raw?.images?.map(i => getPublicImageURL('images/product', i)) || [];
 
     domain.minQuantity = raw?.minQuantity;
     domain.participant = raw?.participant;

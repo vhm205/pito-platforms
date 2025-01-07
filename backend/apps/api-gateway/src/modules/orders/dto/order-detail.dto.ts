@@ -150,7 +150,7 @@ export class OrderDetailDto extends OrderDto {
   @Expose()
   @Transform(({ obj }) =>
     get(obj, 'metadata.imageUrls', []).map((url: string) =>
-      getPublicImageURL('images/orders/', url),
+      getPublicImageURL('images/orders', url),
     ),
   )
   imageUrls: string[];

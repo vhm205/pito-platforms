@@ -26,6 +26,7 @@ service MenusService {
   rpc UpdatePartnerStatus (UpdatePartnerStatusRequest) returns (UpdatePartnerStatusResponse);
 
   rpc GetListPartners(GetListPartnersRequest) returns (GetListPartnersResponse);
+  rpc GetPartnerDetails(GetPartnerDetailsRequest) returns (GetPartnerDetailsResponse);
 }
 
 // [START] Find stores by filter
@@ -581,11 +582,37 @@ message GetListPartnersResponse {
     google.protobuf.Struct representative_contact = 4;
     string business_address = 5;
     common.BusinessType business_type = 6;
-    common.Certification certificate_type = 7;
+    common.Certification certification = 7;
     google.protobuf.Timestamp created_at = 8;
     google.protobuf.Timestamp updated_at = 9;
   }
 
-  repeated Partner partners = 1;
+  repeated Partner data = 1;
   int32 total_count = 2;
+  optional string error = 3;
+}
+
+message GetPartnerDetailsRequest {
+  string id = 1;
+}
+
+message GetPartnerDetailsResponse {
+  message Partner {
+    string id = 1;
+    string name = 2;
+    string status = 3;
+    common.BusinessType business_type = 4;
+    common.Certification certification = 5;
+    google.protobuf.Timestamp created_at = 6;
+    google.protobuf.Timestamp updated_at = 7;
+
+    google.protobuf.Struct business_info = 8;
+    google.protobuf.Struct business_owner = 9;
+    google.protobuf.Struct bank_account = 10;
+    repeated string service_types = 11;
+    int32 service_fee_rate = 12;
+  }
+
+  optional Partner data = 1;
+  optional string error = 2;
 }

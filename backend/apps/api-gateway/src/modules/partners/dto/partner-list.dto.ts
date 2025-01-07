@@ -86,7 +86,7 @@ export class PartnerListDto {
     enum: Certification,
     example: Certification.HACCP,
   })
-  certificateType: NullableType<Certification>;
+  certification: NullableType<Certification>;
 
   @Expose()
   @ApiProperty({

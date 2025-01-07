@@ -1,4 +1,5 @@
 // import { GetListPartnersResponse_Partner } from '@app/common';
+import { ServiceType } from '@app/common/enums/partner';
 import { MaybeType, NullableType } from '@app/common/types/common';
 import { BusinessType, Certification } from '@app/common/types/proto/common';
 
@@ -59,10 +60,13 @@ export class Partner {
   name: string;
   status: string;
   businessType: BusinessType;
-  certificateType: Certification;
+  certification: Certification;
   businessInfo: BusinessInfo;
   businessOwner: BusinessOwner;
   bankAccount: BankAccountInfo;
   createdAt: MaybeType<Date>;
   updatedAt: MaybeType<Date>;
+
+  serviceFeeRate: number;
+  serviceTypes: ServiceType[];
 }
