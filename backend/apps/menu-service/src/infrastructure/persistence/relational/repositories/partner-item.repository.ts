@@ -10,9 +10,10 @@ import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/pers
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 import { PartnerItemMapper } from 'apps/menu-service/src/infrastructure/persistence/relational/mappers/partner-item.mapper';
-import { FindOperator, type FindOptionsWhere, type Repository } from 'typeorm';
+import { FindOperator, In, type FindOptionsWhere, type Repository } from 'typeorm';
 
 import { CateringPackageEntity } from '../entities/catering-package.entity';
+import { StoreServiceEntity } from '../entities/store-service.entity';
 
 @Injectable()
 export class PartnerItemRelationalRepository implements PartnerItemRepository {
@@ -25,6 +26,9 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
 
     @InjectRepository(CateringPackageEntity, PARTNER_DB_SOURCE)
     private cateringPackageRepository: Repository<CateringPackageEntity>,
+
+    @InjectRepository(StoreServiceEntity, PARTNER_DB_SOURCE)
+    private storeServiceRepository: Repository<StoreServiceEntity>,
   ) {}
 
   async insertItem(
@@ -203,20 +207,36 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     queryBuilder.skip(skip);
     queryBuilder.take(take);
 
-    const [total, result] = await Promise.all([
+    const [total, { entities, raw }] = await Promise.all([
       queryBuilder.getCount(),
       queryBuilder.getRawAndEntities(),
     ]);
 
+    const storeIds = entities.map(item => item.store?.id);
+    const storeServices = await this.storeServiceRepository.findBy({
+      storeId: In(storeIds),
+    });
+
     /* Transform */
-    const entities = result.entities.map((item, index) => {
-      const raw = result.raw[index];
+    const transformedItems = entities.map((item, index) => {
+      const { status, prepTimes } = item.store;
+      const rawItem = raw[index];
+      const service = storeServices.find(service => service.storeId === item.store.id);
+
       return {
         ...PartnerItemMapper.toDomain(item),
-        distance: raw.distance,
+        store: {
+          status: status as string,
+          prepTimes: prepTimes as any,
+          reopenTime: service?.reopenTime?.toString(),
+        },
+        distance: rawItem.distance,
       };
     });
 
-    return [entities, total] as [PartnerItem[], number];
+    return {
+      items: transformedItems,
+      total,
+    };
   }
 }

@@ -458,6 +458,12 @@ message FindItemsByFiltersResponse {
     int32 service_time = 3;
   }
 
+  message Store {
+    string status = 1;
+    optional string reopenTime = 2;
+    google.protobuf.Struct prepTimes = 3;
+  }
+
   message PartnerItem {
     string id = 1;
     string name = 2;
@@ -482,6 +488,7 @@ message FindItemsByFiltersResponse {
     optional float distance = 21;
     int32 service_type = 22;
     ServiceSetting service_settings = 23;
+    Store store = 24;
   }
   repeated PartnerItem items = 1;
   int32 total_count = 2;

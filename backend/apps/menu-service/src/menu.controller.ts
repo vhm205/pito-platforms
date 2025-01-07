@@ -152,7 +152,7 @@ export class MenuController implements MenusServiceController {
     request.filters ??= [];
     request.sorts ??= [];
 
-    const [items, totalCount] = await this.menuService.findItemsByFilters(request);
+    const { items, totalCount } = await this.menuService.findItemsByFilters(request);
 
     return {
       items,
