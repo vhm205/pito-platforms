@@ -1,4 +1,5 @@
 import { EntityRelationalHelper } from '@app/common';
+import { ServiceType } from '@app/common/enums/partner';
 import { MaybeType } from '@app/common/types/common';
 import {
   BankAccountInfo,
@@ -47,4 +48,7 @@ export class PartnerEntity extends EntityRelationalHelper {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'time with time zone', nullable: true })
   updatedAt: MaybeType<Date>;
+
+  @Column({ type: 'enum', enum: ServiceType, name: 'service_types', array: true, nullable: true })
+  serviceTypes: ServiceType[];
 }

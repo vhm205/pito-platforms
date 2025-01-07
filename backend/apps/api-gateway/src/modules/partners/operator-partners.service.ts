@@ -1,4 +1,4 @@
-import { MENU_SERVICE, MENUS_SERVICE_NAME, MenusServiceClient } from '@app/common';
+import { LoggerService, MENU_SERVICE, MENUS_SERVICE_NAME, MenusServiceClient } from '@app/common';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
 import { emptyPaginationResponse } from '@gateway/utils/common';
@@ -14,14 +14,17 @@ import { PartnerListDto, QueryPartnerListDto } from './dto/partner-list.dto';
 export class OperatorPartnersService implements OnModuleInit {
   private menuServiceClient: MenusServiceClient;
 
-  constructor(@Inject(MENU_SERVICE) private readonly menuClient: ClientGrpc) {}
+  constructor(
+    private readonly logger: LoggerService,
+    @Inject(MENU_SERVICE) private readonly menuClient: ClientGrpc,
+  ) {}
 
   onModuleInit() {
     this.menuServiceClient = this.menuClient.getService<MenusServiceClient>(MENUS_SERVICE_NAME);
   }
 
   async getListPartners(query: QueryPartnerListDto) {
-    const { partners, totalCount } = await firstValueFrom(
+    const { data, totalCount } = await firstValueFrom(
       this.menuServiceClient.getListPartners({
         filters: query.filters,
         pagination: { currentPage: query.page, pageSize: query.pageSize },
@@ -29,7 +32,7 @@ export class OperatorPartnersService implements OnModuleInit {
       }),
     );
 
-    if (isEmpty(partners)) {
+    if (isEmpty(data)) {
       return emptyPaginationResponse({
         page: query.page,
         pageSize: query.pageSize,
@@ -37,7 +40,7 @@ export class OperatorPartnersService implements OnModuleInit {
       });
     }
 
-    const transformedPartners = plainToInstance(PartnerListDto, partners);
+    const transformedPartners = plainToInstance(PartnerListDto, data);
     const pageMeta = new PageMetaDto({
       pageOptions: { page: query.page, pageSize: query.pageSize },
       totalCount,
@@ -47,6 +50,11 @@ export class OperatorPartnersService implements OnModuleInit {
   }
 
   async getPartnerDetails(id: string) {
-    return id;
+    const { data, error } = await firstValueFrom(this.menuServiceClient.getPartnerDetails({ id }));
+    if (error) {
+      this.logger.error(`Error while fetching partner details => ${error}`);
+      throw new Error(error);
+    }
+    return data;
   }
 }

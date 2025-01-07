@@ -11,13 +11,16 @@ export class PartnerMapper {
     domain.status = raw.status;
 
     domain.businessType = raw.businessType;
-    domain.certificateType = raw.certification;
+    domain.certification = raw.certification;
     domain.createdAt = raw.createdAt;
     domain.updatedAt = raw.updatedAt;
 
     domain.businessInfo = raw.businessInfo;
     domain.businessOwner = raw.businessOwner;
     domain.bankAccount = raw.bankAccount;
+
+    domain.serviceFeeRate = raw.serviceFeeRate;
+    domain.serviceTypes = raw.serviceTypes;
 
     return domain;
   }

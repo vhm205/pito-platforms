@@ -44,5 +44,5 @@ export function getImageUrl(imagePath: string): string {
 export const getPublicImageURL = (bucket: string, path: string) => {
   if (!path || path?.startsWith('https')) return path ?? '';
   const baseUrl = process.env.STORAGE_URL!;
-  return baseUrl.concat('/v1/object/public/', bucket, path);
+  return baseUrl.concat('/v1/object/public/', bucket, '/', path);
 };
