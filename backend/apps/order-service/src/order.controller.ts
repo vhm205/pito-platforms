@@ -50,6 +50,7 @@ export class OrderController implements OrdersServiceController {
       OrderStatus.CANCELED,
       OrderStatus.REJECTED,
       OrderStatus.UNCONFIRMED,
+      OrderStatus.CONFIRMED,
       // Additional order statuses that require notifications can be added here
     ].includes(updatedOrder.statusCode);
     if (shouldNotify) {
