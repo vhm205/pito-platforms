@@ -55,4 +55,12 @@ export class OrdersService {
       }),
     );
   }
+
+  getTotalRevenueAndCountOrdersByIds(ids: string | string[]) {
+    const storeIds = Array.isArray(ids) ? ids : [ids];
+    const source$ = this.orderServiceClient
+      .getRevenueAndCountOrderByStoreIds({ ids: storeIds })
+      .pipe(timeout(3000));
+    return firstValueFrom(source$);
+  }
 }
