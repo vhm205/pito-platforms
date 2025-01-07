@@ -529,9 +529,17 @@ export interface UpdateStoreStatusRequest {
   status: string;
 }
 
+export interface UpdateStoreStatusResponse {
+  success: boolean;
+}
+
 export interface UpdatePartnerStatusRequest {
   ids: string[];
   status: string;
+}
+
+export interface UpdatePartnerStatusResponse {
+  success: boolean;
 }
 
 export interface GetListPartnersRequest {
@@ -597,9 +605,9 @@ export interface MenusServiceClient {
 
   updateMenuItem(request: UpdateItemRequest): Observable<PartnerItem>;
 
-  updateStoreStatus(request: UpdateStoreStatusRequest): Observable<Empty>;
+  updateStoreStatus(request: UpdateStoreStatusRequest): Observable<UpdateStoreStatusResponse>;
 
-  updatePartnerStatus(request: UpdatePartnerStatusRequest): Observable<Empty>;
+  updatePartnerStatus(request: UpdatePartnerStatusRequest): Observable<UpdatePartnerStatusResponse>;
 
   getListPartners(request: GetListPartnersRequest): Observable<GetListPartnersResponse>;
 }
@@ -670,11 +678,19 @@ export interface MenusServiceController {
     request: UpdateItemRequest,
   ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
 
-  updateStoreStatus(request: UpdateStoreStatusRequest): Promise<Empty> | Observable<Empty> | Empty;
+  updateStoreStatus(
+    request: UpdateStoreStatusRequest,
+  ):
+    | Promise<UpdateStoreStatusResponse>
+    | Observable<UpdateStoreStatusResponse>
+    | UpdateStoreStatusResponse;
 
   updatePartnerStatus(
     request: UpdatePartnerStatusRequest,
-  ): Promise<Empty> | Observable<Empty> | Empty;
+  ):
+    | Promise<UpdatePartnerStatusResponse>
+    | Observable<UpdatePartnerStatusResponse>
+    | UpdatePartnerStatusResponse;
 
   getListPartners(
     request: GetListPartnersRequest,

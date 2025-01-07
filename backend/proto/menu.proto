@@ -22,8 +22,8 @@ service MenusService {
   rpc GetStoreDetail (GetStoreDetailRequest) returns (GetStoreDetailResponse);
   rpc InsertMenuItem (PartnerItemRequest) returns (PartnerItem);
   rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
-  rpc UpdateStoreStatus (UpdateStoreStatusRequest) returns (Empty);
-  rpc UpdatePartnerStatus (UpdatePartnerStatusRequest) returns (Empty);
+  rpc UpdateStoreStatus (UpdateStoreStatusRequest) returns (UpdateStoreStatusResponse);
+  rpc UpdatePartnerStatus (UpdatePartnerStatusRequest) returns (UpdatePartnerStatusResponse);
 
   rpc GetListPartners(GetListPartnersRequest) returns (GetListPartnersResponse);
 }
@@ -554,9 +554,17 @@ message UpdateStoreStatusRequest {
   string status = 2;
 }
 
+message UpdateStoreStatusResponse {
+  bool success = 1;
+}
+
 message UpdatePartnerStatusRequest {
   repeated string ids = 1;
   string status = 2;
+}
+
+message UpdatePartnerStatusResponse {
+  bool success = 1;
 }
 
 message GetListPartnersRequest {

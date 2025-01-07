@@ -105,10 +105,12 @@ export class StoreService {
   }
 
   async updateStoreStatus(ids: string[], status: StoreStatus) {
-    await this.partnerStoreRepository.updateStoreStatusByIds(ids, status);
+    const { affected } = await this.partnerStoreRepository.updateStoreStatusByIds(ids, status);
+    return { success: affected === ids.length };
   }
 
   async updatePartnerStatus(ids: string[], status: PartnerStatus) {
-    await this.partnerStoreRepository.updatePartnerStatusByIds(ids, status);
+    const { affected } = await this.partnerStoreRepository.updatePartnerStatusByIds(ids, status);
+    return { success: affected === ids.length };
   }
 }

@@ -8,6 +8,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { OperatorPartnersController } from './operator-partners.controller';
 import { OperatorPartnersService } from './operator-partners.service';
+import { PartnersController } from './partner.controller';
+import { PartnersService } from './partner.service';
 
 @Module({
   imports: [
@@ -27,8 +29,8 @@ import { OperatorPartnersService } from './operator-partners.service';
       },
     ]),
   ],
-  controllers: [OperatorPartnersController],
-  providers: [OperatorPartnersService],
+  controllers: [OperatorPartnersController, PartnersController],
+  providers: [OperatorPartnersService, PartnersService],
   exports: [OperatorPartnersService],
 })
 export class PartnersModule {}
