@@ -75,4 +75,8 @@ export class StoreOrderService {
 
     return this.repository.update(storeOrder);
   }
+
+  async getRevenueAndCountOrderByStoreIds(storeIds: string[]) {
+    return this.repository.getTotalRevenueAndCountOrders(storeIds);
+  }
 }

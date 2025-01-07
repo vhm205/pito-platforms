@@ -17,7 +17,7 @@ service MenusService {
   rpc FindItem (FindItemRequest) returns (PartnerItem);
   rpc FindAllCateringPackages (Empty) returns (FindAllCateringPackagesResponse);
   rpc FindItemsByFilters (FindItemsByFiltersRequest) returns (FindItemsByFiltersResponse);
-  
+
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
   rpc GetStoreDetail (GetStoreDetailRequest) returns (GetStoreDetailResponse);
   rpc InsertMenuItem (PartnerItemRequest) returns (PartnerItem);

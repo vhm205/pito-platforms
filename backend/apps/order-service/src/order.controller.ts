@@ -19,6 +19,8 @@ import {
   UpdateOrderRequest,
   FindTransactionsRequest,
   FindTransactionsResponse,
+  GetRevenueAndCountOrderByStoreIdsRequest,
+  GetRevenueAndCountOrderByStoreIdsResponse,
 } from '@app/common/types';
 import { OrderStatus } from '@app/common/types/proto/common';
 import { Controller } from '@nestjs/common';
@@ -149,6 +151,16 @@ export class OrderController implements OrdersServiceController {
     return {
       transactions: transactions.map(transaction => transaction.toMessage()),
       totalCount,
+    };
+  }
+
+  async getRevenueAndCountOrderByStoreIds(
+    request: GetRevenueAndCountOrderByStoreIdsRequest,
+  ): Promise<GetRevenueAndCountOrderByStoreIdsResponse> {
+    const result = await this.storeOrderService.getRevenueAndCountOrderByStoreIds(request.ids);
+
+    return {
+      storeRevenueAndCount: result,
     };
   }
 }
