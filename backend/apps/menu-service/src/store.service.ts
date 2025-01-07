@@ -5,7 +5,8 @@ import {
   FindStoresRequest,
   GetStoreDetailRequest,
 } from '@app/common';
-import { GrpcStatus } from '@app/common/enums';
+import { GrpcStatus, StoreStatus } from '@app/common/enums';
+import { PartnerStatus } from '@app/common/enums/partner';
 import { isValidUUID } from '@gateway/utils/common';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
@@ -21,6 +22,7 @@ export class StoreService {
     private readonly repository: PartnerStoreRepository,
     private readonly storeRepository: StoreRepository,
     private readonly itemRepository: ItemRepository,
+    private readonly partnerStoreRepository: PartnerStoreRepository,
   ) {}
 
   async findStoresAndCount({ filters }: FindStoresRequest) {
@@ -100,5 +102,15 @@ export class StoreService {
 
   async calculateDistance({ geolocation, latitude, longitude }: CalculateDistanceRequest) {
     return this.storeRepository.calculateDistance(geolocation, latitude, longitude);
+  }
+
+  async updateStoreStatus(ids: string[], status: StoreStatus) {
+    const { affected } = await this.partnerStoreRepository.updateStoreStatusByIds(ids, status);
+    return { success: affected === ids.length };
+  }
+
+  async updatePartnerStatus(ids: string[], status: PartnerStatus) {
+    const { affected } = await this.partnerStoreRepository.updatePartnerStatusByIds(ids, status);
+    return { success: affected === ids.length };
   }
 }

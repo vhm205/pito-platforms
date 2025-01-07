@@ -17,11 +17,16 @@ service MenusService {
   rpc FindItem (FindItemRequest) returns (PartnerItem);
   rpc FindAllCateringPackages (Empty) returns (FindAllCateringPackagesResponse);
   rpc FindItemsByFilters (FindItemsByFiltersRequest) returns (FindItemsByFiltersResponse);
-  
+
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
   rpc GetStoreDetail (GetStoreDetailRequest) returns (GetStoreDetailResponse);
   rpc InsertMenuItem (PartnerItemRequest) returns (PartnerItem);
   rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
+  rpc UpdateStoreStatus (UpdateStoreStatusRequest) returns (UpdateStoreStatusResponse);
+  rpc UpdatePartnerStatus (UpdatePartnerStatusRequest) returns (UpdatePartnerStatusResponse);
+
+  rpc GetListPartners(GetListPartnersRequest) returns (GetListPartnersResponse);
+  rpc GetPartnerDetails(GetPartnerDetailsRequest) returns (GetPartnerDetailsResponse);
 }
 
 // [START] Find stores by filter
@@ -224,6 +229,7 @@ message PartnerOptionsChoices {
   int32 max_choices = 7;
   repeated PartnerChoiceOfOption choices = 8;
   optional string type = 9;
+  optional int32 max_quantity = 10;
 }
 
 message ItemServiceSettings {
@@ -452,6 +458,12 @@ message FindItemsByFiltersResponse {
     int32 service_time = 3;
   }
 
+  message Store {
+    string status = 1;
+    optional string reopenTime = 2;
+    google.protobuf.Struct prepTimes = 3;
+  }
+
   message PartnerItem {
     string id = 1;
     string name = 2;
@@ -476,6 +488,7 @@ message FindItemsByFiltersResponse {
     optional float distance = 21;
     int32 service_type = 22;
     ServiceSetting service_settings = 23;
+    Store store = 24;
   }
   repeated PartnerItem items = 1;
   int32 total_count = 2;
@@ -542,4 +555,71 @@ message GetStoreDetailResponse {
   // additional
   repeated CuisineType cuisine_types = 17;
   google.protobuf.Timestamp reopen_time = 18;
+}
+
+message UpdateStoreStatusRequest {
+  repeated string ids = 1;
+  string status = 2;
+}
+
+message UpdateStoreStatusResponse {
+  bool success = 1;
+}
+
+message UpdatePartnerStatusRequest {
+  repeated string ids = 1;
+  string status = 2;
+}
+
+message UpdatePartnerStatusResponse {
+  bool success = 1;
+}
+
+message GetListPartnersRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;     
+  repeated common.FilterRule filters = 3;
+}
+
+message GetListPartnersResponse {
+  message Partner {
+    string id = 1;
+    string name = 2;
+    string status = 3;
+    google.protobuf.Struct representative_contact = 4;
+    string business_address = 5;
+    common.BusinessType business_type = 6;
+    common.Certification certification = 7;
+    google.protobuf.Timestamp created_at = 8;
+    google.protobuf.Timestamp updated_at = 9;
+  }
+
+  repeated Partner data = 1;
+  int32 total_count = 2;
+  optional string error = 3;
+}
+
+message GetPartnerDetailsRequest {
+  string id = 1;
+}
+
+message GetPartnerDetailsResponse {
+  message Partner {
+    string id = 1;
+    string name = 2;
+    string status = 3;
+    common.BusinessType business_type = 4;
+    common.Certification certification = 5;
+    google.protobuf.Timestamp created_at = 6;
+    google.protobuf.Timestamp updated_at = 7;
+
+    google.protobuf.Struct business_info = 8;
+    google.protobuf.Struct business_owner = 9;
+    google.protobuf.Struct bank_account = 10;
+    repeated string service_types = 11;
+    int32 service_fee_rate = 12;
+  }
+
+  optional Partner data = 1;
+  optional string error = 2;
 }

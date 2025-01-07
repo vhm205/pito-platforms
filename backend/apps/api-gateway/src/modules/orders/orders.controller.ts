@@ -20,7 +20,10 @@ import {
   Query,
   NotFoundException,
   HttpException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
+import { ApiOperation, ApiQuery } from '@nestjs/swagger';
 import type { RedisStore } from 'cache-manager-redis-yet';
 import { plainToInstance } from 'class-transformer';
 import { omit } from 'lodash';
@@ -28,6 +31,10 @@ import { omit } from 'lodash';
 import { Auth } from '../../decorators/http.decorator';
 import { AuthenticatedUser } from '../auth/auth-user.interface';
 
+import {
+  GetRevenueAndCountOrderQueryDto,
+  GetRevenueAndCountOrderResponseDto,
+} from './dto/get-revenue-and-count-order.dto';
 import { OrderListingDto } from './dto/order-listing.dto';
 import { UserQueryOrderHistoryDto } from './dto/query-order.dto';
 import { OrdersService } from './orders.service';
@@ -49,6 +56,18 @@ export class OrdersController {
     const result = await this.cacheManager.get('key');
 
     return { result };
+  }
+
+  @Get('stores/revenue')
+  @ApiOperation({ summary: 'Get total orders and revenue by store IDs' })
+  @ApiWrapperResponse({ type: [GetRevenueAndCountOrderResponseDto] })
+  @ApiQuery({ name: 'storeIds', required: true, type: [String], description: 'Array of store IDs' })
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async getRevenueAndCountOrderOfStores(@Query() queryDto: GetRevenueAndCountOrderQueryDto) {
+    const { storeRevenueAndCount } = await this.service.getTotalRevenueAndCountOrdersByIds(
+      queryDto.storeIds,
+    );
+    return storeRevenueAndCount;
   }
 
   @Put()
@@ -107,13 +126,6 @@ export class OrdersController {
     return new PageDto(transformedOrders, pageMeta);
   }
 
-  @Get(':id')
-  @Auth([])
-  @HttpCode(HttpStatus.OK)
-  findOne(@Param('id') id: string) {
-    return this.service.getOrderDetail(id);
-  }
-
   @Get('/bill-of-lading/:orderIdentifier')
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: OrderDetailDto })
@@ -159,5 +171,12 @@ export class OrdersController {
         (error as any).status || HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Get(':id')
+  @Auth([])
+  @HttpCode(HttpStatus.OK)
+  findOne(@Param('id') id: string) {
+    return this.service.getOrderDetail(id);
   }
 }

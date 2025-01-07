@@ -1,6 +1,7 @@
 import {
   FindItemRequest,
   FindItemsByFiltersRequest,
+  FindItemsByFiltersResponse,
   getDateTimeWithOffset,
   ItemFilter,
   PartnerItem,
@@ -314,6 +315,7 @@ export class MenuService {
               isRequired: option?.isRequired ?? false,
               maxChoices: option?.maxChoices ?? 0,
               type: option?.type,
+              maxQuantity: option?.maxQuantity,
               choices: option?.choices?.map(choice => ({
                 id: choice?.id,
                 name: choice?.name,
@@ -329,6 +331,7 @@ export class MenuService {
               isRequired: option?.isRequired ?? false,
               maxChoices: option?.maxChoices ?? 0,
               type: option?.type,
+              maxQuantity: option?.maxQuantity,
               choices: option?.choices?.map(choice => ({
                 id: choice?.id,
                 name: choice?.name,
@@ -442,7 +445,7 @@ export class MenuService {
     sorts,
     latitude,
     longitude,
-  }: FindItemsByFiltersRequest): Promise<[PartnerItem[], number]> {
+  }: FindItemsByFiltersRequest): Promise<FindItemsByFiltersResponse> {
     if (!pagination) {
       throw new RpcException({
         message: 'Pagination is required',
@@ -450,7 +453,7 @@ export class MenuService {
       });
     }
 
-    const [items, total] = await this.partnerItemRepository.findItemsByFilters({
+    const { items, total } = await this.partnerItemRepository.findItemsByFilters({
       pagination,
       filters: filters?.map(transformFilterRule),
       sorts,
@@ -481,6 +484,9 @@ export class MenuService {
       occasionEvents: (item.occasionEvents ?? []).map(id => occasionEventMap[id]).filter(Boolean),
     }));
 
-    return [enrichedItems, total];
+    return {
+      totalCount: total,
+      items: enrichedItems,
+    };
   }
 }

@@ -9,6 +9,7 @@ import { PartnerItemRelationalRepository } from 'apps/menu-service/src/infrastru
 
 import { ItemRepository } from '../item.repository';
 import { PartnerStoreRepository } from '../partner-store.repository';
+import { PartnerRepository } from '../partner.repository';
 import { StoreRepository } from '../store.repository';
 
 import { CategoryEntity } from './entities/category.entity';
@@ -16,11 +17,13 @@ import { CuisineTypeEntity } from './entities/cuisine-type.entity';
 import { ItemEntity } from './entities/item.entity';
 import { OccasionEventEntity } from './entities/occasion-event.entity';
 import { PartnerStoreEntity } from './entities/partner-store.entity';
+import { PartnerEntity } from './entities/partner.entity';
 import { SpecialDietaryEntity } from './entities/special-dietaries.entity';
 import { StoreServiceEntity } from './entities/store-service.entity';
 import { StoreEntity } from './entities/store.entity';
 import { ItemRelationalRepository } from './repositories/item.repository';
 import { PartnerStoreRelationalRepository } from './repositories/partner-store.repository';
+import { PartnerRelationalRepository } from './repositories/partner.repotitory';
 import { StoreRelationalRepository } from './repositories/store.repository';
 
 const customerEntities = [
@@ -33,11 +36,13 @@ const customerEntities = [
 ];
 
 const partnerEntities = [
+  PartnerEntity,
   CateringPackageEntity,
   PartnerItemEntity,
   PartnerMenuCategoriesEntity,
   PartnerStoreEntity,
   StoreServiceEntity,
+  PartnerEntity,
 ];
 
 @Module({
@@ -59,7 +64,17 @@ const partnerEntities = [
       useClass: PartnerItemRelationalRepository,
     },
     { provide: PartnerStoreRepository, useClass: PartnerStoreRelationalRepository },
+    {
+      provide: PartnerRepository,
+      useClass: PartnerRelationalRepository,
+    },
   ],
-  exports: [StoreRepository, ItemRepository, PartnerItemRepository, PartnerStoreRepository],
+  exports: [
+    StoreRepository,
+    ItemRepository,
+    PartnerItemRepository,
+    PartnerStoreRepository,
+    PartnerRepository,
+  ],
 })
 export class RelationalMenuPersistenceModule {}

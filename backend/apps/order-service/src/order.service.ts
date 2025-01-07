@@ -77,8 +77,6 @@ export class OrderService {
         // order.status = ReadableOrderStatus.COMPLETED;
         order.completedAt = timestamp;
         break;
-      default:
-        return order; // don't need to process
     }
 
     const updatedOrder = await this.orderRepository.updateOrder(order);

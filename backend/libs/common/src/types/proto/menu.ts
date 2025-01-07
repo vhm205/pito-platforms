@@ -3,7 +3,7 @@ import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
 import { Struct } from '../google/protobuf/struct';
-import { FilterRule, PaginationRequest, SortRule } from './common';
+import { BusinessType, Certification, FilterRule, PaginationRequest, SortRule } from './common';
 
 export const protobufPackage = 'menu';
 
@@ -214,6 +214,7 @@ export interface PartnerOptionsChoices {
   maxChoices: number;
   choices: PartnerChoiceOfOption[];
   type?: string | undefined;
+  maxQuantity?: number | undefined;
 }
 
 export interface ItemServiceSettings {
@@ -438,6 +439,12 @@ export interface FindItemsByFiltersResponse_ServiceSetting {
   serviceTime: number;
 }
 
+export interface FindItemsByFiltersResponse_Store {
+  status: string;
+  reopenTime?: string | undefined;
+  prepTimes: { [key: string]: any } | undefined;
+}
+
 export interface FindItemsByFiltersResponse_PartnerItem {
   id: string;
   name: string;
@@ -462,6 +469,7 @@ export interface FindItemsByFiltersResponse_PartnerItem {
   distance?: number | undefined;
   serviceType: number;
   serviceSettings: FindItemsByFiltersResponse_ServiceSetting | undefined;
+  store: FindItemsByFiltersResponse_Store | undefined;
 }
 
 export interface GetStoreDetailRequest {
@@ -523,6 +531,72 @@ export interface GetStoreDetailResponse_CuisineType {
   name: string;
 }
 
+export interface UpdateStoreStatusRequest {
+  ids: string[];
+  status: string;
+}
+
+export interface UpdateStoreStatusResponse {
+  success: boolean;
+}
+
+export interface UpdatePartnerStatusRequest {
+  ids: string[];
+  status: string;
+}
+
+export interface UpdatePartnerStatusResponse {
+  success: boolean;
+}
+
+export interface GetListPartnersRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface GetListPartnersResponse {
+  data: GetListPartnersResponse_Partner[];
+  totalCount: number;
+  error?: string | undefined;
+}
+
+export interface GetListPartnersResponse_Partner {
+  id: string;
+  name: string;
+  status: string;
+  representativeContact: { [key: string]: any } | undefined;
+  businessAddress: string;
+  businessType: BusinessType;
+  certification: Certification;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+}
+
+export interface GetPartnerDetailsRequest {
+  id: string;
+}
+
+export interface GetPartnerDetailsResponse {
+  data?: GetPartnerDetailsResponse_Partner | undefined;
+  error?: string | undefined;
+}
+
+export interface GetPartnerDetailsResponse_Partner {
+  id: string;
+  name: string;
+  status: string;
+  businessType: BusinessType;
+  certification: Certification;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  businessInfo: { [key: string]: any } | undefined;
+  businessOwner: { [key: string]: any } | undefined;
+  bankAccount: { [key: string]: any } | undefined;
+  serviceTypes: string[];
+  serviceFeeRate: number;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -562,6 +636,14 @@ export interface MenusServiceClient {
   insertMenuItem(request: PartnerItemRequest): Observable<PartnerItem>;
 
   updateMenuItem(request: UpdateItemRequest): Observable<PartnerItem>;
+
+  updateStoreStatus(request: UpdateStoreStatusRequest): Observable<UpdateStoreStatusResponse>;
+
+  updatePartnerStatus(request: UpdatePartnerStatusRequest): Observable<UpdatePartnerStatusResponse>;
+
+  getListPartners(request: GetListPartnersRequest): Observable<GetListPartnersResponse>;
+
+  getPartnerDetails(request: GetPartnerDetailsRequest): Observable<GetPartnerDetailsResponse>;
 }
 
 export interface MenusServiceController {
@@ -629,6 +711,34 @@ export interface MenusServiceController {
   updateMenuItem(
     request: UpdateItemRequest,
   ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
+
+  updateStoreStatus(
+    request: UpdateStoreStatusRequest,
+  ):
+    | Promise<UpdateStoreStatusResponse>
+    | Observable<UpdateStoreStatusResponse>
+    | UpdateStoreStatusResponse;
+
+  updatePartnerStatus(
+    request: UpdatePartnerStatusRequest,
+  ):
+    | Promise<UpdatePartnerStatusResponse>
+    | Observable<UpdatePartnerStatusResponse>
+    | UpdatePartnerStatusResponse;
+
+  getListPartners(
+    request: GetListPartnersRequest,
+  ):
+    | Promise<GetListPartnersResponse>
+    | Observable<GetListPartnersResponse>
+    | GetListPartnersResponse;
+
+  getPartnerDetails(
+    request: GetPartnerDetailsRequest,
+  ):
+    | Promise<GetPartnerDetailsResponse>
+    | Observable<GetPartnerDetailsResponse>
+    | GetPartnerDetailsResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -647,6 +757,10 @@ export function MenusServiceControllerMethods() {
       'getStoreDetail',
       'insertMenuItem',
       'updateMenuItem',
+      'updateStoreStatus',
+      'updatePartnerStatus',
+      'getListPartners',
+      'getPartnerDetails',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

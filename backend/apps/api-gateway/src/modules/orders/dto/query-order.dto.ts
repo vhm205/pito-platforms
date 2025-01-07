@@ -4,6 +4,7 @@ import {
   parseFilter,
   parseSort,
   SortRule,
+  normalizeArray,
 } from '@gateway/gateway-common/dto/query-dto';
 import { Expose, Transform } from 'class-transformer';
 import { IsArray } from 'class-validator';
@@ -13,10 +14,6 @@ import {
   transformRefundOrderFilter,
   transformStoreOrderFilter,
 } from '../utils/transformer';
-
-function normalizeArray<T>(value: T | T[]): T[] {
-  return (Array.isArray(value) ? value : [value]).filter(Boolean);
-}
 
 export class OperatorQueryOrderDto extends PaginationQueryDto {
   @Expose({ name: 'filter' })

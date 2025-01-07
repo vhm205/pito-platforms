@@ -15,6 +15,7 @@ const OptionChoicesSchema = z.object({
   choices: z.array(ChoiceSchema),
   isRequired: z.boolean(),
   type: z.string().optional(),
+  maxQuantity: z.number().optional(),
   maxChoices: z.number().int().min(0),
   allowMultipleSelection: z.boolean(),
   allowQuantitySelection: z.boolean(),

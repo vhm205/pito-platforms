@@ -1,4 +1,5 @@
 import { FilterOption } from '@app/common';
+import { StoreStatus } from '@app/common/enums';
 import { ItemStatus } from '@app/common/enums/item';
 import {
   FilterRuleDto,
@@ -34,6 +35,21 @@ export class FindItemsQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsLongitude()
   longitude: number;
+}
+
+export class StoreDto {
+  @ApiProperty({
+    example: StoreStatus.ACTIVE,
+    type: String,
+    enum: StoreStatus,
+  })
+  status: StoreStatus;
+
+  @ApiProperty()
+  reopenTime: string;
+
+  @ApiProperty()
+  prepTimes: Record<string, unknown>;
 }
 
 export class FindItemsResponseDto {
@@ -215,4 +231,7 @@ export class FindItemsResponseDto {
     example: 1.0247480869293213,
   })
   distance: number;
+
+  @ApiProperty({ type: StoreDto })
+  store: StoreDto;
 }

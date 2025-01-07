@@ -11,6 +11,7 @@ export enum OrderType {
 
 export enum OrderStatus {
   DRAFT = 0,
+  WAITING_FOR_DEPOSIT = 1,
   PAYMENT_FAILED = 10,
   WAITING_FOR_CONFIRMATION = 20,
   CANCELED = 30,
@@ -33,6 +34,20 @@ export enum PaymentMethod {
   PAYMENT_METHOD_JCB = 4,
   PAYMENT_METHOD_UPI = 5,
   PAYMENT_METHOD_AMEX = 6,
+  UNRECOGNIZED = -1,
+}
+
+export enum BusinessType {
+  COMPANY = 0,
+  INDIVIDUAL = 1,
+  BUSINESS_HOUSEHOLD = 2,
+  UNRECOGNIZED = -1,
+}
+
+export enum Certification {
+  VSATTP = 0,
+  HACCP = 1,
+  ISO = 2,
   UNRECOGNIZED = -1,
 }
 
