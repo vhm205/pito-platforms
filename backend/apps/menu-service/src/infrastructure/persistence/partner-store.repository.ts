@@ -28,6 +28,12 @@ export abstract class PartnerStoreRepository {
 
   abstract findStoreServiceByStoreId(id: string): Promise<NullableType<StoreService>>;
 
-  abstract updateStoreStatusByIds(ids: string[], status: StoreStatus): Promise<void>;
-  abstract updatePartnerStatusByIds(ids: string[], status: PartnerStatus): Promise<void>;
+  abstract updateStoreStatusByIds(
+    ids: string[],
+    status: StoreStatus,
+  ): Promise<{ affected: number }>;
+  abstract updatePartnerStatusByIds(
+    ids: string[],
+    status: PartnerStatus,
+  ): Promise<{ affected: number }>;
 }

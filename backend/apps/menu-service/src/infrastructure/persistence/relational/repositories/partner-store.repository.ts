@@ -71,11 +71,16 @@ export class PartnerStoreRelationalRepository implements PartnerStoreRepository 
     return entity ? StoreServiceMapper.toDomain(entity) : null;
   }
 
-  async updateStoreStatusByIds(ids: string[], status: StoreStatus): Promise<void> {
-    await this.repository.update({ id: In(ids) }, { status, updatedAt: new Date() });
+  async updateStoreStatusByIds(ids: string[], status: StoreStatus) {
+    const result = await this.repository.update({ id: In(ids) }, { status, updatedAt: new Date() });
+    return { affected: result.affected || 0 };
   }
 
-  async updatePartnerStatusByIds(ids: string[], status: PartnerStatus): Promise<void> {
-    await this.partnerRepository.update({ id: In(ids) }, { status, updatedAt: new Date() });
+  async updatePartnerStatusByIds(ids: string[], status: PartnerStatus) {
+    const result = await this.partnerRepository.update(
+      { id: In(ids) },
+      { status, updatedAt: new Date() },
+    );
+    return { affected: result.affected || 0 };
   }
 }

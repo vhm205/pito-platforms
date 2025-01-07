@@ -7,7 +7,7 @@ const PartnerStatusUpdate = [PartnerStatus.STOP_COOPERATION, PartnerStatus.SUSPE
 export class UpdatePartnerStatusRequestDto {
   @ApiProperty()
   @IsArray()
-  @IsUUID()
+  @IsUUID('4', { each: true })
   ids: string[];
 
   @ApiProperty({

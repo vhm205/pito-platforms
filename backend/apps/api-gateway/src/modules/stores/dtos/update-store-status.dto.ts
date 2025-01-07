@@ -7,7 +7,7 @@ const StoreStatusUpdate = [StoreStatus.NOT_ACCEPTING_ORDER, StoreStatus.TEMPORAR
 export class UpdateStoreStatusRequestDto {
   @ApiProperty()
   @IsArray()
-  @IsUUID()
+  @IsUUID('4', { each: true })
   ids: string[];
 
   @ApiProperty({

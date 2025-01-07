@@ -141,7 +141,7 @@ export class StoresController {
     return result;
   }
 
-  @Patch(':identifier/status')
+  @Patch('status')
   @HttpCode(HttpStatus.OK)
   async updateStoreStatus(@Body() body: UpdateStoreStatusRequestDto) {
     const result = await this.storeService.updateStoreStatusByIds({
