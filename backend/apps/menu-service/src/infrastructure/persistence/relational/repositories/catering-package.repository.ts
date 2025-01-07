@@ -11,7 +11,10 @@ import { type Repository } from 'typeorm';
 import { CateringPackageRepository } from '../../catering-package.repository';
 import { CateringPackageOptionEntity } from '../entities/catering-package-option.entity';
 import { CateringPackageEntity } from '../entities/catering-package.entity';
-import { CateringPackageMapper } from '../mappers/catering-package.mapper';
+import {
+  CateringPackageMapper,
+  CateringPackageOptionMapper,
+} from '../mappers/catering-package.mapper';
 
 @Injectable()
 export class CateringPackageRelationalRepository implements CateringPackageRepository {
@@ -63,5 +66,10 @@ export class CateringPackageRelationalRepository implements CateringPackageRepos
   async deleteCateringPackageOption(optionId: number) {
     const deleteResult = await this.cateringPackageOptionRepository.delete(optionId);
     return (deleteResult.affected || 0) > 0;
+  }
+
+  async findCateringPackageOptionsByPackageId(id: number): Promise<CateringPackageOption[]> {
+    const options = await this.cateringPackageOptionRepository.findBy({ packageId: id });
+    return options.map(CateringPackageOptionMapper.toDomain);
   }
 }

@@ -569,4 +569,9 @@ export class MenuService {
     const isSuccess = await this.cateringPackageRepository.deleteCateringPackageOption(id);
     return { success: isSuccess };
   }
+
+  async findCateringPackageOptionsByPackageId(id: number) {
+    const options = await this.cateringPackageRepository.findCateringPackageOptionsByPackageId(id);
+    return { options };
+  }
 }

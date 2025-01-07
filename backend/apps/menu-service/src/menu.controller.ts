@@ -44,6 +44,8 @@ import {
   UpdateCateringPackageOptionResponse,
   DeleteCateringPackageOptionRequest,
   DeleteCateringPackageOptionResponse,
+  GetCateringPackageOptionsRequest,
+  GetCateringPackageOptionsResponse,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -254,5 +256,11 @@ export class MenuController implements MenusServiceController {
     request: DeleteCateringPackageOptionRequest,
   ): Promise<DeleteCateringPackageOptionResponse> {
     return this.menuService.deleteCateringPackageOption(request.id);
+  }
+
+  async getCateringPackageOptions(
+    request: GetCateringPackageOptionsRequest,
+  ): Promise<GetCateringPackageOptionsResponse> {
+    return this.menuService.findCateringPackageOptionsByPackageId(request.packageId);
   }
 }
