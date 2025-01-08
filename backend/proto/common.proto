@@ -69,3 +69,18 @@ enum Certification {
   HACCP = 1;
   ISO = 2;
 }
+
+enum StoreEngagementLevel {
+  EXCLUSIVE = 0;
+  REGULAR = 1;
+  PRIORITY = 2;
+  NEW = 3;
+  NON_PRIORITY = 4;
+}
+
+enum StorePerformanceLevel {
+  EXCELLENT = 0;
+  GOOD = 1;
+  NEEDS_IMPROVEMENT = 2;
+  ALARM = 3;
+}

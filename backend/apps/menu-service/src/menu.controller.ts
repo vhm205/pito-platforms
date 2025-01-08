@@ -37,7 +37,7 @@ import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
 import { CamelCaseResponseInterceptor } from '@app/common/interceptors/convert-to-camel-case.interceptor';
 import { Controller, UseInterceptors } from '@nestjs/common';
-import { isEmpty } from 'lodash';
+import { find, includes, isEmpty } from 'lodash';
 
 import { MenuService } from './menu.service';
 import { PartnerService } from './partner.service';
@@ -95,12 +95,10 @@ export class MenuController implements MenusServiceController {
     request.filters ??= [];
     request.sorts ??= [];
 
-    const { stores, totalCount } = await this.storeService.findStoresWithPagination(request);
-
-    return {
-      stores,
-      totalCount,
-    };
+    if (find(request.filters, filter => includes(['serviceType', 'location'], filter.column))) {
+      return this.storeService.filterStoresWithPagination(request);
+    }
+    return this.storeService.findStoresWithPagination(request);
   }
 
   async findStore(request: FindStoreRequest): Promise<FindStoreResponse> {

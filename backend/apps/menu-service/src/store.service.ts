@@ -11,7 +11,7 @@ import { isValidUUID } from '@gateway/utils/common';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
-import { StoreBankAccount, StoreContactInfo, StoreLocation } from './domain/partner-store.domain';
+import { StoreContactInfo, StoreLocation } from './domain/partner-store.domain';
 import { ItemRepository } from './infrastructure/persistence/item.repository';
 import { PartnerStoreRepository } from './infrastructure/persistence/partner-store.repository';
 import { StoreRepository } from './infrastructure/persistence/store.repository';
@@ -36,17 +36,19 @@ export class StoreService {
       sorts,
     });
 
-    const transformedStores = stores.map(store => ({
-      id: store.id,
-      storeCode: store.storeCode,
-      name: store.name,
-      slug: store.slug,
-      isVat: store.isVat,
-      description: store.description as string,
-      contacts: store.contacts as StoreContactInfo[],
-      location: store.location as StoreLocation,
-      bankAccount: store.bankAccount as StoreBankAccount,
-    }));
+    const transformedStores = stores.map(store => store.toMessage());
+
+    return { stores: transformedStores, totalCount };
+  }
+
+  async filterStoresWithPagination({ pagination, filters, sorts }: FindStoresRequest) {
+    const [stores, totalCount] = await this.repository.filterStores({
+      pagination: pagination!,
+      filters: filters.map(transformFilterRule),
+      sorts,
+    });
+
+    const transformedStores = stores.map(store => store.toMessage());
 
     return { stores: transformedStores, totalCount };
   }

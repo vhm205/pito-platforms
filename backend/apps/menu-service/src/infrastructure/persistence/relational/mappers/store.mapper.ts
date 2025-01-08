@@ -62,6 +62,9 @@ export class PartnerStoreMapper {
     domain.createdAt = raw.createdAt;
     domain.updatedAt = raw.updatedAt;
 
+    domain.engagementLevel = raw.engagementLevel;
+    domain.performanceLevel = raw.performanceLevel;
+
     return domain;
   }
 }

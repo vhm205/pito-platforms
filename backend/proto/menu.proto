@@ -332,6 +332,11 @@ message FindStoresResponse {
     }
 
     BankAccount bank_account = 9;
+    google.protobuf.Timestamp created_at = 10;
+    google.protobuf.Timestamp updated_at = 11;
+    string status = 12;
+    common.StorePerformanceLevel performance_level = 13;
+    common.StoreEngagementLevel engagement_level = 14;
   }
 
   repeated StoreResponse stores = 1;
