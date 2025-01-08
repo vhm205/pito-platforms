@@ -4,8 +4,11 @@ import { MenuType } from '@app/common/enums/menu';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CateringPackage } from 'apps/menu-service/src/domain/catering-package.domain';
-import { PartnerItem } from 'apps/menu-service/src/domain/partner-item.domain';
+import {
+  PartnerItem,
+  CateringPackage,
+  OccasionEvents,
+} from 'apps/menu-service/src/domain/partner-item.domain';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
@@ -13,6 +16,7 @@ import { PartnerItemMapper } from 'apps/menu-service/src/infrastructure/persiste
 import { FindOperator, In, type FindOptionsWhere, type Repository } from 'typeorm';
 
 import { CateringPackageEntity } from '../entities/catering-package.entity';
+import { PartnerOccasionEventEntity } from '../entities/partner-occasion-event.entity';
 import { StoreServiceEntity } from '../entities/store-service.entity';
 
 @Injectable()
@@ -23,6 +27,9 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
 
     @InjectRepository(PartnerMenuCategoriesEntity, PARTNER_DB_SOURCE)
     private partnerMenuCategoriesRepository: Repository<PartnerMenuCategoriesEntity>,
+
+    @InjectRepository(PartnerOccasionEventEntity, PARTNER_DB_SOURCE)
+    private occasionEventRepository: Repository<PartnerOccasionEventEntity>,
 
     @InjectRepository(CateringPackageEntity, PARTNER_DB_SOURCE)
     private cateringPackageRepository: Repository<CateringPackageEntity>,
@@ -81,7 +88,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     });
   }
 
-  async findOne(filter: FindOptionsWhere<Pick<PartnerItemEntity, 'id' | 'slug'>>) {
+  async findOne(filter: FindOptionsWhere<Pick<PartnerItemEntity, 'id' | 'slug' | 'status'>>) {
     const item = await this.partnerItemRepository.findOne({ where: filter });
     return item ? PartnerItemMapper.toDomain(item) : null;
   }
@@ -150,8 +157,17 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
   }
 
   async findAllCateringPackages(): Promise<CateringPackage[]> {
-    const packages = await this.cateringPackageRepository.find();
+    const packages = await this.cateringPackageRepository.findBy({ isActive: true });
     return packages;
+  }
+
+  async findAllOccasionEvents(): Promise<OccasionEvents[]> {
+    const occasionEvents = await this.occasionEventRepository.findBy({ isActive: true });
+    return occasionEvents.map(occasionEvent => ({
+      id: occasionEvent.id,
+      name: occasionEvent.name,
+      isActive: occasionEvent.isActive,
+    }));
   }
 
   async findItemsByFilters(options: {
