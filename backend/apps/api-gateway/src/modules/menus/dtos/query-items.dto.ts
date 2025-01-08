@@ -1,6 +1,7 @@
 import { FilterOption } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { ItemStatus } from '@app/common/enums/item';
+import { MenuType } from '@app/common/enums/menu';
 import {
   FilterRuleDto,
   PaginationQueryDto,
@@ -11,7 +12,7 @@ import {
 import { normalizeArray, transformFilterItem } from '@gateway/modules/menus/utils';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Transform } from 'class-transformer';
-import { IsArray, IsLatitude, IsLongitude, IsOptional } from 'class-validator';
+import { IsArray, IsEnum, IsLatitude, IsLongitude, IsOptional } from 'class-validator';
 
 export class FindItemsQueryDto extends PaginationQueryDto {
   @Expose({ name: 'filter' })
@@ -35,6 +36,11 @@ export class FindItemsQueryDto extends PaginationQueryDto {
   @IsOptional()
   @IsLongitude()
   longitude: number;
+
+  @ApiPropertyOptional({ type: String, enum: MenuType })
+  @IsOptional()
+  @IsEnum(MenuType)
+  menuType: string;
 }
 
 export class StoreDto {

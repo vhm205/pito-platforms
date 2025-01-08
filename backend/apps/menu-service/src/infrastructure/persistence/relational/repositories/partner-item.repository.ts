@@ -1,4 +1,5 @@
 import { PARTNER_DB_SOURCE, PartnerItemRequest, UpdateItemRequest } from '@app/common';
+import { StoreStatus } from '@app/common/enums';
 import { ItemStatus, PackagingType, UnitType } from '@app/common/enums/item';
 import { MenuType } from '@app/common/enums/menu';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
@@ -174,18 +175,18 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     pagination: PaginationRequest;
     filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
-    latitude: number | undefined;
-    longitude: number | undefined;
+    customFilters: Record<string, unknown>;
   }) {
-    const { pagination, sorts, filters, latitude, longitude } = options;
+    const { pagination, sorts, filters, customFilters } = options;
     const skip = (pagination.currentPage - 1) * pagination.pageSize;
     const take = pagination.pageSize;
+    const { latitude, longitude, menuType } = customFilters;
 
     const queryBuilder = this.partnerItemRepository
       .createQueryBuilder('item')
       .innerJoinAndSelect('item.store', 'store')
       .innerJoin('item.menuCategory', 'menuCategory', 'menuCategory.type = :menuType', {
-        menuType: MenuType.SET,
+        menuType: menuType || MenuType.SET,
       });
 
     /* WHERE clause */
@@ -196,6 +197,18 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     }
 
     /* ORDER BY clause */
+    queryBuilder
+      .addSelect(
+        `CASE store.status
+        WHEN '${StoreStatus.ACTIVE}' THEN 1
+        WHEN '${StoreStatus.NOT_ACCEPTING_ORDER}' THEN 2
+        WHEN '${StoreStatus.TEMPORARILY_CLOSED}' THEN 3
+        ELSE 4
+      END`,
+        'store_status_order',
+      )
+      .orderBy('store_status_order', 'ASC');
+
     if (latitude && longitude) {
       const distanceFormula = `
       6371 * acos(
@@ -208,7 +221,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
         userLatitude: latitude,
         userLongitude: longitude,
       });
-      queryBuilder.orderBy('distance', 'ASC');
+      queryBuilder.addOrderBy('distance', 'ASC');
     }
 
     if (sorts.length) {

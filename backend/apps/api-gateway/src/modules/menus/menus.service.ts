@@ -63,7 +63,7 @@ export class MenusService {
   }
 
   async findItemsWithFilters(query: FindItemsQueryDto) {
-    const { filters, page, pageSize, sorts, latitude, longitude } = query;
+    const { filters, page, pageSize, sorts, latitude, longitude, menuType } = query;
 
     const source$ = this.menusService
       .findItemsByFilters({
@@ -72,6 +72,7 @@ export class MenusService {
         sorts,
         latitude,
         longitude,
+        menuType,
       })
       .pipe(timeout(5000));
 

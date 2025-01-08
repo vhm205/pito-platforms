@@ -457,6 +457,7 @@ message FindItemsByFiltersRequest {
   repeated common.FilterRule filters = 3;
   optional float latitude = 4;
   optional float longitude = 5;
+  optional string menu_type = 6;
 }
 
 message FindItemsByFiltersResponse {
