@@ -142,8 +142,7 @@ export class MenuController implements MenusServiceController {
   }
 
   async findAllCateringPackages(): Promise<FindAllCateringPackagesResponse> {
-    const cateringPackages = await this.menuService.findAllCateringPackages();
-    return { cateringPackages };
+    return this.menuService.findAllCateringPackages();
   }
 
   async findItemsByFilters(

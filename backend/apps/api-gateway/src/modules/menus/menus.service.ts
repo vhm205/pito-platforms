@@ -53,8 +53,8 @@ export class MenusService {
     });
   }
 
-  async findItem({ id, slug }: Pick<FindItemRequest, 'id' | 'slug'>) {
-    return firstValueFrom(this.menusService.findItem({ id, slug }));
+  async findItem(request: FindItemRequest) {
+    return firstValueFrom(this.menusService.findItem(request));
   }
 
   async findAllCateringPackages() {
