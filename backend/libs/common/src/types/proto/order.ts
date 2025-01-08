@@ -2,7 +2,6 @@
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
-import { Struct } from '../google/protobuf/struct';
 import {
   FilterRule,
   OrderStatus,
@@ -11,6 +10,7 @@ import {
   PaymentMethod,
   SortRule,
 } from './common';
+import { Struct } from './google/protobuf/struct';
 
 export const protobufPackage = 'order';
 
