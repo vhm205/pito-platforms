@@ -23,6 +23,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { omit, isEmpty } from 'lodash';
 
@@ -88,11 +89,13 @@ export class MenusController {
   @Get('package-items')
   @HttpCode(HttpStatus.OK)
   @ApiPageWrapperResponse({ type: FindItemsResponseDto })
+  @ApiOperation({ summary: 'Find items by filters' })
   async findItemsByFilters(@Query() query: FindItemsQueryDto) {
-    query.filters = [
-      ...(query.filters || []),
-      { column: 'status', operator: 'eq', value: ItemStatus.ACTIVE },
-    ];
+    query.filters.push({
+      column: 'status',
+      operator: 'eq',
+      value: ItemStatus.ACTIVE,
+    });
 
     const { items, totalCount } = await this.menusService.findItemsWithFilters(query);
     const { page, pageSize } = query;
