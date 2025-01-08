@@ -39,9 +39,8 @@ export abstract class PartnerItemRepository {
 
   abstract findItemsByFilters(options: {
     pagination: PaginationRequest;
-    filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
-    latitude: number | undefined;
-    longitude: number | undefined;
+    filters: Record<string, FindOperator<unknown>>[];
+    customFilters: Record<string, unknown>;
   }): Promise<FindItemsByFiltersResult>;
 }

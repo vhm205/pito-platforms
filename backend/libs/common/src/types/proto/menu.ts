@@ -434,6 +434,7 @@ export interface FindItemsByFiltersRequest {
   filters: FilterRule[];
   latitude?: number | undefined;
   longitude?: number | undefined;
+  menuType?: string | undefined;
 }
 
 export interface FindItemsByFiltersResponse {

@@ -450,6 +450,7 @@ export class MenuService {
     sorts,
     latitude,
     longitude,
+    menuType,
   }: FindItemsByFiltersRequest): Promise<FindItemsByFiltersResponse> {
     if (!pagination) {
       throw new RpcException({
@@ -460,10 +461,13 @@ export class MenuService {
 
     const { items, total } = await this.partnerItemRepository.findItemsByFilters({
       pagination,
-      filters: filters?.map(transformFilterRule),
       sorts,
-      latitude,
-      longitude,
+      filters: filters?.map(transformFilterRule),
+      customFilters: {
+        latitude,
+        longitude,
+        menuType,
+      },
     });
 
     const cuisineTypeIds = uniq(compact(items.flatMap(item => item.cuisineTypes ?? [])));
