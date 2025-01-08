@@ -16,6 +16,7 @@ import { CategoryEntity } from './entities/category.entity';
 import { CuisineTypeEntity } from './entities/cuisine-type.entity';
 import { ItemEntity } from './entities/item.entity';
 import { OccasionEventEntity } from './entities/occasion-event.entity';
+import { PartnerOccasionEventEntity } from './entities/partner-occasion-event.entity';
 import { PartnerStoreEntity } from './entities/partner-store.entity';
 import { PartnerEntity } from './entities/partner.entity';
 import { SpecialDietaryEntity } from './entities/special-dietaries.entity';
@@ -43,6 +44,7 @@ const partnerEntities = [
   PartnerStoreEntity,
   StoreServiceEntity,
   PartnerEntity,
+  PartnerOccasionEventEntity,
 ];
 
 @Module({

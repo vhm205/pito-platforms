@@ -21,7 +21,7 @@ import { generateSlug } from 'apps/menu-service/src/utils/slug.util';
 import dayjs from 'dayjs';
 import { compact, keyBy, uniq } from 'lodash';
 
-import { CateringPackage } from './domain/catering-package.domain';
+import { FindAllCateringPackageResponse } from './dtos/get-catering-package.dto';
 import { GetItemInStoreFilterDto } from './dtos/get-items-in-store.dto';
 import { SearchStoreFilterDto } from './dtos/search-store.dto';
 import { ItemRepository } from './infrastructure/persistence/item.repository';
@@ -435,8 +435,13 @@ export class MenuService {
     };
   }
 
-  async findAllCateringPackages(): Promise<CateringPackage[]> {
-    return this.partnerItemRepository.findAllCateringPackages();
+  async findAllCateringPackages(): Promise<FindAllCateringPackageResponse> {
+    const [cateringPackages, occasionEvents] = await Promise.all([
+      this.partnerItemRepository.findAllCateringPackages(),
+      this.partnerItemRepository.findAllOccasionEvents(),
+    ]);
+
+    return { cateringPackages, occasionEvents };
   }
 
   async findItemsByFilters({

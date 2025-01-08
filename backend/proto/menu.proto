@@ -430,6 +430,7 @@ message FindItemRequest {
   oneof filter {
     string id = 1;
     string slug = 2;
+    string status = 3;
   }
 }
 
@@ -440,7 +441,14 @@ message FindAllCateringPackagesResponse {
     bool is_active = 3;
   }
 
+  message OccasionEvent {
+    int32 id = 1;
+    string name = 2;
+    bool is_active = 3;
+  }
+
   repeated CateringPackage catering_packages = 1;
+  repeated OccasionEvent occasion_events = 2;
 }
 
 message FindItemsByFiltersRequest {

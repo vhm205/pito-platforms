@@ -5,6 +5,18 @@ import {
   ItemServiceSettings,
 } from '@app/common';
 
+export class CateringPackage {
+  id: number;
+  name: string;
+  isActive: boolean;
+}
+
+export class OccasionEvents {
+  id: number;
+  name: string;
+  isActive: boolean;
+}
+
 export class PartnerItem
   implements Omit<BasePartnerItem, 'cuisineTypes' | 'occasionEvents' | 'specialDietaries'>
 {

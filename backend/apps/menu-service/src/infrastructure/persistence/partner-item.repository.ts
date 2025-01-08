@@ -1,11 +1,14 @@
 import { PartnerItemRequest, UpdateItemRequest } from '@app/common';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
-import { PartnerItem } from 'apps/menu-service/src/domain/partner-item.domain';
+import {
+  PartnerItem,
+  CateringPackage,
+  OccasionEvents,
+} from 'apps/menu-service/src/domain/partner-item.domain';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 import type { FindOperator, FindOptionsWhere } from 'typeorm';
 
-import { CateringPackage } from '../../domain/catering-package.domain';
 import { FindItemsByFiltersResult } from '../../dtos/get-items-by-filter.dto';
 
 export abstract class PartnerItemRepository {
@@ -31,6 +34,8 @@ export abstract class PartnerItemRepository {
   }): Promise<[PartnerItem[], number]>;
 
   abstract findAllCateringPackages(): Promise<CateringPackage[]>;
+
+  abstract findAllOccasionEvents(): Promise<OccasionEvents[]>;
 
   abstract findItemsByFilters(options: {
     pagination: PaginationRequest;
