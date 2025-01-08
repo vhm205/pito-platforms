@@ -408,13 +408,21 @@ export interface CalculateDistanceResponse {
 export interface FindItemRequest {
   id?: string | undefined;
   slug?: string | undefined;
+  status?: string | undefined;
 }
 
 export interface FindAllCateringPackagesResponse {
   cateringPackages: FindAllCateringPackagesResponse_CateringPackage[];
+  occasionEvents: FindAllCateringPackagesResponse_OccasionEvent[];
 }
 
 export interface FindAllCateringPackagesResponse_CateringPackage {
+  id: number;
+  name: string;
+  isActive: boolean;
+}
+
+export interface FindAllCateringPackagesResponse_OccasionEvent {
   id: number;
   name: string;
   isActive: boolean;
