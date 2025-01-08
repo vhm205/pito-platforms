@@ -2,9 +2,11 @@ import {
   CalculateDistanceRequest,
   GetItemInStoreRequest,
   GetStoreByFilterRequest,
+  GetStoreDetailRequest,
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
+  UpdateStoreStatusRequest,
 } from '@app/common';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -19,12 +21,12 @@ export class StoresService {
   }
 
   searchStores(params: GetStoreByFilterRequest) {
-    const source$ = this.menuService.findStoresByFilter(params).pipe(timeout(2000));
+    const source$ = this.menuService.findStoresByFilter(params).pipe(timeout(5000));
     return firstValueFrom(source$);
   }
 
   getItemsInStore(params: GetItemInStoreRequest) {
-    const source$ = this.menuService.findItemsInStore(params).pipe(timeout(2000));
+    const source$ = this.menuService.findItemsInStore(params).pipe(timeout(5000));
     return firstValueFrom(source$);
   }
 
@@ -35,6 +37,16 @@ export class StoresService {
 
   async calculateDistance(params: CalculateDistanceRequest) {
     const source$ = this.menuService.calculateDistance(params).pipe(timeout(2000));
+    return firstValueFrom(source$);
+  }
+
+  getStoreDetail(request: GetStoreDetailRequest) {
+    const source$ = this.menuService.getStoreDetail(request).pipe(timeout(2000));
+    return firstValueFrom(source$);
+  }
+
+  updateStoreStatusByIds(request: UpdateStoreStatusRequest) {
+    const source$ = this.menuService.updateStoreStatus(request).pipe(timeout(2000));
     return firstValueFrom(source$);
   }
 }

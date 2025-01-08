@@ -77,14 +77,12 @@ export class OrderService {
         // order.status = ReadableOrderStatus.COMPLETED;
         order.completedAt = timestamp;
         break;
-      default:
-        return order; // don't need to process
     }
 
     const updatedOrder = await this.orderRepository.updateOrder(order);
     if (!updatedOrder) {
       throw new RpcException({
-        menubar: `Failed to update order with ID ${order.id}`,
+        message: `Failed to update order with ID ${order.id}`,
         status: GrpcStatus.INTERNAL,
       });
     }

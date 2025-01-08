@@ -15,7 +15,7 @@ export enum MenuStatus {
   APPROVED = 'approved',
 }
 
-@Entity({ name: 'stores' })
+@Entity('stores')
 export class StoreEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('uuid')
   id: string;

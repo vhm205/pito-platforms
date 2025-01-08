@@ -1,4 +1,7 @@
 import {
+  FindItemRequest,
+  FindItemsByFiltersRequest,
+  FindItemsByFiltersResponse,
   getDateTimeWithOffset,
   ItemFilter,
   PartnerItem,
@@ -14,14 +17,15 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
-import { PartnerStoreRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-store.repository';
 import { generateSlug } from 'apps/menu-service/src/utils/slug.util';
 import dayjs from 'dayjs';
 import { compact, keyBy, uniq } from 'lodash';
 
+import { CateringPackage } from './domain/catering-package.domain';
 import { GetItemInStoreFilterDto } from './dtos/get-items-in-store.dto';
 import { SearchStoreFilterDto } from './dtos/search-store.dto';
 import { ItemRepository } from './infrastructure/persistence/item.repository';
+import { PartnerStoreRepository } from './infrastructure/persistence/partner-store.repository';
 import { StoreRepository } from './infrastructure/persistence/store.repository';
 import { mergeFilterOptions } from './utils/get-filter-option.util';
 
@@ -310,6 +314,8 @@ export class MenuService {
               allowQuantitySelection: option?.allowQuantitySelection ?? false,
               isRequired: option?.isRequired ?? false,
               maxChoices: option?.maxChoices ?? 0,
+              type: option?.type,
+              maxQuantity: option?.maxQuantity,
               choices: option?.choices?.map(choice => ({
                 id: choice?.id,
                 name: choice?.name,
@@ -324,6 +330,8 @@ export class MenuService {
               allowQuantitySelection: option?.allowQuantitySelection ?? false,
               isRequired: option?.isRequired ?? false,
               maxChoices: option?.maxChoices ?? 0,
+              type: option?.type,
+              maxQuantity: option?.maxQuantity,
               choices: option?.choices?.map(choice => ({
                 id: choice?.id,
                 name: choice?.name,
@@ -393,5 +401,92 @@ export class MenuService {
     }));
 
     return [enrichedItems, total];
+  }
+
+  async findItem(payload: FindItemRequest) {
+    const item = await this.partnerItemRepository.findOne(payload);
+
+    if (!item) {
+      throw new RpcException({
+        message: 'Menu item not found',
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    const [store, cuisineTypes, specialDietaries, occasionEvents] = await Promise.all([
+      this.partnerStoreRepository.findOne({ id: item.storeId }),
+      item?.cuisineTypes?.length
+        ? this.itemRepository.findAllCuisineTypes(item.cuisineTypes)
+        : Promise.resolve([]),
+      item?.specialDietaries?.length
+        ? this.itemRepository.findAllSpecialDietaries(item.specialDietaries)
+        : Promise.resolve([]),
+      item?.occasionEvents?.length
+        ? this.itemRepository.findAllOccasionEvents(item.occasionEvents)
+        : Promise.resolve([]),
+    ]);
+
+    return {
+      ...item,
+      storeSlug: store?.slug,
+      cuisineTypes,
+      specialDietaries,
+      occasionEvents,
+    };
+  }
+
+  async findAllCateringPackages(): Promise<CateringPackage[]> {
+    return this.partnerItemRepository.findAllCateringPackages();
+  }
+
+  async findItemsByFilters({
+    pagination,
+    filters,
+    sorts,
+    latitude,
+    longitude,
+  }: FindItemsByFiltersRequest): Promise<FindItemsByFiltersResponse> {
+    if (!pagination) {
+      throw new RpcException({
+        message: 'Pagination is required',
+        status: GrpcStatus.INVALID_ARGUMENT,
+      });
+    }
+
+    const { items, total } = await this.partnerItemRepository.findItemsByFilters({
+      pagination,
+      filters: filters?.map(transformFilterRule),
+      sorts,
+      latitude,
+      longitude,
+    });
+
+    const cuisineTypeIds = uniq(compact(items.flatMap(item => item.cuisineTypes ?? [])));
+    const specialDietaryIds = uniq(compact(items.flatMap(item => item.specialDietaries ?? [])));
+    const occasionEventIds = uniq(compact(items.flatMap(item => item.occasionEvents ?? [])));
+
+    const [cuisineTypes, specialDietaries, occasionEvents] = await Promise.all([
+      this.itemRepository.findAllCuisineTypes(cuisineTypeIds),
+      this.itemRepository.findAllSpecialDietaries(specialDietaryIds),
+      this.itemRepository.findAllOccasionEvents(occasionEventIds),
+    ]);
+
+    const cuisineTypeMap = keyBy(cuisineTypes, 'id');
+    const specialDietaryMap = keyBy(specialDietaries, 'id');
+    const occasionEventMap = keyBy(occasionEvents, 'id');
+
+    const enrichedItems = items.map(item => ({
+      ...item,
+      cuisineTypes: (item.cuisineTypes ?? []).map(id => cuisineTypeMap[id]).filter(Boolean),
+      specialDietaries: (item.specialDietaries ?? [])
+        .map(id => specialDietaryMap[id])
+        .filter(Boolean),
+      occasionEvents: (item.occasionEvents ?? []).map(id => occasionEventMap[id]).filter(Boolean),
+    }));
+
+    return {
+      totalCount: total,
+      items: enrichedItems,
+    };
   }
 }

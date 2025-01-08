@@ -1,5 +1,9 @@
-import { SendNotificationDto, PushNotificationDto, SendEmailDto } from '@app/common';
 import { Channel, PushType } from '@app/common/enums';
+import {
+  SendNotificationDto,
+  PushNotificationDto,
+  SendEmailDto,
+} from '@app/common/types/notification';
 import { z, ZodType } from 'zod';
 
 /**

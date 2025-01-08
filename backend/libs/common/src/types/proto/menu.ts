@@ -2,7 +2,8 @@
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
-import { FilterRule, PaginationRequest, SortRule } from './common';
+import { Struct } from '../google/protobuf/struct';
+import { BusinessType, Certification, FilterRule, PaginationRequest, SortRule } from './common';
 
 export const protobufPackage = 'menu';
 
@@ -212,6 +213,14 @@ export interface PartnerOptionsChoices {
   isRequired: boolean;
   maxChoices: number;
   choices: PartnerChoiceOfOption[];
+  type?: string | undefined;
+  maxQuantity?: number | undefined;
+}
+
+export interface ItemServiceSettings {
+  setupTime: number;
+  serviceTime: number;
+  servicePerson: number;
 }
 
 export interface PartnerItemRequest {
@@ -234,6 +243,8 @@ export interface PartnerItemRequest {
   menuId?: string | undefined;
   status?: string | undefined;
   orderDeadlineAt?: string | undefined;
+  serviceType: number;
+  serviceSettings: ItemServiceSettings | undefined;
 }
 
 export interface PartnerItem {
@@ -257,6 +268,11 @@ export interface PartnerItem {
   slug: string;
   status: string;
   orderDeadlineAt?: string | undefined;
+  cateringPackages: number[];
+  menuId: string;
+  serviceType: number;
+  serviceSettings: ItemServiceSettings | undefined;
+  storeSlug?: string | undefined;
 }
 
 export interface FindStoresRequest {
@@ -359,6 +375,8 @@ export interface UpdateItemDetailsRequest {
   status?: string | undefined;
   slug?: string | undefined;
   orderDeadlineAt?: string | undefined;
+  serviceType?: number | undefined;
+  serviceSettings?: ItemServiceSettings | undefined;
 }
 
 export interface UpdateItemRequest {
@@ -387,6 +405,198 @@ export interface CalculateDistanceResponse {
   distance: number;
 }
 
+export interface FindItemRequest {
+  id?: string | undefined;
+  slug?: string | undefined;
+}
+
+export interface FindAllCateringPackagesResponse {
+  cateringPackages: FindAllCateringPackagesResponse_CateringPackage[];
+}
+
+export interface FindAllCateringPackagesResponse_CateringPackage {
+  id: number;
+  name: string;
+  isActive: boolean;
+}
+
+export interface FindItemsByFiltersRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+  latitude?: number | undefined;
+  longitude?: number | undefined;
+}
+
+export interface FindItemsByFiltersResponse {
+  items: FindItemsByFiltersResponse_PartnerItem[];
+  totalCount: number;
+}
+
+export interface FindItemsByFiltersResponse_ServiceSetting {
+  setupTime: number;
+  servicePerson: number;
+  serviceTime: number;
+}
+
+export interface FindItemsByFiltersResponse_Store {
+  status: string;
+  reopenTime?: string | undefined;
+  prepTimes: { [key: string]: any } | undefined;
+}
+
+export interface FindItemsByFiltersResponse_PartnerItem {
+  id: string;
+  name: string;
+  basePrice: number;
+  description: string;
+  specialDietaries: FilterOption[];
+  cuisineTypes: FilterOption[];
+  occasionEvents: FilterOption[];
+  menuCategory: string;
+  images: string[];
+  minQuantity: number;
+  packagingType: string;
+  packagingUnit: string;
+  participant: number;
+  preparationTime: number;
+  storeId: string;
+  optionsChoices: PartnerOptionsChoices[];
+  metadata: Metadata | undefined;
+  slug: string;
+  status: string;
+  orderDeadlineAt?: string | undefined;
+  distance?: number | undefined;
+  serviceType: number;
+  serviceSettings: FindItemsByFiltersResponse_ServiceSetting | undefined;
+  store: FindItemsByFiltersResponse_Store | undefined;
+}
+
+export interface GetStoreDetailRequest {
+  identifier: string;
+}
+
+export interface GetStoreDetailResponse {
+  id: string;
+  partnerId: string;
+  name: string;
+  storeCode: string;
+  status: string;
+  isVat: boolean;
+  slug: string;
+  description?: string | undefined;
+  location: GetStoreDetailResponse_Location | undefined;
+  images: GetStoreDetailResponse_Image | undefined;
+  contacts: GetStoreDetailResponse_ContactInfo[];
+  bankAccount: GetStoreDetailResponse_BankAccount | undefined;
+  prepTimes: { [key: string]: any } | undefined;
+  metadata: { [key: string]: any } | undefined;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  /** additional */
+  cuisineTypes: GetStoreDetailResponse_CuisineType[];
+  reopenTime: Date | undefined;
+}
+
+export interface GetStoreDetailResponse_Location {
+  ward: string;
+  region: string;
+  address: string;
+  district: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface GetStoreDetailResponse_ContactInfo {
+  email: string;
+  phone: string;
+  fullName: string;
+}
+
+export interface GetStoreDetailResponse_BankAccount {
+  bankName: string;
+  bankBranch: string;
+  accountHolder: string;
+  accountNumber: string;
+}
+
+export interface GetStoreDetailResponse_Image {
+  cover: string;
+  avatar: string;
+  thumbnail: string;
+}
+
+export interface GetStoreDetailResponse_CuisineType {
+  id: number;
+  name: string;
+}
+
+export interface UpdateStoreStatusRequest {
+  ids: string[];
+  status: string;
+}
+
+export interface UpdateStoreStatusResponse {
+  success: boolean;
+}
+
+export interface UpdatePartnerStatusRequest {
+  ids: string[];
+  status: string;
+}
+
+export interface UpdatePartnerStatusResponse {
+  success: boolean;
+}
+
+export interface GetListPartnersRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface GetListPartnersResponse {
+  data: GetListPartnersResponse_Partner[];
+  totalCount: number;
+  error?: string | undefined;
+}
+
+export interface GetListPartnersResponse_Partner {
+  id: string;
+  name: string;
+  status: string;
+  representativeContact: { [key: string]: any } | undefined;
+  businessAddress: string;
+  businessType: BusinessType;
+  certification: Certification;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+}
+
+export interface GetPartnerDetailsRequest {
+  id: string;
+}
+
+export interface GetPartnerDetailsResponse {
+  data?: GetPartnerDetailsResponse_Partner | undefined;
+  error?: string | undefined;
+}
+
+export interface GetPartnerDetailsResponse_Partner {
+  id: string;
+  name: string;
+  status: string;
+  businessType: BusinessType;
+  certification: Certification;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  businessInfo: { [key: string]: any } | undefined;
+  businessOwner: { [key: string]: any } | undefined;
+  bankAccount: { [key: string]: any } | undefined;
+  serviceTypes: string[];
+  serviceFeeRate: number;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -398,27 +608,53 @@ wrappers['.google.protobuf.Timestamp'] = {
   },
 } as any;
 
+wrappers['.google.protobuf.Struct'] = { fromObject: Struct.wrap, toObject: Struct.unwrap } as any;
+
 export interface MenusServiceClient {
+  findStores(request: FindStoresRequest): Observable<FindStoresResponse>;
+
+  findStore(request: FindStoreRequest): Observable<FindStoreResponse>;
+
   findStoresByFilter(request: GetStoreByFilterRequest): Observable<GetStoreByFilterResponse>;
+
+  calculateDistance(request: CalculateDistanceRequest): Observable<CalculateDistanceResponse>;
 
   findItemsInStore(request: GetItemInStoreRequest): Observable<GetItemInStoreResponse>;
 
+  findItemsWithPagination(request: FindItemsRequest): Observable<FindItemsResponse>;
+
+  findItem(request: FindItemRequest): Observable<PartnerItem>;
+
+  findAllCateringPackages(request: Empty): Observable<FindAllCateringPackagesResponse>;
+
+  findItemsByFilters(request: FindItemsByFiltersRequest): Observable<FindItemsByFiltersResponse>;
+
   getFilterOptions(request: GetFilterOptionRequest): Observable<GetFilterOptionResponse>;
+
+  getStoreDetail(request: GetStoreDetailRequest): Observable<GetStoreDetailResponse>;
 
   insertMenuItem(request: PartnerItemRequest): Observable<PartnerItem>;
 
   updateMenuItem(request: UpdateItemRequest): Observable<PartnerItem>;
 
-  findStores(request: FindStoresRequest): Observable<FindStoresResponse>;
+  updateStoreStatus(request: UpdateStoreStatusRequest): Observable<UpdateStoreStatusResponse>;
 
-  findStore(request: FindStoreRequest): Observable<FindStoreResponse>;
+  updatePartnerStatus(request: UpdatePartnerStatusRequest): Observable<UpdatePartnerStatusResponse>;
 
-  findItemsWithPagination(request: FindItemsRequest): Observable<FindItemsResponse>;
+  getListPartners(request: GetListPartnersRequest): Observable<GetListPartnersResponse>;
 
-  calculateDistance(request: CalculateDistanceRequest): Observable<CalculateDistanceResponse>;
+  getPartnerDetails(request: GetPartnerDetailsRequest): Observable<GetPartnerDetailsResponse>;
 }
 
 export interface MenusServiceController {
+  findStores(
+    request: FindStoresRequest,
+  ): Promise<FindStoresResponse> | Observable<FindStoresResponse> | FindStoresResponse;
+
+  findStore(
+    request: FindStoreRequest,
+  ): Promise<FindStoreResponse> | Observable<FindStoreResponse> | FindStoreResponse;
+
   findStoresByFilter(
     request: GetStoreByFilterRequest,
   ):
@@ -426,9 +662,36 @@ export interface MenusServiceController {
     | Observable<GetStoreByFilterResponse>
     | GetStoreByFilterResponse;
 
+  calculateDistance(
+    request: CalculateDistanceRequest,
+  ):
+    | Promise<CalculateDistanceResponse>
+    | Observable<CalculateDistanceResponse>
+    | CalculateDistanceResponse;
+
   findItemsInStore(
     request: GetItemInStoreRequest,
   ): Promise<GetItemInStoreResponse> | Observable<GetItemInStoreResponse> | GetItemInStoreResponse;
+
+  findItemsWithPagination(
+    request: FindItemsRequest,
+  ): Promise<FindItemsResponse> | Observable<FindItemsResponse> | FindItemsResponse;
+
+  findItem(request: FindItemRequest): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
+
+  findAllCateringPackages(
+    request: Empty,
+  ):
+    | Promise<FindAllCateringPackagesResponse>
+    | Observable<FindAllCateringPackagesResponse>
+    | FindAllCateringPackagesResponse;
+
+  findItemsByFilters(
+    request: FindItemsByFiltersRequest,
+  ):
+    | Promise<FindItemsByFiltersResponse>
+    | Observable<FindItemsByFiltersResponse>
+    | FindItemsByFiltersResponse;
 
   getFilterOptions(
     request: GetFilterOptionRequest,
@@ -436,6 +699,10 @@ export interface MenusServiceController {
     | Promise<GetFilterOptionResponse>
     | Observable<GetFilterOptionResponse>
     | GetFilterOptionResponse;
+
+  getStoreDetail(
+    request: GetStoreDetailRequest,
+  ): Promise<GetStoreDetailResponse> | Observable<GetStoreDetailResponse> | GetStoreDetailResponse;
 
   insertMenuItem(
     request: PartnerItemRequest,
@@ -445,38 +712,55 @@ export interface MenusServiceController {
     request: UpdateItemRequest,
   ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
 
-  findStores(
-    request: FindStoresRequest,
-  ): Promise<FindStoresResponse> | Observable<FindStoresResponse> | FindStoresResponse;
-
-  findStore(
-    request: FindStoreRequest,
-  ): Promise<FindStoreResponse> | Observable<FindStoreResponse> | FindStoreResponse;
-
-  findItemsWithPagination(
-    request: FindItemsRequest,
-  ): Promise<FindItemsResponse> | Observable<FindItemsResponse> | FindItemsResponse;
-
-  calculateDistance(
-    request: CalculateDistanceRequest,
+  updateStoreStatus(
+    request: UpdateStoreStatusRequest,
   ):
-    | Promise<CalculateDistanceResponse>
-    | Observable<CalculateDistanceResponse>
-    | CalculateDistanceResponse;
+    | Promise<UpdateStoreStatusResponse>
+    | Observable<UpdateStoreStatusResponse>
+    | UpdateStoreStatusResponse;
+
+  updatePartnerStatus(
+    request: UpdatePartnerStatusRequest,
+  ):
+    | Promise<UpdatePartnerStatusResponse>
+    | Observable<UpdatePartnerStatusResponse>
+    | UpdatePartnerStatusResponse;
+
+  getListPartners(
+    request: GetListPartnersRequest,
+  ):
+    | Promise<GetListPartnersResponse>
+    | Observable<GetListPartnersResponse>
+    | GetListPartnersResponse;
+
+  getPartnerDetails(
+    request: GetPartnerDetailsRequest,
+  ):
+    | Promise<GetPartnerDetailsResponse>
+    | Observable<GetPartnerDetailsResponse>
+    | GetPartnerDetailsResponse;
 }
 
 export function MenusServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
-      'findStoresByFilter',
-      'findItemsInStore',
-      'getFilterOptions',
-      'insertMenuItem',
-      'updateMenuItem',
       'findStores',
       'findStore',
-      'findItemsWithPagination',
+      'findStoresByFilter',
       'calculateDistance',
+      'findItemsInStore',
+      'findItemsWithPagination',
+      'findItem',
+      'findAllCateringPackages',
+      'findItemsByFilters',
+      'getFilterOptions',
+      'getStoreDetail',
+      'insertMenuItem',
+      'updateMenuItem',
+      'updateStoreStatus',
+      'updatePartnerStatus',
+      'getListPartners',
+      'getPartnerDetails',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

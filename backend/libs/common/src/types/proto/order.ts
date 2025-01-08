@@ -249,6 +249,20 @@ export interface FindTransactionsResponse_Transaction {
   createdAt: Date | undefined;
 }
 
+export interface GetRevenueAndCountOrderByStoreIdsRequest {
+  ids: string[];
+}
+
+export interface GetRevenueAndCountOrderByStoreIdsResponse {
+  storeRevenueAndCount: GetRevenueAndCountOrderByStoreIdsResponse_StoreRevenueAndCount[];
+}
+
+export interface GetRevenueAndCountOrderByStoreIdsResponse_StoreRevenueAndCount {
+  storeId: string;
+  totalOrders: number;
+  totalRevenue: number;
+}
+
 export const ORDER_PACKAGE_NAME = 'order';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -280,6 +294,10 @@ export interface OrdersServiceClient {
   findStoreOrders(request: FindStoreOrdersRequest): Observable<FindStoreOrdersResponse>;
 
   findTransactions(request: FindTransactionsRequest): Observable<FindTransactionsResponse>;
+
+  getRevenueAndCountOrderByStoreIds(
+    request: GetRevenueAndCountOrderByStoreIdsRequest,
+  ): Observable<GetRevenueAndCountOrderByStoreIdsResponse>;
 }
 
 export interface OrdersServiceController {
@@ -323,6 +341,13 @@ export interface OrdersServiceController {
     | Promise<FindTransactionsResponse>
     | Observable<FindTransactionsResponse>
     | FindTransactionsResponse;
+
+  getRevenueAndCountOrderByStoreIds(
+    request: GetRevenueAndCountOrderByStoreIdsRequest,
+  ):
+    | Promise<GetRevenueAndCountOrderByStoreIdsResponse>
+    | Observable<GetRevenueAndCountOrderByStoreIdsResponse>
+    | GetRevenueAndCountOrderByStoreIdsResponse;
 }
 
 export function OrdersServiceControllerMethods() {
@@ -336,6 +361,7 @@ export function OrdersServiceControllerMethods() {
       'findStoreOrder',
       'findStoreOrders',
       'findTransactions',
+      'getRevenueAndCountOrderByStoreIds',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

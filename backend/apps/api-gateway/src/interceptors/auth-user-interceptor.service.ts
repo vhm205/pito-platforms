@@ -1,4 +1,4 @@
-import { User } from '@app/common';
+import { AuthenticatedUser } from '@gateway/modules/auth/auth-user.interface';
 import type { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 
@@ -9,7 +9,7 @@ export class AuthUserInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler) {
     const request = context.switchToHttp().getRequest();
 
-    const user = request.user as User;
+    const user = request.user as AuthenticatedUser;
     ContextProvider.setAuthUser(user);
 
     return next.handle();

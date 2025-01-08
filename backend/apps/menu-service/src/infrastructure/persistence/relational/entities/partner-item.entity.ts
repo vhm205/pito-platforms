@@ -1,14 +1,24 @@
 import { EntityRelationalHelper } from '@app/common';
-import { PackagingType, ItemStatus, UnitType } from '@app/common/enums/item';
+import { PackagingType, ItemStatus, UnitType, ItemServiceType } from '@app/common/enums/item';
 import { NullableType } from '@app/common/types/common';
-import { RawPartnerItemMetadata, RawPartnerItemOptionAndChoice } from '@app/common/types/item';
+import {
+  RawItemServiceSettings,
+  RawPartnerItemMetadata,
+  RawPartnerItemOptionAndChoice,
+} from '@app/common/types/item';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+import { PartnerMenuCategoriesEntity } from './partner-menu-category.entity';
+import { PartnerStoreEntity } from './partner-store.entity';
 
 @Entity({ name: 'items' })
 export class PartnerItemEntity extends EntityRelationalHelper {
@@ -16,10 +26,16 @@ export class PartnerItemEntity extends EntityRelationalHelper {
   id: string;
 
   @Column('uuid', { name: 'menu_category', nullable: false })
+  @OneToOne(() => PartnerMenuCategoriesEntity)
+  @JoinColumn({ name: 'menu_category' })
   menuCategory: string;
 
   @Column('uuid', { name: 'store_id', nullable: false })
   storeId: string;
+
+  @ManyToOne(() => PartnerStoreEntity)
+  @JoinColumn({ name: 'store_id' })
+  store: PartnerStoreEntity;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
@@ -103,4 +119,20 @@ export class PartnerItemEntity extends EntityRelationalHelper {
 
   @Column('bigint', { name: 'catering_packages', array: true, default: '{}', nullable: false })
   cateringPackages: number[];
+
+  @Column({
+    type: 'int4',
+    name: 'service_type',
+    default: ItemServiceType.SELF_SERVICE,
+    nullable: false,
+  })
+  serviceType: number;
+
+  @Column({
+    type: 'jsonb',
+    name: 'service_settings',
+    default: '{"setup_time": 0, "service_person": 0, "service_time": 0}',
+    nullable: false,
+  })
+  serviceSettings: RawItemServiceSettings;
 }

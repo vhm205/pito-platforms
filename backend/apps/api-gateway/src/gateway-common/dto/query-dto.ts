@@ -119,3 +119,7 @@ export class PaginationQueryDto {
   @IsArray()
   sort: string[];
 }
+
+export function normalizeArray<T>(value: T | T[]): T[] {
+  return (Array.isArray(value) ? value : [value]).filter(Boolean);
+}

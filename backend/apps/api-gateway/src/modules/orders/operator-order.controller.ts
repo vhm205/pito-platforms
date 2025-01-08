@@ -40,6 +40,7 @@ import { OperatorOrderService } from './operator-order.service';
 import { transformCustomer } from './utils/transformer';
 
 const ORDER_STATUS_TRANSITION = new Map([
+  [OrderStatus.WAITING_FOR_DEPOSIT, [OrderStatus.WAITING_FOR_CONFIRMATION, OrderStatus.CANCELED]],
   [
     OrderStatus.WAITING_FOR_CONFIRMATION,
     [OrderStatus.CONFIRMED, OrderStatus.UNCONFIRMED, OrderStatus.CANCELED],

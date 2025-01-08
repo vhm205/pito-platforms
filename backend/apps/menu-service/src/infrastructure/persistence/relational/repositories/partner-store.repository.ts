@@ -1,27 +1,43 @@
 import { PARTNER_DB_SOURCE } from '@app/common';
+import { StoreStatus } from '@app/common/enums';
+import { PartnerStatus } from '@app/common/enums/partner';
 import { NullableType } from '@app/common/types/common';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PartnerStore } from 'apps/menu-service/src/domain/partner-store.domain';
-import type { FindOperator, FindOptionsWhere, Repository } from 'typeorm';
+import { StoreService } from 'apps/menu-service/src/domain/store-service.domain';
+import { In, type FindOperator, type FindOptionsWhere, type Repository } from 'typeorm';
 
 import { PartnerStoreRepository } from '../../partner-store.repository';
 import { PartnerStoreEntity } from '../entities/partner-store.entity';
-import { PartnerStoreMapper } from '../mappers/store.mapper';
+import { PartnerEntity } from '../entities/partner.entity';
+import { StoreServiceEntity } from '../entities/store-service.entity';
+import { PartnerStoreMapper, StoreServiceMapper } from '../mappers/store.mapper';
 
 @Injectable()
 export class PartnerStoreRelationalRepository implements PartnerStoreRepository {
   constructor(
     @InjectRepository(PartnerStoreEntity, PARTNER_DB_SOURCE)
     private readonly repository: Repository<PartnerStoreEntity>,
+    @InjectRepository(StoreServiceEntity, PARTNER_DB_SOURCE)
+    private readonly storeServiceRepository: Repository<StoreServiceEntity>,
+    @InjectRepository(PartnerEntity, PARTNER_DB_SOURCE)
+    private readonly partnerRepository: Repository<PartnerEntity>,
   ) {}
 
   async findOne(
-    filters: FindOptionsWhere<Pick<PartnerStore, 'id' | 'status' | 'slug'>>,
+    filters: FindOptionsWhere<Pick<PartnerStoreEntity, 'id' | 'status' | 'slug'>>,
   ): Promise<NullableType<PartnerStore>> {
     const entity = await this.repository.findOne({ where: filters });
     return entity ? PartnerStoreMapper.toDomain(entity) : null;
+  }
+
+  async findMany(
+    filters: FindOptionsWhere<Pick<PartnerStore, 'id' | 'status' | 'slug'>>,
+  ): Promise<PartnerStore[]> {
+    const entities = await this.repository.findBy(filters);
+    return entities.map(PartnerStoreMapper.toDomain);
   }
 
   async findManyAndCount(
@@ -46,5 +62,25 @@ export class PartnerStoreRelationalRepository implements PartnerStoreRepository 
 
     const domainEntities = entities.map(PartnerStoreMapper.toDomain);
     return [domainEntities, total];
+  }
+
+  async findStoreServiceByStoreId(id: string): Promise<NullableType<StoreService>> {
+    const entity = await this.storeServiceRepository.findOne({
+      where: { storeId: id, isActive: true },
+    });
+    return entity ? StoreServiceMapper.toDomain(entity) : null;
+  }
+
+  async updateStoreStatusByIds(ids: string[], status: StoreStatus) {
+    const result = await this.repository.update({ id: In(ids) }, { status, updatedAt: new Date() });
+    return { affected: result.affected || 0 };
+  }
+
+  async updatePartnerStatusByIds(ids: string[], status: PartnerStatus) {
+    const result = await this.partnerRepository.update(
+      { id: In(ids) },
+      { status, updatedAt: new Date() },
+    );
+    return { affected: result.affected || 0 };
   }
 }

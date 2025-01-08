@@ -2,46 +2,113 @@ syntax = "proto3";
 
 package user;
 
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
 service UsersService {
-  rpc CreateUser (CreateUserDto) returns (User) {}
-  rpc FindAllUsers (Empty) returns (Users) {}
-  rpc FindOneUser (FindOneUserDto) returns (User) {}
-  rpc UpdateUser (UpdateUserDto) returns (User) {}
-  rpc RemoveUser (FindOneUserDto) returns (User) {}
-  rpc QueryUsers (stream PaginationDto) returns (stream Users) {}
+  rpc GetCustomerProfile (GetCustomerProfileRequest) returns (GetCustomerProfileResponse) {}
+  rpc GetPartnerProfile (GetUserPartnerProfileRequest) returns (GetUserPartnerProfileResponse) {}
+  rpc GetOperatorProfile (GetUserPartnerProfileRequest) returns (GetUserPartnerProfileResponse) {}
+  // rpc QueryUsers (stream PaginationDto) returns (stream Users) {}
 }
 
-message PaginationDto {
-  int32 page = 1;
-  int32 skip = 2;
+message GetCustomerProfileRequest {
+  string user_id = 1;
 }
 
-message UpdateUserDto {
+message GetCustomerProfileResponse {
   string id = 1;
-  string fullName = 2;
-  string phone = 3;
+  string email = 2;
+  optional string phone = 3;
+  string first_name = 4;
+  string last_name = 5;
+  optional string avatar = 6;
+  optional string thumbnail = 7;
+  optional string contact_address = 8;
+
+  message DeliveryAddress {
+    string name = 1;
+    string label = 2;
+    string type = 3;
+    bool default = 4;
+  }
+  repeated DeliveryAddress delivery_addresses = 9;
 }
 
-message FindOneUserDto {
+message GetPartnerProfileRequest {
+  string user_id = 1;
+}
+
+message GetPartnerProfileResponse {
   string id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  string partner_name = 3;
+  google.protobuf.Timestamp updated_at = 4;
+  bool is_active = 5;
+  string status = 6;
+  BusinessInfo business_info = 7;
+  BusinessOwner business_owner = 8;
+  BankAccount bank_account = 9;
+  string partner_type = 10;
+  repeated string service_types = 11;
+  optional int32 service_fee_rate = 12; // Use int32 for smallint
+  bool is_vat = 13;
+
+  message BankAccount {
+    string bank_name = 1;
+    string bank_branch = 2;
+    string account_holder = 3;
+    string account_number = 4;
+  }
+
+  message BusinessInfo {
+    string tax_code = 1;
+    string business_name = 2;
+    string business_type = 3;
+    string registration_date = 4;
+    string registration_address = 5;
+    string registration_number = 6;
+  }
+
+  message BusinessOwner {
+    string email = 1;
+    string phone = 2;
+    string full_name = 3;
+  }
+}
+
+message GetOperatorProfileRequest {
+  string user_id = 1;
+}
+
+message GetOperatorProfileResponse {
+  string id = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;
+  string name = 4;
+  string email = 5;
+  optional string phone = 6;
+  google.protobuf.Struct metadata = 7;
+  optional string avatar_url = 8;
+  optional string first_name = 9;
+  optional string last_name = 10;
+}
+
+message GetUserPartnerProfileRequest {
+  string user_id = 1;
+}
+
+message GetUserPartnerProfileResponse {
+  string id = 1;
+  optional string full_name = 2;
+  string email = 3;
+  optional string phone = 4;
+  optional string avatar_url = 5; 
+
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+
+  repeated string roles = 8;
 }
 
 message Empty {};
-
-message Users {
-  repeated User users = 1;
-}
-
-message CreateUserDto {
-  string email = 1;
-  string encrypted_password = 2;
-  string fullName = 3;
-  string phone = 4;
-}
-
-message User {
-  string id = 1;
-  string email = 2;
-  string encrypted_password = 3;
-  string phone = 4;
-}

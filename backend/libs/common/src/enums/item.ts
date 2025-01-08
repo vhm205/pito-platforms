@@ -31,3 +31,9 @@ export enum ItemStatus {
   APPROVED = 'approved',
   DRAFT = 'draft',
 }
+
+export enum ItemServiceType {
+  SELF_SERVICE = 1,
+  SETUP_AND_SELF_SERVICE = 2,
+  SETUP_AND_SERVICE = 3,
+}

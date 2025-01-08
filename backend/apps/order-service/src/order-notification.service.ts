@@ -1,5 +1,6 @@
-import { formatCurrency, formatTimestamp, LoggerService, SendNotificationDto } from '@app/common';
+import { formatCurrency, formatTimestamp, LoggerService } from '@app/common';
 import { Channel, NotificationEventPattern, NotificationType } from '@app/common/enums';
+import { SendNotificationDto } from '@app/common/types/notification';
 import { OrderStatus } from '@app/common/types/proto/common';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RmqRecord, RmqRecordBuilder } from '@nestjs/microservices';

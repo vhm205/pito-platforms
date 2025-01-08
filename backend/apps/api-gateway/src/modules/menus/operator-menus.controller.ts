@@ -10,7 +10,7 @@ import { MenusService } from '@gateway/modules/menus/menus.service';
 import { OperatorMenusService } from '@gateway/modules/menus/operator-menus.service';
 import { DraftBypassPipe } from '@gateway/modules/menus/pipes/draft-bypass.pipe';
 import { UpdateItemSchema } from '@gateway/modules/menus/schemas/item.schema';
-import { emptyPaginationResponse } from '@gateway/utils/common';
+import { emptyPaginationResponse, isValidUUID } from '@gateway/utils/common';
 import {
   Body,
   Controller,
@@ -22,6 +22,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
 import { isEmpty } from 'lodash';
 
 @Controller('operator')
@@ -78,5 +79,16 @@ export class OperatorMenusController {
     });
 
     return updatedItem;
+  }
+
+  @Get('items/:identifier')
+  @Auth([RoleType.OPERATOR])
+  @ApiWrapperResponse({ type: PartnerItemDto })
+  async getMenuItem(@Param('identifier') identifier: string) {
+    const filterCriteria = isValidUUID(identifier) ? { id: identifier } : { slug: identifier };
+    const item = await this.menusService.findItem(filterCriteria);
+    const itemDto = plainToInstance(PartnerItemDto, item, { excludeExtraneousValues: true });
+
+    return itemDto;
   }
 }

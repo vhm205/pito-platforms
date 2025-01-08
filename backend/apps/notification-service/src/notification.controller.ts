@@ -1,6 +1,7 @@
-import { LoggerService, SendNotificationDto } from '@app/common';
+import { LoggerService } from '@app/common';
 import { Channel, NotificationEventPattern } from '@app/common/enums';
 import { ZodValidationPipe } from '@app/common/pipes';
+import { SendNotificationDto } from '@app/common/types/notification';
 import {
   GetTotalNotificationRequest,
   GetTotalNotificationResponse,

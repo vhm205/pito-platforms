@@ -5,6 +5,9 @@ import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persiste
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 import type { FindOperator, FindOptionsWhere } from 'typeorm';
 
+import { CateringPackage } from '../../domain/catering-package.domain';
+import { FindItemsByFiltersResult } from '../../dtos/get-items-by-filter.dto';
+
 export abstract class PartnerItemRepository {
   abstract insertItem(
     payload: PartnerItemRequest & {
@@ -16,7 +19,7 @@ export abstract class PartnerItemRepository {
   abstract getMenuCategoryById(id: string): Promise<PartnerMenuCategoriesEntity | null>;
 
   abstract findOne(
-    filter: FindOptionsWhere<Pick<PartnerItemEntity, 'id' | 'slug'>>,
+    filter: FindOptionsWhere<Pick<PartnerItem, 'id' | 'slug'>>,
   ): Promise<PartnerItem | null>;
 
   abstract updateItem(payload: UpdateItemRequest): Promise<PartnerItem | null>;
@@ -26,4 +29,14 @@ export abstract class PartnerItemRepository {
     filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
   }): Promise<[PartnerItem[], number]>;
+
+  abstract findAllCateringPackages(): Promise<CateringPackage[]>;
+
+  abstract findItemsByFilters(options: {
+    pagination: PaginationRequest;
+    filters: Record<string, FindOperator<unknown>>[];
+    sorts: SortRule[];
+    latitude: number | undefined;
+    longitude: number | undefined;
+  }): Promise<FindItemsByFiltersResult>;
 }

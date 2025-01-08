@@ -1,8 +1,10 @@
 import { getImageUrl } from '@app/common';
 import { PartnerStore } from 'apps/menu-service/src/domain/partner-store.domain';
+import { StoreService } from 'apps/menu-service/src/domain/store-service.domain';
 import { Store } from 'apps/menu-service/src/domain/store.domain';
 
 import { PartnerStoreEntity } from '../entities/partner-store.entity';
+import { StoreServiceEntity } from '../entities/store-service.entity';
 import { StoreEntity } from '../entities/store.entity';
 
 export class StoreMapper {
@@ -41,25 +43,36 @@ export class PartnerStoreMapper {
     const domain = new PartnerStore();
 
     domain.id = raw.id;
-    domain.storeName = raw.storeName;
+    domain.partnerId = raw.partnerId;
+    domain.name = raw.storeName;
+    domain.storeCode = raw.storeCode;
     domain.status = raw.status;
     domain.isVat = raw.isVat;
     domain.slug = raw.slug;
     domain.description = raw.description;
-    domain.contacts = raw.contacts?.map(({ full_name, ...restOfContact }) => ({
-      ...restOfContact,
-      fullName: full_name,
-    }));
-    domain.location = raw.location;
-    domain.bankAccount = {
-      bankName: raw.bankAccount.bank_name,
-      bankBranch: raw.bankAccount.bank_branch,
-      accountHolder: raw.bankAccount.account_holder,
-      accountNumber: raw.bankAccount.account_number,
-    };
+    domain.cuisineTypes = raw.cuisineTypes;
+
+    if (raw.location) domain.location = raw.location;
+    if (raw.images) domain.images = raw.images;
+    if (raw.contacts) domain.contacts = raw.contacts;
+    if (raw.bankAccount) domain.bankAccount = raw.bankAccount;
+    if (raw.prepTimes) domain.prepTimes = raw.prepTimes;
+    if (raw.metadata) domain.metadata = raw.metadata;
 
     domain.createdAt = raw.createdAt;
     domain.updatedAt = raw.updatedAt;
+
+    return domain;
+  }
+}
+
+export class StoreServiceMapper {
+  static toDomain(raw: StoreServiceEntity): StoreService {
+    const domain = new StoreService();
+
+    domain.storeId = raw.storeId;
+    domain.serviceType = raw.serviceType;
+    domain.reopenTime = raw.reopenTime;
 
     return domain;
   }
