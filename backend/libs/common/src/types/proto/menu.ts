@@ -273,6 +273,7 @@ export interface PartnerItem {
   serviceType: number;
   serviceSettings: ItemServiceSettings | undefined;
   storeSlug?: string | undefined;
+  version: number;
 }
 
 export interface FindStoresRequest {
@@ -479,6 +480,7 @@ export interface FindItemsByFiltersResponse_PartnerItem {
   serviceType: number;
   serviceSettings: FindItemsByFiltersResponse_ServiceSetting | undefined;
   store: FindItemsByFiltersResponse_Store | undefined;
+  version: number;
 }
 
 export interface GetStoreDetailRequest {
