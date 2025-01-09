@@ -108,7 +108,7 @@ export class PartnerStoreRelationalRepository implements PartnerStoreRepository 
 
     query.skip((pagination.currentPage - 1) * pagination.pageSize).take(pagination.pageSize);
     sorts.forEach(sort =>
-      query.addOrderBy(`store.${sort.column}`, sort.direction as 'ASC' | 'DESC'),
+      query.addOrderBy(`store.${sort.column}`, sort.direction.toUpperCase() as 'ASC' | 'DESC'),
     );
 
     const [entities, total] = await query.getManyAndCount();
