@@ -14,6 +14,7 @@ import {
   MoreThan,
   MoreThanOrEqual,
   Not,
+  JsonContains,
 } from 'typeorm';
 
 import { FilterRule } from '../types/proto/common';
@@ -34,9 +35,9 @@ export function transformFilterRule(filter: FilterRule) {
     case 'gte':
       return { [column]: MoreThanOrEqual(value) };
     case 'like':
-      return { [column]: Like(`%${value}%`) };
+      return { [column]: Like(value) };
     case 'ilike':
-      return { [column]: ILike(`%${value}%`) };
+      return { [column]: ILike(value) };
     case 'btw':
       const [start, end] = value.split(',').map(v => v.trim());
       return { [column]: Between(start, end) };
@@ -56,8 +57,6 @@ export function transformFilterRule(filter: FilterRule) {
           return { [column]: Equal(true) };
         case 'false':
           return { [column]: Equal(false) };
-        default:
-          return {};
       }
     case 'cs':
       return { [column]: ArrayContains(value.split(',').map(v => v.trim())) };
@@ -65,6 +64,14 @@ export function transformFilterRule(filter: FilterRule) {
       return { [column]: ArrayContainedBy(value.split(',').map(v => v.trim())) };
     case 'ov':
       return { [column]: ArrayOverlap(value.split(',').map(v => v.trim())) };
+    case 'json_contains':
+      let jsonValue = {};
+      try {
+        jsonValue = JSON.parse(value);
+      } catch {
+        jsonValue = {};
+      }
+      return { [column]: JsonContains(jsonValue) };
     default:
       return {};
   }

@@ -46,4 +46,5 @@ export class PartnerItem
   serviceType: number;
   serviceSettings: ItemServiceSettings | undefined;
   serviceCategory: SourceSystemType | undefined;
+  version: number;
 }

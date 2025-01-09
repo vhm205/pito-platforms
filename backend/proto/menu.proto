@@ -288,6 +288,7 @@ message PartnerItem {
   int32 service_type = 23;
   ItemServiceSettings service_settings = 24;
   optional string store_slug = 25;
+  int32 version = 26;
 }
 
 message FindStoresRequest {
@@ -332,6 +333,11 @@ message FindStoresResponse {
     }
 
     BankAccount bank_account = 9;
+    google.protobuf.Timestamp created_at = 10;
+    google.protobuf.Timestamp updated_at = 11;
+    string status = 12;
+    common.StorePerformanceLevel performance_level = 13;
+    common.StoreEngagementLevel engagement_level = 14;
   }
 
   repeated StoreResponse stores = 1;
@@ -499,6 +505,7 @@ message FindItemsByFiltersResponse {
     ServiceSetting service_settings = 23;
     Store store = 24;
     string service_category = 25;
+    int32 version = 25;
   }
   repeated PartnerItem items = 1;
   int32 total_count = 2;

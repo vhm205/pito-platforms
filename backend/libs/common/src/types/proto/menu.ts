@@ -3,7 +3,15 @@ import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
 import { Struct } from '../google/protobuf/struct';
-import { BusinessType, Certification, FilterRule, PaginationRequest, SortRule } from './common';
+import {
+  BusinessType,
+  Certification,
+  FilterRule,
+  PaginationRequest,
+  SortRule,
+  StoreEngagementLevel,
+  StorePerformanceLevel,
+} from './common';
 
 export const protobufPackage = 'menu';
 
@@ -273,6 +281,7 @@ export interface PartnerItem {
   serviceType: number;
   serviceSettings: ItemServiceSettings | undefined;
   storeSlug?: string | undefined;
+  version: number;
 }
 
 export interface FindStoresRequest {
@@ -296,6 +305,11 @@ export interface FindStoresResponse_StoreResponse {
   contacts: FindStoresResponse_StoreResponse_ContactInfo[];
   isVat: boolean;
   bankAccount: FindStoresResponse_StoreResponse_BankAccount | undefined;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  status: string;
+  performanceLevel: StorePerformanceLevel;
+  engagementLevel: StoreEngagementLevel;
 }
 
 export interface FindStoresResponse_StoreResponse_Location {
@@ -480,6 +494,7 @@ export interface FindItemsByFiltersResponse_PartnerItem {
   serviceSettings: FindItemsByFiltersResponse_ServiceSetting | undefined;
   store: FindItemsByFiltersResponse_Store | undefined;
   serviceCategory: string;
+  version: number;
 }
 
 export interface GetStoreDetailRequest {

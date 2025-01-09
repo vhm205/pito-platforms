@@ -38,6 +38,7 @@ export class PartnerItemMapper {
         serviceTime: 0,
       },
       serviceCategory: undefined,
+      version: 1,
     };
 
     domain.id = raw?.id;
@@ -59,6 +60,7 @@ export class PartnerItemMapper {
     domain.packagingUnit = raw?.packagingUnit;
     domain.optionsChoices = [];
     domain.serviceType = raw?.serviceType ?? 1;
+    domain.version = raw?.version ?? 1;
 
     domain.cuisineTypes = raw?.cuisineTypes?.map(Number) ?? [];
     domain.occasionEvents = raw?.occasionEvents?.map(Number) ?? [];

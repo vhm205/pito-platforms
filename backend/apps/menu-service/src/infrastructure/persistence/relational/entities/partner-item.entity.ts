@@ -139,4 +139,12 @@ export class PartnerItemEntity extends EntityRelationalHelper {
 
   @Column({ name: 'service_category', type: 'enum', enum: SourceSystemType, nullable: true })
   serviceCategory: SourceSystemType;
+
+  @Column({
+    type: 'int4',
+    name: 'version',
+    default: 1,
+    nullable: false,
+  })
+  version: number;
 }

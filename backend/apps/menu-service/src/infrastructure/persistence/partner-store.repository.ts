@@ -26,6 +26,12 @@ export abstract class PartnerStoreRepository {
     sorts: SortRule[];
   }): Promise<[PartnerStore[], number]>;
 
+  abstract filterStores(args: {
+    filters: Record<string, FindOperator<unknown>>[];
+    pagination: PaginationRequest;
+    sorts: SortRule[];
+  }): Promise<[PartnerStore[], number]>;
+
   abstract findStoreServiceByStoreId(id: string): Promise<NullableType<StoreService>>;
 
   abstract updateStoreStatusByIds(
