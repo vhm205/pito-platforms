@@ -491,6 +491,7 @@ export class MenuService {
         .map(id => specialDietaryMap[id])
         .filter(Boolean),
       occasionEvents: (item.occasionEvents ?? []).map(id => occasionEventMap[id]).filter(Boolean),
+      serviceCategory: item.serviceCategory as string,
     }));
 
     return {
