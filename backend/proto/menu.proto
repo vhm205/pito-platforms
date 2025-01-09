@@ -505,7 +505,7 @@ message FindItemsByFiltersResponse {
     ServiceSetting service_settings = 23;
     Store store = 24;
     string service_category = 25;
-    int32 version = 25;
+    int32 version = 26;
   }
   repeated PartnerItem items = 1;
   int32 total_count = 2;
