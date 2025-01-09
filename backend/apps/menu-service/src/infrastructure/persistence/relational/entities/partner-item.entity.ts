@@ -1,4 +1,5 @@
 import { EntityRelationalHelper } from '@app/common';
+import { SourceSystemType } from '@app/common/enums';
 import { PackagingType, ItemStatus, UnitType, ItemServiceType } from '@app/common/enums/item';
 import { NullableType } from '@app/common/types/common';
 import {
@@ -135,4 +136,7 @@ export class PartnerItemEntity extends EntityRelationalHelper {
     nullable: false,
   })
   serviceSettings: RawItemServiceSettings;
+
+  @Column({ name: 'service_category', type: 'enum', enum: SourceSystemType, nullable: true })
+  serviceCategory: SourceSystemType;
 }

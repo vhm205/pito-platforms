@@ -37,6 +37,7 @@ export class PartnerItemMapper {
         servicePerson: 0,
         serviceTime: 0,
       },
+      serviceCategory: undefined,
     };
 
     domain.id = raw?.id;
@@ -63,6 +64,7 @@ export class PartnerItemMapper {
     domain.occasionEvents = raw?.occasionEvents?.map(Number) ?? [];
     domain.specialDietaries = raw?.specialDietaries?.map(Number) ?? [];
     domain.cateringPackages = raw?.cateringPackages?.map(Number) ?? [];
+    domain.serviceCategory = raw?.serviceCategory;
 
     if (raw?.orderDeadlineAt) {
       domain.orderDeadlineAt = raw.orderDeadlineAt as unknown as string;
