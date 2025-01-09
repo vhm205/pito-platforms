@@ -2,8 +2,16 @@
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
-import { BusinessType, Certification, FilterRule, PaginationRequest, SortRule } from './common';
-import { Struct } from './google/protobuf/struct';
+import { Struct } from '../google/protobuf/struct';
+import {
+  BusinessType,
+  Certification,
+  FilterRule,
+  PaginationRequest,
+  SortRule,
+  StoreEngagementLevel,
+  StorePerformanceLevel,
+} from './common';
 
 export const protobufPackage = 'menu';
 
@@ -297,6 +305,11 @@ export interface FindStoresResponse_StoreResponse {
   contacts: FindStoresResponse_StoreResponse_ContactInfo[];
   isVat: boolean;
   bankAccount: FindStoresResponse_StoreResponse_BankAccount | undefined;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  status: string;
+  performanceLevel: StorePerformanceLevel;
+  engagementLevel: StoreEngagementLevel;
 }
 
 export interface FindStoresResponse_StoreResponse_Location {

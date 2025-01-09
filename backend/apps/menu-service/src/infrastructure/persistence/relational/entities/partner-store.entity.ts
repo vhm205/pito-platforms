@@ -1,5 +1,6 @@
 import { StoreStatus } from '@app/common/enums';
 import { NullableType, ObjectType } from '@app/common/types/common';
+import { StoreEngagementLevel, StorePerformanceLevel } from '@app/common/types/proto/common';
 import {
   StoreBankAccount,
   StoreContactInfo,
@@ -12,7 +13,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+
+import { StoreServiceEntity } from './store-service.entity';
 
 @Entity('stores')
 export class PartnerStoreEntity {
@@ -69,4 +73,14 @@ export class PartnerStoreEntity {
 
   @UpdateDateColumn({ type: 'timestamptz', name: 'updated_at', nullable: true })
   updatedAt: NullableType<Date>;
+
+  @Column({ type: 'int2', name: 'engagement_level', nullable: false })
+  engagementLevel: StoreEngagementLevel;
+
+  @Column({ type: 'int2', name: 'performance_level', nullable: false })
+  performanceLevel: StorePerformanceLevel;
+
+  // join with store_services table
+  @OneToMany(() => StoreServiceEntity, service => service.store)
+  services: StoreServiceEntity[];
 }

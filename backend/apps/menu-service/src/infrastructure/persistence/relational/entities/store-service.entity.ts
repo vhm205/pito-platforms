@@ -1,11 +1,17 @@
 import { ServiceType } from '@app/common/enums/partner';
 import { NullableType } from '@app/common/types/common';
-import { Entity, PrimaryColumn, Column } from 'typeorm';
+import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+
+import { PartnerStoreEntity } from './partner-store.entity';
 
 @Entity('store_services')
 export class StoreServiceEntity {
   @PrimaryColumn({ name: 'store_id', type: 'uuid' })
   storeId: string;
+
+  @ManyToOne(() => PartnerStoreEntity, store => store.id)
+  @JoinColumn({ name: 'store_id' })
+  store: PartnerStoreEntity;
 
   @PrimaryColumn({ name: 'service_type', type: 'enum', enum: ServiceType })
   serviceType: ServiceType;
