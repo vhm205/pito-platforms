@@ -622,6 +622,69 @@ export interface GetPartnerDetailsResponse_Partner {
   serviceFeeRate: number;
 }
 
+/** Catering Package */
+export interface CreateCateringPackageRequest {
+  name: string;
+}
+
+export interface CreateCateringPackageResponse {
+  id: number;
+}
+
+export interface UpdateCateringPackageRequest {
+  id: number;
+  name?: string | undefined;
+  isActive?: boolean | undefined;
+}
+
+export interface UpdateCateringPackageResponse {
+  affectedRows: number;
+}
+
+export interface DeleteCateringPackageRequest {
+  id: number;
+}
+
+export interface DeleteCateringPackageResponse {
+  success: boolean;
+}
+
+/** Catering Package Option */
+export interface CateringPackageOption {
+  id: number;
+  packageId: number;
+  name: string;
+  status: string;
+}
+
+export interface CreateCateringPackageOptionRequest {
+  packageId: number;
+  name: string;
+  status: string;
+}
+
+export interface CreateCateringPackageOptionResponse {
+  id: number;
+}
+
+export interface UpdateCateringPackageOptionRequest {
+  id: number;
+  name?: string | undefined;
+  status?: string | undefined;
+}
+
+export interface UpdateCateringPackageOptionResponse {
+  affectedRows: number;
+}
+
+export interface DeleteCateringPackageOptionRequest {
+  id: number;
+}
+
+export interface DeleteCateringPackageOptionResponse {
+  success: boolean;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -669,6 +732,30 @@ export interface MenusServiceClient {
   getListPartners(request: GetListPartnersRequest): Observable<GetListPartnersResponse>;
 
   getPartnerDetails(request: GetPartnerDetailsRequest): Observable<GetPartnerDetailsResponse>;
+
+  createCateringPackage(
+    request: CreateCateringPackageRequest,
+  ): Observable<CreateCateringPackageResponse>;
+
+  updateCateringPackage(
+    request: UpdateCateringPackageRequest,
+  ): Observable<UpdateCateringPackageResponse>;
+
+  deleteCateringPackage(
+    request: DeleteCateringPackageRequest,
+  ): Observable<DeleteCateringPackageResponse>;
+
+  createCateringPackageOption(
+    request: CreateCateringPackageOptionRequest,
+  ): Observable<CreateCateringPackageOptionResponse>;
+
+  updateCateringPackageOption(
+    request: UpdateCateringPackageOptionRequest,
+  ): Observable<UpdateCateringPackageOptionResponse>;
+
+  deleteCateringPackageOption(
+    request: DeleteCateringPackageOptionRequest,
+  ): Observable<DeleteCateringPackageOptionResponse>;
 }
 
 export interface MenusServiceController {
@@ -764,6 +851,48 @@ export interface MenusServiceController {
     | Promise<GetPartnerDetailsResponse>
     | Observable<GetPartnerDetailsResponse>
     | GetPartnerDetailsResponse;
+
+  createCateringPackage(
+    request: CreateCateringPackageRequest,
+  ):
+    | Promise<CreateCateringPackageResponse>
+    | Observable<CreateCateringPackageResponse>
+    | CreateCateringPackageResponse;
+
+  updateCateringPackage(
+    request: UpdateCateringPackageRequest,
+  ):
+    | Promise<UpdateCateringPackageResponse>
+    | Observable<UpdateCateringPackageResponse>
+    | UpdateCateringPackageResponse;
+
+  deleteCateringPackage(
+    request: DeleteCateringPackageRequest,
+  ):
+    | Promise<DeleteCateringPackageResponse>
+    | Observable<DeleteCateringPackageResponse>
+    | DeleteCateringPackageResponse;
+
+  createCateringPackageOption(
+    request: CreateCateringPackageOptionRequest,
+  ):
+    | Promise<CreateCateringPackageOptionResponse>
+    | Observable<CreateCateringPackageOptionResponse>
+    | CreateCateringPackageOptionResponse;
+
+  updateCateringPackageOption(
+    request: UpdateCateringPackageOptionRequest,
+  ):
+    | Promise<UpdateCateringPackageOptionResponse>
+    | Observable<UpdateCateringPackageOptionResponse>
+    | UpdateCateringPackageOptionResponse;
+
+  deleteCateringPackageOption(
+    request: DeleteCateringPackageOptionRequest,
+  ):
+    | Promise<DeleteCateringPackageOptionResponse>
+    | Observable<DeleteCateringPackageOptionResponse>
+    | DeleteCateringPackageOptionResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -786,6 +915,12 @@ export function MenusServiceControllerMethods() {
       'updatePartnerStatus',
       'getListPartners',
       'getPartnerDetails',
+      'createCateringPackage',
+      'updateCateringPackage',
+      'deleteCateringPackage',
+      'createCateringPackageOption',
+      'updateCateringPackageOption',
+      'deleteCateringPackageOption',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

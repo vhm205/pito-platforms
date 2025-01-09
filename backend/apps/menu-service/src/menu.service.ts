@@ -1,4 +1,10 @@
 import {
+  CreateCateringPackageOptionRequest,
+  CreateCateringPackageOptionResponse,
+  CreateCateringPackageRequest,
+  CreateCateringPackageResponse,
+  DeleteCateringPackageOptionResponse,
+  DeleteCateringPackageResponse,
   FindItemRequest,
   FindItemsByFiltersRequest,
   FindItemsByFiltersResponse,
@@ -8,6 +14,10 @@ import {
   PartnerItemRequest,
   StoreFilter,
   transformFilterRule,
+  UpdateCateringPackageOptionRequest,
+  UpdateCateringPackageOptionResponse,
+  UpdateCateringPackageRequest,
+  UpdateCateringPackageResponse,
   UpdateItemRequest,
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
@@ -24,6 +34,7 @@ import { compact, keyBy, uniq } from 'lodash';
 import { FindAllCateringPackageResponse } from './dtos/get-catering-package.dto';
 import { GetItemInStoreFilterDto } from './dtos/get-items-in-store.dto';
 import { SearchStoreFilterDto } from './dtos/search-store.dto';
+import { CateringPackageRepository } from './infrastructure/persistence/catering-package.repository';
 import { ItemRepository } from './infrastructure/persistence/item.repository';
 import { PartnerStoreRepository } from './infrastructure/persistence/partner-store.repository';
 import { StoreRepository } from './infrastructure/persistence/store.repository';
@@ -37,6 +48,7 @@ export class MenuService {
     private readonly itemRepository: ItemRepository,
     private readonly partnerItemRepository: PartnerItemRepository,
     private readonly partnerStoreRepository: PartnerStoreRepository,
+    private readonly cateringPackageRepository: CateringPackageRepository,
   ) {}
 
   async findStoresByFilter(
@@ -498,5 +510,63 @@ export class MenuService {
       totalCount: total,
       items: enrichedItems,
     };
+  }
+
+  async createCateringPackage(
+    data: CreateCateringPackageRequest,
+  ): Promise<CreateCateringPackageResponse> {
+    const newCateringPackage = {
+      ...data,
+      isActive: true,
+    };
+    const insertedId =
+      await this.cateringPackageRepository.createCateringPackage(newCateringPackage);
+
+    return { id: insertedId };
+  }
+
+  async updateCateringPackage(
+    payload: UpdateCateringPackageRequest,
+  ): Promise<UpdateCateringPackageResponse> {
+    const { id, ...data } = payload;
+    const { affected } = await this.cateringPackageRepository.updateCateringPackage(id, data);
+    return { affectedRows: affected };
+  }
+
+  async deleteCateringPackage(id: number): Promise<DeleteCateringPackageResponse> {
+    const isSuccess = await this.cateringPackageRepository.deleteCateringPackage(id);
+    return { success: isSuccess };
+  }
+
+  async createCateringPackageOption(
+    data: CreateCateringPackageOptionRequest,
+  ): Promise<CreateCateringPackageOptionResponse> {
+    const cateringPackage = await this.cateringPackageRepository.findCateringPackageById(
+      data.packageId,
+    );
+
+    if (!cateringPackage) {
+      throw new RpcException({
+        message: `Catering package not found with id ${data.packageId}`,
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    const insertedId = await this.cateringPackageRepository.createCateringPackageOption(data);
+
+    return { id: insertedId };
+  }
+
+  async updateCateringPackageOption(
+    payload: UpdateCateringPackageOptionRequest,
+  ): Promise<UpdateCateringPackageOptionResponse> {
+    const { id, ...data } = payload;
+    const { affected } = await this.cateringPackageRepository.updateCateringPackageOption(id, data);
+    return { affectedRows: affected };
+  }
+
+  async deleteCateringPackageOption(id: number): Promise<DeleteCateringPackageOptionResponse> {
+    const isSuccess = await this.cateringPackageRepository.deleteCateringPackageOption(id);
+    return { success: isSuccess };
   }
 }
