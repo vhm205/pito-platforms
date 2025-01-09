@@ -235,15 +235,16 @@ export class PartnerItemDto implements PartnerItem {
 
   @ApiProperty({
     type: String,
-    example: 'yes',
-  })
-  @Expose()
-  eatingUtensil: string;
-
-  @ApiProperty({
-    type: String,
     example: 'abc-xyz',
   })
   @Expose()
   storeSlug: string;
+
+  @ApiProperty({
+    description: 'Version',
+    type: 'number',
+    example: 1,
+  })
+  @Expose()
+  version: number;
 }

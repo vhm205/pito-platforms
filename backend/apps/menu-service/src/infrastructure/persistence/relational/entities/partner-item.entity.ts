@@ -135,4 +135,12 @@ export class PartnerItemEntity extends EntityRelationalHelper {
     nullable: false,
   })
   serviceSettings: RawItemServiceSettings;
+
+  @Column({
+    type: 'int4',
+    name: 'version',
+    default: 1,
+    nullable: false,
+  })
+  version: number;
 }

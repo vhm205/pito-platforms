@@ -288,6 +288,7 @@ message PartnerItem {
   int32 service_type = 23;
   ItemServiceSettings service_settings = 24;
   optional string store_slug = 25;
+  int32 version = 26;
 }
 
 message FindStoresRequest {
@@ -498,6 +499,7 @@ message FindItemsByFiltersResponse {
     int32 service_type = 22;
     ServiceSetting service_settings = 23;
     Store store = 24;
+    int32 version = 25;
   }
   repeated PartnerItem items = 1;
   int32 total_count = 2;
