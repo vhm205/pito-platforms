@@ -35,9 +35,9 @@ export function transformFilterRule(filter: FilterRule) {
     case 'gte':
       return { [column]: MoreThanOrEqual(value) };
     case 'like':
-      return { [column]: Like(value) };
+      return { [column]: Like(`%${value}%`) };
     case 'ilike':
-      return { [column]: ILike(value) };
+      return { [column]: ILike(`%${value}%`) };
     case 'btw':
       const [start, end] = value.split(',').map(v => v.trim());
       return { [column]: Between(start, end) };

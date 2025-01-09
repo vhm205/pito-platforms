@@ -19,6 +19,10 @@ export class OperatorStoresController {
   @HttpCode(HttpStatus.OK)
   @ApiPageWrapperResponse({ type: StoreListDto })
   async getListStores(@Query() query: QueryStoreListDto) {
+    query.filters.forEach(filter => {
+      if (filter.column === 'name') filter.column = 'storeName';
+    });
+
     const { stores, totalCount } = await this.service.getListStores(query);
     if (isEmpty(stores)) {
       return emptyPaginationResponse({
