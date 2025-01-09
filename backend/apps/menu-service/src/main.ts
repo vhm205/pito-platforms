@@ -23,6 +23,8 @@ async function bootstrap() {
   });
   app.useLogger(app.get(LoggerService));
 
+  // TEMP: trigger deploy
+
   await app.listen();
 }
 bootstrap();
