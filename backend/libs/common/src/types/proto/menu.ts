@@ -493,6 +493,7 @@ export interface FindItemsByFiltersResponse_PartnerItem {
   serviceType: number;
   serviceSettings: FindItemsByFiltersResponse_ServiceSetting | undefined;
   store: FindItemsByFiltersResponse_Store | undefined;
+  serviceCategory: string;
   version: number;
 }
 

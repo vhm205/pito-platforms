@@ -1,5 +1,5 @@
 import { FilterOption } from '@app/common';
-import { StoreStatus } from '@app/common/enums';
+import { SourceSystemType, StoreStatus } from '@app/common/enums';
 import { ItemStatus } from '@app/common/enums/item';
 import { MenuType } from '@app/common/enums/menu';
 import {
@@ -240,4 +240,7 @@ export class FindItemsResponseDto {
 
   @ApiProperty({ type: StoreDto })
   store: StoreDto;
+
+  @ApiProperty({ type: 'string', enum: SourceSystemType })
+  serviceCategory: SourceSystemType;
 }

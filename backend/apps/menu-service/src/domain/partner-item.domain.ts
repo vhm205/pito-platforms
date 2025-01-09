@@ -4,6 +4,7 @@ import {
   PartnerOptionsChoices,
   ItemServiceSettings,
 } from '@app/common';
+import { SourceSystemType } from '@app/common/enums';
 
 export class CateringPackage {
   id: number;
@@ -44,5 +45,6 @@ export class PartnerItem
   orderDeadlineAt?: string | undefined;
   serviceType: number;
   serviceSettings: ItemServiceSettings | undefined;
+  serviceCategory: SourceSystemType | undefined;
   version: number;
 }
