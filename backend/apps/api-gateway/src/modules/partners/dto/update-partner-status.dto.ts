@@ -6,6 +6,7 @@ const PartnerStatusUpdate = [
   PartnerStatus.STOP_COOPERATION,
   PartnerStatus.SUSPEND,
   PartnerStatus.APPROVED,
+  PartnerStatus.REJECTED,
 ];
 
 export class UpdatePartnerStatusRequestDto {
