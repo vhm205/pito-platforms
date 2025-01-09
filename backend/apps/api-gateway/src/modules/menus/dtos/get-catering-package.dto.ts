@@ -29,3 +29,24 @@ export class GetCateringPackageResponseDto {
   @ApiProperty({ type: () => [OccasionEventsResponse] })
   occationEvents: OccasionEventsResponse[];
 }
+
+export class CateringPackageOptionDto {
+  @ApiProperty({ example: 1 })
+  id: number;
+
+  @ApiProperty({ example: 1 })
+  packageId: number;
+
+  @ApiProperty({ example: 'Option Name' })
+  name: string;
+
+  @ApiProperty({ example: 'active' })
+  status: string;
+}
+
+export class GetCateringPackageOptionsResponseDto {
+  @ApiProperty({
+    type: [CateringPackageOptionDto],
+  })
+  options: CateringPackageOptionDto[];
+}

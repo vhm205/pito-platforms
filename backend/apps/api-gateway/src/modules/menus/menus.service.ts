@@ -78,4 +78,9 @@ export class MenusService {
 
     return firstValueFrom(source$);
   }
+
+  async findCateringPackageOptionsByPackageId(packageId: number) {
+    const source$ = this.menusService.getCateringPackageOptions({ packageId }).pipe(timeout(2000));
+    return firstValueFrom(source$);
+  }
 }

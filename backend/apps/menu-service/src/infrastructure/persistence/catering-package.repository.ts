@@ -24,4 +24,6 @@ export abstract class CateringPackageRepository {
   ): Promise<{ affected: number }>;
 
   abstract deleteCateringPackageOption(optionId: number): Promise<boolean>;
+
+  abstract findCateringPackageOptionsByPackageId(id: number): Promise<CateringPackageOption[]>;
 }

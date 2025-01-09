@@ -22,14 +22,18 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  ParseIntPipe,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { omit, isEmpty } from 'lodash';
 
 import { Auth } from '../../decorators/http.decorator';
 
-import { GetCateringPackageResponseDto } from './dtos/get-catering-package.dto';
+import {
+  GetCateringPackageOptionsResponseDto,
+  GetCateringPackageResponseDto,
+} from './dtos/get-catering-package.dto';
 import { FindItemsQueryDto, FindItemsResponseDto } from './dtos/query-items.dto';
 
 @Controller('menus')
@@ -83,6 +87,21 @@ export class MenusController {
   @ApiWrapperResponse({ type: GetCateringPackageResponseDto })
   async getCateringPackages() {
     const result = await this.menusService.findAllCateringPackages();
+    return result;
+  }
+
+  @Get('catering-packages/:packageId/options')
+  @ApiOperation({ summary: 'Get catering package options by package ID' })
+  @ApiParam({ name: 'packageId', description: 'ID of the catering package', type: 'integer' })
+  @ApiWrapperResponse({
+    description: 'Catering package options retrieved successfully',
+    type: GetCateringPackageOptionsResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'Bad Request: Invalid package ID' })
+  async getCateringPackageOptions(
+    @Param('packageId', ParseIntPipe) packageId: number,
+  ): Promise<GetCateringPackageOptionsResponseDto> {
+    const result = await this.menusService.findCateringPackageOptionsByPackageId(packageId);
     return result;
   }
 

@@ -2,7 +2,6 @@
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
-import { Struct } from '../google/protobuf/struct';
 import {
   BusinessType,
   Certification,
@@ -12,6 +11,7 @@ import {
   StoreEngagementLevel,
   StorePerformanceLevel,
 } from './common';
+import { Struct } from './google/protobuf/struct';
 
 export const protobufPackage = 'menu';
 
@@ -650,11 +650,8 @@ export interface DeleteCateringPackageResponse {
 }
 
 /** Catering Package Option */
-export interface CateringPackageOption {
-  id: number;
+export interface GetCateringPackageOptionsRequest {
   packageId: number;
-  name: string;
-  status: string;
 }
 
 export interface CreateCateringPackageOptionRequest {
@@ -683,6 +680,17 @@ export interface DeleteCateringPackageOptionRequest {
 
 export interface DeleteCateringPackageOptionResponse {
   success: boolean;
+}
+
+export interface CateringPackageOption {
+  id: number;
+  packageId: number;
+  name: string;
+  status: string;
+}
+
+export interface GetCateringPackageOptionsResponse {
+  options: CateringPackageOption[];
 }
 
 export const MENU_PACKAGE_NAME = 'menu';
@@ -756,6 +764,10 @@ export interface MenusServiceClient {
   deleteCateringPackageOption(
     request: DeleteCateringPackageOptionRequest,
   ): Observable<DeleteCateringPackageOptionResponse>;
+
+  getCateringPackageOptions(
+    request: GetCateringPackageOptionsRequest,
+  ): Observable<GetCateringPackageOptionsResponse>;
 }
 
 export interface MenusServiceController {
@@ -893,6 +905,13 @@ export interface MenusServiceController {
     | Promise<DeleteCateringPackageOptionResponse>
     | Observable<DeleteCateringPackageOptionResponse>
     | DeleteCateringPackageOptionResponse;
+
+  getCateringPackageOptions(
+    request: GetCateringPackageOptionsRequest,
+  ):
+    | Promise<GetCateringPackageOptionsResponse>
+    | Observable<GetCateringPackageOptionsResponse>
+    | GetCateringPackageOptionsResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -921,6 +940,7 @@ export function MenusServiceControllerMethods() {
       'createCateringPackageOption',
       'updateCateringPackageOption',
       'deleteCateringPackageOption',
+      'getCateringPackageOptions',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

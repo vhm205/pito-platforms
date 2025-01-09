@@ -35,6 +35,7 @@ service MenusService {
   rpc CreateCateringPackageOption (CreateCateringPackageOptionRequest) returns (CreateCateringPackageOptionResponse) {}
   rpc UpdateCateringPackageOption (UpdateCateringPackageOptionRequest) returns (UpdateCateringPackageOptionResponse) {}
   rpc DeleteCateringPackageOption (DeleteCateringPackageOptionRequest) returns (DeleteCateringPackageOptionResponse) {}
+  rpc GetCateringPackageOptions (GetCateringPackageOptionsRequest) returns (GetCateringPackageOptionsResponse);
 }
 
 // [START] Find stores by filter
@@ -677,11 +678,8 @@ message DeleteCateringPackageResponse {
 }
 
 // Catering Package Option
-message CateringPackageOption {
-  int32 id = 1;
-  int32 package_id = 2;
-  string name = 3;
-  string status = 4;
+message GetCateringPackageOptionsRequest {
+  int32 package_id = 1;
 }
 
 message CreateCateringPackageOptionRequest {
@@ -710,4 +708,15 @@ message DeleteCateringPackageOptionRequest {
 
 message DeleteCateringPackageOptionResponse {
   bool success = 1;
+}
+
+message CateringPackageOption {
+  int32 id = 1;
+  int32 package_id = 2;
+  string name = 3;
+  string status = 4;
+}
+
+message GetCateringPackageOptionsResponse {
+  repeated CateringPackageOption options = 1;
 }
