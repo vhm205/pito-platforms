@@ -273,6 +273,7 @@ export interface PartnerItem {
   serviceType: number;
   serviceSettings: ItemServiceSettings | undefined;
   storeSlug?: string | undefined;
+  version: number;
 }
 
 export interface FindStoresRequest {

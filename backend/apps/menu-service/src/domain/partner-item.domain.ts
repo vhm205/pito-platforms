@@ -44,4 +44,5 @@ export class PartnerItem
   orderDeadlineAt?: string | undefined;
   serviceType: number;
   serviceSettings: ItemServiceSettings | undefined;
+  version: number;
 }
