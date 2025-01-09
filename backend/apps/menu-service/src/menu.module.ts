@@ -16,6 +16,7 @@ import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persiste
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 
 import { CategoryEntity } from './infrastructure/persistence/relational/entities/category.entity';
+import { CateringPackageOptionEntity } from './infrastructure/persistence/relational/entities/catering-package-option.entity';
 import { CuisineTypeEntity } from './infrastructure/persistence/relational/entities/cuisine-type.entity';
 import { ItemEntity } from './infrastructure/persistence/relational/entities/item.entity';
 import { OccasionEventEntity } from './infrastructure/persistence/relational/entities/occasion-event.entity';
@@ -43,6 +44,7 @@ const customerEntities = [
 const partnerEntities = [
   PartnerEntity,
   CateringPackageEntity,
+  CateringPackageOptionEntity,
   PartnerItemEntity,
   PartnerMenuCategoriesEntity,
   PartnerStoreEntity,

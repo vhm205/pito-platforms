@@ -12,6 +12,13 @@ export class CateringPackage {
   isActive: boolean;
 }
 
+export class CateringPackageOption {
+  id: number;
+  name: string;
+  packageId: number;
+  status: string;
+}
+
 export class OccasionEvents {
   id: number;
   name: string;

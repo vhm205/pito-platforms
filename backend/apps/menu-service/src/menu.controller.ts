@@ -32,6 +32,18 @@ import {
   GetPartnerDetailsRequest,
   GetPartnerDetailsResponse,
   LoggerService,
+  CreateCateringPackageRequest,
+  CreateCateringPackageResponse,
+  UpdateCateringPackageRequest,
+  UpdateCateringPackageResponse,
+  DeleteCateringPackageRequest,
+  DeleteCateringPackageResponse,
+  CreateCateringPackageOptionRequest,
+  CreateCateringPackageOptionResponse,
+  UpdateCateringPackageOptionRequest,
+  UpdateCateringPackageOptionResponse,
+  DeleteCateringPackageOptionRequest,
+  DeleteCateringPackageOptionResponse,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -206,5 +218,41 @@ export class MenuController implements MenusServiceController {
       this.logger.error(errMessage);
       return { error: errMessage };
     }
+  }
+
+  async createCateringPackage(
+    request: CreateCateringPackageRequest,
+  ): Promise<CreateCateringPackageResponse> {
+    return this.menuService.createCateringPackage(request);
+  }
+
+  async updateCateringPackage(
+    request: UpdateCateringPackageRequest,
+  ): Promise<UpdateCateringPackageResponse> {
+    return this.menuService.updateCateringPackage(request);
+  }
+
+  async deleteCateringPackage(
+    request: DeleteCateringPackageRequest,
+  ): Promise<DeleteCateringPackageResponse> {
+    return this.menuService.deleteCateringPackage(request.id);
+  }
+
+  async createCateringPackageOption(
+    request: CreateCateringPackageOptionRequest,
+  ): Promise<CreateCateringPackageOptionResponse> {
+    return this.menuService.createCateringPackageOption(request);
+  }
+
+  async updateCateringPackageOption(
+    request: UpdateCateringPackageOptionRequest,
+  ): Promise<UpdateCateringPackageOptionResponse> {
+    return this.menuService.updateCateringPackageOption(request);
+  }
+
+  async deleteCateringPackageOption(
+    request: DeleteCateringPackageOptionRequest,
+  ): Promise<DeleteCateringPackageOptionResponse> {
+    return this.menuService.deleteCateringPackageOption(request.id);
   }
 }

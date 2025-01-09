@@ -27,6 +27,14 @@ service MenusService {
 
   rpc GetListPartners(GetListPartnersRequest) returns (GetListPartnersResponse);
   rpc GetPartnerDetails(GetPartnerDetailsRequest) returns (GetPartnerDetailsResponse);
+
+  rpc CreateCateringPackage (CreateCateringPackageRequest) returns (CreateCateringPackageResponse) {}
+  rpc UpdateCateringPackage (UpdateCateringPackageRequest) returns (UpdateCateringPackageResponse) {}
+  rpc DeleteCateringPackage (DeleteCateringPackageRequest) returns (DeleteCateringPackageResponse) {}
+
+  rpc CreateCateringPackageOption (CreateCateringPackageOptionRequest) returns (CreateCateringPackageOptionResponse) {}
+  rpc UpdateCateringPackageOption (UpdateCateringPackageOptionRequest) returns (UpdateCateringPackageOptionResponse) {}
+  rpc DeleteCateringPackageOption (DeleteCateringPackageOptionRequest) returns (DeleteCateringPackageOptionResponse) {}
 }
 
 // [START] Find stores by filter
@@ -639,4 +647,67 @@ message GetPartnerDetailsResponse {
 
   optional Partner data = 1;
   optional string error = 2;
+}
+
+// Catering Package
+message CreateCateringPackageRequest {
+  string name = 1;
+}
+
+message CreateCateringPackageResponse {
+  int32 id = 1;
+}
+
+message UpdateCateringPackageRequest {
+  int32 id = 1;
+  optional string name = 2;
+  optional bool is_active = 3;
+}
+
+message UpdateCateringPackageResponse {
+  int32 affected_rows = 1;
+}
+
+message DeleteCateringPackageRequest {
+  int32 id = 1;
+}
+
+message DeleteCateringPackageResponse {
+  bool success = 1;
+}
+
+// Catering Package Option
+message CateringPackageOption {
+  int32 id = 1;
+  int32 package_id = 2;
+  string name = 3;
+  string status = 4;
+}
+
+message CreateCateringPackageOptionRequest {
+  int32 package_id = 1;
+  string name = 2;
+  string status = 3;
+}
+
+message CreateCateringPackageOptionResponse {
+  int32 id = 1;
+}
+
+message UpdateCateringPackageOptionRequest {
+  int32 id = 1;
+  optional string name = 2;
+  optional string status = 3;
+}
+
+message UpdateCateringPackageOptionResponse {
+  int32 affected_rows = 1;
+}
+
+message DeleteCateringPackageOptionRequest {
+  int32 id = 1;
+}
+
+message DeleteCateringPackageOptionResponse {
+  bool success = 1;
 }

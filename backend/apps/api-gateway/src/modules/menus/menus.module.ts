@@ -10,7 +10,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
-import { ItemsController } from './item.controller';
+import { ItemsController } from './items.controller';
+import { ItemsService } from './items.service';
 
 @Module({
   imports: [
@@ -31,6 +32,6 @@ import { ItemsController } from './item.controller';
     ]),
   ],
   controllers: [MenusController, OperatorMenusController, ItemsController],
-  providers: [MenusService, OperatorMenusService],
+  providers: [MenusService, OperatorMenusService, ItemsService],
 })
 export class MenusModule {}
