@@ -14,7 +14,6 @@ import { StoreOrderMapper } from '../mappers/store-order.mapper';
 @Injectable()
 export class StoreOrderRelationalRepository implements StoreOrderRepository {
   constructor(
-    // private readonly logger: LoggerService,
     @InjectRepository(StoreOrderEntity, PARTNER_DB_SOURCE)
     private readonly repository: Repository<StoreOrderEntity>,
   ) {}
