@@ -138,7 +138,7 @@ export class StoresController {
   @ApiWrapperResponse({ type: GetStoreDetailResponseDto })
   async getStoreDetail(@Param('identifier') identifier: string) {
     const result = await this.storeService.getStoreDetail({ identifier });
-    return result;
+    return plainToInstance(GetStoreDetailResponseDto, result);
   }
 
   @Patch('status')
