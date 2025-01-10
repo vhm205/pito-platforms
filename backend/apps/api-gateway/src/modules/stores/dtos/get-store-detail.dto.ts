@@ -1,4 +1,6 @@
+import { getPublicImageURL } from '@app/common';
 import { ApiProperty } from '@nestjs/swagger';
+import { plainToClass, Transform } from 'class-transformer';
 
 class Location {
   @ApiProperty({ example: 'Phường 1' })
@@ -47,12 +49,15 @@ class BankAccount {
 
 class Image {
   @ApiProperty({ example: 'https://example.com/cover.jpg' })
+  @Transform(({ value }) => value && getPublicImageURL('images/store', value))
   cover: string;
 
   @ApiProperty({ example: 'https://example.com/avatar.jpg' })
+  @Transform(({ value }) => value && getPublicImageURL('images/store', value))
   avatar: string;
 
   @ApiProperty({ example: 'https://example.com/thumbnail.jpg' })
+  @Transform(({ value }) => value && getPublicImageURL('images/store', value))
   thumbnail: string;
 }
 
@@ -93,6 +98,7 @@ export class GetStoreDetailResponseDto {
   location: Location | undefined;
 
   @ApiProperty({ required: false, type: Image })
+  @Transform(({ value }) => plainToClass(Image, value), { toClassOnly: true })
   images: Image | undefined;
 
   @ApiProperty({ isArray: true, type: ContactInfo })
