@@ -284,12 +284,11 @@ export class MenuService {
     const newStatus =
       item.status === ItemStatus.REJECTED ? ItemStatus.PENDING_APPROVAL : updateItemRequest?.status;
 
-    if (updateItemRequest?.name && updateItemRequest.name !== item.name) {
-      const newSlug = generateSlug(updateItemRequest.name);
-      const isSlugExist = await this.partnerItemRepository.findOne({ slug: newSlug });
-
-      updateItemRequest.slug = isSlugExist ? `${newSlug}-${Date.now()}` : newSlug;
-    }
+    // if (updateItemRequest?.name && updateItemRequest.name !== item.name) {
+    //   const newSlug = generateSlug(updateItemRequest.name);
+    //   const isSlugExist = await this.partnerItemRepository.findOne({ slug: newSlug });
+    //   updateItemRequest.slug = isSlugExist ? `${newSlug}-${Date.now()}` : newSlug;
+    // }
 
     const updatedItem = await this.partnerItemRepository.updateItem({
       id,
