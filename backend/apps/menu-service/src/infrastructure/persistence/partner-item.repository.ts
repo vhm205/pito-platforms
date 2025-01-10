@@ -43,4 +43,9 @@ export abstract class PartnerItemRepository {
     filters: Record<string, FindOperator<unknown>>[];
     customFilters: Record<string, unknown>;
   }): Promise<FindItemsByFiltersResult>;
+
+  abstract filterItemsWithCateringPackage(args: {
+    filters: Record<string, FindOperator<any>>[];
+    pagination: PaginationRequest;
+  }): Promise<[PartnerItem[], number]>;
 }

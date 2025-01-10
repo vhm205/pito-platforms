@@ -5,6 +5,7 @@ import {
   CreateCateringPackageResponse,
   DeleteCateringPackageOptionResponse,
   DeleteCateringPackageResponse,
+  FilterItemsWithCateringPackageRequest,
   FindItemRequest,
   FindItemsByFiltersRequest,
   FindItemsByFiltersResponse,
@@ -572,5 +573,15 @@ export class MenuService {
   async findCateringPackageOptionsByPackageId(id: number) {
     const options = await this.cateringPackageRepository.findCateringPackageOptionsByPackageId(id);
     return { options };
+  }
+
+  async filterItemsWithCateringPackage({
+    filters,
+    pagination,
+  }: FilterItemsWithCateringPackageRequest) {
+    return this.partnerItemRepository.filterItemsWithCateringPackage({
+      filters: filters.map(transformFilterRule),
+      pagination: pagination!,
+    });
   }
 }
