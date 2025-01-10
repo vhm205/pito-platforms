@@ -427,7 +427,6 @@ export interface FindItemRequest {
 
 export interface FindAllCateringPackagesResponse {
   cateringPackages: FindAllCateringPackagesResponse_CateringPackage[];
-  occasionEvents: FindAllCateringPackagesResponse_OccasionEvent[];
 }
 
 export interface FindAllCateringPackagesResponse_CateringPackage {
@@ -436,7 +435,18 @@ export interface FindAllCateringPackagesResponse_CateringPackage {
   isActive: boolean;
 }
 
-export interface FindAllCateringPackagesResponse_OccasionEvent {
+export interface FindCateringPackagesAndOccasionEventsResponse {
+  cateringPackages: FindCateringPackagesAndOccasionEventsResponse_CateringPackage[];
+  occasionEvents: FindCateringPackagesAndOccasionEventsResponse_OccasionEvent[];
+}
+
+export interface FindCateringPackagesAndOccasionEventsResponse_CateringPackage {
+  id: number;
+  name: string;
+  isActive: boolean;
+}
+
+export interface FindCateringPackagesAndOccasionEventsResponse_OccasionEvent {
   id: number;
   name: string;
   isActive: boolean;
@@ -684,7 +694,6 @@ export interface DeleteCateringPackageOptionResponse {
 
 export interface CateringPackageOption {
   id: number;
-  packageId: number;
   name: string;
   status: string;
 }
@@ -722,6 +731,10 @@ export interface MenusServiceClient {
   findItem(request: FindItemRequest): Observable<PartnerItem>;
 
   findAllCateringPackages(request: Empty): Observable<FindAllCateringPackagesResponse>;
+
+  findCateringPackagesAndOccasionEvents(
+    request: Empty,
+  ): Observable<FindCateringPackagesAndOccasionEventsResponse>;
 
   findItemsByFilters(request: FindItemsByFiltersRequest): Observable<FindItemsByFiltersResponse>;
 
@@ -809,6 +822,13 @@ export interface MenusServiceController {
     | Promise<FindAllCateringPackagesResponse>
     | Observable<FindAllCateringPackagesResponse>
     | FindAllCateringPackagesResponse;
+
+  findCateringPackagesAndOccasionEvents(
+    request: Empty,
+  ):
+    | Promise<FindCateringPackagesAndOccasionEventsResponse>
+    | Observable<FindCateringPackagesAndOccasionEventsResponse>
+    | FindCateringPackagesAndOccasionEventsResponse;
 
   findItemsByFilters(
     request: FindItemsByFiltersRequest,
@@ -925,6 +945,7 @@ export function MenusServiceControllerMethods() {
       'findItemsWithPagination',
       'findItem',
       'findAllCateringPackages',
+      'findCateringPackagesAndOccasionEvents',
       'findItemsByFilters',
       'getFilterOptions',
       'getStoreDetail',

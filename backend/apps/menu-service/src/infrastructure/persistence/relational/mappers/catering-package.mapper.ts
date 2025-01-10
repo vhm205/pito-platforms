@@ -14,6 +14,10 @@ export class CateringPackageMapper {
     domain.name = raw.name;
     domain.isActive = raw.isActive;
 
+    if (raw.options) {
+      domain.options = raw.options.map(CateringPackageOptionMapper.toDomain);
+    }
+
     return domain;
   }
 }
@@ -25,7 +29,10 @@ export class CateringPackageOptionMapper {
     domain.id = raw.id;
     domain.name = raw.name;
     domain.status = raw.status;
-    domain.packageId = raw.packageId;
+
+    if (raw.packages) {
+      domain.packages = raw.packages.map(CateringPackageMapper.toDomain);
+    }
 
     return domain;
   }
