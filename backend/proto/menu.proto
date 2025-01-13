@@ -13,8 +13,9 @@ service MenusService {
   rpc CalculateDistance (CalculateDistanceRequest) returns (CalculateDistanceResponse);
 
   rpc FindItemsInStore (GetItemInStoreRequest) returns (GetItemInStoreResponse);
-  rpc FindItemsWithPagination (FindItemsRequest) returns (FindItemsResponse);
+  rpc FindItemsWithPagination (FindItemsWithPaginationRequest) returns (FindItemsWithPaginationResponse);
   rpc FindItem (FindItemRequest) returns (PartnerItem);
+  rpc FindItems (FindItemsRequest) returns (FindItemsResponse);
   rpc FindAllCateringPackages (Empty) returns (FindAllCateringPackagesResponse);
   rpc FindCateringPackagesAndOccasionEvents (Empty) returns (FindCateringPackagesAndOccasionEventsResponse);
   rpc FindItemsByFilters (FindItemsByFiltersRequest) returns (FindItemsByFiltersResponse);
@@ -38,6 +39,8 @@ service MenusService {
   rpc UpdateCateringPackageOption (UpdateCateringPackageOptionRequest) returns (UpdateCateringPackageOptionResponse) {}
   rpc DeleteCateringPackageOption (DeleteCateringPackageOptionRequest) returns (DeleteCateringPackageOptionResponse) {}
   rpc GetCateringPackageOptions (GetCateringPackageOptionsRequest) returns (GetCateringPackageOptionsResponse);
+
+  rpc CountCateringPackagesItems(CountCateringPackagesItemsRequest) returns (CountCateringPackagesItemsResponse);
 }
 
 // [START] Find stores by filter
@@ -422,15 +425,50 @@ message UpdateItemRequest {
   UpdateItemDetailsRequest update_item_request = 2;
 }
 
-message FindItemsRequest {
+message FindItemsWithPaginationRequest {
   common.PaginationRequest pagination = 1;
   repeated common.SortRule sorts = 2;     
   repeated common.FilterRule filters = 3;
 }
 
-message FindItemsResponse {
+message FindItemsWithPaginationResponse {
   repeated PartnerItem items = 1;
   int32 total_count = 2;
+}
+
+message FindItemsRequest {
+  repeated common.FilterRule filters = 1;
+}
+
+message FindItemsResponse {
+  message PartnerItem {
+    string id = 1;
+    string name = 2;
+    float base_price = 3;
+    string description = 4;
+    repeated int32 special_dietaries = 5;
+    repeated int32 cuisine_types = 6;
+    repeated int32 occasion_events = 7;
+    string menu_category = 8;
+    repeated string images = 9;
+    int32 min_quantity = 10;
+    string packaging_type = 11;
+    string packaging_unit = 12;
+    int32 participant = 13;
+    int32 preparation_time = 14;
+    string store_id = 15;
+    repeated google.protobuf.Struct options_choices = 16;
+    google.protobuf.Struct metadata = 17;
+    string slug = 18;
+    string status = 19;
+    optional string order_deadline_at = 20;
+    optional float distance = 21;
+    int32 service_type = 22;
+    repeated int32 catering_packages = 23;
+  }
+
+  repeated PartnerItem data = 1;
+  optional string error = 3;
 }
 
 message CalculateDistanceRequest {
@@ -767,4 +805,16 @@ message CateringPackageOption {
 
 message GetCateringPackageOptionsResponse {
   repeated CateringPackageOption options = 1;
+}
+
+
+// rpc CountCateringPackagesItems(CountCateringPackagesItemsRequest) returns (CountCateringPackagesItemsResponse);
+message CountCateringPackagesItemsRequest {
+  repeated int32 catering_package_ids = 1;
+  repeated string item_status = 2;
+  string service_category = 3;
+}
+
+message CountCateringPackagesItemsResponse {
+  map<int32, int32> data = 1;
 }

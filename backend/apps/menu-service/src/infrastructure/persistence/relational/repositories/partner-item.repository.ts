@@ -14,7 +14,7 @@ import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/pers
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 import { PartnerItemMapper } from 'apps/menu-service/src/infrastructure/persistence/relational/mappers/partner-item.mapper';
-import { isEmpty, map, size, toNumber } from 'lodash';
+import { forEach, isEmpty, map, size, toNumber } from 'lodash';
 import { FindOperator, In, type FindOptionsWhere, type Repository } from 'typeorm';
 
 import { CateringPackageEntity } from '../entities/catering-package.entity';
@@ -320,8 +320,11 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
       if (Array.isArray(status)) queryBuilder.andWhere(`status IN (:...status)`, { status });
       else queryBuilder.andWhere('status = :status', { status });
     }
-    if (serviceType) {
+    if (serviceCategory) {
       queryBuilder.andWhere(`service_category = :serviceCategory`, { serviceCategory });
+    }
+    if (serviceType) {
+      queryBuilder.andWhere(`service_type = :serviceType`, { serviceType });
     }
     if (menuPricePerPax.length) {
       const [min, max] = menuPricePerPax;
@@ -332,5 +335,53 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
 
     const domainEntities = map(itemEntities, PartnerItemMapper.toDomain);
     return [domainEntities, total];
+  }
+
+  async findItems(args: {
+    filters: Record<string, FindOperator<unknown>>[];
+  }): Promise<[PartnerItem[], number]> {
+    const [entities, total] = await this.partnerItemRepository.findAndCount({
+      where: args.filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
+    });
+
+    const domainEntities = entities.map(PartnerItemMapper.toDomain);
+    return [domainEntities, total];
+  }
+
+  async countCateringPackagesItems(args: {
+    serviceCategory: string;
+    itemStatus: string[];
+    cateringPackages: number[];
+  }): Promise<Map<number, number>> {
+    const query = `
+      SELECT 
+          cp.value AS catering_package,
+          COUNT(*) AS item_count
+      FROM (
+          SELECT catering_packages
+          FROM items
+          WHERE 
+              service_category = $1 AND
+              status = ANY($2)
+      ) i,
+        UNNEST(i.catering_packages) AS cp(value)
+      WHERE 
+          cp.value = ANY($3)
+      GROUP BY cp.value
+      ORDER BY cp.value;
+  `;
+
+    const result = await this.partnerItemRepository.query(query, [
+      args.serviceCategory,
+      args.itemStatus,
+      args.cateringPackages,
+    ]);
+
+    const resultMap = new Map<number, number>();
+    forEach(result, ({ catering_package, item_count }) => {
+      resultMap.set(toNumber(catering_package), toNumber(item_count));
+    });
+
+    return resultMap;
   }
 }

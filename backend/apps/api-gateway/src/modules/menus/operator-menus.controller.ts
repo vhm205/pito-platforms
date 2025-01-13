@@ -23,7 +23,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { isEmpty } from 'lodash';
+import { get, isEmpty } from 'lodash';
 
 import { GetCateringPackageResponseDto } from './dtos/get-catering-package.dto';
 import { OperatorQueryStoreItemDto } from './dtos/operator-query-store-item.dto';
@@ -117,5 +117,21 @@ export class OperatorMenusController {
     });
 
     return new PageDto(data, pageMeta);
+  }
+
+  @Get('catering-packages/items/total')
+  @HttpCode(HttpStatus.OK)
+  @Auth([RoleType.OPERATOR])
+  async getTotalCateringPackagesItems(@Query('serviceCategory') serviceCategory = 'PX') {
+    const { cateringPackages } = await this.menusService.findAllCateringPackages();
+    if (isEmpty(cateringPackages)) return [];
+
+    const packageIds = cateringPackages.map(c => c.id);
+    const countResult = await this.service.countCateringPackagesItems(serviceCategory, packageIds);
+
+    return cateringPackages.map(c => ({
+      ...c,
+      totalItems: get(countResult.data, c.id, 0),
+    }));
   }
 }

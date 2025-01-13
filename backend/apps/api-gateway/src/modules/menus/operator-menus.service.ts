@@ -4,6 +4,7 @@ import {
   MENUS_SERVICE_NAME,
   MenusServiceClient,
 } from '@app/common';
+import { ItemStatus } from '@app/common/enums/item';
 import { FilterRuleDto } from '@gateway/gateway-common/dto/query-dto';
 import { OperatorQueryItemDto } from '@gateway/modules/menus/dtos/query-menu.dto';
 import { Inject, Injectable, InternalServerErrorException, OnModuleInit } from '@nestjs/common';
@@ -28,6 +29,21 @@ export class OperatorMenusService implements OnModuleInit {
         filters: query.filters,
         pagination: { currentPage: query.page, pageSize: query.pageSize },
         sorts: query.sorts,
+      }),
+    );
+  }
+
+  async countCateringPackagesItems(serviceCategory: string, packageIds: number[]) {
+    return firstValueFrom(
+      this.menusServiceClient.countCateringPackagesItems({
+        serviceCategory: serviceCategory.toUpperCase(),
+        itemStatus: [
+          ItemStatus.APPROVED,
+          ItemStatus.ACTIVE,
+          ItemStatus.INACTIVE,
+          ItemStatus.UNSTOCKED,
+        ],
+        cateringPackageIds: packageIds,
       }),
     );
   }

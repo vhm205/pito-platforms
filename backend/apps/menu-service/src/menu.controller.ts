@@ -49,6 +49,10 @@ import {
   FindCateringPackagesAndOccasionEventsResponse,
   FilterItemsWithCateringPackageRequest,
   FilterItemsWithCateringPackageResponse,
+  FindItemsWithPaginationRequest,
+  FindItemsResponse,
+  CountCateringPackagesItemsRequest,
+  CountCateringPackagesItemsResponse,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -131,7 +135,7 @@ export class MenuController implements MenusServiceController {
     return this.menuService.updateMenuItem(request);
   }
 
-  async findItemsWithPagination(request: FindItemsRequest) {
+  async findItemsWithPagination(request: FindItemsWithPaginationRequest) {
     request.filters ??= [];
     request.sorts ??= [];
 
@@ -145,6 +149,11 @@ export class MenuController implements MenusServiceController {
       items,
       totalCount,
     };
+  }
+
+  async findItems(request: FindItemsRequest): Promise<FindItemsResponse> {
+    const [items] = await this.menuService.findItems(request);
+    return { data: items };
   }
 
   async calculateDistance(request: CalculateDistanceRequest): Promise<CalculateDistanceResponse> {
@@ -282,5 +291,12 @@ export class MenuController implements MenusServiceController {
       this.logger.error(errMessage);
       return { error: errMessage, data: [], totalCount: 0 };
     }
+  }
+
+  async countCateringPackagesItems(
+    request: CountCateringPackagesItemsRequest,
+  ): Promise<CountCateringPackagesItemsResponse> {
+    const countMap = await this.menuService.countCateringPackagesItems(request);
+    return { data: Object.fromEntries(countMap) };
   }
 }
