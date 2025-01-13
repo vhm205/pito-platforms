@@ -31,7 +31,7 @@ export abstract class PartnerItemRepository {
     pagination: PaginationRequest;
     filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
-    customFilters: Record<string, unknown>;
+    exceptionFilters: Record<string, unknown>;
   }): Promise<[PartnerItem[], number]>;
 
   abstract findAllCateringPackages(): Promise<CateringPackage[]>;
@@ -42,7 +42,7 @@ export abstract class PartnerItemRepository {
     pagination: PaginationRequest;
     sorts: SortRule[];
     filters: Record<string, FindOperator<unknown>>[];
-    customFilters: Record<string, unknown>;
+    exceptionFilters: Record<string, unknown>;
   }): Promise<FindItemsByFiltersResult>;
 
   abstract filterItemsWithCateringPackage(args: {

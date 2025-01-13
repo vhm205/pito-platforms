@@ -99,6 +99,8 @@ export class StoreService {
       ...store.toMessage(),
       cuisineTypes,
       reopenTime: storeService?.reopenTime as Date,
+      dailyOrderLimit: storeService?.dailyOrderLimit as number,
+      dailyRevenueLimit: storeService?.dailyRevenueLimit as number,
     };
   }
 

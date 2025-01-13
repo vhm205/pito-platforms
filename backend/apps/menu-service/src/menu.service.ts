@@ -24,6 +24,7 @@ import {
   UpdateItemRequest,
   FindItemsRequest,
   CountCateringPackagesItemsRequest,
+  FindItemsWithPaginationRequest,
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
 import { GrpcStatus } from '@app/common/enums';
@@ -377,7 +378,7 @@ export class MenuService {
     filters,
     sorts,
     menuType,
-  }: FindItemsRequest): Promise<[PartnerItem[], number]> {
+  }: FindItemsWithPaginationRequest): Promise<[PartnerItem[], number]> {
     if (!pagination) {
       throw new RpcException({
         message: 'Pagination is required',
@@ -389,7 +390,7 @@ export class MenuService {
       pagination,
       filters: filters?.map(transformFilterRule),
       sorts,
-      customFilters: {
+      exceptionFilters: {
         menuType,
       },
     });
@@ -492,7 +493,7 @@ export class MenuService {
       pagination,
       sorts,
       filters: filters?.map(transformFilterRule),
-      customFilters: {
+      exceptionFilters: {
         latitude,
         longitude,
         menuType,

@@ -1,18 +1,24 @@
 import { RoleType } from '@gateway/constants';
 import { ApiPageWrapperResponse, Auth } from '@gateway/decorators';
+import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
 import { emptyPaginationResponse } from '@gateway/utils/common';
-import { Controller, Get, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Param, Query } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { isEmpty } from 'lodash';
 
+import { GetStoreDetailResponseDto } from './dtos/get-store-detail.dto';
 import { QueryStoreListDto, StoreListDto } from './dtos/store-list.dto';
 import { OperatorStoresService } from './operator-stores.service';
+import { StoresService } from './stores.service';
 
 @Controller('operator')
 export class OperatorStoresController {
-  constructor(private readonly service: OperatorStoresService) {}
+  constructor(
+    private readonly service: OperatorStoresService,
+    private readonly storeService: StoresService,
+  ) {}
 
   @Get('stores')
   @Auth([RoleType.OPERATOR])
@@ -41,5 +47,14 @@ export class OperatorStoresController {
     });
 
     return new PageDto<StoreListDto>(transformedStores, pageMeta);
+  }
+
+  @Get('stores/:identifier')
+  @Auth([RoleType.OPERATOR])
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: GetStoreDetailResponseDto })
+  async getStoreDetail(@Param('identifier') identifier: string) {
+    const result = await this.storeService.getStoreDetail({ identifier });
+    return plainToInstance(GetStoreDetailResponseDto, result);
   }
 }
