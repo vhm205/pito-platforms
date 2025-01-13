@@ -3,6 +3,9 @@ import {
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
+  ORDER_SERVICE,
+  ORDERS_SERVICE_NAME,
+  OrdersServiceClient,
 } from '@app/common';
 import { ItemStatus } from '@app/common/enums/item';
 import { FilterRuleDto } from '@gateway/gateway-common/dto/query-dto';
@@ -17,10 +20,16 @@ import { OperatorQueryStoreItemDto } from './dtos/operator-query-store-item.dto'
 @Injectable()
 export class OperatorMenusService implements OnModuleInit {
   private menusServiceClient: MenusServiceClient;
-  constructor(@Inject(MENU_SERVICE) private readonly menuClient: ClientGrpc) {}
+  private orderServiceClient: OrdersServiceClient;
+
+  constructor(
+    @Inject(MENU_SERVICE) private readonly menuClient: ClientGrpc,
+    @Inject(ORDER_SERVICE) private readonly orderClient: ClientGrpc,
+  ) {}
 
   onModuleInit() {
     this.menusServiceClient = this.menuClient.getService<MenusServiceClient>(MENUS_SERVICE_NAME);
+    this.orderServiceClient = this.orderClient.getService<OrdersServiceClient>(ORDERS_SERVICE_NAME);
   }
 
   async findItemsWithPagination(query: OperatorQueryItemDto) {
@@ -78,18 +87,37 @@ export class OperatorMenusService implements OnModuleInit {
       return res;
     }, []);
 
-    const stores = await firstValueFrom(
-      this.menusServiceClient.findStores({
-        filters: [
-          { column: 'id', operator: 'in', value: uniqueStoreIds.join(',') },
-          ...filtersStore,
-        ],
-        pagination: { currentPage: DEFAULT_PAGE_NUMBER, pageSize: uniqueStoreIds.length },
-        sorts: [],
-      }),
-    ).then(r => r.stores ?? []);
+    const [stores, storeRevenueAndCount] = await Promise.all([
+      firstValueFrom(
+        this.menusServiceClient.findStores({
+          filters: [
+            { column: 'id', operator: 'in', value: uniqueStoreIds.join(',') },
+            ...filtersStore,
+          ],
+          pagination: { currentPage: DEFAULT_PAGE_NUMBER, pageSize: uniqueStoreIds.length },
+          sorts: [],
+        }),
+      ).then(r => r.stores ?? []),
+      firstValueFrom(
+        this.orderServiceClient.getRevenueAndCountOrderByStoreIds({ ids: uniqueStoreIds }),
+      )
+        .then(r => r.storeRevenueAndCount)
+        .then(r => new Map(r.map(s => [s.storeId, s]))),
+      ,
+    ]);
 
-    const storesMap = new Map<string, any>(map(stores, s => [s.id, { ...s, items: [] }]));
+    const storesMap = new Map<string, any>(
+      map(stores, s => [
+        s.id,
+        {
+          ...s,
+          items: [],
+          totalRevenue: storeRevenueAndCount.get(s.id)?.totalRevenue,
+          countOrders: storeRevenueAndCount.get(s.id)?.totalOrders,
+        },
+      ]),
+    );
+
     forEach(items, i => {
       if (storesMap.has(i.storeId)) storesMap.get(i.storeId).items.push(i);
     });
