@@ -141,18 +141,39 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     pagination: PaginationRequest;
     filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
+    customFilters: Record<string, unknown>;
   }) {
-    const { pagination, sorts, filters } = options;
+    const { pagination, sorts, filters, customFilters } = options;
+    const { menuType } = customFilters;
+    const skip = (pagination.currentPage - 1) * pagination.pageSize;
+    const take = pagination.pageSize;
 
-    const [entities, total] = await this.partnerItemRepository.findAndCount({
-      skip: (pagination.currentPage - 1) * pagination.pageSize,
-      take: pagination.pageSize,
-      where: {
-        ...filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
-      },
-      order: Object.fromEntries(sorts.map(sort => [sort.column, sort.direction])),
-    });
+    const queryBuilder = this.partnerItemRepository
+      .createQueryBuilder('item')
+      .innerJoin('item.menuCategory', 'menuCategory', 'menuCategory.type = :menuType', {
+        menuType: menuType || MenuType.SET,
+      });
 
+    /* WHERE clause */
+    if (filters.length) {
+      filters.forEach(filter => {
+        queryBuilder.andWhere(filter);
+      });
+    }
+
+    if (sorts.length) {
+      sorts.forEach(sort => {
+        const column = `item.${sort.column}`;
+        const direction = sort.direction === 'asc' ? 'ASC' : 'DESC';
+        queryBuilder.addOrderBy(column, direction);
+      });
+    }
+
+    /* LIMIT clause */
+    queryBuilder.skip(skip);
+    queryBuilder.take(take);
+
+    const [entities, total] = await queryBuilder.getManyAndCount();
     const partnerItems = entities?.map(entity => PartnerItemMapper.toDomain(entity));
 
     return [partnerItems, total] as [PartnerItem[], number];

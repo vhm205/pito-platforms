@@ -38,6 +38,7 @@ export class OperatorMenusService implements OnModuleInit {
         filters: query.filters,
         pagination: { currentPage: query.page, pageSize: query.pageSize },
         sorts: query.sorts,
+        menuType: query.menuType,
       }),
     );
   }

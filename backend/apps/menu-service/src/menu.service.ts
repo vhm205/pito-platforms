@@ -372,7 +372,12 @@ export class MenuService {
     };
   }
 
-  async findItemsWithPagination({ pagination, filters, sorts }): Promise<[PartnerItem[], number]> {
+  async findItemsWithPagination({
+    pagination,
+    filters,
+    sorts,
+    menuType,
+  }: FindItemsRequest): Promise<[PartnerItem[], number]> {
     if (!pagination) {
       throw new RpcException({
         message: 'Pagination is required',
@@ -384,6 +389,9 @@ export class MenuService {
       pagination,
       filters: filters?.map(transformFilterRule),
       sorts,
+      customFilters: {
+        menuType,
+      },
     });
 
     const cuisineTypeIds = uniq(

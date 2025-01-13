@@ -139,11 +139,7 @@ export class MenuController implements MenusServiceController {
     request.filters ??= [];
     request.sorts ??= [];
 
-    const [items, totalCount] = await this.menuService.findItemsWithPagination({
-      filters: request.filters,
-      pagination: request.pagination,
-      sorts: request.sorts,
-    });
+    const [items, totalCount] = await this.menuService.findItemsWithPagination(request);
 
     return {
       items,
