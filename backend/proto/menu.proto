@@ -426,6 +426,7 @@ message FindItemsRequest {
   common.PaginationRequest pagination = 1;
   repeated common.SortRule sorts = 2;     
   repeated common.FilterRule filters = 3;
+  optional string menu_type = 4;
 }
 
 message FindItemsResponse {
