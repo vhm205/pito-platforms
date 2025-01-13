@@ -23,6 +23,7 @@ import {
   UpdateCateringPackageResponse,
   UpdateItemRequest,
   FindItemsRequest,
+  CountCateringPackagesItemsRequest,
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
 import { GrpcStatus } from '@app/common/enums';
@@ -604,6 +605,19 @@ export class MenuService {
     return this.partnerItemRepository.filterItemsWithCateringPackage({
       filters: filters.map(transformFilterRule),
       pagination: pagination!,
+    });
+  }
+
+  async findItems(request: FindItemsRequest) {
+    const filters = request.filters.map(transformFilterRule);
+    return this.partnerItemRepository.findItems({ filters });
+  }
+
+  async countCateringPackagesItems(request: CountCateringPackagesItemsRequest) {
+    return this.partnerItemRepository.countCateringPackagesItems({
+      itemStatus: request.itemStatus,
+      cateringPackages: request.cateringPackageIds,
+      serviceCategory: request.serviceCategory,
     });
   }
 }

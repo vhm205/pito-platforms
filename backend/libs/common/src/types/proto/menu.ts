@@ -398,16 +398,51 @@ export interface UpdateItemRequest {
   updateItemRequest: UpdateItemDetailsRequest | undefined;
 }
 
-export interface FindItemsRequest {
+export interface FindItemsWithPaginationRequest {
   pagination: PaginationRequest | undefined;
   sorts: SortRule[];
   filters: FilterRule[];
   menuType?: string | undefined;
 }
 
-export interface FindItemsResponse {
+export interface FindItemsWithPaginationResponse {
   items: PartnerItem[];
   totalCount: number;
+}
+
+export interface FindItemsRequest {
+  filters: FilterRule[];
+}
+
+export interface FindItemsResponse {
+  data: FindItemsResponse_PartnerItem[];
+  error?: string | undefined;
+}
+
+export interface FindItemsResponse_PartnerItem {
+  id: string;
+  name: string;
+  basePrice: number;
+  description: string;
+  specialDietaries: number[];
+  cuisineTypes: number[];
+  occasionEvents: number[];
+  menuCategory: string;
+  images: string[];
+  minQuantity: number;
+  packagingType: string;
+  packagingUnit: string;
+  participant: number;
+  preparationTime: number;
+  storeId: string;
+  optionsChoices: { [key: string]: any }[];
+  metadata: { [key: string]: any } | undefined;
+  slug: string;
+  status: string;
+  orderDeadlineAt?: string | undefined;
+  distance?: number | undefined;
+  serviceType: number;
+  cateringPackages: number[];
 }
 
 export interface CalculateDistanceRequest {
@@ -740,6 +775,22 @@ export interface GetCateringPackageOptionsResponse {
   options: CateringPackageOption[];
 }
 
+/** rpc CountCateringPackagesItems(CountCateringPackagesItemsRequest) returns (CountCateringPackagesItemsResponse); */
+export interface CountCateringPackagesItemsRequest {
+  cateringPackageIds: number[];
+  itemStatus: string[];
+  serviceCategory: string;
+}
+
+export interface CountCateringPackagesItemsResponse {
+  data: { [key: number]: number };
+}
+
+export interface CountCateringPackagesItemsResponse_DataEntry {
+  key: number;
+  value: number;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -764,9 +815,13 @@ export interface MenusServiceClient {
 
   findItemsInStore(request: GetItemInStoreRequest): Observable<GetItemInStoreResponse>;
 
-  findItemsWithPagination(request: FindItemsRequest): Observable<FindItemsResponse>;
+  findItemsWithPagination(
+    request: FindItemsWithPaginationRequest,
+  ): Observable<FindItemsWithPaginationResponse>;
 
   findItem(request: FindItemRequest): Observable<PartnerItem>;
+
+  findItems(request: FindItemsRequest): Observable<FindItemsResponse>;
 
   findAllCateringPackages(request: Empty): Observable<FindAllCateringPackagesResponse>;
 
@@ -823,6 +878,10 @@ export interface MenusServiceClient {
   getCateringPackageOptions(
     request: GetCateringPackageOptionsRequest,
   ): Observable<GetCateringPackageOptionsResponse>;
+
+  countCateringPackagesItems(
+    request: CountCateringPackagesItemsRequest,
+  ): Observable<CountCateringPackagesItemsResponse>;
 }
 
 export interface MenusServiceController {
@@ -853,10 +912,17 @@ export interface MenusServiceController {
   ): Promise<GetItemInStoreResponse> | Observable<GetItemInStoreResponse> | GetItemInStoreResponse;
 
   findItemsWithPagination(
-    request: FindItemsRequest,
-  ): Promise<FindItemsResponse> | Observable<FindItemsResponse> | FindItemsResponse;
+    request: FindItemsWithPaginationRequest,
+  ):
+    | Promise<FindItemsWithPaginationResponse>
+    | Observable<FindItemsWithPaginationResponse>
+    | FindItemsWithPaginationResponse;
 
   findItem(request: FindItemRequest): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
+
+  findItems(
+    request: FindItemsRequest,
+  ): Promise<FindItemsResponse> | Observable<FindItemsResponse> | FindItemsResponse;
 
   findAllCateringPackages(
     request: Empty,
@@ -981,6 +1047,13 @@ export interface MenusServiceController {
     | Promise<GetCateringPackageOptionsResponse>
     | Observable<GetCateringPackageOptionsResponse>
     | GetCateringPackageOptionsResponse;
+
+  countCateringPackagesItems(
+    request: CountCateringPackagesItemsRequest,
+  ):
+    | Promise<CountCateringPackagesItemsResponse>
+    | Observable<CountCateringPackagesItemsResponse>
+    | CountCateringPackagesItemsResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -993,6 +1066,7 @@ export function MenusServiceControllerMethods() {
       'findItemsInStore',
       'findItemsWithPagination',
       'findItem',
+      'findItems',
       'findAllCateringPackages',
       'findCateringPackagesAndOccasionEvents',
       'findItemsByFilters',
@@ -1012,6 +1086,7 @@ export function MenusServiceControllerMethods() {
       'updateCateringPackageOption',
       'deleteCateringPackageOption',
       'getCateringPackageOptions',
+      'countCateringPackagesItems',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

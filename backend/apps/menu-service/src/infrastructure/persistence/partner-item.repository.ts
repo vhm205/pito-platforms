@@ -49,4 +49,14 @@ export abstract class PartnerItemRepository {
     filters: Record<string, FindOperator<any>>[];
     pagination: PaginationRequest;
   }): Promise<[PartnerItem[], number]>;
+
+  abstract findItems(args: {
+    filters: Record<string, FindOperator<unknown>>[];
+  }): Promise<[PartnerItem[], number]>;
+
+  abstract countCateringPackagesItems(args: {
+    serviceCategory: string;
+    itemStatus: string[];
+    cateringPackages: number[];
+  }): Promise<Map<number, number>>;
 }

@@ -1,6 +1,6 @@
 import { join } from 'path';
 
-import { MENU_PACKAGE_NAME, MENU_SERVICE } from '@app/common';
+import { MENU_PACKAGE_NAME, MENU_SERVICE, ORDER_PACKAGE_NAME, ORDER_SERVICE } from '@app/common';
 import { AllConfigType } from '@app/common/configs';
 import { MenusController } from '@gateway/modules/menus/menus.controller';
 import { MenusService } from '@gateway/modules/menus/menus.service';
@@ -25,6 +25,19 @@ import { ItemsService } from './items.service';
             package: MENU_PACKAGE_NAME,
             protoPath: join(process.cwd(), 'proto/menu.proto'),
             url: configService.get('app.menuGrpcUrl', { infer: true }),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        imports: [ConfigModule],
+        name: ORDER_SERVICE,
+        useFactory: (configService: ConfigService<AllConfigType>) => ({
+          transport: Transport.GRPC,
+          options: {
+            package: ORDER_PACKAGE_NAME,
+            protoPath: join(process.cwd(), 'proto/order.proto'),
+            url: configService.get('app.orderGrpcUrl', { infer: true }),
           },
         }),
         inject: [ConfigService],
