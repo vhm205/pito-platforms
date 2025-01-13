@@ -25,6 +25,8 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { isEmpty } from 'lodash';
 
+import { OperatorQueryStoreItemDto } from './dtos/operator-query-store-item.dto';
+
 @Controller('operator')
 export class OperatorMenusController {
   constructor(
@@ -90,5 +92,20 @@ export class OperatorMenusController {
     const itemDto = plainToInstance(PartnerItemDto, item, { excludeExtraneousValues: true });
 
     return itemDto;
+  }
+
+  @Get('store-items')
+  @HttpCode(HttpStatus.OK)
+  @Auth([RoleType.OPERATOR])
+  async getStoresAndItemsWithCateringPackage(@Query() query: OperatorQueryStoreItemDto) {
+    query.pageSize = 1000; // currently no pagination
+    const { data, totalCount } = await this.service.getStoresAndItemsWithCateringPackage(query);
+
+    const pageMeta = new PageMetaDto({
+      pageOptions: { page: query.page, pageSize: query.pageSize },
+      totalCount,
+    });
+
+    return new PageDto(data, pageMeta);
   }
 }
