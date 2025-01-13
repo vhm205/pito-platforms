@@ -402,6 +402,7 @@ export interface FindItemsRequest {
   pagination: PaginationRequest | undefined;
   sorts: SortRule[];
   filters: FilterRule[];
+  menuType?: string | undefined;
 }
 
 export interface FindItemsResponse {
