@@ -14,6 +14,7 @@ import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/pers
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 import { PartnerItemMapper } from 'apps/menu-service/src/infrastructure/persistence/relational/mappers/partner-item.mapper';
+import { isEmpty, map, size, toNumber } from 'lodash';
 import { FindOperator, In, type FindOptionsWhere, type Repository } from 'typeorm';
 
 import { CateringPackageEntity } from '../entities/catering-package.entity';
@@ -267,5 +268,69 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
       items: transformedItems,
       total,
     };
+  }
+
+  async filterItemsWithCateringPackage(args: {
+    filters: Record<string, FindOperator<any>>[];
+    pagination: PaginationRequest;
+  }): Promise<[PartnerItem[], number]> {
+    const { filters, pagination } = args;
+    const FILTER_ITEM_MAP = {
+      cateringPackage: 0,
+      serviceType: 0,
+      serviceCategory: '',
+      status: '',
+      menuPricePerPax: [],
+    };
+
+    const filterMap = filters.reduce((acc, f) => {
+      if (f.cateringPackage) acc.cateringPackage = toNumber(f.cateringPackage.value);
+      else if (f.serviceCategory) acc.serviceCategory = f.serviceCategory.value;
+      else if (f.menuStatus) acc.status = f.menuStatus.value;
+      else if (f.menuPricePerPax) acc.menuPricePerPax = f.menuPricePerPax.value.map(toNumber);
+      return acc;
+    }, FILTER_ITEM_MAP);
+
+    const { cateringPackage, serviceCategory, serviceType, status, menuPricePerPax } = filterMap;
+
+    const storesHavingCateringPackage = () =>
+      this.partnerItemRepository
+        .createQueryBuilder()
+        .select('DISTINCT store_id')
+        .where(`:cateringPackage = ANY(catering_packages)`, { cateringPackage })
+        .orderBy('store_id');
+
+    const [storeIds, total] = await Promise.all([
+      storesHavingCateringPackage()
+        .skip((pagination.currentPage - 1) * pagination.pageSize)
+        .take(pagination.pageSize)
+        .getRawMany(),
+      storesHavingCateringPackage().getRawMany().then(size),
+    ]);
+
+    if (isEmpty(storeIds)) return [storeIds, storeIds.length];
+
+    const queryBuilder = this.partnerItemRepository
+      .createQueryBuilder()
+      .select()
+      .where('store_id IN (:...storeIds)', { storeIds: storeIds.map(({ store_id }) => store_id) })
+      .andWhere(':cateringPackage = ANY(catering_packages)', { cateringPackage });
+
+    if (status) {
+      if (Array.isArray(status)) queryBuilder.andWhere(`status IN (:...status)`, { status });
+      else queryBuilder.andWhere('status = :status', { status });
+    }
+    if (serviceType) {
+      queryBuilder.andWhere(`service_category = :serviceCategory`, { serviceCategory });
+    }
+    if (menuPricePerPax.length) {
+      const [min, max] = menuPricePerPax;
+      queryBuilder.andWhere(`base_price BETWEEN :min AND :max`, { min, max });
+    }
+
+    const itemEntities = await queryBuilder.orderBy('store_id').getMany();
+
+    const domainEntities = map(itemEntities, PartnerItemMapper.toDomain);
+    return [domainEntities, total];
   }
 }

@@ -7,6 +7,7 @@ import {
   DeleteCateringPackageResponse,
   FindAllCateringPackagesResponse,
   FindCateringPackagesAndOccasionEventsResponse,
+  FilterItemsWithCateringPackageRequest,
   FindItemRequest,
   FindItemsByFiltersRequest,
   FindItemsByFiltersResponse,
@@ -297,12 +298,11 @@ export class MenuService {
     const newStatus =
       item.status === ItemStatus.REJECTED ? ItemStatus.PENDING_APPROVAL : updateItemRequest?.status;
 
-    if (updateItemRequest?.name && updateItemRequest.name !== item.name) {
-      const newSlug = generateSlug(updateItemRequest.name);
-      const isSlugExist = await this.partnerItemRepository.findOne({ slug: newSlug });
-
-      updateItemRequest.slug = isSlugExist ? `${newSlug}-${Date.now()}` : newSlug;
-    }
+    // if (updateItemRequest?.name && updateItemRequest.name !== item.name) {
+    //   const newSlug = generateSlug(updateItemRequest.name);
+    //   const isSlugExist = await this.partnerItemRepository.findOne({ slug: newSlug });
+    //   updateItemRequest.slug = isSlugExist ? `${newSlug}-${Date.now()}` : newSlug;
+    // }
 
     const updatedItem = await this.partnerItemRepository.updateItem({
       id,
@@ -586,5 +586,15 @@ export class MenuService {
   async findCateringPackageOptionsByPackageId(id: number) {
     const options = await this.cateringPackageRepository.findCateringPackageOptionsByPackageId(id);
     return { options };
+  }
+
+  async filterItemsWithCateringPackage({
+    filters,
+    pagination,
+  }: FilterItemsWithCateringPackageRequest) {
+    return this.partnerItemRepository.filterItemsWithCateringPackage({
+      filters: filters.map(transformFilterRule),
+      pagination: pagination!,
+    });
   }
 }

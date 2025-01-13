@@ -507,6 +507,43 @@ export interface FindItemsByFiltersResponse_PartnerItem {
   version: number;
 }
 
+export interface FilterItemsWithCateringPackageRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface FilterItemsWithCateringPackageResponse {
+  data: FilterItemsWithCateringPackageResponse_PartnerItem[];
+  totalCount: number;
+  error?: string | undefined;
+}
+
+export interface FilterItemsWithCateringPackageResponse_PartnerItem {
+  id: string;
+  name: string;
+  basePrice: number;
+  description: string;
+  specialDietaries: number[];
+  cuisineTypes: number[];
+  occasionEvents: number[];
+  menuCategory: string;
+  images: string[];
+  minQuantity: number;
+  packagingType: string;
+  packagingUnit: string;
+  participant: number;
+  preparationTime: number;
+  storeId: string;
+  optionsChoices: { [key: string]: any }[];
+  metadata: { [key: string]: any } | undefined;
+  slug: string;
+  status: string;
+  orderDeadlineAt?: string | undefined;
+  distance?: number | undefined;
+  serviceType: number;
+}
+
 export interface GetStoreDetailRequest {
   identifier: string;
 }
@@ -738,6 +775,10 @@ export interface MenusServiceClient {
 
   findItemsByFilters(request: FindItemsByFiltersRequest): Observable<FindItemsByFiltersResponse>;
 
+  filterItemsWithCateringPackage(
+    request: FilterItemsWithCateringPackageRequest,
+  ): Observable<FilterItemsWithCateringPackageResponse>;
+
   getFilterOptions(request: GetFilterOptionRequest): Observable<GetFilterOptionResponse>;
 
   getStoreDetail(request: GetStoreDetailRequest): Observable<GetStoreDetailResponse>;
@@ -836,6 +877,13 @@ export interface MenusServiceController {
     | Promise<FindItemsByFiltersResponse>
     | Observable<FindItemsByFiltersResponse>
     | FindItemsByFiltersResponse;
+
+  filterItemsWithCateringPackage(
+    request: FilterItemsWithCateringPackageRequest,
+  ):
+    | Promise<FilterItemsWithCateringPackageResponse>
+    | Observable<FilterItemsWithCateringPackageResponse>
+    | FilterItemsWithCateringPackageResponse;
 
   getFilterOptions(
     request: GetFilterOptionRequest,
@@ -947,6 +995,7 @@ export function MenusServiceControllerMethods() {
       'findAllCateringPackages',
       'findCateringPackagesAndOccasionEvents',
       'findItemsByFilters',
+      'filterItemsWithCateringPackage',
       'getFilterOptions',
       'getStoreDetail',
       'insertMenuItem',

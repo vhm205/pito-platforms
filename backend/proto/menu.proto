@@ -18,6 +18,7 @@ service MenusService {
   rpc FindAllCateringPackages (Empty) returns (FindAllCateringPackagesResponse);
   rpc FindCateringPackagesAndOccasionEvents (Empty) returns (FindCateringPackagesAndOccasionEventsResponse);
   rpc FindItemsByFilters (FindItemsByFiltersRequest) returns (FindItemsByFiltersResponse);
+  rpc FilterItemsWithCateringPackage (FilterItemsWithCateringPackageRequest) returns (FilterItemsWithCateringPackageResponse);
 
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
   rpc GetStoreDetail (GetStoreDetailRequest) returns (GetStoreDetailResponse);
@@ -529,6 +530,43 @@ message FindItemsByFiltersResponse {
   }
   repeated PartnerItem items = 1;
   int32 total_count = 2;
+}
+
+message FilterItemsWithCateringPackageRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;
+  repeated common.FilterRule filters = 3;
+}
+
+message FilterItemsWithCateringPackageResponse {
+  message PartnerItem {
+    string id = 1;
+    string name = 2;
+    float base_price = 3;
+    string description = 4;
+    repeated int32 special_dietaries = 5;
+    repeated int32 cuisine_types = 6;
+    repeated int32 occasion_events = 7;
+    string menu_category = 8;
+    repeated string images = 9;
+    int32 min_quantity = 10;
+    string packaging_type = 11;
+    string packaging_unit = 12;
+    int32 participant = 13;
+    int32 preparation_time = 14;
+    string store_id = 15;
+    repeated google.protobuf.Struct options_choices = 16;
+    google.protobuf.Struct metadata = 17;
+    string slug = 18;
+    string status = 19;
+    optional string order_deadline_at = 20;
+    optional float distance = 21;
+    int32 service_type = 22;
+  }
+
+  repeated PartnerItem data = 1;
+  int32 total_count = 2;
+  optional string error = 3;
 }
 
 message GetStoreDetailRequest {
