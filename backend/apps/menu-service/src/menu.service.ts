@@ -5,6 +5,8 @@ import {
   CreateCateringPackageResponse,
   DeleteCateringPackageOptionResponse,
   DeleteCateringPackageResponse,
+  FindAllCateringPackagesResponse,
+  FindCateringPackagesAndOccasionEventsResponse,
   FilterItemsWithCateringPackageRequest,
   FindItemRequest,
   FindItemsByFiltersRequest,
@@ -32,7 +34,6 @@ import { generateSlug } from 'apps/menu-service/src/utils/slug.util';
 import dayjs from 'dayjs';
 import { compact, keyBy, uniq } from 'lodash';
 
-import { FindAllCateringPackageResponse } from './dtos/get-catering-package.dto';
 import { GetItemInStoreFilterDto } from './dtos/get-items-in-store.dto';
 import { SearchStoreFilterDto } from './dtos/search-store.dto';
 import { CateringPackageRepository } from './infrastructure/persistence/catering-package.repository';
@@ -447,7 +448,13 @@ export class MenuService {
     };
   }
 
-  async findAllCateringPackages(): Promise<FindAllCateringPackageResponse> {
+  async findAllCateringPackages(): Promise<FindAllCateringPackagesResponse> {
+    const cateringPackages = await this.partnerItemRepository.findAllCateringPackages();
+
+    return { cateringPackages };
+  }
+
+  async findCateringPackagesAndOccasionEvents(): Promise<FindCateringPackagesAndOccasionEventsResponse> {
     const [cateringPackages, occasionEvents] = await Promise.all([
       this.partnerItemRepository.findAllCateringPackages(),
       this.partnerItemRepository.findAllOccasionEvents(),
@@ -552,7 +559,13 @@ export class MenuService {
       });
     }
 
-    const insertedId = await this.cateringPackageRepository.createCateringPackageOption(data);
+    const dataInsert = {
+      name: data.name,
+      status: data.status,
+      packages: [cateringPackage],
+    };
+
+    const insertedId = await this.cateringPackageRepository.createCateringPackageOption(dataInsert);
 
     return { id: insertedId };
   }

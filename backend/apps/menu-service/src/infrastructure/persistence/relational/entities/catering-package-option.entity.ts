@@ -4,8 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -17,17 +16,11 @@ export class CateringPackageOptionEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', unique: true })
   name: string;
 
-  @Column({ name: 'package_id' })
-  packageId: number;
-
-  @ManyToOne(() => CateringPackageEntity, cateringPackage => cateringPackage.id, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'package_id' })
-  package: CateringPackageEntity;
+  @ManyToMany(() => CateringPackageEntity, packageEntity => packageEntity.options)
+  packages: CateringPackageEntity[];
 
   @Column({ type: 'varchar' })
   status: string;

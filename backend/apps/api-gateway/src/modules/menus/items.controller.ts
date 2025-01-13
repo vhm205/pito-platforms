@@ -4,10 +4,25 @@ import { Auth } from '@gateway/decorators';
 import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { PartnerItemDto } from '@gateway/modules/menus/dtos/insert-menu-item.dto';
 import { isValidUUID } from '@gateway/utils/common';
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { ApiBadRequestResponse, ApiBody, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 
+import {
+  GetCateringPackageAndOccasionEventResponseDto,
+  GetCateringPackageOptionsResponseDto,
+} from './dtos/get-catering-package.dto';
 import {
   CreateCateringPackageOptionDto,
   UpdateCateringPackageOptionDto,
@@ -83,6 +98,29 @@ export class ItemsController {
   @Auth([RoleType.OPERATOR])
   async deleteCateringPackageOption(@Param('id') id: number) {
     return this.itemsService.deleteCateringPackageOption(id);
+  }
+
+  @Get('catering-packages')
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: GetCateringPackageAndOccasionEventResponseDto })
+  async getCateringPackagesAndOccasionEvents() {
+    const result = await this.itemsService.findCateringPackagesAndOccasionEvents();
+    return result;
+  }
+
+  @Get('catering-packages/:packageId/options')
+  @ApiOperation({ summary: 'Get catering package options by package ID' })
+  @ApiParam({ name: 'packageId', description: 'ID of the catering package', type: 'integer' })
+  @ApiWrapperResponse({
+    description: 'Catering package options retrieved successfully',
+    type: GetCateringPackageOptionsResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'Bad Request: Invalid package ID' })
+  async getCateringPackageOptions(
+    @Param('packageId', ParseIntPipe) packageId: number,
+  ): Promise<GetCateringPackageOptionsResponseDto> {
+    const result = await this.itemsService.findCateringPackageOptionsByPackageId(packageId);
+    return result;
   }
 
   @Get(':identifier')

@@ -10,13 +10,14 @@ export class CateringPackage {
   id: number;
   name: string;
   isActive: boolean;
+  options: CateringPackageOption[];
 }
 
 export class CateringPackageOption {
   id: number;
   name: string;
-  packageId: number;
   status: string;
+  packages: CateringPackage[];
 }
 
 export class OccasionEvents {

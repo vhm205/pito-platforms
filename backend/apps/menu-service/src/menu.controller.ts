@@ -46,6 +46,7 @@ import {
   DeleteCateringPackageOptionResponse,
   GetCateringPackageOptionsRequest,
   GetCateringPackageOptionsResponse,
+  FindCateringPackagesAndOccasionEventsResponse,
   FilterItemsWithCateringPackageRequest,
   FilterItemsWithCateringPackageResponse,
 } from '@app/common';
@@ -157,6 +158,10 @@ export class MenuController implements MenusServiceController {
 
   async findAllCateringPackages(): Promise<FindAllCateringPackagesResponse> {
     return this.menuService.findAllCateringPackages();
+  }
+
+  async findCateringPackagesAndOccasionEvents(): Promise<FindCateringPackagesAndOccasionEventsResponse> {
+    return this.menuService.findCateringPackagesAndOccasionEvents();
   }
 
   async findItemsByFilters(

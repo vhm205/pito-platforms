@@ -1,5 +1,5 @@
 import { EntityRelationalHelper } from '@app/common';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { CateringPackageOptionEntity } from './catering-package-option.entity';
 
@@ -8,14 +8,19 @@ export class CateringPackageEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column({ type: 'text', name: 'name' })
+  @Column({ type: 'text', name: 'name', unique: true })
   name: string;
 
   @Column({ type: 'boolean', default: true, name: 'is_active' })
   isActive: boolean;
 
-  @OneToMany(() => CateringPackageOptionEntity, option => option.package, {
+  @ManyToMany(() => CateringPackageOptionEntity, option => option.packages, {
     cascade: true,
+  })
+  @JoinTable({
+    name: 'packages_options',
+    joinColumn: { name: 'package_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'option_id', referencedColumnName: 'id' },
   })
   options: CateringPackageOptionEntity[];
 }

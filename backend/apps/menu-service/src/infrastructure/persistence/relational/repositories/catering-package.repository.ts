@@ -27,13 +27,13 @@ export class CateringPackageRelationalRepository implements CateringPackageRepos
   ) {}
 
   // Catering Package
-  async createCateringPackage(data: Omit<CateringPackage, 'id'>) {
+  async createCateringPackage(data: Omit<CateringPackage, 'id' | 'options'>) {
     const newPackage = this.cateringPackageRepository.create(data);
     const result = await this.cateringPackageRepository.insert(newPackage);
     return result.identifiers[0]?.id;
   }
 
-  async updateCateringPackage(id: number, data: Partial<Omit<CateringPackage, 'id'>>) {
+  async updateCateringPackage(id: number, data: Partial<Omit<CateringPackage, 'id' | 'options'>>) {
     const result = await this.cateringPackageRepository.update({ id }, data);
     return { affected: result.affected || 0 };
   }
@@ -50,9 +50,8 @@ export class CateringPackageRelationalRepository implements CateringPackageRepos
 
   // Catering Package Option
   async createCateringPackageOption(data: Omit<CateringPackageOption, 'id'>) {
-    const newOption = this.cateringPackageOptionRepository.create(data);
-    const result = await this.cateringPackageOptionRepository.insert(newOption);
-    return result.identifiers[0]?.id;
+    const result = await this.cateringPackageOptionRepository.save(data);
+    return result.id;
   }
 
   async updateCateringPackageOption(
@@ -69,7 +68,11 @@ export class CateringPackageRelationalRepository implements CateringPackageRepos
   }
 
   async findCateringPackageOptionsByPackageId(id: number): Promise<CateringPackageOption[]> {
-    const options = await this.cateringPackageOptionRepository.findBy({ packageId: id });
-    return options.map(CateringPackageOptionMapper.toDomain);
+    const entity = await this.cateringPackageRepository.findOne({
+      where: { id },
+      relations: ['options'],
+    });
+
+    return entity ? entity.options.map(CateringPackageOptionMapper.toDomain) : [];
   }
 }

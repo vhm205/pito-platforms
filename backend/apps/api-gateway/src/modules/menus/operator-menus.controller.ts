@@ -25,6 +25,7 @@ import {
 import { plainToInstance } from 'class-transformer';
 import { isEmpty } from 'lodash';
 
+import { GetCateringPackageResponseDto } from './dtos/get-catering-package.dto';
 import { OperatorQueryStoreItemDto } from './dtos/operator-query-store-item.dto';
 
 @Controller('operator')
@@ -92,6 +93,15 @@ export class OperatorMenusController {
     const itemDto = plainToInstance(PartnerItemDto, item, { excludeExtraneousValues: true });
 
     return itemDto;
+  }
+
+  @Get('catering-packages')
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: GetCateringPackageResponseDto })
+  @Auth([RoleType.OPERATOR])
+  async getCateringPackages() {
+    const result = await this.menusService.findAllCateringPackages();
+    return result;
   }
 
   @Get('store-items')

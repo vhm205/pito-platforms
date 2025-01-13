@@ -4,11 +4,13 @@ import { CateringPackage, CateringPackageOption } from '../../domain/partner-ite
 
 export abstract class CateringPackageRepository {
   // Catering Package
-  abstract createCateringPackage(cateringPackage: Omit<CateringPackage, 'id'>): Promise<number>;
+  abstract createCateringPackage(
+    cateringPackage: Omit<CateringPackage, 'id' | 'options'>,
+  ): Promise<number>;
 
   abstract updateCateringPackage(
     id: number,
-    data: Partial<Omit<CateringPackage, 'id'>>,
+    data: Partial<Omit<CateringPackage, 'id' | 'options'>>,
   ): Promise<{ affected: number }>;
 
   abstract deleteCateringPackage(cateringPackageId: number): Promise<boolean>;
@@ -16,7 +18,9 @@ export abstract class CateringPackageRepository {
   abstract findCateringPackageById(id: number): Promise<NullableType<CateringPackage>>;
 
   // Catering Package Option
-  abstract createCateringPackageOption(option: Omit<CateringPackageOption, 'id'>): Promise<number>;
+  abstract createCateringPackageOption(
+    option: Omit<CateringPackageOption, 'id' | 'packages'>,
+  ): Promise<number>;
 
   abstract updateCateringPackageOption(
     optionId: number,

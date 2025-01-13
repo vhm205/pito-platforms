@@ -57,11 +57,6 @@ export class MenusService {
     return firstValueFrom(this.menusService.findItem(request));
   }
 
-  async findAllCateringPackages() {
-    const source$ = this.menusService.findAllCateringPackages({}).pipe(timeout(2000));
-    return firstValueFrom(source$);
-  }
-
   async findItemsWithFilters(query: FindItemsQueryDto) {
     const { filters, page, pageSize, sorts, latitude, longitude, menuType } = query;
 
@@ -79,8 +74,8 @@ export class MenusService {
     return firstValueFrom(source$);
   }
 
-  async findCateringPackageOptionsByPackageId(packageId: number) {
-    const source$ = this.menusService.getCateringPackageOptions({ packageId }).pipe(timeout(2000));
+  async findAllCateringPackages() {
+    const source$ = this.menusService.findAllCateringPackages({}).pipe(timeout(3000));
     return firstValueFrom(source$);
   }
 }

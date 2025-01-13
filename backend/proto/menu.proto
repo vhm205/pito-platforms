@@ -16,6 +16,7 @@ service MenusService {
   rpc FindItemsWithPagination (FindItemsRequest) returns (FindItemsResponse);
   rpc FindItem (FindItemRequest) returns (PartnerItem);
   rpc FindAllCateringPackages (Empty) returns (FindAllCateringPackagesResponse);
+  rpc FindCateringPackagesAndOccasionEvents (Empty) returns (FindCateringPackagesAndOccasionEventsResponse);
   rpc FindItemsByFilters (FindItemsByFiltersRequest) returns (FindItemsByFiltersResponse);
   rpc FilterItemsWithCateringPackage (FilterItemsWithCateringPackageRequest) returns (FilterItemsWithCateringPackageResponse);
 
@@ -457,6 +458,16 @@ message FindAllCateringPackagesResponse {
     bool is_active = 3;
   }
 
+  repeated CateringPackage catering_packages = 1;
+}
+
+message FindCateringPackagesAndOccasionEventsResponse {
+  message CateringPackage {
+    int32 id = 1;
+    string name = 2;
+    bool is_active = 3;
+  }
+
   message OccasionEvent {
     int32 id = 1;
     string name = 2;
@@ -750,9 +761,8 @@ message DeleteCateringPackageOptionResponse {
 
 message CateringPackageOption {
   int32 id = 1;
-  int32 package_id = 2;
-  string name = 3;
-  string status = 4;
+  string name = 2;
+  string status = 3;
 }
 
 message GetCateringPackageOptionsResponse {
