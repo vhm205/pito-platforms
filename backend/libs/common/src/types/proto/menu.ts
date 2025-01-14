@@ -465,10 +465,16 @@ export interface FindAllCateringPackagesResponse {
   cateringPackages: FindAllCateringPackagesResponse_CateringPackage[];
 }
 
+export interface FindAllCateringPackagesResponse_PackageOption {
+  id: number;
+  name: string;
+}
+
 export interface FindAllCateringPackagesResponse_CateringPackage {
   id: number;
   name: string;
   isActive: boolean;
+  options: FindAllCateringPackagesResponse_PackageOption[];
 }
 
 export interface FindAllCateringPackageOptionsResponse {

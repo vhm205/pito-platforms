@@ -181,7 +181,11 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
   }
 
   async findAllCateringPackages(): Promise<CateringPackage[]> {
-    const packages = await this.cateringPackageRepository.findBy({ isActive: true });
+    const packages = await this.cateringPackageRepository.find({
+      relations: {
+        options: true,
+      },
+    });
     return packages.map(CateringPackageMapper.toDomain);
   }
 

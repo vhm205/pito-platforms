@@ -1,5 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+export class CateringPackageOptionDto {
+  @ApiProperty({ example: 1 })
+  id: number;
+
+  @ApiProperty({ example: 'Option Name' })
+  name: string;
+
+  @ApiProperty({ example: 'active' })
+  status: string;
+}
+
 class CateringPackageResponse {
   @ApiProperty()
   id: number;
@@ -9,6 +20,9 @@ class CateringPackageResponse {
 
   @ApiProperty()
   isActive: boolean;
+
+  @ApiProperty({ type: [CateringPackageOptionDto] })
+  options: CateringPackageOptionDto[];
 }
 
 class OccasionEventsResponse {
@@ -33,17 +47,6 @@ export class GetCateringPackageAndOccasionEventResponseDto {
 
   @ApiProperty({ type: () => [OccasionEventsResponse] })
   occationEvents: OccasionEventsResponse[];
-}
-
-export class CateringPackageOptionDto {
-  @ApiProperty({ example: 1 })
-  id: number;
-
-  @ApiProperty({ example: 'Option Name' })
-  name: string;
-
-  @ApiProperty({ example: 'active' })
-  status: string;
 }
 
 export class GetCateringPackageOptionsResponseDto {
