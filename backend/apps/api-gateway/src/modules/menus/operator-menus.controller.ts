@@ -129,7 +129,7 @@ export class OperatorMenusController {
   @HttpCode(HttpStatus.OK)
   @Auth([RoleType.OPERATOR])
   async getTotalCateringPackagesItems(@Query('serviceCategory') serviceCategory = 'PX') {
-    const { cateringPackages } = await this.menusService.findAllCateringPackages();
+    const cateringPackages = await this.menusService.findActiveCateringPackages();
     if (isEmpty(cateringPackages)) return [];
 
     const packageIds = cateringPackages.map(c => c.id);

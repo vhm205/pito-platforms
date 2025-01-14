@@ -504,6 +504,8 @@ message FindAllCateringPackagesResponse {
     bool is_active = 3;
     repeated PackageOption options = 4;
   }
+
+  repeated CateringPackage catering_packages = 1;
 }
 
 message CateringPackage {
