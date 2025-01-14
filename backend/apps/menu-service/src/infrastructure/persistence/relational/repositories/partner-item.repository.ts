@@ -20,6 +20,7 @@ import { FindOperator, In, type FindOptionsWhere, type Repository } from 'typeor
 import { CateringPackageEntity } from '../entities/catering-package.entity';
 import { PartnerOccasionEventEntity } from '../entities/partner-occasion-event.entity';
 import { StoreServiceEntity } from '../entities/store-service.entity';
+import { CateringPackageMapper } from '../mappers/catering-package.mapper';
 
 @Injectable()
 export class PartnerItemRelationalRepository implements PartnerItemRepository {
@@ -181,7 +182,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
 
   async findAllCateringPackages(): Promise<CateringPackage[]> {
     const packages = await this.cateringPackageRepository.findBy({ isActive: true });
-    return packages;
+    return packages.map(CateringPackageMapper.toDomain);
   }
 
   async findAllOccasionEvents(): Promise<OccasionEvents[]> {
