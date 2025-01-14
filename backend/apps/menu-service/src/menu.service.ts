@@ -24,6 +24,7 @@ import {
   UpdateItemRequest,
   FindItemsRequest,
   CountCateringPackagesItemsRequest,
+  FindCateringPackagesRequest,
   FindItemsWithPaginationRequest,
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
@@ -614,5 +615,11 @@ export class MenuService {
   async findAllCateringPackageOptions() {
     const packageOptions = await this.cateringPackageRepository.findAllCateringPackageOptions();
     return { options: packageOptions };
+  }
+
+  async findCateringPackages(request: FindCateringPackagesRequest) {
+    return this.partnerItemRepository.findCateringPackages({
+      filters: request.filters.map(transformFilterRule),
+    });
   }
 }

@@ -59,4 +59,8 @@ export abstract class PartnerItemRepository {
     itemStatus: string[];
     cateringPackages: number[];
   }): Promise<Map<number, number>>;
+
+  abstract findCateringPackages(args: {
+    filters: Record<string, FindOperator<any>>[];
+  }): Promise<CateringPackage[]>;
 }

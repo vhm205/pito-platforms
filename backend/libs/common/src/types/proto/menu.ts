@@ -461,9 +461,7 @@ export interface FindItemRequest {
   status?: string | undefined;
 }
 
-export interface FindAllCateringPackagesResponse {
-  cateringPackages: FindAllCateringPackagesResponse_CateringPackage[];
-}
+export interface FindAllCateringPackagesResponse {}
 
 export interface FindAllCateringPackagesResponse_PackageOption {
   id: number;
@@ -477,6 +475,12 @@ export interface FindAllCateringPackagesResponse_CateringPackage {
   options: FindAllCateringPackagesResponse_PackageOption[];
 }
 
+export interface CateringPackage {
+  id: number;
+  name: string;
+  isActive: boolean;
+}
+
 export interface FindAllCateringPackageOptionsResponse {
   options: FindAllCateringPackageOptionsResponse_CateringPackageOption[];
 }
@@ -488,14 +492,8 @@ export interface FindAllCateringPackageOptionsResponse_CateringPackageOption {
 }
 
 export interface FindCateringPackagesAndOccasionEventsResponse {
-  cateringPackages: FindCateringPackagesAndOccasionEventsResponse_CateringPackage[];
+  cateringPackages: CateringPackage[];
   occasionEvents: FindCateringPackagesAndOccasionEventsResponse_OccasionEvent[];
-}
-
-export interface FindCateringPackagesAndOccasionEventsResponse_CateringPackage {
-  id: number;
-  name: string;
-  isActive: boolean;
 }
 
 export interface FindCateringPackagesAndOccasionEventsResponse_OccasionEvent {
@@ -807,6 +805,15 @@ export interface CountCateringPackagesItemsResponse_DataEntry {
   value: number;
 }
 
+export interface FindCateringPackagesRequest {
+  filters: FilterRule[];
+}
+
+export interface FindCateringPackagesResponse {
+  data: CateringPackage[];
+  error?: string | undefined;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -842,6 +849,10 @@ export interface MenusServiceClient {
   findAllCateringPackages(request: Empty): Observable<FindAllCateringPackagesResponse>;
 
   findAllCateringPackageOptions(request: Empty): Observable<FindAllCateringPackageOptionsResponse>;
+
+  findCateringPackages(
+    request: FindCateringPackagesRequest,
+  ): Observable<FindCateringPackagesResponse>;
 
   findCateringPackagesAndOccasionEvents(
     request: Empty,
@@ -955,6 +966,13 @@ export interface MenusServiceController {
     | Promise<FindAllCateringPackageOptionsResponse>
     | Observable<FindAllCateringPackageOptionsResponse>
     | FindAllCateringPackageOptionsResponse;
+
+  findCateringPackages(
+    request: FindCateringPackagesRequest,
+  ):
+    | Promise<FindCateringPackagesResponse>
+    | Observable<FindCateringPackagesResponse>
+    | FindCateringPackagesResponse;
 
   findCateringPackagesAndOccasionEvents(
     request: Empty,
@@ -1094,6 +1112,7 @@ export function MenusServiceControllerMethods() {
       'findItems',
       'findAllCateringPackages',
       'findAllCateringPackageOptions',
+      'findCateringPackages',
       'findCateringPackagesAndOccasionEvents',
       'findItemsByFilters',
       'filterItemsWithCateringPackage',
