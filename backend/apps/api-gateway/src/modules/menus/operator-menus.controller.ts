@@ -23,7 +23,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { get, isEmpty } from 'lodash';
+import { get, assign, isEmpty } from 'lodash';
 
 import { GetCateringPackageResponseDto } from './dtos/get-catering-package.dto';
 import { OperatorQueryStoreItemDto } from './dtos/operator-query-store-item.dto';
@@ -90,7 +90,13 @@ export class OperatorMenusController {
   async getMenuItem(@Param('identifier') identifier: string) {
     const filterCriteria = isValidUUID(identifier) ? { id: identifier } : { slug: identifier };
     const item = await this.menusService.findItem(filterCriteria);
-    const itemDto = plainToInstance(PartnerItemDto, item, { excludeExtraneousValues: true });
+    const cateringPackages = await this.menusService.findCateringPackagesWithIds(
+      item.cateringPackages,
+    );
+
+    const itemDto = plainToInstance(PartnerItemDto, assign(item, { cateringPackages }), {
+      excludeExtraneousValues: true,
+    });
 
     return itemDto;
   }

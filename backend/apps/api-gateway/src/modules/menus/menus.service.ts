@@ -1,7 +1,14 @@
-import { FindItemRequest, MENU_SERVICE, MENUS_SERVICE_NAME, MenusServiceClient } from '@app/common';
+import {
+  CateringPackage,
+  FindItemRequest,
+  MENU_SERVICE,
+  MENUS_SERVICE_NAME,
+  MenusServiceClient,
+} from '@app/common';
 import { InsertItemDto } from '@gateway/modules/menus/dtos/insert-menu-item.dto';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
+import { isEmpty } from 'lodash';
 import { firstValueFrom, timeout } from 'rxjs';
 
 import { FindItemsQueryDto } from './dtos/query-items.dto';
@@ -77,5 +84,14 @@ export class MenusService {
   async findAllCateringPackages() {
     const source$ = this.menusService.findAllCateringPackages({}).pipe(timeout(3000));
     return firstValueFrom(source$);
+  }
+
+  async findCateringPackagesWithIds(ids: number[]) {
+    if (isEmpty(ids)) return Promise.resolve<CateringPackage[]>([]);
+    return firstValueFrom(
+      this.menusService.findCateringPackages({
+        filters: [{ column: 'id', operator: 'in', value: ids.join(',') }],
+      }),
+    ).then(r => r.data ?? []);
   }
 }

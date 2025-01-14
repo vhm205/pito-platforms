@@ -415,4 +415,13 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
 
     return resultMap;
   }
+
+  async findCateringPackages(args: {
+    filters: Record<string, FindOperator<any>>[];
+  }): Promise<CateringPackage[]> {
+    const entities = await this.cateringPackageRepository.find({
+      where: args.filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
+    });
+    return entities;
+  }
 }
