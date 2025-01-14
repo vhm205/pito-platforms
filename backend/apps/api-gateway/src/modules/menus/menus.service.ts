@@ -86,6 +86,14 @@ export class MenusService {
     return firstValueFrom(source$);
   }
 
+  async findActiveCateringPackages() {
+    return firstValueFrom(
+      this.menusService.findCateringPackages({
+        filters: [{ column: 'isActive', operator: 'eq', value: 'true' }],
+      }),
+    ).then(r => r.data ?? []);
+  }
+
   async findCateringPackagesWithIds(ids: number[]) {
     if (isEmpty(ids)) return Promise.resolve<CateringPackage[]>([]);
     return firstValueFrom(

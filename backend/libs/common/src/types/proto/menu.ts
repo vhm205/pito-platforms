@@ -461,7 +461,9 @@ export interface FindItemRequest {
   status?: string | undefined;
 }
 
-export interface FindAllCateringPackagesResponse {}
+export interface FindAllCateringPackagesResponse {
+  cateringPackages: FindAllCateringPackagesResponse_CateringPackage[];
+}
 
 export interface FindAllCateringPackagesResponse_PackageOption {
   id: number;
