@@ -142,18 +142,20 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     pagination: PaginationRequest;
     filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
-    customFilters: Record<string, unknown>;
+    exceptionFilters: Record<string, unknown>;
   }) {
-    const { pagination, sorts, filters, customFilters } = options;
-    const { menuType } = customFilters;
+    const { pagination, sorts, filters, exceptionFilters } = options;
+    const { menuType } = exceptionFilters;
     const skip = (pagination.currentPage - 1) * pagination.pageSize;
     const take = pagination.pageSize;
 
-    const queryBuilder = this.partnerItemRepository
-      .createQueryBuilder('item')
-      .innerJoin('item.menuCategory', 'menuCategory', 'menuCategory.type = :menuType', {
+    const queryBuilder = this.partnerItemRepository.createQueryBuilder('item');
+
+    if (menuType) {
+      queryBuilder.innerJoin('item.menuCategory', 'menuCategory', 'menuCategory.type = :menuType', {
         menuType: menuType || MenuType.SET,
       });
+    }
 
     /* WHERE clause */
     if (filters.length) {
@@ -202,19 +204,22 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     pagination: PaginationRequest;
     filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
-    customFilters: Record<string, unknown>;
+    exceptionFilters: Record<string, unknown>;
   }) {
-    const { pagination, sorts, filters, customFilters } = options;
+    const { pagination, sorts, filters, exceptionFilters } = options;
     const skip = (pagination.currentPage - 1) * pagination.pageSize;
     const take = pagination.pageSize;
-    const { latitude, longitude, menuType } = customFilters;
+    const { latitude, longitude, menuType } = exceptionFilters;
 
     const queryBuilder = this.partnerItemRepository
       .createQueryBuilder('item')
-      .innerJoinAndSelect('item.store', 'store')
-      .innerJoin('item.menuCategory', 'menuCategory', 'menuCategory.type = :menuType', {
+      .innerJoinAndSelect('item.store', 'store');
+
+    if (menuType) {
+      queryBuilder.innerJoin('item.menuCategory', 'menuCategory', 'menuCategory.type = :menuType', {
         menuType: menuType || MenuType.SET,
       });
+    }
 
     /* WHERE clause */
     if (filters.length) {

@@ -391,7 +391,7 @@ export class MenuService {
       pagination,
       filters: filters?.map(transformFilterRule),
       sorts,
-      customFilters: {
+      exceptionFilters: {
         menuType,
       },
     });
@@ -494,7 +494,7 @@ export class MenuService {
       pagination,
       sorts,
       filters: filters?.map(transformFilterRule),
-      customFilters: {
+      exceptionFilters: {
         latitude,
         longitude,
         menuType,

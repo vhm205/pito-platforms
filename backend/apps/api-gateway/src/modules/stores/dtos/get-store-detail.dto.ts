@@ -132,4 +132,10 @@ export class GetStoreDetailResponseDto {
 
   @ApiProperty({ required: false, example: '2023-10-28T08:00:00Z' })
   reopenTime: Date | undefined;
+
+  @ApiProperty({ required: false, example: 100 })
+  dailyOrderLimit: number | undefined;
+
+  @ApiProperty({ required: false, example: 1000000 })
+  dailyRevenueLimit: number | undefined;
 }

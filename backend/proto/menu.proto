@@ -686,6 +686,9 @@ message GetStoreDetailResponse {
   // additional
   repeated CuisineType cuisine_types = 17;
   google.protobuf.Timestamp reopen_time = 18;
+
+  float daily_order_limit = 19;
+  float daily_revenue_limit = 20;
 }
 
 message UpdateStoreStatusRequest {

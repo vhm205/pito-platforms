@@ -620,6 +620,8 @@ export interface GetStoreDetailResponse {
   /** additional */
   cuisineTypes: GetStoreDetailResponse_CuisineType[];
   reopenTime: Date | undefined;
+  dailyOrderLimit: number;
+  dailyRevenueLimit: number;
 }
 
 export interface GetStoreDetailResponse_Location {
