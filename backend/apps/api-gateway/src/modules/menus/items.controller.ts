@@ -100,6 +100,15 @@ export class ItemsController {
     return this.itemsService.deleteCateringPackageOption(id);
   }
 
+  @Get('catering-package-options')
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: GetCateringPackageOptionsResponseDto })
+  @Auth([RoleType.OPERATOR])
+  async getAllCateringPackageOptions() {
+    const result = await this.itemsService.findAllCateringPackageOptions();
+    return result;
+  }
+
   @Get('catering-packages')
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: GetCateringPackageAndOccasionEventResponseDto })
@@ -116,6 +125,7 @@ export class ItemsController {
     type: GetCateringPackageOptionsResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Bad Request: Invalid package ID' })
+  @Auth([RoleType.OPERATOR])
   async getCateringPackageOptions(
     @Param('packageId', ParseIntPipe) packageId: number,
   ): Promise<GetCateringPackageOptionsResponseDto> {

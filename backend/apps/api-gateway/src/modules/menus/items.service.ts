@@ -52,6 +52,11 @@ export class ItemsService implements OnModuleInit {
     return firstValueFrom(source$);
   }
 
+  async findAllCateringPackageOptions() {
+    const source$ = this.menusService.findAllCateringPackageOptions({}).pipe(timeout(3000));
+    return firstValueFrom(source$);
+  }
+
   async findCateringPackageOptionsByPackageId(packageId: number) {
     const source$ = this.menusService.getCateringPackageOptions({ packageId }).pipe(timeout(5000));
     return firstValueFrom(source$);
