@@ -19,12 +19,15 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
+  Post,
   Put,
   Query,
 } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { get, assign, isEmpty } from 'lodash';
 
+import { AssignOptionsToPackageDto } from './dtos/assign-options-to-package.dto';
 import { GetCateringPackageResponseDto } from './dtos/get-catering-package.dto';
 import { OperatorQueryStoreItemDto } from './dtos/operator-query-store-item.dto';
 
@@ -101,15 +104,6 @@ export class OperatorMenusController {
     return itemDto;
   }
 
-  @Get('catering-packages')
-  @HttpCode(HttpStatus.OK)
-  @ApiWrapperResponse({ type: GetCateringPackageResponseDto })
-  @Auth([RoleType.OPERATOR])
-  async getCateringPackages() {
-    const result = await this.menusService.findAllCateringPackages();
-    return result;
-  }
-
   @Get('store-items')
   @HttpCode(HttpStatus.OK)
   @Auth([RoleType.OPERATOR])
@@ -123,6 +117,15 @@ export class OperatorMenusController {
     });
 
     return new PageDto(data, pageMeta);
+  }
+
+  @Get('catering-packages')
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: GetCateringPackageResponseDto })
+  @Auth([RoleType.OPERATOR])
+  async getCateringPackages() {
+    const result = await this.menusService.findAllCateringPackages();
+    return result;
   }
 
   @Get('catering-packages/items/total')
@@ -139,5 +142,20 @@ export class OperatorMenusController {
       ...c,
       totalItems: get(countResult.data, c.id, 0),
     }));
+  }
+
+  @Post('catering-packages/:id/assign-options')
+  @ApiOperation({ summary: 'Assign options to a package' })
+  @ApiParam({ name: 'id', description: 'Package ID', type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'Options assigned successfully',
+    schema: { example: { success: true } },
+  })
+  async assignOptionsToPackage(
+    @Param('id') packageId: number,
+    @Body() { optionIds }: AssignOptionsToPackageDto,
+  ): Promise<{ success: boolean }> {
+    return this.service.assignOptionsToPackage(packageId, optionIds);
   }
 }

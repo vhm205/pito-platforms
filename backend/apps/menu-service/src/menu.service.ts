@@ -26,6 +26,7 @@ import {
   CountCateringPackagesItemsRequest,
   FindCateringPackagesRequest,
   FindItemsWithPaginationRequest,
+  AssignOptionsToPackageRequest,
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
 import { GrpcStatus } from '@app/common/enums';
@@ -621,5 +622,17 @@ export class MenuService {
     return this.partnerItemRepository.findCateringPackages({
       filters: request.filters.map(transformFilterRule),
     });
+  }
+
+  async assignOptionsToPackage(request: AssignOptionsToPackageRequest) {
+    const { packageId, optionIds } = request;
+
+    const { options } = await this.cateringPackageRepository.assignOptionsToPackage(
+      packageId,
+      optionIds,
+    );
+    const isSuccess = options.length === optionIds.length;
+
+    return { success: isSuccess };
   }
 }

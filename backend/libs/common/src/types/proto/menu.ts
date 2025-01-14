@@ -461,7 +461,9 @@ export interface FindItemRequest {
   status?: string | undefined;
 }
 
-export interface FindAllCateringPackagesResponse {}
+export interface FindAllCateringPackagesResponse {
+  cateringPackages: FindAllCateringPackagesResponse_CateringPackage[];
+}
 
 export interface FindAllCateringPackagesResponse_PackageOption {
   id: number;
@@ -814,6 +816,15 @@ export interface FindCateringPackagesResponse {
   error?: string | undefined;
 }
 
+export interface AssignOptionsToPackageRequest {
+  packageId: number;
+  optionIds: number[];
+}
+
+export interface AssignOptionsToPackageResponse {
+  success: boolean;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -907,6 +918,10 @@ export interface MenusServiceClient {
   getCateringPackageOptions(
     request: GetCateringPackageOptionsRequest,
   ): Observable<GetCateringPackageOptionsResponse>;
+
+  assignOptionsToPackage(
+    request: AssignOptionsToPackageRequest,
+  ): Observable<AssignOptionsToPackageResponse>;
 
   countCateringPackagesItems(
     request: CountCateringPackagesItemsRequest,
@@ -1091,6 +1106,13 @@ export interface MenusServiceController {
     | Observable<GetCateringPackageOptionsResponse>
     | GetCateringPackageOptionsResponse;
 
+  assignOptionsToPackage(
+    request: AssignOptionsToPackageRequest,
+  ):
+    | Promise<AssignOptionsToPackageResponse>
+    | Observable<AssignOptionsToPackageResponse>
+    | AssignOptionsToPackageResponse;
+
   countCateringPackagesItems(
     request: CountCateringPackagesItemsRequest,
   ):
@@ -1131,6 +1153,7 @@ export function MenusServiceControllerMethods() {
       'updateCateringPackageOption',
       'deleteCateringPackageOption',
       'getCateringPackageOptions',
+      'assignOptionsToPackage',
       'countCateringPackagesItems',
     ];
     for (const method of grpcMethods) {

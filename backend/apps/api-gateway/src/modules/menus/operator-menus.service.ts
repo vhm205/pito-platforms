@@ -13,7 +13,7 @@ import { OperatorQueryItemDto } from '@gateway/modules/menus/dtos/query-menu.dto
 import { Inject, Injectable, InternalServerErrorException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { forEach, isEmpty, map } from 'lodash';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 
 import { OperatorQueryStoreItemDto } from './dtos/operator-query-store-item.dto';
 
@@ -124,5 +124,12 @@ export class OperatorMenusService implements OnModuleInit {
     });
 
     return { data: Array.from(storesMap.values()), totalCount };
+  }
+
+  async assignOptionsToPackage(packageId: number, optionIds: number[]) {
+    const source$ = this.menusServiceClient
+      .assignOptionsToPackage({ packageId, optionIds })
+      .pipe(timeout(5000));
+    return firstValueFrom(source$);
   }
 }

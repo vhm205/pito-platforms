@@ -41,6 +41,7 @@ service MenusService {
   rpc UpdateCateringPackageOption (UpdateCateringPackageOptionRequest) returns (UpdateCateringPackageOptionResponse) {}
   rpc DeleteCateringPackageOption (DeleteCateringPackageOptionRequest) returns (DeleteCateringPackageOptionResponse) {}
   rpc GetCateringPackageOptions (GetCateringPackageOptionsRequest) returns (GetCateringPackageOptionsResponse);
+  rpc AssignOptionsToPackage (AssignOptionsToPackageRequest) returns (AssignOptionsToPackageResponse);
 
   rpc CountCateringPackagesItems(CountCateringPackagesItemsRequest) returns (CountCateringPackagesItemsResponse);
 }
@@ -504,6 +505,8 @@ message FindAllCateringPackagesResponse {
     bool is_active = 3;
     repeated PackageOption options = 4;
   }
+
+  repeated CateringPackage catering_packages = 1;
 }
 
 message CateringPackage {
@@ -844,4 +847,13 @@ message FindCateringPackagesRequest {
 message FindCateringPackagesResponse {
   repeated CateringPackage data = 1;
   optional string error = 2;
+}
+
+message AssignOptionsToPackageRequest {
+  int32 package_id = 1;
+  repeated int32 option_ids = 2;
+}
+
+message AssignOptionsToPackageResponse {
+  bool success = 1;
 }
