@@ -28,6 +28,7 @@ import {
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
 import { GrpcStatus } from '@app/common/enums';
+import { PackageOptionStatus } from '@app/common/enums/catering-package';
 import { ItemStatus } from '@app/common/enums/item';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -559,21 +560,9 @@ export class MenuService {
   async createCateringPackageOption(
     data: CreateCateringPackageOptionRequest,
   ): Promise<CreateCateringPackageOptionResponse> {
-    const cateringPackage = await this.cateringPackageRepository.findCateringPackageById(
-      data.packageId,
-    );
-
-    if (!cateringPackage) {
-      throw new RpcException({
-        message: `Catering package not found with id ${data.packageId}`,
-        status: GrpcStatus.NOT_FOUND,
-      });
-    }
-
     const dataInsert = {
       name: data.name,
-      status: data.status,
-      packages: [cateringPackage],
+      status: PackageOptionStatus.ACTIVE,
     };
 
     const insertedId = await this.cateringPackageRepository.createCateringPackageOption(dataInsert);
@@ -620,5 +609,10 @@ export class MenuService {
       cateringPackages: request.cateringPackageIds,
       serviceCategory: request.serviceCategory,
     });
+  }
+
+  async findAllCateringPackageOptions() {
+    const packageOptions = await this.cateringPackageRepository.findAllCateringPackageOptions();
+    return { options: packageOptions };
   }
 }

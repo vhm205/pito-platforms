@@ -477,6 +477,16 @@ export interface FindAllCateringPackagesResponse_CateringPackage {
   options: FindAllCateringPackagesResponse_PackageOption[];
 }
 
+export interface FindAllCateringPackageOptionsResponse {
+  options: FindAllCateringPackageOptionsResponse_CateringPackageOption[];
+}
+
+export interface FindAllCateringPackageOptionsResponse_CateringPackageOption {
+  id: number;
+  name: string;
+  status: string;
+}
+
 export interface FindCateringPackagesAndOccasionEventsResponse {
   cateringPackages: FindCateringPackagesAndOccasionEventsResponse_CateringPackage[];
   occasionEvents: FindCateringPackagesAndOccasionEventsResponse_OccasionEvent[];
@@ -744,9 +754,7 @@ export interface GetCateringPackageOptionsRequest {
 }
 
 export interface CreateCateringPackageOptionRequest {
-  packageId: number;
   name: string;
-  status: string;
 }
 
 export interface CreateCateringPackageOptionResponse {
@@ -830,6 +838,8 @@ export interface MenusServiceClient {
   findItems(request: FindItemsRequest): Observable<FindItemsResponse>;
 
   findAllCateringPackages(request: Empty): Observable<FindAllCateringPackagesResponse>;
+
+  findAllCateringPackageOptions(request: Empty): Observable<FindAllCateringPackageOptionsResponse>;
 
   findCateringPackagesAndOccasionEvents(
     request: Empty,
@@ -936,6 +946,13 @@ export interface MenusServiceController {
     | Promise<FindAllCateringPackagesResponse>
     | Observable<FindAllCateringPackagesResponse>
     | FindAllCateringPackagesResponse;
+
+  findAllCateringPackageOptions(
+    request: Empty,
+  ):
+    | Promise<FindAllCateringPackageOptionsResponse>
+    | Observable<FindAllCateringPackageOptionsResponse>
+    | FindAllCateringPackageOptionsResponse;
 
   findCateringPackagesAndOccasionEvents(
     request: Empty,
@@ -1074,6 +1091,7 @@ export function MenusServiceControllerMethods() {
       'findItem',
       'findItems',
       'findAllCateringPackages',
+      'findAllCateringPackageOptions',
       'findCateringPackagesAndOccasionEvents',
       'findItemsByFilters',
       'filterItemsWithCateringPackage',

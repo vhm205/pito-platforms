@@ -75,4 +75,9 @@ export class CateringPackageRelationalRepository implements CateringPackageRepos
 
     return entity ? entity.options.map(CateringPackageOptionMapper.toDomain) : [];
   }
+
+  async findAllCateringPackageOptions(): Promise<CateringPackageOption[]> {
+    const packageOptions = await this.cateringPackageOptionRepository.find();
+    return packageOptions.map(CateringPackageOptionMapper.toDomain);
+  }
 }
