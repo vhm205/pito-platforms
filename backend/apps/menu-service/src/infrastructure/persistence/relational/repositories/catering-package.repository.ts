@@ -39,7 +39,7 @@ export class CateringPackageRelationalRepository implements CateringPackageRepos
   }
 
   async deleteCateringPackage(id: number) {
-    const deleteResult = await this.cateringPackageRepository.delete(id);
+    const deleteResult = await this.cateringPackageRepository.softDelete(id);
     return (deleteResult.affected || 0) > 0;
   }
 
