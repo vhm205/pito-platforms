@@ -32,4 +32,6 @@ export abstract class CateringPackageRepository {
   abstract findCateringPackageOptionsByPackageId(id: number): Promise<CateringPackageOption[]>;
 
   abstract findAllCateringPackageOptions(): Promise<CateringPackageOption[]>;
+
+  abstract assignOptionsToPackage(packageId: number, optionIds: number[]): Promise<CateringPackage>;
 }

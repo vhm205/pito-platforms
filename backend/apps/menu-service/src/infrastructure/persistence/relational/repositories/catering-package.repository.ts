@@ -6,7 +6,7 @@ import {
   CateringPackage,
   CateringPackageOption,
 } from 'apps/menu-service/src/domain/partner-item.domain';
-import { type Repository } from 'typeorm';
+import { In, type Repository } from 'typeorm';
 
 import { CateringPackageRepository } from '../../catering-package.repository';
 import { CateringPackageOptionEntity } from '../entities/catering-package-option.entity';
@@ -79,5 +79,19 @@ export class CateringPackageRelationalRepository implements CateringPackageRepos
   async findAllCateringPackageOptions(): Promise<CateringPackageOption[]> {
     const packageOptions = await this.cateringPackageOptionRepository.find();
     return packageOptions.map(CateringPackageOptionMapper.toDomain);
+  }
+
+  async assignOptionsToPackage(packageId: number, optionIds: number[]) {
+    const packageEntity = await this.cateringPackageRepository.findOne({
+      where: { id: packageId },
+    });
+    if (!packageEntity) {
+      throw new Error('Package not found');
+    }
+
+    const optionEntities = await this.cateringPackageOptionRepository.findBy({ id: In(optionIds) });
+
+    packageEntity.options = optionEntities;
+    return this.cateringPackageRepository.save(packageEntity);
   }
 }
