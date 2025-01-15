@@ -1,5 +1,13 @@
 import { EntityRelationalHelper } from '@app/common';
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { NullableType } from '@app/common/types/common';
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 import { CateringPackageOptionEntity } from './catering-package-option.entity';
 
@@ -23,4 +31,7 @@ export class CateringPackageEntity extends EntityRelationalHelper {
     inverseJoinColumn: { name: 'option_id', referencedColumnName: 'id' },
   })
   options: CateringPackageOptionEntity[];
+
+  @DeleteDateColumn({ name: 'deleted_at' })
+  deletedAt: NullableType<Date>;
 }
