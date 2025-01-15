@@ -5,6 +5,7 @@ package menu;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "common.proto";
+import "dish/dish.proto";
 
 service MenusService {
   rpc FindStores (FindStoresRequest) returns (FindStoresResponse);
@@ -44,6 +45,12 @@ service MenusService {
   rpc AssignOptionsToPackage (AssignOptionsToPackageRequest) returns (AssignOptionsToPackageResponse);
 
   rpc CountCateringPackagesItems(CountCateringPackagesItemsRequest) returns (CountCateringPackagesItemsResponse);
+
+  rpc CreateDish(dish.CreateDishRequest) returns (dish.CreateDishResponse);
+  rpc GetDish(dish.GetDishRequest) returns (dish.GetDishResponse);
+  rpc ListDishes(dish.ListDishesRequest) returns (dish.ListDishesResponse);
+  rpc UpdateDish(dish.UpdateDishRequest) returns (dish.UpdateDishResponse);
+  rpc DeleteDish(dish.DeleteDishRequest) returns (dish.DeleteDishResponse);
 }
 
 // [START] Find stores by filter

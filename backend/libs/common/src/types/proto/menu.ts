@@ -11,6 +11,18 @@ import {
   StoreEngagementLevel,
   StorePerformanceLevel,
 } from './common';
+import {
+  CreateDishRequest,
+  CreateDishResponse,
+  DeleteDishRequest,
+  DeleteDishResponse,
+  GetDishRequest,
+  GetDishResponse,
+  ListDishesRequest,
+  ListDishesResponse,
+  UpdateDishRequest,
+  UpdateDishResponse,
+} from './dish/dish';
 import { Struct } from './google/protobuf/struct';
 
 export const protobufPackage = 'menu';
@@ -926,6 +938,16 @@ export interface MenusServiceClient {
   countCateringPackagesItems(
     request: CountCateringPackagesItemsRequest,
   ): Observable<CountCateringPackagesItemsResponse>;
+
+  createDish(request: CreateDishRequest): Observable<CreateDishResponse>;
+
+  getDish(request: GetDishRequest): Observable<GetDishResponse>;
+
+  listDishes(request: ListDishesRequest): Observable<ListDishesResponse>;
+
+  updateDish(request: UpdateDishRequest): Observable<UpdateDishResponse>;
+
+  deleteDish(request: DeleteDishRequest): Observable<DeleteDishResponse>;
 }
 
 export interface MenusServiceController {
@@ -1119,6 +1141,26 @@ export interface MenusServiceController {
     | Promise<CountCateringPackagesItemsResponse>
     | Observable<CountCateringPackagesItemsResponse>
     | CountCateringPackagesItemsResponse;
+
+  createDish(
+    request: CreateDishRequest,
+  ): Promise<CreateDishResponse> | Observable<CreateDishResponse> | CreateDishResponse;
+
+  getDish(
+    request: GetDishRequest,
+  ): Promise<GetDishResponse> | Observable<GetDishResponse> | GetDishResponse;
+
+  listDishes(
+    request: ListDishesRequest,
+  ): Promise<ListDishesResponse> | Observable<ListDishesResponse> | ListDishesResponse;
+
+  updateDish(
+    request: UpdateDishRequest,
+  ): Promise<UpdateDishResponse> | Observable<UpdateDishResponse> | UpdateDishResponse;
+
+  deleteDish(
+    request: DeleteDishRequest,
+  ): Promise<DeleteDishResponse> | Observable<DeleteDishResponse> | DeleteDishResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -1155,6 +1197,11 @@ export function MenusServiceControllerMethods() {
       'getCateringPackageOptions',
       'assignOptionsToPackage',
       'countCateringPackagesItems',
+      'createDish',
+      'getDish',
+      'listDishes',
+      'updateDish',
+      'deleteDish',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

@@ -10,6 +10,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
+import { DishesService } from './dish.service';
 import { ItemsController } from './items.controller';
 import { ItemsService } from './items.service';
 
@@ -45,6 +46,6 @@ import { ItemsService } from './items.service';
     ]),
   ],
   controllers: [MenusController, OperatorMenusController, ItemsController],
-  providers: [MenusService, OperatorMenusService, ItemsService],
+  providers: [MenusService, OperatorMenusService, ItemsService, DishesService],
 })
 export class MenusModule {}

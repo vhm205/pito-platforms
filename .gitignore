@@ -141,3 +141,5 @@ dist
 .docker-data
 
 /infrastructure/typesense-data/*
+backend/scripts/excels
+backend/scripts/import_excel_data.ts
