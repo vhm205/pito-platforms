@@ -62,9 +62,22 @@ import {
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
 import { CamelCaseResponseInterceptor } from '@app/common/interceptors/convert-to-camel-case.interceptor';
+import {
+  CreateDishRequest,
+  CreateDishResponse,
+  DeleteDishRequest,
+  DeleteDishResponse,
+  GetDishRequest,
+  GetDishResponse,
+  ListDishesRequest,
+  ListDishesResponse,
+  UpdateDishRequest,
+  UpdateDishResponse,
+} from '@app/common/types/proto/dish/dish';
 import { Controller, UseInterceptors } from '@nestjs/common';
 import { find, includes, isEmpty } from 'lodash';
 
+import { DishService } from './dish.service';
 import { MenuService } from './menu.service';
 import { PartnerService } from './partner.service';
 import { StoreService } from './store.service';
@@ -77,6 +90,7 @@ export class MenuController implements MenusServiceController {
     private readonly menuService: MenuService,
     private readonly storeService: StoreService,
     private readonly partnerService: PartnerService,
+    private readonly dishService: DishService,
   ) {}
 
   async findStoresByFilter(args: GetStoreByFilterRequest): Promise<GetStoreByFilterResponse> {
@@ -322,5 +336,38 @@ export class MenuController implements MenusServiceController {
     request: AssignOptionsToPackageRequest,
   ): Promise<AssignOptionsToPackageResponse> {
     return this.menuService.assignOptionsToPackage(request);
+  }
+
+  async createDish(request: CreateDishRequest): Promise<CreateDishResponse> {
+    return this.dishService.createDish(request);
+  }
+
+  async updateDish(request: UpdateDishRequest): Promise<UpdateDishResponse> {
+    return this.dishService.updateDish(request);
+  }
+
+  async deleteDish(request: DeleteDishRequest): Promise<DeleteDishResponse> {
+    return this.dishService.deleteDish(request.id);
+  }
+
+  async getDish(request: GetDishRequest): Promise<GetDishResponse> {
+    const dish = await this.dishService.getDishById(request.id);
+    return {
+      dish: {
+        ...dish,
+        quantity: dish.quantity as number,
+        packageOptionId: dish.packageOptionId as number,
+      },
+    };
+  }
+
+  async listDishes(request: ListDishesRequest): Promise<ListDishesResponse> {
+    const [dishes, totalCount] = await this.dishService.getDishesWithPagination(request);
+    const transformedDishes = dishes.map(dish => ({
+      ...dish,
+      quantity: dish.quantity ?? 0,
+      packageOptionId: dish.packageOptionId as number,
+    }));
+    return { dishes: transformedDishes, totalCount };
   }
 }

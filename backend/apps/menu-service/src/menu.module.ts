@@ -15,9 +15,11 @@ import { CateringPackageEntity } from 'apps/menu-service/src/infrastructure/pers
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 
+import { DishService } from './dish.service';
 import { CategoryEntity } from './infrastructure/persistence/relational/entities/category.entity';
 import { CateringPackageOptionEntity } from './infrastructure/persistence/relational/entities/catering-package-option.entity';
 import { CuisineTypeEntity } from './infrastructure/persistence/relational/entities/cuisine-type.entity';
+import { DishEntity } from './infrastructure/persistence/relational/entities/dish.entity';
 import { ItemEntity } from './infrastructure/persistence/relational/entities/item.entity';
 import { OccasionEventEntity } from './infrastructure/persistence/relational/entities/occasion-event.entity';
 import { PartnerOccasionEventEntity } from './infrastructure/persistence/relational/entities/partner-occasion-event.entity';
@@ -51,6 +53,7 @@ const partnerEntities = [
   StoreServiceEntity,
   PartnerEntity,
   PartnerOccasionEventEntity,
+  DishEntity,
 ];
 
 @Module({
@@ -95,6 +98,6 @@ const partnerEntities = [
     RelationalMenuPersistenceModule,
   ],
   controllers: [MenuController],
-  providers: [MenuService, StoreService, PartnerService],
+  providers: [MenuService, StoreService, PartnerService, DishService],
 })
 export class MenuModule {}

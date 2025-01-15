@@ -6,7 +6,7 @@ message PaginationRequest {
   int32 current_page = 1;
   int32 page_size = 2;
 }
-  
+
 message PaginationMetadata {
   int32 current_page = 1;
   int32 page_size = 2;
@@ -59,8 +59,8 @@ enum PaymentMethod {
 }
 
 enum BusinessType {
-  COMPANY = 0;     
-  INDIVIDUAL = 1;  
+  COMPANY = 0;
+  INDIVIDUAL = 1;
   BUSINESS_HOUSEHOLD = 2;
 }
 
