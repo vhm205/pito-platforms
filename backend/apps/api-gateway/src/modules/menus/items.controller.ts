@@ -31,6 +31,7 @@ import {
   CreateCateringPackageDto,
   UpdateCateringPackageDto,
 } from './dtos/mutation-catering-package.dto';
+import { CreateOccasionEventDto, UpdateOccasionEventDto } from './dtos/mutation-occasion-event.dto';
 import { ItemsService } from './items.service';
 import { MenusService } from './menus.service';
 
@@ -41,6 +42,7 @@ export class ItemsController {
     private readonly itemsService: ItemsService,
   ) {}
 
+  /* CATERING PACKAGE */
   @Post('catering-packages')
   @ApiOperation({ summary: 'Create a new catering package' })
   @ApiBody({ type: CreateCateringPackageDto })
@@ -69,6 +71,7 @@ export class ItemsController {
     return this.itemsService.deleteCateringPackage(id);
   }
 
+  /* PACKAGE OPTIONS */
   @Post('catering-packages/options')
   @ApiOperation({ summary: 'Create a new catering package option' })
   @ApiBody({ type: CreateCateringPackageOptionDto })
@@ -131,6 +134,35 @@ export class ItemsController {
   ): Promise<GetCateringPackageOptionsResponseDto> {
     const result = await this.itemsService.findCateringPackageOptionsByPackageId(packageId);
     return result;
+  }
+
+  /* OCCASION EVENTS */
+  @Post('occasion-events')
+  @ApiOperation({ summary: 'Create a new occasion event' })
+  @ApiBody({ type: CreateCateringPackageDto })
+  @Auth([RoleType.OPERATOR])
+  async createOccasionEvent(@Body() body: CreateOccasionEventDto) {
+    return this.itemsService.createOccasionEvent(body);
+  }
+
+  @Put('occasion-events/:id')
+  @ApiOperation({ summary: 'Update an existing occasion event' })
+  @ApiParam({ name: 'id', description: 'ID of the occasion event', type: 'integer' })
+  @ApiBody({ type: UpdateOccasionEventDto })
+  @Auth([RoleType.OPERATOR])
+  async updateOccasionEvent(@Param('id') id: number, @Body() body: UpdateOccasionEventDto) {
+    return this.itemsService.updateOccasionEvent({
+      id,
+      ...body,
+    });
+  }
+
+  @Delete('occasion-events/:id')
+  @ApiOperation({ summary: 'Delete a occasion event by ID' })
+  @ApiParam({ name: 'id', description: 'ID of the occasion event', type: 'integer' })
+  @Auth([RoleType.OPERATOR])
+  async deleteOccasionEvent(@Param('id') id: number) {
+    return this.itemsService.deleteOccasionEvent(id);
   }
 
   @Get(':identifier')

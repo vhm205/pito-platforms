@@ -7,6 +7,10 @@ import {
   UpdateCateringPackageOptionRequest,
   UpdateCateringPackageRequest,
 } from '@app/common';
+import {
+  CreateOccasionEventRequest,
+  UpdateOccasionEventRequest,
+} from '@app/common/types/proto/item/occasion-event';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom, timeout } from 'rxjs';
@@ -64,6 +68,22 @@ export class ItemsService implements OnModuleInit {
 
   async findCateringPackagesAndOccasionEvents() {
     const source$ = this.menusService.findCateringPackagesAndOccasionEvents({}).pipe(timeout(5000));
+    return firstValueFrom(source$);
+  }
+
+  // Occasion Event
+  async createOccasionEvent(request: CreateOccasionEventRequest) {
+    const source$ = this.menusService.createOccasionEvent(request).pipe(timeout(3000));
+    return firstValueFrom(source$);
+  }
+
+  async updateOccasionEvent(request: UpdateOccasionEventRequest) {
+    const source$ = this.menusService.updateOccasionEvent(request).pipe(timeout(3000));
+    return firstValueFrom(source$);
+  }
+
+  async deleteOccasionEvent(id: number) {
+    const source$ = this.menusService.deleteOccasionEvent({ id }).pipe(timeout(3000));
     return firstValueFrom(source$);
   }
 }

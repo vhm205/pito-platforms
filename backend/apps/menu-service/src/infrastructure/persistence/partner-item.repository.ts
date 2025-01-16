@@ -3,7 +3,7 @@ import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import {
   PartnerItem,
   CateringPackage,
-  OccasionEvents,
+  OccasionEvent,
 } from 'apps/menu-service/src/domain/partner-item.domain';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
@@ -36,7 +36,7 @@ export abstract class PartnerItemRepository {
 
   abstract findAllCateringPackages(): Promise<CateringPackage[]>;
 
-  abstract findAllOccasionEvents(): Promise<OccasionEvents[]>;
+  abstract findAllOccasionEvents(): Promise<OccasionEvent[]>;
 
   abstract findItemsByFilters(options: {
     pagination: PaginationRequest;

@@ -24,6 +24,16 @@ import {
   UpdateDishResponse,
 } from './dish/dish';
 import { Struct } from './google/protobuf/struct';
+import {
+  CreateOccasionEventRequest,
+  CreateOccasionEventResponse,
+  DeleteOccasionEventRequest,
+  DeleteOccasionEventResponse,
+  GetOccasionEventRequest,
+  GetOccasionEventResponse,
+  UpdateOccasionEventRequest,
+  UpdateOccasionEventResponse,
+} from './item/occasion-event';
 
 export const protobufPackage = 'menu';
 
@@ -803,7 +813,6 @@ export interface GetCateringPackageOptionsResponse {
   options: CateringPackageOption[];
 }
 
-/** rpc CountCateringPackagesItems(CountCateringPackagesItemsRequest) returns (CountCateringPackagesItemsResponse); */
 export interface CountCateringPackagesItemsRequest {
   cateringPackageIds: number[];
   itemStatus: string[];
@@ -948,6 +957,14 @@ export interface MenusServiceClient {
   updateDish(request: UpdateDishRequest): Observable<UpdateDishResponse>;
 
   deleteDish(request: DeleteDishRequest): Observable<DeleteDishResponse>;
+
+  createOccasionEvent(request: CreateOccasionEventRequest): Observable<CreateOccasionEventResponse>;
+
+  getOccasionEvent(request: GetOccasionEventRequest): Observable<GetOccasionEventResponse>;
+
+  updateOccasionEvent(request: UpdateOccasionEventRequest): Observable<UpdateOccasionEventResponse>;
+
+  deleteOccasionEvent(request: DeleteOccasionEventRequest): Observable<DeleteOccasionEventResponse>;
 }
 
 export interface MenusServiceController {
@@ -1161,6 +1178,34 @@ export interface MenusServiceController {
   deleteDish(
     request: DeleteDishRequest,
   ): Promise<DeleteDishResponse> | Observable<DeleteDishResponse> | DeleteDishResponse;
+
+  createOccasionEvent(
+    request: CreateOccasionEventRequest,
+  ):
+    | Promise<CreateOccasionEventResponse>
+    | Observable<CreateOccasionEventResponse>
+    | CreateOccasionEventResponse;
+
+  getOccasionEvent(
+    request: GetOccasionEventRequest,
+  ):
+    | Promise<GetOccasionEventResponse>
+    | Observable<GetOccasionEventResponse>
+    | GetOccasionEventResponse;
+
+  updateOccasionEvent(
+    request: UpdateOccasionEventRequest,
+  ):
+    | Promise<UpdateOccasionEventResponse>
+    | Observable<UpdateOccasionEventResponse>
+    | UpdateOccasionEventResponse;
+
+  deleteOccasionEvent(
+    request: DeleteOccasionEventRequest,
+  ):
+    | Promise<DeleteOccasionEventResponse>
+    | Observable<DeleteOccasionEventResponse>
+    | DeleteOccasionEventResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -1202,6 +1247,10 @@ export function MenusServiceControllerMethods() {
       'listDishes',
       'updateDish',
       'deleteDish',
+      'createOccasionEvent',
+      'getOccasionEvent',
+      'updateOccasionEvent',
+      'deleteOccasionEvent',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

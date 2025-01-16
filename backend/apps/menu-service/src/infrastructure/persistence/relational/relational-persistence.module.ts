@@ -10,6 +10,7 @@ import { PartnerItemRelationalRepository } from 'apps/menu-service/src/infrastru
 import { CateringPackageRepository } from '../catering-package.repository';
 import { DishRepository } from '../dish.repository';
 import { ItemRepository } from '../item.repository';
+import { OccasionEventRepository } from '../occasion-event.repository';
 import { PartnerStoreRepository } from '../partner-store.repository';
 import { PartnerRepository } from '../partner.repository';
 import { StoreRepository } from '../store.repository';
@@ -29,6 +30,7 @@ import { StoreEntity } from './entities/store.entity';
 import { CateringPackageRelationalRepository } from './repositories/catering-package.repository';
 import { DishRelationalRepository } from './repositories/dish.repository';
 import { ItemRelationalRepository } from './repositories/item.repository';
+import { OccasionEventRelationalRepository } from './repositories/occasion-event.repository';
 import { PartnerStoreRelationalRepository } from './repositories/partner-store.repository';
 import { PartnerRelationalRepository } from './repositories/partner.repotitory';
 import { StoreRelationalRepository } from './repositories/store.repository';
@@ -86,6 +88,10 @@ const partnerEntities = [
       provide: DishRepository,
       useClass: DishRelationalRepository,
     },
+    {
+      provide: OccasionEventRepository,
+      useClass: OccasionEventRelationalRepository,
+    },
   ],
   exports: [
     StoreRepository,
@@ -95,6 +101,7 @@ const partnerEntities = [
     PartnerRepository,
     CateringPackageRepository,
     DishRepository,
+    OccasionEventRepository,
   ],
 })
 export class RelationalMenuPersistenceModule {}

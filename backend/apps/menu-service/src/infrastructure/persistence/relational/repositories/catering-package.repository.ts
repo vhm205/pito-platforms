@@ -34,7 +34,7 @@ export class CateringPackageRelationalRepository implements CateringPackageRepos
   }
 
   async updateCateringPackage(id: number, data: Partial<Omit<CateringPackage, 'id' | 'options'>>) {
-    const result = await this.cateringPackageRepository.update({ id }, data);
+    const result = await this.cateringPackageRepository.update(id, data);
     return { affected: result.affected || 0 };
   }
 
