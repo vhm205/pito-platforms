@@ -6,6 +6,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "common.proto";
 import "dish/dish.proto";
+import "item/occasion-event.proto";
 
 service MenusService {
   rpc FindStores (FindStoresRequest) returns (FindStoresResponse);
@@ -51,6 +52,11 @@ service MenusService {
   rpc ListDishes(dish.ListDishesRequest) returns (dish.ListDishesResponse);
   rpc UpdateDish(dish.UpdateDishRequest) returns (dish.UpdateDishResponse);
   rpc DeleteDish(dish.DeleteDishRequest) returns (dish.DeleteDishResponse);
+
+  rpc CreateOccasionEvent(occasion.event.CreateOccasionEventRequest) returns (occasion.event.CreateOccasionEventResponse);
+  rpc GetOccasionEvent(occasion.event.GetOccasionEventRequest) returns (occasion.event.GetOccasionEventResponse);
+  rpc UpdateOccasionEvent(occasion.event.UpdateOccasionEventRequest) returns (occasion.event.UpdateOccasionEventResponse);
+  rpc DeleteOccasionEvent(occasion.event.DeleteOccasionEventRequest) returns (occasion.event.DeleteOccasionEventResponse);
 }
 
 // [START] Find stores by filter
@@ -835,8 +841,6 @@ message GetCateringPackageOptionsResponse {
   repeated CateringPackageOption options = 1;
 }
 
-
-// rpc CountCateringPackagesItems(CountCateringPackagesItemsRequest) returns (CountCateringPackagesItemsResponse);
 message CountCateringPackagesItemsRequest {
   repeated int32 catering_package_ids = 1;
   repeated string item_status = 2;

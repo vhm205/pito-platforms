@@ -20,10 +20,11 @@ export class CateringPackageOption {
   packages: CateringPackage[];
 }
 
-export class OccasionEvents {
+export class OccasionEvent {
   id: number;
   name: string;
   isActive: boolean;
+  index: number;
 }
 
 export class PartnerItem

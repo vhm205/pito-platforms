@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   PartnerItem,
   CateringPackage,
-  OccasionEvents,
+  OccasionEvent,
 } from 'apps/menu-service/src/domain/partner-item.domain';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
@@ -191,7 +191,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     return packages.map(CateringPackageMapper.toDomain);
   }
 
-  async findAllOccasionEvents(): Promise<OccasionEvents[]> {
+  async findAllOccasionEvents(): Promise<OccasionEvent[]> {
     const occasionEvents = await this.occasionEventRepository.findBy({ isActive: true });
     return occasionEvents.map(occasionEvent => ({
       id: occasionEvent.id,

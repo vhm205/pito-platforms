@@ -32,6 +32,13 @@ import { AppConfig } from '@app/common/configs';
 import { GrpcStatus } from '@app/common/enums';
 import { PackageOptionStatus } from '@app/common/enums/catering-package';
 import { ItemStatus } from '@app/common/enums/item';
+import {
+  CreateOccasionEventRequest,
+  CreateOccasionEventResponse,
+  DeleteOccasionEventResponse,
+  UpdateOccasionEventRequest,
+  UpdateOccasionEventResponse,
+} from '@app/common/types/proto/item/occasion-event';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
@@ -44,6 +51,7 @@ import { GetItemInStoreFilterDto } from './dtos/get-items-in-store.dto';
 import { SearchStoreFilterDto } from './dtos/search-store.dto';
 import { CateringPackageRepository } from './infrastructure/persistence/catering-package.repository';
 import { ItemRepository } from './infrastructure/persistence/item.repository';
+import { OccasionEventRepository } from './infrastructure/persistence/occasion-event.repository';
 import { PartnerStoreRepository } from './infrastructure/persistence/partner-store.repository';
 import { StoreRepository } from './infrastructure/persistence/store.repository';
 import { mergeFilterOptions } from './utils/get-filter-option.util';
@@ -57,6 +65,7 @@ export class MenuService {
     private readonly partnerItemRepository: PartnerItemRepository,
     private readonly partnerStoreRepository: PartnerStoreRepository,
     private readonly cateringPackageRepository: CateringPackageRepository,
+    private readonly occasionEventRepository: OccasionEventRepository,
   ) {}
 
   async findStoresByFilter(
@@ -634,5 +643,43 @@ export class MenuService {
     const isSuccess = options.length === optionIds.length;
 
     return { success: isSuccess };
+  }
+
+  async createOccasionEvent(
+    data: CreateOccasionEventRequest,
+  ): Promise<CreateOccasionEventResponse> {
+    const newOccasionEvents = {
+      ...data,
+      isActive: true,
+    };
+    const insertedId = await this.occasionEventRepository.createOccasionEvent(newOccasionEvents);
+
+    return { id: insertedId };
+  }
+
+  async updateOccasionEvent(
+    payload: UpdateOccasionEventRequest,
+  ): Promise<UpdateOccasionEventResponse> {
+    const { id, ...data } = payload;
+    const { affected } = await this.occasionEventRepository.updateOccasionEvent(id, data);
+    return { affectedRows: affected };
+  }
+
+  async deleteOccasionEvent(id: number): Promise<DeleteOccasionEventResponse> {
+    const isSuccess = await this.occasionEventRepository.deleteOccasionEvent(id);
+    return { success: isSuccess };
+  }
+
+  async findOccasionEventById(id: number) {
+    const occasionEvent = await this.occasionEventRepository.findOccasionEventById(id);
+
+    if (!occasionEvent) {
+      throw new RpcException({
+        message: `Occasion event not found with id ${id}`,
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    return occasionEvent;
   }
 }

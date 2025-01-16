@@ -74,6 +74,16 @@ import {
   UpdateDishRequest,
   UpdateDishResponse,
 } from '@app/common/types/proto/dish/dish';
+import {
+  CreateOccasionEventRequest,
+  CreateOccasionEventResponse,
+  DeleteOccasionEventRequest,
+  DeleteOccasionEventResponse,
+  GetOccasionEventRequest,
+  GetOccasionEventResponse,
+  UpdateOccasionEventRequest,
+  UpdateOccasionEventResponse,
+} from '@app/common/types/proto/item/occasion-event';
 import { Controller, UseInterceptors } from '@nestjs/common';
 import { find, includes, isEmpty } from 'lodash';
 
@@ -369,5 +379,28 @@ export class MenuController implements MenusServiceController {
       packageOptionId: dish.packageOptionId as number,
     }));
     return { dishes: transformedDishes, totalCount };
+  }
+
+  async createOccasionEvent(
+    request: CreateOccasionEventRequest,
+  ): Promise<CreateOccasionEventResponse> {
+    return this.menuService.createOccasionEvent(request);
+  }
+
+  async updateOccasionEvent(
+    request: UpdateOccasionEventRequest,
+  ): Promise<UpdateOccasionEventResponse> {
+    return this.menuService.updateOccasionEvent(request);
+  }
+
+  async deleteOccasionEvent(
+    request: DeleteOccasionEventRequest,
+  ): Promise<DeleteOccasionEventResponse> {
+    return this.menuService.deleteOccasionEvent(request.id);
+  }
+
+  async getOccasionEvent(request: GetOccasionEventRequest): Promise<GetOccasionEventResponse> {
+    const occasionEvent = await this.menuService.findOccasionEventById(request.id);
+    return { occasionEvent };
   }
 }
