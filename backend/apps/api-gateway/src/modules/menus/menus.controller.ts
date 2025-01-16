@@ -22,19 +22,36 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  Delete,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOperation,
+  ApiParam,
+} from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { omit, isEmpty } from 'lodash';
 
 import { Auth } from '../../decorators/http.decorator';
 
-import { GetCateringPackageResponseDto } from './dtos/get-catering-package.dto';
+import { DishesService } from './dish.service';
+import {
+  CreateDishDto,
+  DeleteDishResponseDto,
+  UpdateDishDto,
+  UpdateDishResponseDto,
+} from './dtos/mutation-dish.dto';
+import { DishDto, FindDishesQueryDto, FindDishesResponseDto } from './dtos/query-dish.dto';
 import { FindItemsQueryDto, FindItemsResponseDto } from './dtos/query-items.dto';
 
 @Controller('menus')
 export class MenusController {
-  constructor(private readonly menusService: MenusService) {}
+  constructor(
+    private readonly menusService: MenusService,
+    private readonly dishesService: DishesService,
+  ) {}
 
   @Post(':menuId/items')
   @Auth([RoleType.PARTNER])
@@ -78,14 +95,6 @@ export class MenusController {
     return sanitizedItem;
   }
 
-  @Get('catering-packages')
-  @HttpCode(HttpStatus.OK)
-  @ApiWrapperResponse({ type: GetCateringPackageResponseDto })
-  async getCateringPackages() {
-    const result = await this.menusService.findAllCateringPackages();
-    return result;
-  }
-
   @Get('package-items')
   @HttpCode(HttpStatus.OK)
   @ApiPageWrapperResponse({ type: FindItemsResponseDto })
@@ -114,5 +123,76 @@ export class MenusController {
     });
 
     return new PageDto(items, pageMeta);
+  }
+
+  /**
+   * API CRUD Dishes
+   */
+  @Post('dishes')
+  @ApiOperation({ summary: 'Create a new dish' })
+  @ApiCreatedResponse({ description: 'The dish has been successfully created.' })
+  @ApiBadRequestResponse({ description: 'Invalid input.' })
+  @Auth([RoleType.OPERATOR])
+  async createDish(@Body() createDishDto: CreateDishDto) {
+    return this.dishesService.createDish(createDishDto);
+  }
+
+  @Get('dishes/:id')
+  @ApiOperation({ summary: 'Get a dish by ID' })
+  @ApiParam({ name: 'id', description: 'ID of the dish' })
+  @ApiWrapperResponse({ description: 'The dish', type: DishDto })
+  @ApiNotFoundResponse({ description: 'Dish not found.' })
+  @Auth([RoleType.OPERATOR])
+  async findDishById(@Param('id') id: string) {
+    const { dish } = await this.dishesService.findDishById(id);
+    return dish;
+  }
+
+  @Put('dishes/:id')
+  @ApiOperation({ summary: 'Update a dish by ID' })
+  @ApiParam({ name: 'id', description: 'ID of the dish' })
+  @ApiWrapperResponse({
+    description: 'The dish has been successfully updated.',
+    type: UpdateDishResponseDto,
+  })
+  @Auth([RoleType.OPERATOR])
+  async updateDish(@Param('id') id: string, @Body() updateDishDto: UpdateDishDto) {
+    return await this.dishesService.updateDish(id, updateDishDto);
+  }
+
+  @Delete('dishes/:id')
+  @ApiOperation({ summary: 'Delete a dish by ID' })
+  @ApiParam({ name: 'id', description: 'ID of the dish' })
+  @ApiWrapperResponse({
+    description: 'The dish has been successfully deleted.',
+    type: DeleteDishResponseDto,
+  })
+  @Auth([RoleType.OPERATOR])
+  async deleteDish(@Param('id') id: string) {
+    return this.dishesService.deleteDish(id);
+  }
+
+  @Get('dishes')
+  @ApiOperation({ summary: 'Get list dishes' })
+  @ApiPageWrapperResponse({ description: 'List of dishes', type: FindDishesResponseDto })
+  @Auth([RoleType.OPERATOR])
+  async findAllDishes(@Query() query: FindDishesQueryDto) {
+    const { dishes, totalCount } = await this.dishesService.findDishesWithPagination(query);
+    const { page, pageSize } = query;
+
+    if (isEmpty(dishes)) {
+      return emptyPaginationResponse({
+        page,
+        pageSize,
+        totalCount,
+      });
+    }
+
+    const pageMeta = new PageMetaDto({
+      pageOptions: { page, pageSize },
+      totalCount,
+    });
+
+    return new PageDto(dishes, pageMeta);
   }
 }

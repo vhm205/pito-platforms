@@ -5,6 +5,8 @@ package menu;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 import "common.proto";
+import "dish/dish.proto";
+import "item/occasion-event.proto";
 
 service MenusService {
   rpc FindStores (FindStoresRequest) returns (FindStoresResponse);
@@ -13,10 +15,15 @@ service MenusService {
   rpc CalculateDistance (CalculateDistanceRequest) returns (CalculateDistanceResponse);
 
   rpc FindItemsInStore (GetItemInStoreRequest) returns (GetItemInStoreResponse);
-  rpc FindItemsWithPagination (FindItemsRequest) returns (FindItemsResponse);
+  rpc FindItemsWithPagination (FindItemsWithPaginationRequest) returns (FindItemsWithPaginationResponse);
   rpc FindItem (FindItemRequest) returns (PartnerItem);
+  rpc FindItems (FindItemsRequest) returns (FindItemsResponse);
   rpc FindAllCateringPackages (Empty) returns (FindAllCateringPackagesResponse);
+  rpc FindAllCateringPackageOptions (Empty) returns (FindAllCateringPackageOptionsResponse);
+  rpc FindCateringPackages(FindCateringPackagesRequest) returns (FindCateringPackagesResponse);
+  rpc FindCateringPackagesAndOccasionEvents (Empty) returns (FindCateringPackagesAndOccasionEventsResponse);
   rpc FindItemsByFilters (FindItemsByFiltersRequest) returns (FindItemsByFiltersResponse);
+  rpc FilterItemsWithCateringPackage (FilterItemsWithCateringPackageRequest) returns (FilterItemsWithCateringPackageResponse);
 
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
   rpc GetStoreDetail (GetStoreDetailRequest) returns (GetStoreDetailResponse);
@@ -27,6 +34,29 @@ service MenusService {
 
   rpc GetListPartners(GetListPartnersRequest) returns (GetListPartnersResponse);
   rpc GetPartnerDetails(GetPartnerDetailsRequest) returns (GetPartnerDetailsResponse);
+
+  rpc CreateCateringPackage (CreateCateringPackageRequest) returns (CreateCateringPackageResponse) {}
+  rpc UpdateCateringPackage (UpdateCateringPackageRequest) returns (UpdateCateringPackageResponse) {}
+  rpc DeleteCateringPackage (DeleteCateringPackageRequest) returns (DeleteCateringPackageResponse) {}
+
+  rpc CreateCateringPackageOption (CreateCateringPackageOptionRequest) returns (CreateCateringPackageOptionResponse) {}
+  rpc UpdateCateringPackageOption (UpdateCateringPackageOptionRequest) returns (UpdateCateringPackageOptionResponse) {}
+  rpc DeleteCateringPackageOption (DeleteCateringPackageOptionRequest) returns (DeleteCateringPackageOptionResponse) {}
+  rpc GetCateringPackageOptions (GetCateringPackageOptionsRequest) returns (GetCateringPackageOptionsResponse);
+  rpc AssignOptionsToPackage (AssignOptionsToPackageRequest) returns (AssignOptionsToPackageResponse);
+
+  rpc CountCateringPackagesItems(CountCateringPackagesItemsRequest) returns (CountCateringPackagesItemsResponse);
+
+  rpc CreateDish(dish.CreateDishRequest) returns (dish.CreateDishResponse);
+  rpc GetDish(dish.GetDishRequest) returns (dish.GetDishResponse);
+  rpc ListDishes(dish.ListDishesRequest) returns (dish.ListDishesResponse);
+  rpc UpdateDish(dish.UpdateDishRequest) returns (dish.UpdateDishResponse);
+  rpc DeleteDish(dish.DeleteDishRequest) returns (dish.DeleteDishResponse);
+
+  rpc CreateOccasionEvent(occasion.event.CreateOccasionEventRequest) returns (occasion.event.CreateOccasionEventResponse);
+  rpc GetOccasionEvent(occasion.event.GetOccasionEventRequest) returns (occasion.event.GetOccasionEventResponse);
+  rpc UpdateOccasionEvent(occasion.event.UpdateOccasionEventRequest) returns (occasion.event.UpdateOccasionEventResponse);
+  rpc DeleteOccasionEvent(occasion.event.DeleteOccasionEventRequest) returns (occasion.event.DeleteOccasionEventResponse);
 }
 
 // [START] Find stores by filter
@@ -333,6 +363,11 @@ message FindStoresResponse {
     }
 
     BankAccount bank_account = 9;
+    google.protobuf.Timestamp created_at = 10;
+    google.protobuf.Timestamp updated_at = 11;
+    string status = 12;
+    common.StorePerformanceLevel performance_level = 13;
+    common.StoreEngagementLevel engagement_level = 14;
   }
 
   repeated StoreResponse stores = 1;
@@ -406,15 +441,51 @@ message UpdateItemRequest {
   UpdateItemDetailsRequest update_item_request = 2;
 }
 
-message FindItemsRequest {
+message FindItemsWithPaginationRequest {
   common.PaginationRequest pagination = 1;
   repeated common.SortRule sorts = 2;     
   repeated common.FilterRule filters = 3;
+  optional string menu_type = 4;
+}
+
+message FindItemsWithPaginationResponse {
+  repeated PartnerItem items = 1;
+  int32 total_count = 2;
+}
+
+message FindItemsRequest {
+  repeated common.FilterRule filters = 1;
 }
 
 message FindItemsResponse {
-  repeated PartnerItem items = 1;
-  int32 total_count = 2;
+  message PartnerItem {
+    string id = 1;
+    string name = 2;
+    float base_price = 3;
+    string description = 4;
+    repeated int32 special_dietaries = 5;
+    repeated int32 cuisine_types = 6;
+    repeated int32 occasion_events = 7;
+    string menu_category = 8;
+    repeated string images = 9;
+    int32 min_quantity = 10;
+    string packaging_type = 11;
+    string packaging_unit = 12;
+    int32 participant = 13;
+    int32 preparation_time = 14;
+    string store_id = 15;
+    repeated google.protobuf.Struct options_choices = 16;
+    google.protobuf.Struct metadata = 17;
+    string slug = 18;
+    string status = 19;
+    optional string order_deadline_at = 20;
+    optional float distance = 21;
+    int32 service_type = 22;
+    repeated int32 catering_packages = 23;
+  }
+
+  repeated PartnerItem data = 1;
+  optional string error = 3;
 }
 
 message CalculateDistanceRequest {
@@ -436,12 +507,38 @@ message FindItemRequest {
 }
 
 message FindAllCateringPackagesResponse {
+  message PackageOption {
+    int32 id = 1;
+    string name = 2;
+  }
+
   message CateringPackage {
     int32 id = 1;
     string name = 2;
     bool is_active = 3;
+    repeated PackageOption options = 4;
   }
 
+  repeated CateringPackage catering_packages = 1;
+}
+
+message CateringPackage {
+  int32 id = 1;
+  string name = 2;
+  bool is_active = 3;
+}
+
+message FindAllCateringPackageOptionsResponse {
+  message CateringPackageOption {
+    int32 id = 1;
+    string name = 2;
+    string status = 3;
+  }
+
+  repeated CateringPackageOption options = 1;
+}
+
+message FindCateringPackagesAndOccasionEventsResponse {
   message OccasionEvent {
     int32 id = 1;
     string name = 2;
@@ -499,10 +596,48 @@ message FindItemsByFiltersResponse {
     int32 service_type = 22;
     ServiceSetting service_settings = 23;
     Store store = 24;
-    int32 version = 25;
+    string service_category = 25;
+    int32 version = 26;
   }
   repeated PartnerItem items = 1;
   int32 total_count = 2;
+}
+
+message FilterItemsWithCateringPackageRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;
+  repeated common.FilterRule filters = 3;
+}
+
+message FilterItemsWithCateringPackageResponse {
+  message PartnerItem {
+    string id = 1;
+    string name = 2;
+    float base_price = 3;
+    string description = 4;
+    repeated int32 special_dietaries = 5;
+    repeated int32 cuisine_types = 6;
+    repeated int32 occasion_events = 7;
+    string menu_category = 8;
+    repeated string images = 9;
+    int32 min_quantity = 10;
+    string packaging_type = 11;
+    string packaging_unit = 12;
+    int32 participant = 13;
+    int32 preparation_time = 14;
+    string store_id = 15;
+    repeated google.protobuf.Struct options_choices = 16;
+    google.protobuf.Struct metadata = 17;
+    string slug = 18;
+    string status = 19;
+    optional string order_deadline_at = 20;
+    optional float distance = 21;
+    int32 service_type = 22;
+  }
+
+  repeated PartnerItem data = 1;
+  int32 total_count = 2;
+  optional string error = 3;
 }
 
 message GetStoreDetailRequest {
@@ -566,6 +701,9 @@ message GetStoreDetailResponse {
   // additional
   repeated CuisineType cuisine_types = 17;
   google.protobuf.Timestamp reopen_time = 18;
+
+  float daily_order_limit = 19;
+  float daily_revenue_limit = 20;
 }
 
 message UpdateStoreStatusRequest {
@@ -633,4 +771,100 @@ message GetPartnerDetailsResponse {
 
   optional Partner data = 1;
   optional string error = 2;
+}
+
+// Catering Package
+message CreateCateringPackageRequest {
+  string name = 1;
+}
+
+message CreateCateringPackageResponse {
+  int32 id = 1;
+}
+
+message UpdateCateringPackageRequest {
+  int32 id = 1;
+  optional string name = 2;
+  optional bool is_active = 3;
+}
+
+message UpdateCateringPackageResponse {
+  int32 affected_rows = 1;
+}
+
+message DeleteCateringPackageRequest {
+  int32 id = 1;
+}
+
+message DeleteCateringPackageResponse {
+  bool success = 1;
+}
+
+// Catering Package Option
+message GetCateringPackageOptionsRequest {
+  int32 package_id = 1;
+}
+
+message CreateCateringPackageOptionRequest {
+  string name = 1;
+}
+
+message CreateCateringPackageOptionResponse {
+  int32 id = 1;
+}
+
+message UpdateCateringPackageOptionRequest {
+  int32 id = 1;
+  optional string name = 2;
+  optional string status = 3;
+}
+
+message UpdateCateringPackageOptionResponse {
+  int32 affected_rows = 1;
+}
+
+message DeleteCateringPackageOptionRequest {
+  int32 id = 1;
+}
+
+message DeleteCateringPackageOptionResponse {
+  bool success = 1;
+}
+
+message CateringPackageOption {
+  int32 id = 1;
+  string name = 2;
+  string status = 3;
+}
+
+message GetCateringPackageOptionsResponse {
+  repeated CateringPackageOption options = 1;
+}
+
+message CountCateringPackagesItemsRequest {
+  repeated int32 catering_package_ids = 1;
+  repeated string item_status = 2;
+  string service_category = 3;
+}
+
+message CountCateringPackagesItemsResponse {
+  map<int32, int32> data = 1;
+}
+
+message FindCateringPackagesRequest {
+  repeated common.FilterRule filters = 3;
+}
+
+message FindCateringPackagesResponse {
+  repeated CateringPackage data = 1;
+  optional string error = 2;
+}
+
+message AssignOptionsToPackageRequest {
+  int32 package_id = 1;
+  repeated int32 option_ids = 2;
+}
+
+message AssignOptionsToPackageResponse {
+  bool success = 1;
 }

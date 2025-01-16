@@ -3,7 +3,7 @@ import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import {
   PartnerItem,
   CateringPackage,
-  OccasionEvents,
+  OccasionEvent,
 } from 'apps/menu-service/src/domain/partner-item.domain';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
@@ -31,16 +31,36 @@ export abstract class PartnerItemRepository {
     pagination: PaginationRequest;
     filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
+    exceptionFilters: Record<string, unknown>;
   }): Promise<[PartnerItem[], number]>;
 
   abstract findAllCateringPackages(): Promise<CateringPackage[]>;
 
-  abstract findAllOccasionEvents(): Promise<OccasionEvents[]>;
+  abstract findAllOccasionEvents(): Promise<OccasionEvent[]>;
 
   abstract findItemsByFilters(options: {
     pagination: PaginationRequest;
     sorts: SortRule[];
     filters: Record<string, FindOperator<unknown>>[];
-    customFilters: Record<string, unknown>;
+    exceptionFilters: Record<string, unknown>;
   }): Promise<FindItemsByFiltersResult>;
+
+  abstract filterItemsWithCateringPackage(args: {
+    filters: Record<string, FindOperator<any>>[];
+    pagination: PaginationRequest;
+  }): Promise<[PartnerItem[], number]>;
+
+  abstract findItems(args: {
+    filters: Record<string, FindOperator<unknown>>[];
+  }): Promise<[PartnerItem[], number]>;
+
+  abstract countCateringPackagesItems(args: {
+    serviceCategory: string;
+    itemStatus: string[];
+    cateringPackages: number[];
+  }): Promise<Map<number, number>>;
+
+  abstract findCateringPackages(args: {
+    filters: Record<string, FindOperator<any>>[];
+  }): Promise<CateringPackage[]>;
 }

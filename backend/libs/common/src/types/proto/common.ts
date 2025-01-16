@@ -51,6 +51,23 @@ export enum Certification {
   UNRECOGNIZED = -1,
 }
 
+export enum StoreEngagementLevel {
+  EXCLUSIVE = 0,
+  REGULAR = 1,
+  PRIORITY = 2,
+  NEW = 3,
+  NON_PRIORITY = 4,
+  UNRECOGNIZED = -1,
+}
+
+export enum StorePerformanceLevel {
+  EXCELLENT = 0,
+  GOOD = 1,
+  NEEDS_IMPROVEMENT = 2,
+  ALARM = 3,
+  UNRECOGNIZED = -1,
+}
+
 export interface PaginationRequest {
   currentPage: number;
   pageSize: number;

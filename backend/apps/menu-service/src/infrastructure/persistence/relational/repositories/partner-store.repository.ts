@@ -83,4 +83,37 @@ export class PartnerStoreRelationalRepository implements PartnerStoreRepository 
     );
     return { affected: result.affected || 0 };
   }
+
+  async filterStores(args: {
+    filters: Record<string, FindOperator<unknown>>[];
+    pagination: PaginationRequest;
+    sorts: SortRule[];
+  }): Promise<[PartnerStore[], number]> {
+    const { pagination, sorts, filters } = args;
+    const query = this.repository.createQueryBuilder('store');
+
+    filters.forEach(f => {
+      if (f.serviceType) {
+        if (Array.isArray(f.serviceType.value)) {
+          query.innerJoin('store.services', 'service', 'service.serviceType IN (:...serviceType)', {
+            serviceType: f.serviceType.value,
+          });
+        } else {
+          query.innerJoin('store.services', 'service', 'service.serviceType = :serviceType', {
+            serviceType: f.serviceType.value,
+          });
+        }
+      } else query.andWhere(f);
+    });
+
+    query.skip((pagination.currentPage - 1) * pagination.pageSize).take(pagination.pageSize);
+    sorts.forEach(sort =>
+      query.addOrderBy(`store.${sort.column}`, sort.direction.toUpperCase() as 'ASC' | 'DESC'),
+    );
+
+    const [entities, total] = await query.getManyAndCount();
+    const domainEntities = entities.map(PartnerStoreMapper.toDomain);
+
+    return [domainEntities, total];
+  }
 }

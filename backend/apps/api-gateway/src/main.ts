@@ -44,6 +44,7 @@ async function bootstrap() {
   //   new ResolvePromisesInterceptor(),
   //   new ClassSerializerInterceptor(app.get(Reflector)),
   // );
+  // TEMP: Trigger deploy api-gateway
 
   const PORT = configService.get<AppConfig>('app.apiGatewayPort', { infer: true });
   await app.listen(PORT);

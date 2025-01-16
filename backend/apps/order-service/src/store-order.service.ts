@@ -78,6 +78,16 @@ export class StoreOrderService {
   }
 
   async getRevenueAndCountOrderByStoreIds(storeIds: string[]) {
-    return this.repository.getTotalRevenueAndCountOrders(storeIds);
+    const result = await this.repository.getTotalRevenueAndCountOrders(storeIds);
+
+    if (result.length === 0) {
+      return storeIds.map(storeId => ({
+        storeId,
+        totalRevenue: 0,
+        totalOrders: 0,
+      }));
+    }
+
+    return result;
   }
 }

@@ -4,17 +4,27 @@ import {
   PartnerOptionsChoices,
   ItemServiceSettings,
 } from '@app/common';
+import { SourceSystemType } from '@app/common/enums';
 
 export class CateringPackage {
   id: number;
   name: string;
   isActive: boolean;
+  options: CateringPackageOption[];
 }
 
-export class OccasionEvents {
+export class CateringPackageOption {
+  id: number;
+  name: string;
+  status: string;
+  packages: CateringPackage[];
+}
+
+export class OccasionEvent {
   id: number;
   name: string;
   isActive: boolean;
+  index: number;
 }
 
 export class PartnerItem
@@ -44,5 +54,6 @@ export class PartnerItem
   orderDeadlineAt?: string | undefined;
   serviceType: number;
   serviceSettings: ItemServiceSettings | undefined;
+  serviceCategory: SourceSystemType | undefined;
   version: number;
 }

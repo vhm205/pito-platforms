@@ -22,7 +22,8 @@ export type FilterOperator =
   | 'in' // in array
   | 'cs' // contains
   | 'cd' // contained
-  | 'ov'; // overlap
+  | 'ov' // overlap
+  | 'json_contains';
 
 export function parseFilter(
   value: string | string[],

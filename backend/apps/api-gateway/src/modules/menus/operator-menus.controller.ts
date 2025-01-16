@@ -19,11 +19,17 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
+  Post,
   Put,
   Query,
 } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import { isEmpty } from 'lodash';
+import { get, assign, isEmpty } from 'lodash';
+
+import { AssignOptionsToPackageDto } from './dtos/assign-options-to-package.dto';
+import { GetCateringPackageResponseDto } from './dtos/get-catering-package.dto';
+import { OperatorQueryStoreItemDto } from './dtos/operator-query-store-item.dto';
 
 @Controller('operator')
 export class OperatorMenusController {
@@ -87,8 +93,69 @@ export class OperatorMenusController {
   async getMenuItem(@Param('identifier') identifier: string) {
     const filterCriteria = isValidUUID(identifier) ? { id: identifier } : { slug: identifier };
     const item = await this.menusService.findItem(filterCriteria);
-    const itemDto = plainToInstance(PartnerItemDto, item, { excludeExtraneousValues: true });
+    const cateringPackages = await this.menusService.findCateringPackagesWithIds(
+      item.cateringPackages,
+    );
+
+    const itemDto = plainToInstance(PartnerItemDto, assign(item, { cateringPackages }), {
+      excludeExtraneousValues: true,
+    });
 
     return itemDto;
+  }
+
+  @Get('store-items')
+  @HttpCode(HttpStatus.OK)
+  @Auth([RoleType.OPERATOR])
+  async getStoresAndItemsWithCateringPackage(@Query() query: OperatorQueryStoreItemDto) {
+    query.pageSize = 1000; // currently no pagination
+    const { data, totalCount } = await this.service.getStoresAndItemsWithCateringPackage(query);
+
+    const pageMeta = new PageMetaDto({
+      pageOptions: { page: query.page, pageSize: query.pageSize },
+      totalCount,
+    });
+
+    return new PageDto(data, pageMeta);
+  }
+
+  @Get('catering-packages')
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: GetCateringPackageResponseDto })
+  @Auth([RoleType.OPERATOR])
+  async getCateringPackages() {
+    const result = await this.menusService.findAllCateringPackages();
+    return result;
+  }
+
+  @Get('catering-packages/items/total')
+  @HttpCode(HttpStatus.OK)
+  @Auth([RoleType.OPERATOR])
+  async getTotalCateringPackagesItems(@Query('serviceCategory') serviceCategory = 'PX') {
+    const cateringPackages = await this.menusService.findActiveCateringPackages();
+    if (isEmpty(cateringPackages)) return [];
+
+    const packageIds = cateringPackages.map(c => c.id);
+    const countResult = await this.service.countCateringPackagesItems(serviceCategory, packageIds);
+
+    return cateringPackages.map(c => ({
+      ...c,
+      totalItems: get(countResult.data, c.id, 0),
+    }));
+  }
+
+  @Post('catering-packages/:id/assign-options')
+  @ApiOperation({ summary: 'Assign options to a package' })
+  @ApiParam({ name: 'id', description: 'Package ID', type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'Options assigned successfully',
+    schema: { example: { success: true } },
+  })
+  async assignOptionsToPackage(
+    @Param('id') packageId: number,
+    @Body() { optionIds }: AssignOptionsToPackageDto,
+  ): Promise<{ success: boolean }> {
+    return this.service.assignOptionsToPackage(packageId, optionIds);
   }
 }

@@ -32,13 +32,62 @@ import {
   GetPartnerDetailsRequest,
   GetPartnerDetailsResponse,
   LoggerService,
+  CreateCateringPackageRequest,
+  CreateCateringPackageResponse,
+  UpdateCateringPackageRequest,
+  UpdateCateringPackageResponse,
+  DeleteCateringPackageRequest,
+  DeleteCateringPackageResponse,
+  CreateCateringPackageOptionRequest,
+  CreateCateringPackageOptionResponse,
+  UpdateCateringPackageOptionRequest,
+  UpdateCateringPackageOptionResponse,
+  DeleteCateringPackageOptionRequest,
+  DeleteCateringPackageOptionResponse,
+  GetCateringPackageOptionsRequest,
+  GetCateringPackageOptionsResponse,
+  FindCateringPackagesAndOccasionEventsResponse,
+  FilterItemsWithCateringPackageRequest,
+  FilterItemsWithCateringPackageResponse,
+  FindItemsWithPaginationRequest,
+  FindItemsResponse,
+  CountCateringPackagesItemsRequest,
+  CountCateringPackagesItemsResponse,
+  FindAllCateringPackageOptionsResponse,
+  FindCateringPackagesRequest,
+  FindCateringPackagesResponse,
+  AssignOptionsToPackageResponse,
+  AssignOptionsToPackageRequest,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
 import { CamelCaseResponseInterceptor } from '@app/common/interceptors/convert-to-camel-case.interceptor';
+import {
+  CreateDishRequest,
+  CreateDishResponse,
+  DeleteDishRequest,
+  DeleteDishResponse,
+  GetDishRequest,
+  GetDishResponse,
+  ListDishesRequest,
+  ListDishesResponse,
+  UpdateDishRequest,
+  UpdateDishResponse,
+} from '@app/common/types/proto/dish/dish';
+import {
+  CreateOccasionEventRequest,
+  CreateOccasionEventResponse,
+  DeleteOccasionEventRequest,
+  DeleteOccasionEventResponse,
+  GetOccasionEventRequest,
+  GetOccasionEventResponse,
+  UpdateOccasionEventRequest,
+  UpdateOccasionEventResponse,
+} from '@app/common/types/proto/item/occasion-event';
 import { Controller, UseInterceptors } from '@nestjs/common';
-import { isEmpty } from 'lodash';
+import { find, includes, isEmpty } from 'lodash';
 
+import { DishService } from './dish.service';
 import { MenuService } from './menu.service';
 import { PartnerService } from './partner.service';
 import { StoreService } from './store.service';
@@ -51,6 +100,7 @@ export class MenuController implements MenusServiceController {
     private readonly menuService: MenuService,
     private readonly storeService: StoreService,
     private readonly partnerService: PartnerService,
+    private readonly dishService: DishService,
   ) {}
 
   async findStoresByFilter(args: GetStoreByFilterRequest): Promise<GetStoreByFilterResponse> {
@@ -95,12 +145,10 @@ export class MenuController implements MenusServiceController {
     request.filters ??= [];
     request.sorts ??= [];
 
-    const { stores, totalCount } = await this.storeService.findStoresWithPagination(request);
-
-    return {
-      stores,
-      totalCount,
-    };
+    if (find(request.filters, filter => includes(['serviceType', 'location'], filter.column))) {
+      return this.storeService.filterStoresWithPagination(request);
+    }
+    return this.storeService.findStoresWithPagination(request);
   }
 
   async findStore(request: FindStoreRequest): Promise<FindStoreResponse> {
@@ -116,20 +164,21 @@ export class MenuController implements MenusServiceController {
     return this.menuService.updateMenuItem(request);
   }
 
-  async findItemsWithPagination(request: FindItemsRequest) {
+  async findItemsWithPagination(request: FindItemsWithPaginationRequest) {
     request.filters ??= [];
     request.sorts ??= [];
 
-    const [items, totalCount] = await this.menuService.findItemsWithPagination({
-      filters: request.filters,
-      pagination: request.pagination,
-      sorts: request.sorts,
-    });
+    const [items, totalCount] = await this.menuService.findItemsWithPagination(request);
 
     return {
       items,
       totalCount,
     };
+  }
+
+  async findItems(request: FindItemsRequest): Promise<FindItemsResponse> {
+    const [items] = await this.menuService.findItems(request);
+    return { data: items };
   }
 
   async calculateDistance(request: CalculateDistanceRequest): Promise<CalculateDistanceResponse> {
@@ -143,6 +192,10 @@ export class MenuController implements MenusServiceController {
 
   async findAllCateringPackages(): Promise<FindAllCateringPackagesResponse> {
     return this.menuService.findAllCateringPackages();
+  }
+
+  async findCateringPackagesAndOccasionEvents(): Promise<FindCateringPackagesAndOccasionEventsResponse> {
+    return this.menuService.findCateringPackagesAndOccasionEvents();
   }
 
   async findItemsByFilters(
@@ -208,5 +261,146 @@ export class MenuController implements MenusServiceController {
       this.logger.error(errMessage);
       return { error: errMessage };
     }
+  }
+
+  async createCateringPackage(
+    request: CreateCateringPackageRequest,
+  ): Promise<CreateCateringPackageResponse> {
+    return this.menuService.createCateringPackage(request);
+  }
+
+  async updateCateringPackage(
+    request: UpdateCateringPackageRequest,
+  ): Promise<UpdateCateringPackageResponse> {
+    return this.menuService.updateCateringPackage(request);
+  }
+
+  async deleteCateringPackage(
+    request: DeleteCateringPackageRequest,
+  ): Promise<DeleteCateringPackageResponse> {
+    return this.menuService.deleteCateringPackage(request.id);
+  }
+
+  async createCateringPackageOption(
+    request: CreateCateringPackageOptionRequest,
+  ): Promise<CreateCateringPackageOptionResponse> {
+    return this.menuService.createCateringPackageOption(request);
+  }
+
+  async updateCateringPackageOption(
+    request: UpdateCateringPackageOptionRequest,
+  ): Promise<UpdateCateringPackageOptionResponse> {
+    return this.menuService.updateCateringPackageOption(request);
+  }
+
+  async deleteCateringPackageOption(
+    request: DeleteCateringPackageOptionRequest,
+  ): Promise<DeleteCateringPackageOptionResponse> {
+    return this.menuService.deleteCateringPackageOption(request.id);
+  }
+
+  async getCateringPackageOptions(
+    request: GetCateringPackageOptionsRequest,
+  ): Promise<GetCateringPackageOptionsResponse> {
+    return this.menuService.findCateringPackageOptionsByPackageId(request.packageId);
+  }
+
+  async filterItemsWithCateringPackage(
+    request: FilterItemsWithCateringPackageRequest,
+  ): Promise<FilterItemsWithCateringPackageResponse> {
+    try {
+      const [items, totalCount] = await this.menuService.filterItemsWithCateringPackage(request);
+      return { data: items, totalCount };
+    } catch (e) {
+      const errMessage = (e as Error).message;
+      this.logger.error(errMessage);
+      return { error: errMessage, data: [], totalCount: 0 };
+    }
+  }
+
+  async countCateringPackagesItems(
+    request: CountCateringPackagesItemsRequest,
+  ): Promise<CountCateringPackagesItemsResponse> {
+    const countMap = await this.menuService.countCateringPackagesItems(request);
+    return { data: Object.fromEntries(countMap) };
+  }
+
+  async findAllCateringPackageOptions(): Promise<FindAllCateringPackageOptionsResponse> {
+    return this.menuService.findAllCateringPackageOptions();
+  }
+
+  async findCateringPackages(
+    request: FindCateringPackagesRequest,
+  ): Promise<FindCateringPackagesResponse> {
+    try {
+      const data = await this.menuService.findCateringPackages(request);
+      return { data };
+    } catch (e) {
+      const errMessage = (e as Error).message;
+      this.logger.error(errMessage);
+      return { error: errMessage, data: [] };
+    }
+  }
+
+  async assignOptionsToPackage(
+    request: AssignOptionsToPackageRequest,
+  ): Promise<AssignOptionsToPackageResponse> {
+    return this.menuService.assignOptionsToPackage(request);
+  }
+
+  async createDish(request: CreateDishRequest): Promise<CreateDishResponse> {
+    return this.dishService.createDish(request);
+  }
+
+  async updateDish(request: UpdateDishRequest): Promise<UpdateDishResponse> {
+    return this.dishService.updateDish(request);
+  }
+
+  async deleteDish(request: DeleteDishRequest): Promise<DeleteDishResponse> {
+    return this.dishService.deleteDish(request.id);
+  }
+
+  async getDish(request: GetDishRequest): Promise<GetDishResponse> {
+    const dish = await this.dishService.getDishById(request.id);
+    return {
+      dish: {
+        ...dish,
+        quantity: dish.quantity as number,
+        packageOptionId: dish.packageOptionId as number,
+      },
+    };
+  }
+
+  async listDishes(request: ListDishesRequest): Promise<ListDishesResponse> {
+    const [dishes, totalCount] = await this.dishService.getDishesWithPagination(request);
+    const transformedDishes = dishes.map(dish => ({
+      ...dish,
+      quantity: dish.quantity ?? 0,
+      packageOptionId: dish.packageOptionId as number,
+    }));
+    return { dishes: transformedDishes, totalCount };
+  }
+
+  async createOccasionEvent(
+    request: CreateOccasionEventRequest,
+  ): Promise<CreateOccasionEventResponse> {
+    return this.menuService.createOccasionEvent(request);
+  }
+
+  async updateOccasionEvent(
+    request: UpdateOccasionEventRequest,
+  ): Promise<UpdateOccasionEventResponse> {
+    return this.menuService.updateOccasionEvent(request);
+  }
+
+  async deleteOccasionEvent(
+    request: DeleteOccasionEventRequest,
+  ): Promise<DeleteOccasionEventResponse> {
+    return this.menuService.deleteOccasionEvent(request.id);
+  }
+
+  async getOccasionEvent(request: GetOccasionEventRequest): Promise<GetOccasionEventResponse> {
+    const occasionEvent = await this.menuService.findOccasionEventById(request.id);
+    return { occasionEvent };
   }
 }

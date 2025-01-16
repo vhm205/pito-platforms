@@ -8,17 +8,19 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   PartnerItem,
   CateringPackage,
-  OccasionEvents,
+  OccasionEvent,
 } from 'apps/menu-service/src/domain/partner-item.domain';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 import { PartnerItemMapper } from 'apps/menu-service/src/infrastructure/persistence/relational/mappers/partner-item.mapper';
+import { forEach, isEmpty, map, size, toNumber } from 'lodash';
 import { FindOperator, In, type FindOptionsWhere, type Repository } from 'typeorm';
 
 import { CateringPackageEntity } from '../entities/catering-package.entity';
 import { PartnerOccasionEventEntity } from '../entities/partner-occasion-event.entity';
 import { StoreServiceEntity } from '../entities/store-service.entity';
+import { CateringPackageMapper } from '../mappers/catering-package.mapper';
 
 @Injectable()
 export class PartnerItemRelationalRepository implements PartnerItemRepository {
@@ -140,29 +142,56 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     pagination: PaginationRequest;
     filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
+    exceptionFilters: Record<string, unknown>;
   }) {
-    const { pagination, sorts, filters } = options;
+    const { pagination, sorts, filters, exceptionFilters } = options;
+    const { menuType } = exceptionFilters;
+    const skip = (pagination.currentPage - 1) * pagination.pageSize;
+    const take = pagination.pageSize;
 
-    const [entities, total] = await this.partnerItemRepository.findAndCount({
-      skip: (pagination.currentPage - 1) * pagination.pageSize,
-      take: pagination.pageSize,
-      where: {
-        ...filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
-      },
-      order: Object.fromEntries(sorts.map(sort => [sort.column, sort.direction])),
-    });
+    const queryBuilder = this.partnerItemRepository.createQueryBuilder('item');
 
+    if (menuType) {
+      queryBuilder.innerJoin('item.menuCategory', 'menuCategory', 'menuCategory.type = :menuType', {
+        menuType: menuType || MenuType.SET,
+      });
+    }
+
+    /* WHERE clause */
+    if (filters.length) {
+      filters.forEach(filter => {
+        queryBuilder.andWhere(filter);
+      });
+    }
+
+    if (sorts.length) {
+      sorts.forEach(sort => {
+        const column = `item.${sort.column}`;
+        const direction = sort.direction === 'asc' ? 'ASC' : 'DESC';
+        queryBuilder.addOrderBy(column, direction);
+      });
+    }
+
+    /* LIMIT clause */
+    queryBuilder.skip(skip);
+    queryBuilder.take(take);
+
+    const [entities, total] = await queryBuilder.getManyAndCount();
     const partnerItems = entities?.map(entity => PartnerItemMapper.toDomain(entity));
 
     return [partnerItems, total] as [PartnerItem[], number];
   }
 
   async findAllCateringPackages(): Promise<CateringPackage[]> {
-    const packages = await this.cateringPackageRepository.findBy({ isActive: true });
-    return packages;
+    const packages = await this.cateringPackageRepository.find({
+      relations: {
+        options: true,
+      },
+    });
+    return packages.map(CateringPackageMapper.toDomain);
   }
 
-  async findAllOccasionEvents(): Promise<OccasionEvents[]> {
+  async findAllOccasionEvents(): Promise<OccasionEvent[]> {
     const occasionEvents = await this.occasionEventRepository.findBy({ isActive: true });
     return occasionEvents.map(occasionEvent => ({
       id: occasionEvent.id,
@@ -175,19 +204,22 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     pagination: PaginationRequest;
     filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
-    customFilters: Record<string, unknown>;
+    exceptionFilters: Record<string, unknown>;
   }) {
-    const { pagination, sorts, filters, customFilters } = options;
+    const { pagination, sorts, filters, exceptionFilters } = options;
     const skip = (pagination.currentPage - 1) * pagination.pageSize;
     const take = pagination.pageSize;
-    const { latitude, longitude, menuType } = customFilters;
+    const { latitude, longitude, menuType } = exceptionFilters;
 
     const queryBuilder = this.partnerItemRepository
       .createQueryBuilder('item')
-      .innerJoinAndSelect('item.store', 'store')
-      .innerJoin('item.menuCategory', 'menuCategory', 'menuCategory.type = :menuType', {
+      .innerJoinAndSelect('item.store', 'store');
+
+    if (menuType) {
+      queryBuilder.innerJoin('item.menuCategory', 'menuCategory', 'menuCategory.type = :menuType', {
         menuType: menuType || MenuType.SET,
       });
+    }
 
     /* WHERE clause */
     if (filters.length) {
@@ -267,5 +299,129 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
       items: transformedItems,
       total,
     };
+  }
+
+  async filterItemsWithCateringPackage(args: {
+    filters: Record<string, FindOperator<any>>[];
+    pagination: PaginationRequest;
+  }): Promise<[PartnerItem[], number]> {
+    const { filters, pagination } = args;
+    const FILTER_ITEM_MAP = {
+      cateringPackage: 0,
+      serviceType: 0,
+      serviceCategory: '',
+      status: '',
+      menuPricePerPax: [],
+    };
+
+    const filterMap = filters.reduce((acc, f) => {
+      if (f.cateringPackage) acc.cateringPackage = toNumber(f.cateringPackage.value);
+      else if (f.serviceCategory) acc.serviceCategory = f.serviceCategory.value;
+      else if (f.menuStatus) acc.status = f.menuStatus.value;
+      else if (f.menuPricePerPax) acc.menuPricePerPax = f.menuPricePerPax.value.map(toNumber);
+      return acc;
+    }, FILTER_ITEM_MAP);
+
+    const { cateringPackage, serviceCategory, serviceType, status, menuPricePerPax } = filterMap;
+
+    const storesHavingCateringPackage = () =>
+      this.partnerItemRepository
+        .createQueryBuilder()
+        .select('DISTINCT store_id')
+        .where(`:cateringPackage = ANY(catering_packages)`, { cateringPackage })
+        .orderBy('store_id');
+
+    const [storeIds, total] = await Promise.all([
+      storesHavingCateringPackage()
+        .skip((pagination.currentPage - 1) * pagination.pageSize)
+        .take(pagination.pageSize)
+        .getRawMany(),
+      storesHavingCateringPackage().getRawMany().then(size),
+    ]);
+
+    if (isEmpty(storeIds)) return [storeIds, storeIds.length];
+
+    const queryBuilder = this.partnerItemRepository
+      .createQueryBuilder()
+      .select()
+      .where('store_id IN (:...storeIds)', { storeIds: storeIds.map(({ store_id }) => store_id) })
+      .andWhere(':cateringPackage = ANY(catering_packages)', { cateringPackage });
+
+    if (status) {
+      if (Array.isArray(status)) queryBuilder.andWhere(`status IN (:...status)`, { status });
+      else queryBuilder.andWhere('status = :status', { status });
+    }
+    if (serviceCategory) {
+      queryBuilder.andWhere(`service_category = :serviceCategory`, { serviceCategory });
+    }
+    if (serviceType) {
+      queryBuilder.andWhere(`service_type = :serviceType`, { serviceType });
+    }
+    if (menuPricePerPax.length) {
+      const [min, max] = menuPricePerPax;
+      queryBuilder.andWhere(`base_price BETWEEN :min AND :max`, { min, max });
+    }
+
+    const itemEntities = await queryBuilder.orderBy('store_id').getMany();
+
+    const domainEntities = map(itemEntities, PartnerItemMapper.toDomain);
+    return [domainEntities, total];
+  }
+
+  async findItems(args: {
+    filters: Record<string, FindOperator<unknown>>[];
+  }): Promise<[PartnerItem[], number]> {
+    const [entities, total] = await this.partnerItemRepository.findAndCount({
+      where: args.filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
+    });
+
+    const domainEntities = entities.map(PartnerItemMapper.toDomain);
+    return [domainEntities, total];
+  }
+
+  async countCateringPackagesItems(args: {
+    serviceCategory: string;
+    itemStatus: string[];
+    cateringPackages: number[];
+  }): Promise<Map<number, number>> {
+    const query = `
+      SELECT 
+          cp.value AS catering_package,
+          COUNT(*) AS item_count
+      FROM (
+          SELECT catering_packages
+          FROM items
+          WHERE 
+              service_category = $1 AND
+              status = ANY($2)
+      ) i,
+        UNNEST(i.catering_packages) AS cp(value)
+      WHERE 
+          cp.value = ANY($3)
+      GROUP BY cp.value
+      ORDER BY cp.value;
+  `;
+
+    const result = await this.partnerItemRepository.query(query, [
+      args.serviceCategory,
+      args.itemStatus,
+      args.cateringPackages,
+    ]);
+
+    const resultMap = new Map<number, number>();
+    forEach(result, ({ catering_package, item_count }) => {
+      resultMap.set(toNumber(catering_package), toNumber(item_count));
+    });
+
+    return resultMap;
+  }
+
+  async findCateringPackages(args: {
+    filters: Record<string, FindOperator<any>>[];
+  }): Promise<CateringPackage[]> {
+    const entities = await this.cateringPackageRepository.find({
+      where: args.filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
+    });
+    return entities;
   }
 }

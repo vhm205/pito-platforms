@@ -1,4 +1,13 @@
 import {
+  CreateCateringPackageOptionRequest,
+  CreateCateringPackageOptionResponse,
+  CreateCateringPackageRequest,
+  CreateCateringPackageResponse,
+  DeleteCateringPackageOptionResponse,
+  DeleteCateringPackageResponse,
+  FindAllCateringPackagesResponse,
+  FindCateringPackagesAndOccasionEventsResponse,
+  FilterItemsWithCateringPackageRequest,
   FindItemRequest,
   FindItemsByFiltersRequest,
   FindItemsByFiltersResponse,
@@ -8,11 +17,28 @@ import {
   PartnerItemRequest,
   StoreFilter,
   transformFilterRule,
+  UpdateCateringPackageOptionRequest,
+  UpdateCateringPackageOptionResponse,
+  UpdateCateringPackageRequest,
+  UpdateCateringPackageResponse,
   UpdateItemRequest,
+  FindItemsRequest,
+  CountCateringPackagesItemsRequest,
+  FindCateringPackagesRequest,
+  FindItemsWithPaginationRequest,
+  AssignOptionsToPackageRequest,
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
 import { GrpcStatus } from '@app/common/enums';
+import { PackageOptionStatus } from '@app/common/enums/catering-package';
 import { ItemStatus } from '@app/common/enums/item';
+import {
+  CreateOccasionEventRequest,
+  CreateOccasionEventResponse,
+  DeleteOccasionEventResponse,
+  UpdateOccasionEventRequest,
+  UpdateOccasionEventResponse,
+} from '@app/common/types/proto/item/occasion-event';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
@@ -21,10 +47,11 @@ import { generateSlug } from 'apps/menu-service/src/utils/slug.util';
 import dayjs from 'dayjs';
 import { compact, keyBy, uniq } from 'lodash';
 
-import { FindAllCateringPackageResponse } from './dtos/get-catering-package.dto';
 import { GetItemInStoreFilterDto } from './dtos/get-items-in-store.dto';
 import { SearchStoreFilterDto } from './dtos/search-store.dto';
+import { CateringPackageRepository } from './infrastructure/persistence/catering-package.repository';
 import { ItemRepository } from './infrastructure/persistence/item.repository';
+import { OccasionEventRepository } from './infrastructure/persistence/occasion-event.repository';
 import { PartnerStoreRepository } from './infrastructure/persistence/partner-store.repository';
 import { StoreRepository } from './infrastructure/persistence/store.repository';
 import { mergeFilterOptions } from './utils/get-filter-option.util';
@@ -37,6 +64,8 @@ export class MenuService {
     private readonly itemRepository: ItemRepository,
     private readonly partnerItemRepository: PartnerItemRepository,
     private readonly partnerStoreRepository: PartnerStoreRepository,
+    private readonly cateringPackageRepository: CateringPackageRepository,
+    private readonly occasionEventRepository: OccasionEventRepository,
   ) {}
 
   async findStoresByFilter(
@@ -356,7 +385,12 @@ export class MenuService {
     };
   }
 
-  async findItemsWithPagination({ pagination, filters, sorts }): Promise<[PartnerItem[], number]> {
+  async findItemsWithPagination({
+    pagination,
+    filters,
+    sorts,
+    menuType,
+  }: FindItemsWithPaginationRequest): Promise<[PartnerItem[], number]> {
     if (!pagination) {
       throw new RpcException({
         message: 'Pagination is required',
@@ -368,6 +402,9 @@ export class MenuService {
       pagination,
       filters: filters?.map(transformFilterRule),
       sorts,
+      exceptionFilters: {
+        menuType,
+      },
     });
 
     const cuisineTypeIds = uniq(
@@ -434,7 +471,13 @@ export class MenuService {
     };
   }
 
-  async findAllCateringPackages(): Promise<FindAllCateringPackageResponse> {
+  async findAllCateringPackages(): Promise<FindAllCateringPackagesResponse> {
+    const cateringPackages = await this.partnerItemRepository.findAllCateringPackages();
+
+    return { cateringPackages };
+  }
+
+  async findCateringPackagesAndOccasionEvents(): Promise<FindCateringPackagesAndOccasionEventsResponse> {
     const [cateringPackages, occasionEvents] = await Promise.all([
       this.partnerItemRepository.findAllCateringPackages(),
       this.partnerItemRepository.findAllOccasionEvents(),
@@ -462,7 +505,7 @@ export class MenuService {
       pagination,
       sorts,
       filters: filters?.map(transformFilterRule),
-      customFilters: {
+      exceptionFilters: {
         latitude,
         longitude,
         menuType,
@@ -490,11 +533,153 @@ export class MenuService {
         .map(id => specialDietaryMap[id])
         .filter(Boolean),
       occasionEvents: (item.occasionEvents ?? []).map(id => occasionEventMap[id]).filter(Boolean),
+      serviceCategory: item.serviceCategory as string,
     }));
 
     return {
       totalCount: total,
       items: enrichedItems,
     };
+  }
+
+  async createCateringPackage(
+    data: CreateCateringPackageRequest,
+  ): Promise<CreateCateringPackageResponse> {
+    const newCateringPackage = {
+      ...data,
+      isActive: true,
+    };
+    const insertedId =
+      await this.cateringPackageRepository.createCateringPackage(newCateringPackage);
+
+    return { id: insertedId };
+  }
+
+  async updateCateringPackage(
+    payload: UpdateCateringPackageRequest,
+  ): Promise<UpdateCateringPackageResponse> {
+    const { id, ...data } = payload;
+    const { affected } = await this.cateringPackageRepository.updateCateringPackage(id, data);
+    return { affectedRows: affected };
+  }
+
+  async deleteCateringPackage(id: number): Promise<DeleteCateringPackageResponse> {
+    const isSuccess = await this.cateringPackageRepository.deleteCateringPackage(id);
+    return { success: isSuccess };
+  }
+
+  async createCateringPackageOption(
+    data: CreateCateringPackageOptionRequest,
+  ): Promise<CreateCateringPackageOptionResponse> {
+    const dataInsert = {
+      name: data.name,
+      status: PackageOptionStatus.ACTIVE,
+    };
+
+    const insertedId = await this.cateringPackageRepository.createCateringPackageOption(dataInsert);
+
+    return { id: insertedId };
+  }
+
+  async updateCateringPackageOption(
+    payload: UpdateCateringPackageOptionRequest,
+  ): Promise<UpdateCateringPackageOptionResponse> {
+    const { id, ...data } = payload;
+    const { affected } = await this.cateringPackageRepository.updateCateringPackageOption(id, data);
+    return { affectedRows: affected };
+  }
+
+  async deleteCateringPackageOption(id: number): Promise<DeleteCateringPackageOptionResponse> {
+    const isSuccess = await this.cateringPackageRepository.deleteCateringPackageOption(id);
+    return { success: isSuccess };
+  }
+
+  async findCateringPackageOptionsByPackageId(id: number) {
+    const options = await this.cateringPackageRepository.findCateringPackageOptionsByPackageId(id);
+    return { options };
+  }
+
+  async filterItemsWithCateringPackage({
+    filters,
+    pagination,
+  }: FilterItemsWithCateringPackageRequest) {
+    return this.partnerItemRepository.filterItemsWithCateringPackage({
+      filters: filters.map(transformFilterRule),
+      pagination: pagination!,
+    });
+  }
+
+  async findItems(request: FindItemsRequest) {
+    const filters = request.filters.map(transformFilterRule);
+    return this.partnerItemRepository.findItems({ filters });
+  }
+
+  async countCateringPackagesItems(request: CountCateringPackagesItemsRequest) {
+    return this.partnerItemRepository.countCateringPackagesItems({
+      itemStatus: request.itemStatus,
+      cateringPackages: request.cateringPackageIds,
+      serviceCategory: request.serviceCategory,
+    });
+  }
+
+  async findAllCateringPackageOptions() {
+    const packageOptions = await this.cateringPackageRepository.findAllCateringPackageOptions();
+    return { options: packageOptions };
+  }
+
+  async findCateringPackages(request: FindCateringPackagesRequest) {
+    return this.partnerItemRepository.findCateringPackages({
+      filters: request.filters.map(transformFilterRule),
+    });
+  }
+
+  async assignOptionsToPackage(request: AssignOptionsToPackageRequest) {
+    const { packageId, optionIds } = request;
+
+    const { options } = await this.cateringPackageRepository.assignOptionsToPackage(
+      packageId,
+      optionIds,
+    );
+    const isSuccess = options.length === optionIds.length;
+
+    return { success: isSuccess };
+  }
+
+  async createOccasionEvent(
+    data: CreateOccasionEventRequest,
+  ): Promise<CreateOccasionEventResponse> {
+    const newOccasionEvents = {
+      ...data,
+      isActive: true,
+    };
+    const insertedId = await this.occasionEventRepository.createOccasionEvent(newOccasionEvents);
+
+    return { id: insertedId };
+  }
+
+  async updateOccasionEvent(
+    payload: UpdateOccasionEventRequest,
+  ): Promise<UpdateOccasionEventResponse> {
+    const { id, ...data } = payload;
+    const { affected } = await this.occasionEventRepository.updateOccasionEvent(id, data);
+    return { affectedRows: affected };
+  }
+
+  async deleteOccasionEvent(id: number): Promise<DeleteOccasionEventResponse> {
+    const isSuccess = await this.occasionEventRepository.deleteOccasionEvent(id);
+    return { success: isSuccess };
+  }
+
+  async findOccasionEventById(id: number) {
+    const occasionEvent = await this.occasionEventRepository.findOccasionEventById(id);
+
+    if (!occasionEvent) {
+      throw new RpcException({
+        message: `Occasion event not found with id ${id}`,
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    return occasionEvent;
   }
 }

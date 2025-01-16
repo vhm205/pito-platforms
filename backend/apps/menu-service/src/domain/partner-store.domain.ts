@@ -1,5 +1,6 @@
 import { StoreStatus } from '@app/common/enums';
 import { NullableType, ObjectType } from '@app/common/types/common';
+import { StoreEngagementLevel, StorePerformanceLevel } from '@app/common/types/proto/common';
 
 export interface StoreContactInfo {
   email: string;
@@ -53,6 +54,8 @@ export class PartnerStore {
 
   createdAt: Date;
   updatedAt: NullableType<Date>;
+  engagementLevel: StoreEngagementLevel;
+  performanceLevel: StorePerformanceLevel;
 
   toMessage() {
     return {
@@ -73,6 +76,8 @@ export class PartnerStore {
       metadata: this.metadata as ObjectType,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt as Date,
+      engagementLevel: this.engagementLevel,
+      performanceLevel: this.performanceLevel,
     };
   }
 }

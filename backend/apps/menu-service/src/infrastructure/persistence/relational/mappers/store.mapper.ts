@@ -62,6 +62,9 @@ export class PartnerStoreMapper {
     domain.createdAt = raw.createdAt;
     domain.updatedAt = raw.updatedAt;
 
+    domain.engagementLevel = raw.engagementLevel;
+    domain.performanceLevel = raw.performanceLevel;
+
     return domain;
   }
 }
@@ -73,6 +76,8 @@ export class StoreServiceMapper {
     domain.storeId = raw.storeId;
     domain.serviceType = raw.serviceType;
     domain.reopenTime = raw.reopenTime;
+    domain.dailyOrderLimit = raw.dailyOrderLimit;
+    domain.dailyRevenueLimit = raw.dailyRevenueLimit;
 
     return domain;
   }
