@@ -16,11 +16,11 @@ export class StoreEntity {
   id: string;
 
   @Column({ name: 'partner_id', type: 'uuid', nullable: true })
-  partnerId: string;
+  partnerId: NullableType<string>;
 
   @ManyToOne(() => PartnerEntity)
   @JoinColumn({ name: 'partner_id' })
-  partner: PartnerEntity;
+  partner?: PartnerEntity;
 }
 
 @Entity({ name: 'partners' })
@@ -40,8 +40,8 @@ export class ItemEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'options_and_choices', type: 'jsonb', nullable: true })
-  optionsAndChoices: any;
+  @Column({ name: 'options_choices', type: 'jsonb', nullable: true })
+  optionsChoices: NullableType<any>;
 
   @Column({ name: 'store_id', type: 'uuid', nullable: true })
   storeId: string;
@@ -80,10 +80,10 @@ export class DishEntity {
   images: string[];
 
   @Column({ name: 'store_id', type: 'uuid', nullable: true })
-  storeId: string;
+  storeId: NullableType<string>;
 
   @Column({ name: 'partner_id', type: 'uuid', nullable: true })
-  partnerId: string;
+  partnerId: NullableType<string>;
 
   @Column({ name: 'package_option_id', type: 'integer', nullable: true })
   packageOptionId?: NullableType<number>;
@@ -91,17 +91,17 @@ export class DishEntity {
 
 const BATCH_SIZE = 100;
 
-async function syncData(partnerDataSource: DataSource, customerDataSource: DataSource) {
+async function syncData(partnerDataSource: DataSource, _customerDataSource: DataSource) {
   const queryRunner = partnerDataSource.createQueryRunner();
   await queryRunner.startTransaction();
 
   try {
-    const { entities: items, raw } = await customerDataSource
+    const { entities: items, raw } = await partnerDataSource
       .createQueryBuilder(ItemEntity, 'item')
       .leftJoinAndSelect(StoreEntity, 'store', 'item.storeId = store.id')
-      .select(['item.id', 'item.storeId', 'item.optionsAndChoices', 'store.id', 'store.partnerId'])
+      .select(['item.id', 'item.storeId', 'item.optionsChoices', 'store.id', 'store.partnerId'])
       // .where('item.isActive = true')
-      .where('item.optionsAndChoices IS NOT NULL')
+      .where('item.optionsChoices IS NOT NULL')
       .getRawAndEntities();
 
     console.log({ ITEMS_TOTAL: items.length, BATCH_SIZE });
@@ -117,7 +117,7 @@ async function syncData(partnerDataSource: DataSource, customerDataSource: DataS
     console.time('Total time');
     for (const item of items) {
       const rawItem = raw.find(rawItem => rawItem.item_id === item.id);
-      const optionsAndChoices = item.optionsAndChoices;
+      const optionsAndChoices = item.optionsChoices;
       const partnerId = rawItem.store_partner_id;
 
       if (!optionsAndChoices || !Array.isArray(optionsAndChoices)) {
@@ -174,7 +174,7 @@ async function processData(batch: any[], dataSource: DataSource) {
     for (const { choice, storeId, partnerId } of batch) {
       const dish = new DishEntity();
 
-      dish.id = choice.choice_id;
+      dish.id = choice.id;
       dish.name = choice.name;
       dish.quantity = 1;
       dish.quantityUnit = null;
@@ -221,7 +221,7 @@ async function processData(batch: any[], dataSource: DataSource) {
     username: PARTNER_DB_USER,
     password: PARTNER_DB_PASSWORD,
     database: PARTNER_DB_NAME,
-    entities: [DishEntity],
+    entities: [DishEntity, ItemEntity, PartnerEntity, StoreEntity],
     synchronize: false,
   });
 
