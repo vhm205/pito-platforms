@@ -226,6 +226,8 @@ export interface Metadata {
   hasNotes: boolean;
   hasUtensils: boolean;
   rejectionReason?: string | undefined;
+  diningTools?: string | undefined;
+  hasFeedingService?: boolean | undefined;
 }
 
 export interface PartnerChoiceOfOption {
@@ -263,8 +265,8 @@ export interface PartnerItemRequest {
   menuCategory: string;
   images: string[];
   minQuantity: number;
-  packagingType: string;
-  packagingUnit: string;
+  packagingType?: string | undefined;
+  packagingUnit?: string | undefined;
   participant: number;
   preparationTime: number;
   storeId: string;

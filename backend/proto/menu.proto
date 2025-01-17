@@ -241,6 +241,8 @@ message Metadata {
   bool has_notes = 1;
   bool has_utensils = 2;
   optional string rejection_reason = 3;
+  optional string dining_tools = 4;
+  optional bool has_feeding_service = 5;
 }
 
 message PartnerChoiceOfOption {
@@ -278,8 +280,8 @@ message PartnerItemRequest {
   string menu_category = 7;
   repeated string images = 8;
   int32 min_quantity = 9;
-  string packaging_type = 10;
-  string packaging_unit = 11;
+  optional string packaging_type = 10;
+  optional string packaging_unit = 11;
   int32 participant = 12;
   int32 preparation_time = 13;
   string store_id = 14;
