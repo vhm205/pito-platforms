@@ -98,6 +98,8 @@ export class PartnerItemMapper {
         hasNotes: raw?.metadata?.has_notes ?? false,
         hasUtensils: raw?.metadata?.has_utensils ?? false,
         rejectionReason: raw?.metadata?.rejection_reason ?? '',
+        diningTools: raw?.metadata?.dining_tools ?? '',
+        hasFeedingService: raw?.metadata?.has_feeding_service ?? false,
       };
     }
 

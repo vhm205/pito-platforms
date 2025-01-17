@@ -46,26 +46,32 @@ export const ItemSchema = z.object({
       z.literal(ItemStatus.DRAFT),
     ])
     .optional(),
-  packagingType: z.union([
-    z.literal(PackagingType.PAPER),
-    z.literal(PackagingType.BAGASSE),
-    z.literal(PackagingType.PLASTIC_FOAM),
-    z.literal(PackagingType.ALUMINUM_TRAY),
-    z.literal(PackagingType.REUSABLE_PACKAGING),
-    z.literal(PackagingType.GLASS),
-  ]),
-  packagingUnit: z.union([
-    z.literal(UnitType.BOTTLE),
-    z.literal(UnitType.SET),
-    z.literal(UnitType.PART),
-    z.literal(UnitType.BOX),
-    z.literal(UnitType.TRAY),
-  ]),
+  packagingType: z
+    .union([
+      z.literal(PackagingType.PAPER),
+      z.literal(PackagingType.BAGASSE),
+      z.literal(PackagingType.PLASTIC_FOAM),
+      z.literal(PackagingType.ALUMINUM_TRAY),
+      z.literal(PackagingType.REUSABLE_PACKAGING),
+      z.literal(PackagingType.GLASS),
+    ])
+    .optional(),
+  packagingUnit: z
+    .union([
+      z.literal(UnitType.BOTTLE),
+      z.literal(UnitType.SET),
+      z.literal(UnitType.PART),
+      z.literal(UnitType.BOX),
+      z.literal(UnitType.TRAY),
+    ])
+    .optional(),
   optionsChoices: z.array(OptionChoicesSchema),
   metadata: z.object({
     hasNotes: z.boolean(),
     hasUtensils: z.boolean(),
     rejectionReason: z.string().optional(),
+    diningTools: z.string().optional(),
+    hasFeedingService: z.boolean().optional(),
   }),
   serviceType: z.number().int().min(1).max(3).optional().default(1),
   serviceSettings: z

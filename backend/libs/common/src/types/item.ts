@@ -41,6 +41,8 @@ export interface RawPartnerItemMetadata {
   has_notes: boolean;
   has_utensils: boolean;
   rejection_reason?: string;
+  dining_tools?: string;
+  has_feeding_service?: boolean;
 }
 
 export interface RawItemServiceSettings {

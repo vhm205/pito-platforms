@@ -331,6 +331,8 @@ export class MenuService {
               hasNotes: item?.metadata?.hasNotes ?? false,
               hasUtensils: item?.metadata?.hasUtensils ?? false,
               rejectionReason: item?.metadata?.rejectionReason,
+              diningTools: item?.metadata?.diningTools,
+              hasFeedingService: item?.metadata?.hasFeedingService ?? false,
             },
         status: newStatus ?? item.status,
         optionsChoices: updateItemRequest?.optionsChoices
