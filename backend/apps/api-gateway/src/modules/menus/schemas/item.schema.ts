@@ -70,7 +70,7 @@ export const ItemSchema = z.object({
     hasNotes: z.boolean(),
     hasUtensils: z.boolean(),
     rejectionReason: z.string().optional(),
-    diningTools: z.string().optional(),
+    diningTools: z.array(z.string()).optional().default([]),
     hasFeedingService: z.boolean().optional(),
   }),
   serviceType: z.number().int().min(1).max(3).optional().default(1),
