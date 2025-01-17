@@ -201,7 +201,7 @@ export class PartnerItemDto implements PartnerItem {
     hasUtensils: boolean;
     rejectionReason?: string;
     hasFeedingService?: boolean;
-    diningTools?: string;
+    diningTools: string[];
   };
 
   @ApiProperty({

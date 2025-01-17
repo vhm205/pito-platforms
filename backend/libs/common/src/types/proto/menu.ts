@@ -226,7 +226,7 @@ export interface Metadata {
   hasNotes: boolean;
   hasUtensils: boolean;
   rejectionReason?: string | undefined;
-  diningTools?: string | undefined;
+  diningTools: string[];
   hasFeedingService?: boolean | undefined;
 }
 

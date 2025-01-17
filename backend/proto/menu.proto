@@ -241,7 +241,7 @@ message Metadata {
   bool has_notes = 1;
   bool has_utensils = 2;
   optional string rejection_reason = 3;
-  optional string dining_tools = 4;
+  repeated string dining_tools = 4;
   optional bool has_feeding_service = 5;
 }
 
