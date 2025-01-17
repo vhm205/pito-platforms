@@ -16,7 +16,7 @@ export class CreateDishDto implements CreateDishRequest {
   quantity?: number;
 
   @ApiProperty({
-    example: DishQuantityUnit.GRAM,
+    example: DishQuantityUnit.BOTTLES,
     type: String,
     enum: DishQuantityUnit,
   })
@@ -59,7 +59,7 @@ export class UpdateDishDto {
   quantity?: number;
 
   @ApiProperty({
-    example: DishQuantityUnit.GRAM,
+    example: DishQuantityUnit.BOTTLES,
     type: String,
     enum: DishQuantityUnit,
   })
