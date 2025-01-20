@@ -1,5 +1,6 @@
 import { PARTNER_DB_SOURCE } from '@app/common';
 import { NullableType } from '@app/common/types/common';
+import { SortRule } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -76,8 +77,16 @@ export class CateringPackageRelationalRepository implements CateringPackageRepos
     return entity ? entity.options.map(CateringPackageOptionMapper.toDomain) : [];
   }
 
-  async findAllCateringPackageOptions(): Promise<CateringPackageOption[]> {
-    const packageOptions = await this.cateringPackageOptionRepository.find();
+  async findAllCateringPackageOptions(options: {
+    sorts: SortRule[];
+  }): Promise<CateringPackageOption[]> {
+    const packageOptions = await this.cateringPackageOptionRepository.find({
+      order: options.sorts.reduce((acc, sort) => {
+        acc[sort.column] = sort.direction;
+        return acc;
+      }, {}),
+    });
+
     return packageOptions.map(CateringPackageOptionMapper.toDomain);
   }
 

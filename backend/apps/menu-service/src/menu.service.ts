@@ -27,6 +27,7 @@ import {
   FindCateringPackagesRequest,
   FindItemsWithPaginationRequest,
   AssignOptionsToPackageRequest,
+  FindAllCateringPackageOptionsRequest,
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
 import { GrpcStatus } from '@app/common/enums';
@@ -624,8 +625,9 @@ export class MenuService {
     });
   }
 
-  async findAllCateringPackageOptions() {
-    const packageOptions = await this.cateringPackageRepository.findAllCateringPackageOptions();
+  async findAllCateringPackageOptions(request: FindAllCateringPackageOptionsRequest) {
+    const packageOptions =
+      await this.cateringPackageRepository.findAllCateringPackageOptions(request);
     return { options: packageOptions };
   }
 

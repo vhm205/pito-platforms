@@ -196,7 +196,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
   }
 
   async findAllOccasionEvents(): Promise<OccasionEvent[]> {
-    const occasionEvents = await this.occasionEventRepository.findBy({ isActive: true });
+    const occasionEvents = await this.occasionEventRepository.find();
     return occasionEvents.map(occasionEvent => ({
       index: occasionEvent.index,
       id: occasionEvent.id,
