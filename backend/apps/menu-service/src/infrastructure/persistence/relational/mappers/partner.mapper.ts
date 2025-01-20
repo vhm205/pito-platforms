@@ -22,6 +22,8 @@ export class PartnerMapper {
     domain.serviceFeeRate = raw.serviceFeeRate;
     domain.serviceTypes = raw.serviceTypes;
 
+    domain.isVat = raw.isVat;
+
     return domain;
   }
 }

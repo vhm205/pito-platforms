@@ -759,6 +759,7 @@ message GetListPartnersResponse {
     common.Certification certification = 7;
     google.protobuf.Timestamp created_at = 8;
     google.protobuf.Timestamp updated_at = 9;
+    bool is_vat = 10;
   }
 
   repeated Partner data = 1;
@@ -785,6 +786,7 @@ message GetPartnerDetailsResponse {
     google.protobuf.Struct bank_account = 10;
     repeated string service_types = 11;
     int32 service_fee_rate = 12;
+    bool is_vat = 13;
   }
 
   optional Partner data = 1;

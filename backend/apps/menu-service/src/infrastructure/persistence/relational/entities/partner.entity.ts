@@ -51,4 +51,7 @@ export class PartnerEntity extends EntityRelationalHelper {
 
   @Column({ type: 'enum', enum: ServiceType, name: 'service_types', array: true, nullable: true })
   serviceTypes: ServiceType[];
+
+  @Column({ type: 'boolean', name: 'is_vat', nullable: false })
+  isVat: boolean;
 }

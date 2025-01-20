@@ -238,6 +238,7 @@ export class MenuController implements MenusServiceController {
         businessAddress: p.businessInfo.registered_address,
         createdAt: p.createdAt,
         updatedAt: p.updatedAt,
+        isVat: p.isVat,
       }));
       return { data: transformedPartners, totalCount };
     } catch (e) {

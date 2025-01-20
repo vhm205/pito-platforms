@@ -737,6 +737,7 @@ export interface GetListPartnersResponse_Partner {
   certification: Certification;
   createdAt: Date | undefined;
   updatedAt: Date | undefined;
+  isVat: boolean;
 }
 
 export interface GetPartnerDetailsRequest {
@@ -761,6 +762,7 @@ export interface GetPartnerDetailsResponse_Partner {
   bankAccount: { [key: string]: any } | undefined;
   serviceTypes: string[];
   serviceFeeRate: number;
+  isVat: boolean;
 }
 
 /** Catering Package */
