@@ -866,6 +866,78 @@ export interface AssignOptionsToPackageResponse {
   success: boolean;
 }
 
+export interface UpdateStoreRequest {
+  id: string;
+  storeName?: string | undefined;
+  images?: UpdateStoreRequest_StoreImage | undefined;
+  isVat?: boolean | undefined;
+  slug?: string | undefined;
+  description?: string | undefined;
+  contacts: UpdateStoreRequest_StoreContactInfo[];
+  location?: UpdateStoreRequest_StoreLocation | undefined;
+  bankAccount?: UpdateStoreRequest_StoreBankAccount | undefined;
+  engagementLevel?: number | undefined;
+  performanceLevel?: number | undefined;
+  metadata: UpdateStoreRequest_Metadata | undefined;
+}
+
+export interface UpdateStoreRequest_StoreContactInfo {
+  email: string;
+  phone: string;
+  fullName: string;
+}
+
+export interface UpdateStoreRequest_StoreLocation {
+  ward: string;
+  region: string;
+  address: string;
+  district: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface UpdateStoreRequest_StoreBankAccount {
+  bankName: string;
+  bankBranch: string;
+  accountHolder: string;
+  accountNumber: string;
+}
+
+export interface UpdateStoreRequest_StoreImage {
+  cover: string;
+  avatar: string;
+  thumbnail: string;
+}
+
+export interface UpdateStoreRequest_SectionInterval {
+  open: string;
+  close: string;
+}
+
+export interface UpdateStoreRequest_PrepTime {
+  isActive: boolean;
+  sectionIntervals: UpdateStoreRequest_SectionInterval[];
+}
+
+export interface UpdateStoreRequest_PrepTimes {
+  monday: UpdateStoreRequest_PrepTime | undefined;
+  tuesday: UpdateStoreRequest_PrepTime | undefined;
+  wednesday: UpdateStoreRequest_PrepTime | undefined;
+  thursday: UpdateStoreRequest_PrepTime | undefined;
+  friday: UpdateStoreRequest_PrepTime | undefined;
+  saturday: UpdateStoreRequest_PrepTime | undefined;
+  sunday: UpdateStoreRequest_PrepTime | undefined;
+}
+
+export interface UpdateStoreRequest_Metadata {
+  storeSlug: string;
+  regionSlug: string;
+}
+
+export interface UpdateStoreResponse {
+  affectedRows: number;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -929,6 +1001,8 @@ export interface MenusServiceClient {
   updateStoreStatus(request: UpdateStoreStatusRequest): Observable<UpdateStoreStatusResponse>;
 
   updatePartnerStatus(request: UpdatePartnerStatusRequest): Observable<UpdatePartnerStatusResponse>;
+
+  updateStore(request: UpdateStoreRequest): Observable<UpdateStoreResponse>;
 
   getListPartners(request: GetListPartnersRequest): Observable<GetListPartnersResponse>;
 
@@ -1104,6 +1178,10 @@ export interface MenusServiceController {
     | Observable<UpdatePartnerStatusResponse>
     | UpdatePartnerStatusResponse;
 
+  updateStore(
+    request: UpdateStoreRequest,
+  ): Promise<UpdateStoreResponse> | Observable<UpdateStoreResponse> | UpdateStoreResponse;
+
   getListPartners(
     request: GetListPartnersRequest,
   ):
@@ -1253,6 +1331,7 @@ export function MenusServiceControllerMethods() {
       'updateMenuItem',
       'updateStoreStatus',
       'updatePartnerStatus',
+      'updateStore',
       'getListPartners',
       'getPartnerDetails',
       'createCateringPackage',

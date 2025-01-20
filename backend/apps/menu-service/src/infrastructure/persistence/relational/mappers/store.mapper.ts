@@ -2,6 +2,7 @@ import { getImageUrl } from '@app/common';
 import { PartnerStore } from 'apps/menu-service/src/domain/partner-store.domain';
 import { StoreService } from 'apps/menu-service/src/domain/store-service.domain';
 import { Store } from 'apps/menu-service/src/domain/store.domain';
+import { isNumber } from 'lodash';
 
 import { PartnerStoreEntity } from '../entities/partner-store.entity';
 import { StoreServiceEntity } from '../entities/store-service.entity';
@@ -44,7 +45,7 @@ export class PartnerStoreMapper {
 
     domain.id = raw.id;
     domain.partnerId = raw.partnerId;
-    domain.name = raw.storeName;
+    domain.storeName = raw.storeName;
     domain.storeCode = raw.storeCode;
     domain.status = raw.status;
     domain.isVat = raw.isVat;
@@ -66,6 +67,37 @@ export class PartnerStoreMapper {
     domain.performanceLevel = raw.performanceLevel;
 
     return domain;
+  }
+
+  static toPersistence(domainEntity: Partial<PartnerStore>): PartnerStoreEntity {
+    const entity = new PartnerStoreEntity();
+
+    if (domainEntity.id) entity.id = domainEntity.id;
+    if (domainEntity.partnerId) entity.partnerId = domainEntity.partnerId;
+    if (domainEntity.storeName) entity.storeName = domainEntity.storeName;
+    if (domainEntity.storeCode) entity.storeCode = domainEntity.storeCode;
+    if (domainEntity.status) entity.status = domainEntity.status;
+    if (domainEntity.isVat) entity.isVat = domainEntity.isVat;
+    if (domainEntity.slug) entity.slug = domainEntity.slug;
+    if (domainEntity.description) entity.description = domainEntity.description;
+
+    if (domainEntity.bankAccount) entity.bankAccount = domainEntity.bankAccount;
+    if (domainEntity.location) entity.location = domainEntity.location;
+    if (domainEntity.images) entity.images = domainEntity.images;
+    if (domainEntity.prepTimes) entity.prepTimes = domainEntity.prepTimes;
+    if (domainEntity.metadata) entity.metadata = domainEntity.metadata;
+
+    if (domainEntity.contacts && domainEntity.contacts.length)
+      entity.contacts = domainEntity.contacts;
+    if (domainEntity.cuisineTypes && domainEntity.cuisineTypes.length)
+      entity.cuisineTypes = domainEntity.cuisineTypes;
+
+    if (isNumber(domainEntity.engagementLevel))
+      entity.engagementLevel = domainEntity.engagementLevel;
+    if (isNumber(domainEntity.performanceLevel))
+      entity.performanceLevel = domainEntity.performanceLevel;
+
+    return entity;
   }
 }
 

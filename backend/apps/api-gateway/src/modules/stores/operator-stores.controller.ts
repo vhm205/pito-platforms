@@ -4,12 +4,13 @@ import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.dec
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
 import { emptyPaginationResponse } from '@gateway/utils/common';
-import { Controller, Get, HttpCode, HttpStatus, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Query } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { isEmpty } from 'lodash';
 
 import { GetStoreDetailResponseDto } from './dtos/get-store-detail.dto';
 import { QueryStoreListDto, StoreListDto } from './dtos/store-list.dto';
+import { UpdateStoreRequestDto, UpdateStoreResponseDto } from './dtos/update-store.dto';
 import { OperatorStoresService } from './operator-stores.service';
 import { StoresService } from './stores.service';
 
@@ -56,5 +57,17 @@ export class OperatorStoresController {
   async getStoreDetail(@Param('identifier') identifier: string) {
     const result = await this.storeService.getStoreDetail({ identifier });
     return plainToInstance(GetStoreDetailResponseDto, result);
+  }
+
+  @Patch('stores/:identifier')
+  @Auth([RoleType.OPERATOR])
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: UpdateStoreResponseDto })
+  async updateStoreById(
+    @Param('identifier') identifier: string,
+    @Body() body: UpdateStoreRequestDto,
+  ) {
+    const result = await this.service.updateStoreById({ id: identifier, ...body });
+    return result;
   }
 }

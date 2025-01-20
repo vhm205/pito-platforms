@@ -116,4 +116,12 @@ export class PartnerStoreRelationalRepository implements PartnerStoreRepository 
 
     return [domainEntities, total];
   }
+
+  async updateStore(
+    id: string,
+    data: Partial<Omit<PartnerStore, 'id' | 'storeCode' | 'partnerId'>>,
+  ): Promise<{ affected: number }> {
+    const result = await this.repository.update({ id }, PartnerStoreMapper.toPersistence(data));
+    return { affected: result.affected || 0 };
+  }
 }

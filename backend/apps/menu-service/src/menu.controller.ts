@@ -59,6 +59,8 @@ import {
   AssignOptionsToPackageResponse,
   AssignOptionsToPackageRequest,
   FindAllCateringPackageOptionsRequest,
+  UpdateStoreRequest,
+  UpdateStoreResponse,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -406,5 +408,10 @@ export class MenuController implements MenusServiceController {
   async getOccasionEvent(request: GetOccasionEventRequest): Promise<GetOccasionEventResponse> {
     const occasionEvent = await this.menuService.findOccasionEventById(request.id);
     return { occasionEvent };
+  }
+
+  async updateStore(request: UpdateStoreRequest): Promise<UpdateStoreResponse> {
+    const { id, ...data } = request;
+    return this.storeService.updateStore(id, data);
   }
 }

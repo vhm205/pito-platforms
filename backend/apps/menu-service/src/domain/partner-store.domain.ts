@@ -38,7 +38,7 @@ export interface CuisineType {
 export class PartnerStore {
   id: string;
   partnerId: string;
-  name: string;
+  storeName: string;
   storeCode: string;
   isVat: boolean;
   slug: string;
@@ -62,7 +62,7 @@ export class PartnerStore {
       id: this.id,
       partnerId: this.partnerId,
       storeCode: this.storeCode,
-      name: this.name,
+      name: this.storeName,
       isVat: this.isVat,
       slug: this.slug,
       description: this.description as string,
