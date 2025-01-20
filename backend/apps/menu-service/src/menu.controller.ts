@@ -58,6 +58,7 @@ import {
   FindCateringPackagesResponse,
   AssignOptionsToPackageResponse,
   AssignOptionsToPackageRequest,
+  FindAllCateringPackageOptionsRequest,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -325,8 +326,10 @@ export class MenuController implements MenusServiceController {
     return { data: Object.fromEntries(countMap) };
   }
 
-  async findAllCateringPackageOptions(): Promise<FindAllCateringPackageOptionsResponse> {
-    return this.menuService.findAllCateringPackageOptions();
+  async findAllCateringPackageOptions(
+    request: FindAllCateringPackageOptionsRequest,
+  ): Promise<FindAllCateringPackageOptionsResponse> {
+    return this.menuService.findAllCateringPackageOptions(request);
   }
 
   async findCateringPackages(

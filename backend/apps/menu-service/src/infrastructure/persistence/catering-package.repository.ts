@@ -1,4 +1,5 @@
 import { NullableType } from '@app/common/types/common';
+import { SortRule } from '@app/common/types/proto/common';
 
 import { CateringPackage, CateringPackageOption } from '../../domain/partner-item.domain';
 
@@ -31,7 +32,9 @@ export abstract class CateringPackageRepository {
 
   abstract findCateringPackageOptionsByPackageId(id: number): Promise<CateringPackageOption[]>;
 
-  abstract findAllCateringPackageOptions(): Promise<CateringPackageOption[]>;
+  abstract findAllCateringPackageOptions(options: {
+    sorts: SortRule[];
+  }): Promise<CateringPackageOption[]>;
 
   abstract assignOptionsToPackage(packageId: number, optionIds: number[]): Promise<CateringPackage>;
 }
