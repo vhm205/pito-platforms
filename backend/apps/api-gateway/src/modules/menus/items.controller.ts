@@ -130,7 +130,6 @@ export class ItemsController {
     type: GetCateringPackageOptionsResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Bad Request: Invalid package ID' })
-  @Auth([RoleType.OPERATOR])
   async getCateringPackageOptions(
     @Param('packageId', ParseIntPipe) packageId: number,
   ): Promise<GetCateringPackageOptionsResponseDto> {
