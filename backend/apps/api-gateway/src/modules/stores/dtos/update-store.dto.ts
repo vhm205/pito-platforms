@@ -22,10 +22,6 @@ export class UpdateStoreRequestDto {
 
   @ApiProperty()
   @IsOptional()
-  slug: string;
-
-  @ApiProperty()
-  @IsOptional()
   isVat: boolean;
 
   @ApiProperty()

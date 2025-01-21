@@ -35,6 +35,7 @@ service MenusService {
 
   rpc GetListPartners(GetListPartnersRequest) returns (GetListPartnersResponse);
   rpc GetPartnerDetails(GetPartnerDetailsRequest) returns (GetPartnerDetailsResponse);
+  rpc UpdatePartner(UpdatePartnerRequest) returns (UpdatePartnerResponse);
 
   rpc CreateCateringPackage (CreateCateringPackageRequest) returns (CreateCateringPackageResponse) {}
   rpc UpdateCateringPackage (UpdateCateringPackageRequest) returns (UpdateCateringPackageResponse) {}
@@ -890,6 +891,10 @@ message AssignOptionsToPackageResponse {
   bool success = 1;
 }
 
+////////////////////////
+// [START] UPDATE STORE
+////////////////////////
+
 message UpdateStoreRequest {
   message StoreContactInfo {
     string email = 1;
@@ -948,16 +953,86 @@ message UpdateStoreRequest {
   optional string store_name = 2;
   optional StoreImage images = 3;
   optional bool is_vat = 4;
-  optional string slug = 5;
-  optional string description = 6;
-  repeated StoreContactInfo contacts = 7;
-  optional StoreLocation location = 8;
-  optional StoreBankAccount bank_account = 9;
-  optional int32 engagement_level = 10;
-  optional int32 performance_level = 11;
-  Metadata metadata = 12;
+  optional string description = 5;
+  repeated StoreContactInfo contacts = 6;
+  optional StoreLocation location = 7;
+  optional StoreBankAccount bank_account = 8;
+  optional int32 engagement_level = 9;
+  optional int32 performance_level = 10;
+  Metadata metadata = 11;
 }
 
 message UpdateStoreResponse {
   int32 affected_rows = 1;
 }
+
+// [END] UPDATE STORE
+
+////////////////////////
+// [START] UPDATE PARTNER
+////////////////////////
+
+message UpdatePartnerRequest {
+  message CitizenImage {
+    string path = 1;
+    string type = 2;
+  }
+
+  message CitizenInfo {
+    string citizen_id = 1;
+    string issue_date = 2;
+    string expiry_date = 3;
+    string issue_place = 4;
+    repeated CitizenImage citizen_images = 5;
+    string resident_address = 6;
+  }
+
+  message BusinessOwner {
+    string email = 1;
+    string phone = 2;
+    string full_name = 3;
+    CitizenInfo citizen_info = 4;
+  }
+
+  message BankFinancialManager {
+    string email = 1;
+    string phone = 2;
+    string full_name = 3;
+  }
+
+  message BankAccountInfo {
+    string bank_name = 1;
+    string bank_branch = 2;
+    string account_holder = 3;
+    string account_number = 4;
+    BankFinancialManager financial_manager = 5;
+  }
+
+  message BusinessInfo {
+    string tax_code = 1;
+    string business_name = 2;
+    string business_type = 3;
+    string registration_date = 4;
+    string registered_address = 5;
+    string registration_number = 6;
+    repeated string business_licenses = 7;
+  }
+
+  string id = 1;
+  optional  string name = 2;
+  optional  string status = 3;
+  optional int32 serviceFeeRate = 4;
+  optional common.BusinessType businessType = 5;
+  optional common.Certification certification = 6;
+  BankAccountInfo bankAccount = 7;
+  BusinessInfo businessInfo = 8;
+  BusinessOwner businessOwner = 9;
+  optional bool isVat = 10;
+  repeated string serviceTypes = 11;
+}
+
+message UpdatePartnerResponse {
+  int32 affected_rows = 1;
+}
+
+// [END] UPDATE PARTNER
