@@ -11,7 +11,7 @@ import { isValidUUID } from '@gateway/utils/common';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
-import { StoreContactInfo, StoreLocation } from './domain/partner-store.domain';
+import { PartnerStore, StoreContactInfo, StoreLocation } from './domain/partner-store.domain';
 import { ItemRepository } from './infrastructure/persistence/item.repository';
 import { PartnerStoreRepository } from './infrastructure/persistence/partner-store.repository';
 import { StoreRepository } from './infrastructure/persistence/store.repository';
@@ -65,7 +65,7 @@ export class StoreService {
 
     return {
       id: store.id,
-      name: store.name,
+      name: store.storeName,
       slug: store.slug,
       description: store.description as string,
       storeCode: store.storeCode,
@@ -116,5 +116,13 @@ export class StoreService {
   async updatePartnerStatus(ids: string[], status: PartnerStatus) {
     const { affected } = await this.partnerStoreRepository.updatePartnerStatusByIds(ids, status);
     return { success: affected === ids.length };
+  }
+
+  async updateStore(
+    id: string,
+    data: Partial<Omit<PartnerStore, 'id' | 'storeCode' | 'partnerId'>>,
+  ) {
+    const { affected } = await this.partnerStoreRepository.updateStore(id, data);
+    return { affectedRows: affected };
   }
 }

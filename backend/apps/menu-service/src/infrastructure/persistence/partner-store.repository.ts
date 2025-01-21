@@ -38,8 +38,14 @@ export abstract class PartnerStoreRepository {
     ids: string[],
     status: StoreStatus,
   ): Promise<{ affected: number }>;
+
   abstract updatePartnerStatusByIds(
     ids: string[],
     status: PartnerStatus,
+  ): Promise<{ affected: number }>;
+
+  abstract updateStore(
+    id: string,
+    data: Partial<Omit<PartnerStore, 'id' | 'storeCode' | 'partnerId'>>,
   ): Promise<{ affected: number }>;
 }
