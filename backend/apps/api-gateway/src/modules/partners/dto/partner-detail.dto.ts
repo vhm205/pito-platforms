@@ -99,4 +99,11 @@ export class PartnerDetailDto {
     type: Object,
   })
   updatedAt: Date;
+
+  @Expose()
+  @ApiProperty({
+    type: Boolean,
+    example: true,
+  })
+  isVat: boolean;
 }

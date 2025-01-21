@@ -1,7 +1,13 @@
-import { LoggerService, MENU_SERVICE, MENUS_SERVICE_NAME, MenusServiceClient } from '@app/common';
+import {
+  LoggerService,
+  MENU_SERVICE,
+  MENUS_SERVICE_NAME,
+  MenusServiceClient,
+  UpdateStoreRequest,
+} from '@app/common';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 
 import { QueryStoreListDto } from './dtos/store-list.dto';
 
@@ -26,5 +32,10 @@ export class OperatorStoresService implements OnModuleInit {
         sorts: query.sorts,
       }),
     );
+  }
+
+  updateStoreById(request: UpdateStoreRequest) {
+    const source$ = this.menuServiceClient.updateStore(request).pipe(timeout(3000));
+    return firstValueFrom(source$);
   }
 }

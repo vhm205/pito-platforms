@@ -1,4 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { parseSort, SortRule } from '@gateway/gateway-common/dto/query-dto';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Expose, Transform } from 'class-transformer';
+import { IsArray } from 'class-validator';
+
+import { normalizeArray } from '../utils';
 
 export class CateringPackageOptionDto {
   @ApiProperty({ example: 1 })
@@ -47,6 +52,15 @@ export class GetCateringPackageAndOccasionEventResponseDto {
 
   @ApiProperty({ type: () => [OccasionEventsResponse] })
   occationEvents: OccasionEventsResponse[];
+}
+
+export class GetCateringPackageOptionsRequestDto {
+  @ApiPropertyOptional()
+  @Expose({ name: 'sort' })
+  @IsArray()
+  @Transform(({ value }) => normalizeArray(value), { toClassOnly: true })
+  @Transform(({ value }) => parseSort(value))
+  sort: SortRule[];
 }
 
 export class GetCateringPackageOptionsResponseDto {

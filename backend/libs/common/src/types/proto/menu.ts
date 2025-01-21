@@ -226,6 +226,8 @@ export interface Metadata {
   hasNotes: boolean;
   hasUtensils: boolean;
   rejectionReason?: string | undefined;
+  diningTools: string[];
+  hasFeedingService?: boolean | undefined;
 }
 
 export interface PartnerChoiceOfOption {
@@ -263,8 +265,8 @@ export interface PartnerItemRequest {
   menuCategory: string;
   images: string[];
   minQuantity: number;
-  packagingType: string;
-  packagingUnit: string;
+  packagingType?: string | undefined;
+  packagingUnit?: string | undefined;
   participant: number;
   preparationTime: number;
   storeId: string;
@@ -505,6 +507,10 @@ export interface CateringPackage {
   isActive: boolean;
 }
 
+export interface FindAllCateringPackageOptionsRequest {
+  sorts: SortRule[];
+}
+
 export interface FindAllCateringPackageOptionsResponse {
   options: FindAllCateringPackageOptionsResponse_CateringPackageOption[];
 }
@@ -516,7 +522,7 @@ export interface FindAllCateringPackageOptionsResponse_CateringPackageOption {
 }
 
 export interface FindCateringPackagesAndOccasionEventsResponse {
-  cateringPackages: CateringPackage[];
+  cateringPackages: FindCateringPackagesAndOccasionEventsResponse_CateringPackage[];
   occasionEvents: FindCateringPackagesAndOccasionEventsResponse_OccasionEvent[];
 }
 
@@ -524,6 +530,18 @@ export interface FindCateringPackagesAndOccasionEventsResponse_OccasionEvent {
   id: number;
   name: string;
   isActive: boolean;
+}
+
+export interface FindCateringPackagesAndOccasionEventsResponse_PackageOption {
+  id: number;
+  name: string;
+}
+
+export interface FindCateringPackagesAndOccasionEventsResponse_CateringPackage {
+  id: number;
+  name: string;
+  isActive: boolean;
+  options: FindCateringPackagesAndOccasionEventsResponse_PackageOption[];
 }
 
 export interface FindItemsByFiltersRequest {
@@ -719,6 +737,7 @@ export interface GetListPartnersResponse_Partner {
   certification: Certification;
   createdAt: Date | undefined;
   updatedAt: Date | undefined;
+  isVat: boolean;
 }
 
 export interface GetPartnerDetailsRequest {
@@ -743,6 +762,7 @@ export interface GetPartnerDetailsResponse_Partner {
   bankAccount: { [key: string]: any } | undefined;
   serviceTypes: string[];
   serviceFeeRate: number;
+  isVat: boolean;
 }
 
 /** Catering Package */
@@ -846,6 +866,78 @@ export interface AssignOptionsToPackageResponse {
   success: boolean;
 }
 
+export interface UpdateStoreRequest {
+  id: string;
+  storeName?: string | undefined;
+  images?: UpdateStoreRequest_StoreImage | undefined;
+  isVat?: boolean | undefined;
+  slug?: string | undefined;
+  description?: string | undefined;
+  contacts: UpdateStoreRequest_StoreContactInfo[];
+  location?: UpdateStoreRequest_StoreLocation | undefined;
+  bankAccount?: UpdateStoreRequest_StoreBankAccount | undefined;
+  engagementLevel?: number | undefined;
+  performanceLevel?: number | undefined;
+  metadata: UpdateStoreRequest_Metadata | undefined;
+}
+
+export interface UpdateStoreRequest_StoreContactInfo {
+  email: string;
+  phone: string;
+  fullName: string;
+}
+
+export interface UpdateStoreRequest_StoreLocation {
+  ward: string;
+  region: string;
+  address: string;
+  district: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface UpdateStoreRequest_StoreBankAccount {
+  bankName: string;
+  bankBranch: string;
+  accountHolder: string;
+  accountNumber: string;
+}
+
+export interface UpdateStoreRequest_StoreImage {
+  cover: string;
+  avatar: string;
+  thumbnail: string;
+}
+
+export interface UpdateStoreRequest_SectionInterval {
+  open: string;
+  close: string;
+}
+
+export interface UpdateStoreRequest_PrepTime {
+  isActive: boolean;
+  sectionIntervals: UpdateStoreRequest_SectionInterval[];
+}
+
+export interface UpdateStoreRequest_PrepTimes {
+  monday: UpdateStoreRequest_PrepTime | undefined;
+  tuesday: UpdateStoreRequest_PrepTime | undefined;
+  wednesday: UpdateStoreRequest_PrepTime | undefined;
+  thursday: UpdateStoreRequest_PrepTime | undefined;
+  friday: UpdateStoreRequest_PrepTime | undefined;
+  saturday: UpdateStoreRequest_PrepTime | undefined;
+  sunday: UpdateStoreRequest_PrepTime | undefined;
+}
+
+export interface UpdateStoreRequest_Metadata {
+  storeSlug: string;
+  regionSlug: string;
+}
+
+export interface UpdateStoreResponse {
+  affectedRows: number;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -880,7 +972,9 @@ export interface MenusServiceClient {
 
   findAllCateringPackages(request: Empty): Observable<FindAllCateringPackagesResponse>;
 
-  findAllCateringPackageOptions(request: Empty): Observable<FindAllCateringPackageOptionsResponse>;
+  findAllCateringPackageOptions(
+    request: FindAllCateringPackageOptionsRequest,
+  ): Observable<FindAllCateringPackageOptionsResponse>;
 
   findCateringPackages(
     request: FindCateringPackagesRequest,
@@ -907,6 +1001,8 @@ export interface MenusServiceClient {
   updateStoreStatus(request: UpdateStoreStatusRequest): Observable<UpdateStoreStatusResponse>;
 
   updatePartnerStatus(request: UpdatePartnerStatusRequest): Observable<UpdatePartnerStatusResponse>;
+
+  updateStore(request: UpdateStoreRequest): Observable<UpdateStoreResponse>;
 
   getListPartners(request: GetListPartnersRequest): Observable<GetListPartnersResponse>;
 
@@ -1015,7 +1111,7 @@ export interface MenusServiceController {
     | FindAllCateringPackagesResponse;
 
   findAllCateringPackageOptions(
-    request: Empty,
+    request: FindAllCateringPackageOptionsRequest,
   ):
     | Promise<FindAllCateringPackageOptionsResponse>
     | Observable<FindAllCateringPackageOptionsResponse>
@@ -1081,6 +1177,10 @@ export interface MenusServiceController {
     | Promise<UpdatePartnerStatusResponse>
     | Observable<UpdatePartnerStatusResponse>
     | UpdatePartnerStatusResponse;
+
+  updateStore(
+    request: UpdateStoreRequest,
+  ): Promise<UpdateStoreResponse> | Observable<UpdateStoreResponse> | UpdateStoreResponse;
 
   getListPartners(
     request: GetListPartnersRequest,
@@ -1231,6 +1331,7 @@ export function MenusServiceControllerMethods() {
       'updateMenuItem',
       'updateStoreStatus',
       'updatePartnerStatus',
+      'updateStore',
       'getListPartners',
       'getPartnerDetails',
       'createCateringPackage',

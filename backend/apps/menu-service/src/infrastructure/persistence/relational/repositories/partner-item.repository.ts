@@ -54,9 +54,11 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
       specialDietaries: payload?.specialDietaries ?? [],
       status: (payload?.status as ItemStatus) ?? ItemStatus.DRAFT,
       metadata: {
-        has_notes: payload.metadata?.hasNotes,
-        has_utensils: payload.metadata?.hasUtensils,
-        rejection_reason: payload.metadata?.rejectionReason,
+        has_notes: payload?.metadata?.hasNotes,
+        has_utensils: payload?.metadata?.hasUtensils,
+        rejection_reason: payload?.metadata?.rejectionReason,
+        dining_tools: payload?.metadata?.diningTools,
+        has_feeding_service: payload?.metadata?.hasFeedingService,
       },
       serviceSettings: {
         setup_time: payload?.serviceSettings?.setupTime ?? 0,
@@ -109,6 +111,8 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
         has_notes: updateItemRequest?.metadata?.hasNotes,
         has_utensils: updateItemRequest?.metadata?.hasUtensils,
         rejection_reason: updateItemRequest?.metadata?.rejectionReason,
+        dining_tools: updateItemRequest?.metadata?.diningTools,
+        has_feeding_service: updateItemRequest?.metadata?.hasFeedingService,
       },
       serviceSettings: {
         setup_time: updateItemRequest?.serviceSettings?.setupTime,
@@ -192,7 +196,7 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
   }
 
   async findAllOccasionEvents(): Promise<OccasionEvent[]> {
-    const occasionEvents = await this.occasionEventRepository.findBy({ isActive: true });
+    const occasionEvents = await this.occasionEventRepository.find();
     return occasionEvents.map(occasionEvent => ({
       index: occasionEvent.index,
       id: occasionEvent.id,

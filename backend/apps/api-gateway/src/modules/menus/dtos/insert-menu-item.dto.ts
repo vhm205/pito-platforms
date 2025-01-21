@@ -190,6 +190,8 @@ export class PartnerItemDto implements PartnerItem {
       hasNotes: true,
       hasUtensils: true,
       rejectionReason: 'Example Reject Reason',
+      hasFeedingService: true,
+      diningTools: 'Example Dining Tools',
     },
     additionalProperties: true,
   })
@@ -198,6 +200,8 @@ export class PartnerItemDto implements PartnerItem {
     hasNotes: boolean;
     hasUtensils: boolean;
     rejectionReason?: string;
+    hasFeedingService?: boolean;
+    diningTools: string[];
   };
 
   @ApiProperty({

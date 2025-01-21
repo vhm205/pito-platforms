@@ -27,6 +27,7 @@ import {
   FindCateringPackagesRequest,
   FindItemsWithPaginationRequest,
   AssignOptionsToPackageRequest,
+  FindAllCateringPackageOptionsRequest,
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
 import { GrpcStatus } from '@app/common/enums';
@@ -331,6 +332,8 @@ export class MenuService {
               hasNotes: item?.metadata?.hasNotes ?? false,
               hasUtensils: item?.metadata?.hasUtensils ?? false,
               rejectionReason: item?.metadata?.rejectionReason,
+              diningTools: item?.metadata?.diningTools || [],
+              hasFeedingService: item?.metadata?.hasFeedingService ?? false,
             },
         status: newStatus ?? item.status,
         optionsChoices: updateItemRequest?.optionsChoices
@@ -622,8 +625,9 @@ export class MenuService {
     });
   }
 
-  async findAllCateringPackageOptions() {
-    const packageOptions = await this.cateringPackageRepository.findAllCateringPackageOptions();
+  async findAllCateringPackageOptions(request: FindAllCateringPackageOptionsRequest) {
+    const packageOptions =
+      await this.cateringPackageRepository.findAllCateringPackageOptions(request);
     return { options: packageOptions };
   }
 

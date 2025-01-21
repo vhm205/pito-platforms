@@ -69,4 +69,5 @@ export class Partner {
 
   serviceFeeRate: number;
   serviceTypes: ServiceType[];
+  isVat: boolean;
 }

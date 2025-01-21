@@ -1,6 +1,7 @@
 import {
   CreateCateringPackageOptionRequest,
   CreateCateringPackageRequest,
+  FindAllCateringPackageOptionsRequest,
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
@@ -56,8 +57,8 @@ export class ItemsService implements OnModuleInit {
     return firstValueFrom(source$);
   }
 
-  async findAllCateringPackageOptions() {
-    const source$ = this.menusService.findAllCateringPackageOptions({}).pipe(timeout(3000));
+  async findAllCateringPackageOptions(request: FindAllCateringPackageOptionsRequest) {
+    const source$ = this.menusService.findAllCateringPackageOptions(request).pipe(timeout(3000));
     return firstValueFrom(source$);
   }
 

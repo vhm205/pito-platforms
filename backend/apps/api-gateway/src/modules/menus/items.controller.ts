@@ -15,12 +15,14 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBody, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 
 import {
   GetCateringPackageAndOccasionEventResponseDto,
+  GetCateringPackageOptionsRequestDto,
   GetCateringPackageOptionsResponseDto,
 } from './dtos/get-catering-package.dto';
 import {
@@ -103,12 +105,12 @@ export class ItemsController {
     return this.itemsService.deleteCateringPackageOption(id);
   }
 
-  @Get('catering-package-options')
+  @Get('catering-packages/options')
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: GetCateringPackageOptionsResponseDto })
   @Auth([RoleType.OPERATOR])
-  async getAllCateringPackageOptions() {
-    const result = await this.itemsService.findAllCateringPackageOptions();
+  async getAllCateringPackageOptions(@Query() query: GetCateringPackageOptionsRequestDto) {
+    const result = await this.itemsService.findAllCateringPackageOptions({ sorts: query.sort });
     return result;
   }
 
@@ -128,7 +130,6 @@ export class ItemsController {
     type: GetCateringPackageOptionsResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Bad Request: Invalid package ID' })
-  @Auth([RoleType.OPERATOR])
   async getCateringPackageOptions(
     @Param('packageId', ParseIntPipe) packageId: number,
   ): Promise<GetCateringPackageOptionsResponseDto> {
