@@ -1,4 +1,5 @@
 import { Partner } from 'apps/menu-service/src/domain/partner.domain';
+import { plainToInstance } from 'class-transformer';
 
 import { PartnerEntity } from '../entities/partner.entity';
 
@@ -25,5 +26,9 @@ export class PartnerMapper {
     domain.isVat = raw.isVat;
 
     return domain;
+  }
+
+  static toPersistence(domain: Partial<Partner>): Partial<PartnerEntity> {
+    return plainToInstance(PartnerEntity, domain);
   }
 }
