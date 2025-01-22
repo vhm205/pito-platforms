@@ -56,8 +56,15 @@ export class CateringPackageOptionEntity {
 }
 
 async function importData(filePath: string, dataSource: DataSource) {
-  const cateringPackageRepository = dataSource.getRepository(CateringPackageEntity);
-  const cateringPackageOptionRepository = dataSource.getRepository(CateringPackageOptionEntity);
+  // const cateringPackageRepository = dataSource.getRepository(CateringPackageEntity);
+  // const cateringPackageOptionRepository = dataSource.getRepository(CateringPackageOptionEntity);
+
+  // const packages = await cateringPackageRepository.find();
+  // const packageOptions = await cateringPackageOptionRepository.find();
+  // console.log({
+  //   packages,
+  //   packageOptions,
+  // });
 
   const workbook = xlsx.readFile(filePath);
   const sheetName = workbook.SheetNames[0]; // Read the first sheet
@@ -65,19 +72,24 @@ async function importData(filePath: string, dataSource: DataSource) {
 
   await dataSource.transaction(async manager => {
     for (const row of sheetData) {
-      const [packageName, ...options]: any = Object.values(row);
+      const [pkgName, ...options]: any = Object.values(row);
+      const packageName = pkgName.trim();
 
-      if (!packageName.trim()) {
+      if (!packageName) {
         continue;
       }
 
-      let cateringPackage = await cateringPackageRepository.findOneBy({ name: packageName.trim() });
+      let cateringPackage = await manager.findOneBy(CateringPackageEntity, {
+        name: packageName,
+      });
 
       if (!cateringPackage) {
         console.log('Creating new package!', packageName);
         const newCateringPackage = new CateringPackageEntity();
-        newCateringPackage.name = packageName.trim();
+        newCateringPackage.name = packageName;
+        newCateringPackage.isActive = true;
         cateringPackage = await manager.save(newCateringPackage);
+        console.log('New package created!');
       }
 
       if (!options || options.length === 0) {
@@ -88,7 +100,7 @@ async function importData(filePath: string, dataSource: DataSource) {
       for (const option of options) {
         const name = option.trim();
 
-        const packageOption = await cateringPackageOptionRepository.findOne({
+        const packageOption = await manager.findOne(CateringPackageOptionEntity, {
           where: { name },
           relations: ['packages'],
         });
@@ -102,12 +114,12 @@ async function importData(filePath: string, dataSource: DataSource) {
           packageOptionEntity.packages = [cateringPackage];
 
           await manager.save(packageOptionEntity);
+          console.log('New package option created!');
           continue;
         }
 
         const packages = packageOption.packages;
         const existingPackage = packages.find(p => p.id === cateringPackage.id);
-        console.log('----------------');
 
         if (existingPackage) {
           console.log(`Package ${packageName} already exists for option`, name);
@@ -122,6 +134,8 @@ async function importData(filePath: string, dataSource: DataSource) {
 
         await manager.save(packageOptionUpdate);
       }
+
+      console.log('----------------');
     }
   });
 
