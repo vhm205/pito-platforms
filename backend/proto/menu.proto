@@ -251,6 +251,8 @@ message PartnerChoiceOfOption {
   string id = 1;
   string name = 2;
   optional float price = 3;
+  optional int32 quantity = 4;
+  optional string quantity_unit = 5;
 }
 
 message PartnerOptionsChoices {
