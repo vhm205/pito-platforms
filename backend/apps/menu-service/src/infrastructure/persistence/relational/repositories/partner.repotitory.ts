@@ -42,7 +42,13 @@ export class PartnerRelationalRepository implements PartnerRepository {
   }
 
   async updatePartner(id: string, data: UpdatePartnerDto): Promise<{ affectedRows: number }> {
-    const dataUpdate = PartnerMapper.toPersistence(data);
+    const partnerEntity = await this.partnerRepository.findOneBy({ id });
+    if (!partnerEntity) {
+      return { affectedRows: 0 };
+    }
+    const partnerDomain = PartnerMapper.toDomain(partnerEntity);
+    const dataUpdate = PartnerMapper.toPersistence({ ...partnerDomain, ...data });
+
     const { affected } = await this.partnerRepository.update(id, dataUpdate);
     return { affectedRows: affected ?? 0 };
   }
