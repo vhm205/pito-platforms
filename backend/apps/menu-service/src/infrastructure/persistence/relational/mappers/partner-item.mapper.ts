@@ -84,6 +84,8 @@ export class PartnerItemMapper {
             id: choice?.id,
             name: choice?.name,
             price: choice?.price,
+            quantity: choice?.quantity,
+            quantityUnit: choice?.quantity_unit,
           })),
           isRequired: option?.is_required,
           maxChoices: option?.max_choices,
