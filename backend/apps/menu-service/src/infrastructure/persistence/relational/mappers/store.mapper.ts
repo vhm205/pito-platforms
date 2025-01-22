@@ -77,7 +77,7 @@ export class PartnerStoreMapper {
     if (domainEntity.storeName) entity.storeName = domainEntity.storeName;
     if (domainEntity.storeCode) entity.storeCode = domainEntity.storeCode;
     if (domainEntity.status) entity.status = domainEntity.status;
-    if (domainEntity.isVat) entity.isVat = domainEntity.isVat;
+    entity.isVat = Boolean(domainEntity.isVat);
     if (domainEntity.slug) entity.slug = domainEntity.slug;
     if (domainEntity.description) entity.description = domainEntity.description;
 
