@@ -6,6 +6,8 @@ const ChoiceSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
   price: z.number().min(0).nullable().optional(),
+  quantity: z.number().min(0).nullable().optional(),
+  quantityUnit: z.string().nullable().optional(),
 });
 
 const OptionChoicesSchema = z.object({

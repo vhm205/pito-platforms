@@ -234,6 +234,8 @@ export interface PartnerChoiceOfOption {
   id: string;
   name: string;
   price?: number | undefined;
+  quantity?: number | undefined;
+  quantityUnit?: string | undefined;
 }
 
 export interface PartnerOptionsChoices {

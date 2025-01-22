@@ -351,6 +351,8 @@ export class MenuService {
                 id: choice?.id,
                 name: choice?.name,
                 price: choice?.price,
+                quantity: choice?.quantity,
+                quantityUnit: choice?.quantityUnit,
               })),
             }))
           : (item.optionsChoices?.map(option => ({
@@ -367,6 +369,8 @@ export class MenuService {
                 id: choice?.id,
                 name: choice?.name,
                 price: choice?.price,
+                quantity: choice?.quantity,
+                quantityUnit: choice?.quantityUnit,
               })),
             })) ?? []),
         orderDeadlineAt: updateItemRequest?.orderDeadlineAt,
