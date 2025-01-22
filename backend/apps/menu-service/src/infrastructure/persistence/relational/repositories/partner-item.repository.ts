@@ -80,6 +80,8 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
             id: choice?.id,
             name: choice?.name,
             price: choice?.price,
+            quantity: choice?.quantity,
+            quantity_unit: choice?.quantityUnit,
           })),
         })) ?? [],
     });
