@@ -77,7 +77,7 @@ export class ItemsController {
   @Post('catering-packages/options')
   @ApiOperation({ summary: 'Create a new catering package option' })
   @ApiBody({ type: CreateCateringPackageOptionDto })
-  @Auth([RoleType.OPERATOR])
+  @Auth([RoleType.OPERATOR, RoleType.PARTNER])
   async createCateringPackageOption(@Body() body: CreateCateringPackageOptionDto) {
     return this.itemsService.createCateringPackageOption(body);
   }
@@ -100,7 +100,7 @@ export class ItemsController {
   @Delete('catering-packages/options/:id')
   @ApiOperation({ summary: 'Delete a catering package option by ID' })
   @ApiParam({ name: 'id', description: 'ID of the catering package option', type: 'integer' })
-  @Auth([RoleType.OPERATOR])
+  @Auth([RoleType.OPERATOR, RoleType.PARTNER])
   async deleteCateringPackageOption(@Param('id') id: number) {
     return this.itemsService.deleteCateringPackageOption(id);
   }
@@ -108,7 +108,7 @@ export class ItemsController {
   @Get('catering-packages/options')
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: GetCateringPackageOptionsResponseDto })
-  @Auth([RoleType.OPERATOR])
+  @Auth([RoleType.OPERATOR, RoleType.PARTNER])
   async getAllCateringPackageOptions(@Query() query: GetCateringPackageOptionsRequestDto) {
     const result = await this.itemsService.findAllCateringPackageOptions({ sorts: query.sort });
     return result;
