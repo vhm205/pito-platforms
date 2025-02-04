@@ -325,6 +325,9 @@ message PartnerItem {
   ItemServiceSettings service_settings = 24;
   optional string store_slug = 25;
   int32 version = 26;
+  optional string service_category = 27;
+  optional google.protobuf.Timestamp created_at = 28;
+  optional google.protobuf.Timestamp updated_at = 29;
 }
 
 message FindStoresRequest {

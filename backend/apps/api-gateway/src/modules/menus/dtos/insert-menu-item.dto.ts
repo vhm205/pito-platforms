@@ -251,4 +251,28 @@ export class PartnerItemDto implements PartnerItem {
   })
   @Expose()
   version: number;
+
+  @ApiProperty({
+    type: 'string',
+    example: 'PX',
+    description: 'Service Category',
+  })
+  @Expose()
+  serviceCategory: string;
+
+  @ApiProperty({
+    type: 'string',
+    example: '2021-01-01T00:00:00.000Z',
+    description: 'Created At',
+  })
+  @Expose()
+  createdAt: Date;
+
+  @ApiProperty({
+    type: 'string',
+    example: '2021-01-01T00:00:00.000Z',
+    description: 'Updated At',
+  })
+  @Expose()
+  updatedAt: Date;
 }
