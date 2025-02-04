@@ -309,6 +309,8 @@ export interface PartnerItem {
   storeSlug?: string | undefined;
   version: number;
   serviceCategory?: string | undefined;
+  createdAt?: Date | undefined;
+  updatedAt?: Date | undefined;
 }
 
 export interface FindStoresRequest {
