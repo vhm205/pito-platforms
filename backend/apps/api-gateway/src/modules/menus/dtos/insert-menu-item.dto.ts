@@ -251,4 +251,12 @@ export class PartnerItemDto implements PartnerItem {
   })
   @Expose()
   version: number;
+
+  @ApiProperty({
+    type: 'string',
+    example: 'PX',
+    description: 'Service Category',
+  })
+  @Expose()
+  serviceCategory: string;
 }

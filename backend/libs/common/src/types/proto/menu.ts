@@ -308,6 +308,7 @@ export interface PartnerItem {
   serviceSettings: ItemServiceSettings | undefined;
   storeSlug?: string | undefined;
   version: number;
+  serviceCategory?: string | undefined;
 }
 
 export interface FindStoresRequest {
