@@ -4,6 +4,7 @@ import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Partner } from 'apps/menu-service/src/domain/partner.domain';
+import { UpdatePartnerDto } from 'apps/menu-service/src/dtos/update-partner.dto';
 import { FindOperator, Repository } from 'typeorm';
 
 import { PartnerRepository } from '../../partner.repository';
@@ -38,5 +39,17 @@ export class PartnerRelationalRepository implements PartnerRepository {
   async findPartnerById(id: string): Promise<NullableType<Partner>> {
     const entity = await this.partnerRepository.findOneBy({ id });
     return entity ? PartnerMapper.toDomain(entity) : null;
+  }
+
+  async updatePartner(id: string, data: UpdatePartnerDto): Promise<{ affectedRows: number }> {
+    const partnerEntity = await this.partnerRepository.findOneBy({ id });
+    if (!partnerEntity) {
+      return { affectedRows: 0 };
+    }
+    const partnerDomain = PartnerMapper.toDomain(partnerEntity);
+    const dataUpdate = PartnerMapper.toPersistence({ ...partnerDomain, ...data });
+
+    const { affected } = await this.partnerRepository.update(id, dataUpdate);
+    return { affectedRows: affected ?? 0 };
   }
 }

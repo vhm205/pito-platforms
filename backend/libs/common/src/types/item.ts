@@ -22,6 +22,8 @@ export interface RawPartnerItemChoice {
   name: string;
   id: string;
   price: number;
+  quantity: number;
+  quantity_unit: string;
 }
 
 export interface RawPartnerItemOptionAndChoice {

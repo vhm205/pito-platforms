@@ -3,6 +3,7 @@ import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import { FindOperator } from 'typeorm';
 
 import { Partner } from '../../domain/partner.domain';
+import { UpdatePartnerDto } from '../../dtos/update-partner.dto';
 
 export abstract class PartnerRepository {
   abstract findPartners(options: {
@@ -12,4 +13,6 @@ export abstract class PartnerRepository {
   }): Promise<[Partner[], number]>;
 
   abstract findPartnerById(id: string): Promise<NullableType<Partner>>;
+
+  abstract updatePartner(id: string, data: UpdatePartnerDto): Promise<{ affectedRows: number }>;
 }

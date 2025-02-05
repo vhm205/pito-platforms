@@ -26,4 +26,25 @@ export class PartnerMapper {
 
     return domain;
   }
+
+  static toPersistence(domain: Partner): PartnerEntity {
+    const entity = new PartnerEntity();
+
+    entity.id = domain.id;
+    entity.name = domain.name;
+    entity.status = domain.status;
+    entity.businessType = domain.businessType;
+    entity.certification = domain.certification;
+    entity.businessInfo = domain.businessInfo;
+    entity.businessOwner = domain.businessOwner;
+    entity.bankAccount = domain.bankAccount;
+    if (domain.createdAt) entity.createdAt = domain.createdAt;
+    if (domain.updatedAt) entity.updatedAt = domain.updatedAt;
+
+    entity.serviceFeeRate = domain.serviceFeeRate;
+    entity.serviceTypes = domain.serviceTypes;
+    entity.isVat = domain.isVat;
+
+    return entity;
+  }
 }

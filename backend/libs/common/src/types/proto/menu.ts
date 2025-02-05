@@ -234,6 +234,8 @@ export interface PartnerChoiceOfOption {
   id: string;
   name: string;
   price?: number | undefined;
+  quantity?: number | undefined;
+  quantityUnit?: string | undefined;
 }
 
 export interface PartnerOptionsChoices {
@@ -306,6 +308,9 @@ export interface PartnerItem {
   serviceSettings: ItemServiceSettings | undefined;
   storeSlug?: string | undefined;
   version: number;
+  serviceCategory?: string | undefined;
+  createdAt?: Date | undefined;
+  updatedAt?: Date | undefined;
 }
 
 export interface FindStoresRequest {
@@ -871,7 +876,6 @@ export interface UpdateStoreRequest {
   storeName?: string | undefined;
   images?: UpdateStoreRequest_StoreImage | undefined;
   isVat?: boolean | undefined;
-  slug?: string | undefined;
   description?: string | undefined;
   contacts: UpdateStoreRequest_StoreContactInfo[];
   location?: UpdateStoreRequest_StoreLocation | undefined;
@@ -935,6 +939,69 @@ export interface UpdateStoreRequest_Metadata {
 }
 
 export interface UpdateStoreResponse {
+  affectedRows: number;
+}
+
+export interface UpdatePartnerRequest {
+  id: string;
+  name?: string | undefined;
+  status?: string | undefined;
+  serviceFeeRate?: number | undefined;
+  businessType?: BusinessType | undefined;
+  certification?: Certification | undefined;
+  bankAccount: UpdatePartnerRequest_BankAccountInfo | undefined;
+  businessInfo: UpdatePartnerRequest_BusinessInfo | undefined;
+  businessOwner: UpdatePartnerRequest_BusinessOwner | undefined;
+  isVat?: boolean | undefined;
+  serviceTypes: string[];
+}
+
+export interface UpdatePartnerRequest_CitizenImage {
+  path: string;
+  type: string;
+}
+
+export interface UpdatePartnerRequest_CitizenInfo {
+  citizenId: string;
+  issueDate: string;
+  expiryDate: string;
+  issuePlace: string;
+  citizenImages: UpdatePartnerRequest_CitizenImage[];
+  residentAddress: string;
+}
+
+export interface UpdatePartnerRequest_BusinessOwner {
+  email: string;
+  phone: string;
+  fullName: string;
+  citizenInfo: UpdatePartnerRequest_CitizenInfo | undefined;
+}
+
+export interface UpdatePartnerRequest_BankFinancialManager {
+  email: string;
+  phone: string;
+  fullName: string;
+}
+
+export interface UpdatePartnerRequest_BankAccountInfo {
+  bankName: string;
+  bankBranch: string;
+  accountHolder: string;
+  accountNumber: string;
+  financialManager: UpdatePartnerRequest_BankFinancialManager | undefined;
+}
+
+export interface UpdatePartnerRequest_BusinessInfo {
+  taxCode: string;
+  businessName: string;
+  businessType: string;
+  registrationDate: string;
+  registeredAddress: string;
+  registrationNumber: string;
+  businessLicenses: string[];
+}
+
+export interface UpdatePartnerResponse {
   affectedRows: number;
 }
 
@@ -1007,6 +1074,8 @@ export interface MenusServiceClient {
   getListPartners(request: GetListPartnersRequest): Observable<GetListPartnersResponse>;
 
   getPartnerDetails(request: GetPartnerDetailsRequest): Observable<GetPartnerDetailsResponse>;
+
+  updatePartner(request: UpdatePartnerRequest): Observable<UpdatePartnerResponse>;
 
   createCateringPackage(
     request: CreateCateringPackageRequest,
@@ -1196,6 +1265,10 @@ export interface MenusServiceController {
     | Observable<GetPartnerDetailsResponse>
     | GetPartnerDetailsResponse;
 
+  updatePartner(
+    request: UpdatePartnerRequest,
+  ): Promise<UpdatePartnerResponse> | Observable<UpdatePartnerResponse> | UpdatePartnerResponse;
+
   createCateringPackage(
     request: CreateCateringPackageRequest,
   ):
@@ -1334,6 +1407,7 @@ export function MenusServiceControllerMethods() {
       'updateStore',
       'getListPartners',
       'getPartnerDetails',
+      'updatePartner',
       'createCateringPackage',
       'updateCateringPackage',
       'deleteCateringPackage',

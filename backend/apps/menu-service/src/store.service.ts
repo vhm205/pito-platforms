@@ -10,6 +10,7 @@ import { PartnerStatus } from '@app/common/enums/partner';
 import { isValidUUID } from '@gateway/utils/common';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import slugify from 'slugify';
 
 import { PartnerStore, StoreContactInfo, StoreLocation } from './domain/partner-store.domain';
 import { ItemRepository } from './infrastructure/persistence/item.repository';
@@ -122,6 +123,10 @@ export class StoreService {
     id: string,
     data: Partial<Omit<PartnerStore, 'id' | 'storeCode' | 'partnerId'>>,
   ) {
+    if (data.storeName) {
+      data.slug = slugify(data.storeName, { lower: true });
+    }
+
     const { affected } = await this.partnerStoreRepository.updateStore(id, data);
     return { affectedRows: affected };
   }

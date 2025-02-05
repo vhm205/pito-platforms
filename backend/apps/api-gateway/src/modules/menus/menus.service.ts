@@ -33,6 +33,8 @@ export class MenusService {
         choices: option.choices.map(choice => ({
           ...choice,
           price: choice?.price as number,
+          quantity: choice?.quantity as number,
+          quantityUnit: choice?.quantityUnit as string,
         })),
       })),
       orderDeadlineAt: payload?.orderDeadlineAt as string,
@@ -53,6 +55,8 @@ export class MenusService {
           choices: option.choices.map(choice => ({
             ...choice,
             price: choice?.price as number,
+            quantity: choice?.quantity as number,
+            quantityUnit: choice?.quantityUnit as string,
           })),
         })),
         orderDeadlineAt: payload?.orderDeadlineAt as string,

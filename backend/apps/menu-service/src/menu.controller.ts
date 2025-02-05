@@ -61,6 +61,8 @@ import {
   FindAllCateringPackageOptionsRequest,
   UpdateStoreRequest,
   UpdateStoreResponse,
+  UpdatePartnerRequest,
+  UpdatePartnerResponse,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -91,6 +93,7 @@ import { Controller, UseInterceptors } from '@nestjs/common';
 import { find, includes, isEmpty } from 'lodash';
 
 import { DishService } from './dish.service';
+import { UpdatePartnerDto } from './dtos/update-partner.dto';
 import { MenuService } from './menu.service';
 import { PartnerService } from './partner.service';
 import { StoreService } from './store.service';
@@ -413,5 +416,10 @@ export class MenuController implements MenusServiceController {
   async updateStore(request: UpdateStoreRequest): Promise<UpdateStoreResponse> {
     const { id, ...data } = request;
     return this.storeService.updateStore(id, data);
+  }
+
+  async updatePartner(request: UpdatePartnerRequest): Promise<UpdatePartnerResponse> {
+    const { id, ...data } = request;
+    return this.partnerService.updatePartner(id, data as UpdatePartnerDto);
   }
 }

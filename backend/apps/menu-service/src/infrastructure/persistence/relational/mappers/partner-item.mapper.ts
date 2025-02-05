@@ -41,6 +41,8 @@ export class PartnerItemMapper {
       },
       serviceCategory: undefined,
       version: 1,
+      createdAt: undefined,
+      updatedAt: undefined,
     };
 
     domain.id = raw?.id;
@@ -69,6 +71,8 @@ export class PartnerItemMapper {
     domain.specialDietaries = raw?.specialDietaries?.map(Number) ?? [];
     domain.cateringPackages = raw?.cateringPackages?.map(Number) ?? [];
     domain.serviceCategory = raw?.serviceCategory;
+    domain.createdAt = raw?.createdAt;
+    domain.updatedAt = raw?.updatedAt ?? undefined;
 
     if (raw?.orderDeadlineAt) {
       domain.orderDeadlineAt = raw.orderDeadlineAt as unknown as string;
@@ -84,6 +88,8 @@ export class PartnerItemMapper {
             id: choice?.id,
             name: choice?.name,
             price: choice?.price,
+            quantity: choice?.quantity,
+            quantityUnit: choice?.quantity_unit,
           })),
           isRequired: option?.is_required,
           maxChoices: option?.max_choices,
