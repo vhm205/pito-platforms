@@ -7,6 +7,7 @@ import { OperatorRepository } from '../operator.repository';
 import { PartnerRepository } from '../partner.repository';
 import { UserPartnerRepository } from '../user-partner.repository';
 
+import { CompanyEntity } from './entities/company.entity';
 import { CustomerEntity } from './entities/customer.entity';
 import { OperatorEntity } from './entities/operator.entity';
 import { PartnerEntity } from './entities/partner.entity';
@@ -21,7 +22,7 @@ import { OperatorRelationalRepository } from './repositories/operator.repository
 import { PartnerRelationalRepository } from './repositories/partner.repository';
 import { UserPartnerRelationalRepository } from './repositories/user-partner.repository';
 
-const customerEntities = [UserCustomerEntity, CustomerEntity, OperatorEntity];
+const customerEntities = [UserCustomerEntity, CustomerEntity, OperatorEntity, CompanyEntity];
 
 const partnerEntities = [
   UserPartnerEntity,

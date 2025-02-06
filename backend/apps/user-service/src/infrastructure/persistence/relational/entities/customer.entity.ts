@@ -49,4 +49,10 @@ export class CustomerEntity {
 
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz', nullable: true })
   updatedAt: NullableType<Date>;
+
+  @Column({ name: 'company_id', type: 'uuid', nullable: true })
+  companyId: NullableType<string>;
+
+  @Column({ type: 'integer', default: 0 }) // 0: inactive, 1: active
+  status: number;
 }

@@ -10,11 +10,15 @@ export class CustomerMapper {
     domain.id = raw.id;
     domain.email = raw.email;
     domain.phone = raw.phone;
-    domain.firstName = raw.firstName;
+    domain.firstName = raw.firstName ?? raw.name;
     domain.lastName = raw.lastName;
     domain.avatar = raw.avatar ? getImageUrl(raw.avatar) : null;
     domain.thumbnail = raw.thumbnail ? getImageUrl(raw.thumbnail) : null;
     domain.contactAddress = raw.contactAddress ? raw.contactAddress.label : null;
+    domain.companyId = raw.companyId ?? undefined;
+    domain.createdAt = raw.createdAt;
+    domain.status = raw.status;
+    if (raw.updatedAt) domain.updatedAt = raw.updatedAt;
 
     if (raw.deliveryAddresses) {
       domain.deliveryAddresses = raw.deliveryAddresses.map(

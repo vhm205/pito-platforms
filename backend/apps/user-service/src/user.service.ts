@@ -1,4 +1,10 @@
-import { GetCustomerProfileRequest, GetUserPartnerProfileRequest } from '@app/common';
+import {
+  GetCompaniesRequest,
+  GetCustomerProfileRequest,
+  GetCustomersRequest,
+  GetUserPartnerProfileRequest,
+  transformFilterRule,
+} from '@app/common';
 import { GrpcStatus } from '@app/common/enums';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
@@ -42,5 +48,25 @@ export class UserService {
       ...user.toMessage(),
       roles,
     };
+  }
+
+  async getCustomers({ pagination, sorts, filters }: GetCustomersRequest) {
+    const [customers, totalCount] = await this.customerRepository.findAndCount({
+      pagination: pagination!,
+      filters: filters.map(transformFilterRule),
+      sorts,
+    });
+
+    return { data: customers.map(c => c.toMessage()), totalCount };
+  }
+
+  async getCompanies({ pagination, sorts, filters }: GetCompaniesRequest) {
+    const [companies, totalCount] = await this.customerRepository.findAndCountCompanies({
+      pagination: pagination!,
+      filters: filters.map(transformFilterRule),
+      sorts,
+    });
+
+    return { data: companies, totalCount };
   }
 }
