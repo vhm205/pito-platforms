@@ -2,6 +2,7 @@
 import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
 import { wrappers } from 'protobufjs';
 import { Observable } from 'rxjs';
+import { FilterRule, PaginationRequest, SortRule } from './common';
 import { Struct } from './google/protobuf/struct';
 
 export const protobufPackage = 'user';
@@ -20,6 +21,10 @@ export interface GetCustomerProfileResponse {
   thumbnail?: string | undefined;
   contactAddress?: string | undefined;
   deliveryAddresses: GetCustomerProfileResponse_DeliveryAddress[];
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  status: number;
+  companyId?: string | undefined;
 }
 
 export interface GetCustomerProfileResponse_DeliveryAddress {
@@ -106,6 +111,41 @@ export interface GetUserPartnerProfileResponse {
 
 export interface Empty {}
 
+export interface GetCustomersRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface GetCustomersResponse {
+  data: GetCustomerProfileResponse[];
+  totalCount: number;
+  error?: string | undefined;
+}
+
+export interface GetCompaniesRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface GetCompaniesResponse {
+  data: GetCompaniesResponse_Company[];
+  totalCount: number;
+  error?: string | undefined;
+}
+
+export interface GetCompaniesResponse_Company {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  taxCode: string;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+}
+
 export const USER_PACKAGE_NAME = 'user';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -129,6 +169,12 @@ export interface UsersServiceClient {
   getOperatorProfile(
     request: GetUserPartnerProfileRequest,
   ): Observable<GetUserPartnerProfileResponse>;
+
+  /** rpc QueryUsers (stream PaginationDto) returns (stream Users) {} */
+
+  getCustomers(request: GetCustomersRequest): Observable<GetCustomersResponse>;
+
+  getCompanies(request: GetCompaniesRequest): Observable<GetCompaniesResponse>;
 }
 
 export interface UsersServiceController {
@@ -152,11 +198,27 @@ export interface UsersServiceController {
     | Promise<GetUserPartnerProfileResponse>
     | Observable<GetUserPartnerProfileResponse>
     | GetUserPartnerProfileResponse;
+
+  /** rpc QueryUsers (stream PaginationDto) returns (stream Users) {} */
+
+  getCustomers(
+    request: GetCustomersRequest,
+  ): Promise<GetCustomersResponse> | Observable<GetCustomersResponse> | GetCustomersResponse;
+
+  getCompanies(
+    request: GetCompaniesRequest,
+  ): Promise<GetCompaniesResponse> | Observable<GetCompaniesResponse> | GetCompaniesResponse;
 }
 
 export function UsersServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ['getCustomerProfile', 'getPartnerProfile', 'getOperatorProfile'];
+    const grpcMethods: string[] = [
+      'getCustomerProfile',
+      'getPartnerProfile',
+      'getOperatorProfile',
+      'getCustomers',
+      'getCompanies',
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod('UsersService', method)(constructor.prototype[method], method, descriptor);

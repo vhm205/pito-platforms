@@ -1,4 +1,4 @@
-import { NullableType } from '@app/common/types/common';
+import { MaybeType, NullableType } from '@app/common/types/common';
 
 export class DeliveryAddress {
   name: string;
@@ -17,6 +17,10 @@ export class Customer {
   thumbnail: NullableType<string>;
   contactAddress: NullableType<string>;
   deliveryAddresses: DeliveryAddress[];
+  createdAt: MaybeType<Date>;
+  updatedAt: MaybeType<Date>;
+  status: number;
+  companyId: MaybeType<string>;
 
   toMessage() {
     return {
@@ -29,6 +33,10 @@ export class Customer {
       thumbnail: this.thumbnail as string,
       contactAddress: this.contactAddress as string,
       deliveryAddresses: this.deliveryAddresses,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      status: this.status,
+      companyId: this.companyId,
     };
   }
 }

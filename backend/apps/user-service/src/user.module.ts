@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { CompanyEntity } from './infrastructure/persistence/relational/entities/company.entity';
 import { CustomerEntity } from './infrastructure/persistence/relational/entities/customer.entity';
 import { OperatorEntity } from './infrastructure/persistence/relational/entities/operator.entity';
 import { PartnerEntity } from './infrastructure/persistence/relational/entities/partner.entity';
@@ -41,7 +42,7 @@ import { UserService } from './user.service';
         password: configService.getOrThrow('database.password', { infer: true }),
         database: configService.getOrThrow('database.name', { infer: true }),
         logging: configService.get('app.nodeEnv', { infer: true }) !== Environment.PRODUCTION,
-        entities: [OperatorEntity, CustomerEntity, UserCustomerEntity],
+        entities: [OperatorEntity, CustomerEntity, UserCustomerEntity, CompanyEntity],
       }),
     }),
     TypeOrmModule.forRootAsync({
