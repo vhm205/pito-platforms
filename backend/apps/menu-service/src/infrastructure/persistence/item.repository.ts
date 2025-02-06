@@ -13,11 +13,14 @@ export abstract class ItemRepository {
 
   abstract findAllCuisineTypes(
     ids?: number[],
+    options?: { isActive?: boolean; order?: 'ASC' | 'DESC' },
   ): Promise<{ id: CuisineTypeEntity['id']; name: CuisineTypeEntity['name'] }[]>;
   abstract findAllSpecialDietaries(
     ids?: number[],
+    options?: { isActive?: boolean; order?: 'ASC' | 'DESC' },
   ): Promise<{ id: SpecialDietaryEntity['id']; name: SpecialDietaryEntity['name'] }[]>;
   abstract findAllOccasionEvents(
     ids?: number[],
+    options?: { isActive?: boolean; order?: 'ASC' | 'DESC' },
   ): Promise<{ id: OccasionEventEntity['id']; name: OccasionEventEntity['name'] }[]>;
 }

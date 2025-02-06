@@ -59,6 +59,10 @@ service MenusService {
   rpc GetOccasionEvent(occasion.event.GetOccasionEventRequest) returns (occasion.event.GetOccasionEventResponse);
   rpc UpdateOccasionEvent(occasion.event.UpdateOccasionEventRequest) returns (occasion.event.UpdateOccasionEventResponse);
   rpc DeleteOccasionEvent(occasion.event.DeleteOccasionEventRequest) returns (occasion.event.DeleteOccasionEventResponse);
+
+  rpc FindOccasionEvents(Empty) returns (FindOccasionEventsResponse);
+  rpc FindCuisineTypes(Empty) returns (FindCuisineTypesResponse);
+  rpc FindSpecialDietaries(Empty) returns (FindSpecialDietariesResponse);
 }
 
 // [START] Find stores by filter
@@ -328,6 +332,18 @@ message PartnerItem {
   optional string service_category = 27;
   optional google.protobuf.Timestamp created_at = 28;
   optional google.protobuf.Timestamp updated_at = 29;
+}
+
+message FindOccasionEventsResponse {
+  repeated FilterOption occasion_events = 1;
+}
+
+message FindCuisineTypesResponse {
+  repeated FilterOption cuisine_types = 1;
+}
+
+message FindSpecialDietariesResponse {
+  repeated FilterOption special_dietaries = 1;
 }
 
 message FindStoresRequest {

@@ -4,7 +4,13 @@ import { ApiPageWrapperResponse } from '@gateway/decorators';
 import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
-import { InsertItemDto, PartnerItemDto } from '@gateway/modules/menus/dtos/insert-menu-item.dto';
+import {
+  CuisineTypesDto,
+  InsertItemDto,
+  OccasionEventsDto,
+  PartnerItemDto,
+  SpecialDietariesDto,
+} from '@gateway/modules/menus/dtos/insert-menu-item.dto';
 import { UpdateItemDto } from '@gateway/modules/menus/dtos/update-menu-item.dto';
 import { MenusService } from '@gateway/modules/menus/menus.service';
 import { DraftBypassPipe } from '@gateway/modules/menus/pipes/draft-bypass.pipe';
@@ -194,5 +200,38 @@ export class MenusController {
     });
 
     return new PageDto(dishes, pageMeta);
+  }
+
+  @Get('occasion-events')
+  @ApiOperation({ summary: 'Retrieve all occasion events' })
+  @ApiWrapperResponse({
+    description: 'Retrieve all occasion events',
+    type: OccasionEventsDto,
+  })
+  async findOccasionEvents() {
+    const result = await this.menusService.findOccasionEvents();
+    return result;
+  }
+
+  @Get('cuisine-types')
+  @ApiOperation({ summary: 'Retrieve all cuisine types' })
+  @ApiWrapperResponse({
+    description: 'Retrieve all cuisine types',
+    type: CuisineTypesDto,
+  })
+  async findCuisineTypes() {
+    const result = await this.menusService.findCuisineTypes();
+    return result;
+  }
+
+  @Get('special-dietaries')
+  @ApiOperation({ summary: 'Retrieve all special dietaries' })
+  @ApiWrapperResponse({
+    description: 'Retrieve all special dietaries',
+    type: SpecialDietariesDto,
+  })
+  async findSpecialDietaries() {
+    const result = await this.menusService.findSpecialDietaries();
+    return result;
   }
 }

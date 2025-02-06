@@ -313,6 +313,18 @@ export interface PartnerItem {
   updatedAt?: Date | undefined;
 }
 
+export interface FindOccasionEventsResponse {
+  occasionEvents: FilterOption[];
+}
+
+export interface FindCuisineTypesResponse {
+  cuisineTypes: FilterOption[];
+}
+
+export interface FindSpecialDietariesResponse {
+  specialDietaries: FilterOption[];
+}
+
 export interface FindStoresRequest {
   pagination: PaginationRequest | undefined;
   sorts: SortRule[];
@@ -1130,6 +1142,12 @@ export interface MenusServiceClient {
   updateOccasionEvent(request: UpdateOccasionEventRequest): Observable<UpdateOccasionEventResponse>;
 
   deleteOccasionEvent(request: DeleteOccasionEventRequest): Observable<DeleteOccasionEventResponse>;
+
+  findOccasionEvents(request: Empty): Observable<FindOccasionEventsResponse>;
+
+  findCuisineTypes(request: Empty): Observable<FindCuisineTypesResponse>;
+
+  findSpecialDietaries(request: Empty): Observable<FindSpecialDietariesResponse>;
 }
 
 export interface MenusServiceController {
@@ -1379,6 +1397,27 @@ export interface MenusServiceController {
     | Promise<DeleteOccasionEventResponse>
     | Observable<DeleteOccasionEventResponse>
     | DeleteOccasionEventResponse;
+
+  findOccasionEvents(
+    request: Empty,
+  ):
+    | Promise<FindOccasionEventsResponse>
+    | Observable<FindOccasionEventsResponse>
+    | FindOccasionEventsResponse;
+
+  findCuisineTypes(
+    request: Empty,
+  ):
+    | Promise<FindCuisineTypesResponse>
+    | Observable<FindCuisineTypesResponse>
+    | FindCuisineTypesResponse;
+
+  findSpecialDietaries(
+    request: Empty,
+  ):
+    | Promise<FindSpecialDietariesResponse>
+    | Observable<FindSpecialDietariesResponse>
+    | FindSpecialDietariesResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -1426,6 +1465,9 @@ export function MenusServiceControllerMethods() {
       'getOccasionEvent',
       'updateOccasionEvent',
       'deleteOccasionEvent',
+      'findOccasionEvents',
+      'findCuisineTypes',
+      'findSpecialDietaries',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

@@ -422,4 +422,19 @@ export class MenuController implements MenusServiceController {
     const { id, ...data } = request;
     return this.partnerService.updatePartner(id, data as UpdatePartnerDto);
   }
+
+  async findOccasionEvents() {
+    const occasionEvents = await this.menuService.findOccasionEvents();
+    return { occasionEvents };
+  }
+
+  async findCuisineTypes() {
+    const cuisineTypes = await this.menuService.findCuisineTypes();
+    return { cuisineTypes };
+  }
+
+  async findSpecialDietaries() {
+    const specialDietaries = await this.menuService.findSpecialDietaries();
+    return { specialDietaries };
+  }
 }
