@@ -76,35 +76,46 @@ export class ItemRelationalRepository implements ItemRepository {
     return { data: collectUniqueValues(results) };
   }
 
-  async findAllCuisineTypes(ids?: number[]) {
-    const validIds = ids?.filter(id => !isNaN(id) && +id > 0);
+  private async findMenuConfigurationsEntities(
+    repository: Repository<any>,
+    ids?: number[],
+    options?: { isActive?: boolean; order?: 'ASC' | 'DESC' },
+  ) {
+    const { isActive = true, order = 'ASC' } = options || {};
 
-    const cuisineTypes = await this.cuisineTypeRepository.find(
-      validIds ? { where: { id: In(validIds) } } : {},
-    );
+    const validIds = ids?.filter(id => !isNaN(id) && +id > 0) ?? [];
 
-    return cuisineTypes.map(cuisineType => ({ id: cuisineType.id, name: cuisineType.name }));
+    const whereCondition = {
+      ...(isActive !== undefined ? { isActive } : {}),
+      ...(validIds.length > 0 ? { id: In(validIds) } : {}),
+    };
+
+    const entities = await repository.find({
+      where: whereCondition,
+      order: { index: order },
+    });
+
+    return entities.map(({ id, name }) => ({ id, name }));
   }
 
-  async findAllSpecialDietaries(ids?: number[]) {
-    const validIds = ids?.filter(id => Number.isInteger(id) && id > 0);
-    const specialDietaries = await this.specialDietaryRepository.find(
-      validIds ? { where: { id: In(validIds) } } : {},
-    );
-    return specialDietaries.map(specialDietary => ({
-      id: specialDietary.id,
-      name: specialDietary.name,
-    }));
+  async findAllCuisineTypes(
+    ids?: number[],
+    options?: { isActive?: boolean; order?: 'ASC' | 'DESC' },
+  ) {
+    return this.findMenuConfigurationsEntities(this.cuisineTypeRepository, ids, options);
   }
 
-  async findAllOccasionEvents(ids?: number[]) {
-    const validIds = ids?.filter(id => Number.isInteger(id) && id > 0);
-    const occasionEvents = await this.occasionEventRepository.find(
-      validIds ? { where: { id: In(validIds) } } : {},
-    );
-    return occasionEvents.map(occasionEvent => ({
-      id: occasionEvent.id,
-      name: occasionEvent.name,
-    }));
+  async findAllSpecialDietaries(
+    ids?: number[],
+    options?: { isActive?: boolean; order?: 'ASC' | 'DESC' },
+  ) {
+    return this.findMenuConfigurationsEntities(this.specialDietaryRepository, ids, options);
+  }
+
+  async findAllOccasionEvents(
+    ids?: number[],
+    options?: { isActive?: boolean; order?: 'ASC' | 'DESC' },
+  ) {
+    return this.findMenuConfigurationsEntities(this.occasionEventRepository, ids, options);
   }
 }

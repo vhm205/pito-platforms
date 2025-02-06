@@ -106,4 +106,16 @@ export class MenusService {
       }),
     ).then(r => r.data ?? []);
   }
+
+  async findOccasionEvents() {
+    return firstValueFrom(this.menusService.findOccasionEvents({}));
+  }
+
+  async findCuisineTypes() {
+    return firstValueFrom(this.menusService.findCuisineTypes({}));
+  }
+
+  async findSpecialDietaries() {
+    return firstValueFrom(this.menusService.findSpecialDietaries({}));
+  }
 }

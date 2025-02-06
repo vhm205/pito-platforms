@@ -276,3 +276,53 @@ export class PartnerItemDto implements PartnerItem {
   @Expose()
   updatedAt: Date;
 }
+
+class FilterOptionDto {
+  @ApiProperty({ example: 1 })
+  id: number;
+
+  @ApiProperty({ example: 'Name' })
+  name: string;
+}
+
+export class OccasionEventsDto {
+  @ApiProperty({
+    description: 'Occasion Events',
+    type: [FilterOptionDto],
+    example: [
+      { id: 1, name: 'Birthday' },
+      { id: 2, name: 'Anniversary' },
+    ],
+  })
+  @Expose()
+  @Transform(({ value }) => value ?? [])
+  occasionEvents: FilterOptionDto[];
+}
+
+export class CuisineTypesDto {
+  @ApiProperty({
+    description: 'Cuisine Types',
+    type: [FilterOptionDto],
+    example: [
+      { id: 1, name: 'Italian' },
+      { id: 2, name: 'Chinese' },
+    ],
+  })
+  @Expose()
+  @Transform(({ value }) => value ?? [])
+  cuisineTypes: FilterOptionDto[];
+}
+
+export class SpecialDietariesDto {
+  @ApiProperty({
+    description: 'Special Dietaries',
+    type: [FilterOptionDto],
+    example: [
+      { id: 1, name: 'Vegetarian' },
+      { id: 2, name: 'Vegan' },
+    ],
+  })
+  @Expose()
+  @Transform(({ value }) => value ?? [])
+  specialDietaries: FilterOptionDto[];
+}

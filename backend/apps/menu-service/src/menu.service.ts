@@ -690,4 +690,16 @@ export class MenuService {
 
     return occasionEvent;
   }
+
+  async findOccasionEvents() {
+    return this.itemRepository.findAllOccasionEvents();
+  }
+
+  async findCuisineTypes() {
+    return this.itemRepository.findAllCuisineTypes();
+  }
+
+  async findSpecialDietaries() {
+    return this.itemRepository.findAllSpecialDietaries();
+  }
 }
