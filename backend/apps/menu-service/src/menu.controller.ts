@@ -63,6 +63,7 @@ import {
   UpdateStoreResponse,
   UpdatePartnerRequest,
   UpdatePartnerResponse,
+  FindOnboardingsRequest,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -436,5 +437,18 @@ export class MenuController implements MenusServiceController {
   async findSpecialDietaries() {
     const specialDietaries = await this.menuService.findSpecialDietaries();
     return { specialDietaries };
+  }
+
+  async findOnboardingsWithPagination(request: FindOnboardingsRequest) {
+    request.filters ??= [];
+    request.sorts ??= [];
+
+    const [onboardings, totalCount] =
+      await this.partnerService.findOnboardingsWithPagination(request);
+
+    return {
+      onboardings: onboardings.map(o => o.toMessage()),
+      totalCount,
+    };
   }
 }

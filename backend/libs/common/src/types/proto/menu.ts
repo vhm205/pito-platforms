@@ -37,6 +37,30 @@ import {
 
 export const protobufPackage = 'menu';
 
+export interface FindOnboardingsRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface FindOnboardingsResponse {
+  onboardings: FindOnboardingsResponse_Onboarding[];
+  totalCount: number;
+}
+
+export interface FindOnboardingsResponse_Onboarding {
+  id: string;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  rawOwnerMetadata: { [key: string]: any } | undefined;
+  rawBusinessMetadata: { [key: string]: any } | undefined;
+  rawBankAccountMetadata: { [key: string]: any } | undefined;
+  status: string;
+  emailConfirmation: string;
+  partnerType: string;
+  metadata: { [key: string]: any } | undefined;
+}
+
 /** [START] Find stores by filter */
 export interface GetStoreByFilterRequest {
   /** Page number for pagination */
@@ -1148,6 +1172,10 @@ export interface MenusServiceClient {
   findCuisineTypes(request: Empty): Observable<FindCuisineTypesResponse>;
 
   findSpecialDietaries(request: Empty): Observable<FindSpecialDietariesResponse>;
+
+  findOnboardingsWithPagination(
+    request: FindOnboardingsRequest,
+  ): Observable<FindOnboardingsResponse>;
 }
 
 export interface MenusServiceController {
@@ -1418,6 +1446,13 @@ export interface MenusServiceController {
     | Promise<FindSpecialDietariesResponse>
     | Observable<FindSpecialDietariesResponse>
     | FindSpecialDietariesResponse;
+
+  findOnboardingsWithPagination(
+    request: FindOnboardingsRequest,
+  ):
+    | Promise<FindOnboardingsResponse>
+    | Observable<FindOnboardingsResponse>
+    | FindOnboardingsResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -1468,6 +1503,7 @@ export function MenusServiceControllerMethods() {
       'findOccasionEvents',
       'findCuisineTypes',
       'findSpecialDietaries',
+      'findOnboardingsWithPagination',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

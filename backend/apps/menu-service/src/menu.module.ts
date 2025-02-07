@@ -14,6 +14,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CateringPackageEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/catering-package.entity';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
+import { PartnerOnboardingEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-onboarding.entity';
 
 import { DishService } from './dish.service';
 import { CategoryEntity } from './infrastructure/persistence/relational/entities/category.entity';
@@ -54,6 +55,7 @@ const partnerEntities = [
   PartnerEntity,
   PartnerOccasionEventEntity,
   DishEntity,
+  PartnerOnboardingEntity,
 ];
 
 @Module({

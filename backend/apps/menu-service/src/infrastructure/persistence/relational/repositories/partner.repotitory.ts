@@ -3,8 +3,11 @@ import { NullableType } from '@app/common/types/common';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Onboarding } from 'apps/menu-service/src/domain/onboarding.domain';
 import { Partner } from 'apps/menu-service/src/domain/partner.domain';
 import { UpdatePartnerDto } from 'apps/menu-service/src/dtos/update-partner.dto';
+import { PartnerOnboardingEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-onboarding.entity';
+import { OnboardingMapper } from 'apps/menu-service/src/infrastructure/persistence/relational/mappers/onboarding.mapper';
 import { FindOperator, Repository } from 'typeorm';
 
 import { PartnerRepository } from '../../partner.repository';
@@ -16,6 +19,9 @@ export class PartnerRelationalRepository implements PartnerRepository {
   constructor(
     @InjectRepository(PartnerEntity, PARTNER_DB_SOURCE)
     private partnerRepository: Repository<PartnerEntity>,
+
+    @InjectRepository(PartnerOnboardingEntity, PARTNER_DB_SOURCE)
+    private onboardingRepository: Repository<PartnerOnboardingEntity>,
   ) {}
 
   async findPartners(options: {
@@ -51,5 +57,52 @@ export class PartnerRelationalRepository implements PartnerRepository {
 
     const { affected } = await this.partnerRepository.update(id, dataUpdate);
     return { affectedRows: affected ?? 0 };
+  }
+
+  async findOnboardingsWithPagination(options: {
+    pagination: PaginationRequest;
+    filters: Record<string, FindOperator<unknown>>[];
+    sorts: SortRule[];
+  }): Promise<[Onboarding[], number]> {
+    const { pagination, sorts, filters } = options;
+
+    const query = this.onboardingRepository.createQueryBuilder('onboarding');
+
+    filters.forEach(filter => {
+      for (const key in filter) {
+        if (key === 'businessName') {
+          query.andWhere(
+            `onboarding.raw_business_metadata ->> 'business_name' ILIKE :business_name`,
+            {
+              business_name: filter[key].value,
+            },
+          );
+        } else {
+          query.andWhere({ [key]: filter[key] });
+        }
+      }
+    });
+
+    if (sorts && sorts.length > 0) {
+      const order = Object.fromEntries(
+        sorts.map(sort => [sort.column, sort.direction as 'ASC' | 'DESC']),
+      );
+      const snakeCaseOrder = Object.fromEntries(
+        Object.entries(order).map(([key, value]) => [
+          key.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase(),
+          value,
+        ]),
+      );
+      query.orderBy(snakeCaseOrder);
+    }
+
+    query.skip((pagination.currentPage - 1) * pagination.pageSize);
+    query.take(pagination.pageSize);
+
+    const [entities, total] = await query.getManyAndCount();
+
+    const domainEntities = entities.map(entity => OnboardingMapper.toDomain(entity));
+
+    return [domainEntities, total];
   }
 }
