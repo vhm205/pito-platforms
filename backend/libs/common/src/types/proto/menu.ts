@@ -562,6 +562,10 @@ export interface FindAllCateringPackageOptionsResponse_CateringPackageOption {
   status: string;
 }
 
+export interface FindCateringPackagesAndOccasionEventsRequest {
+  sorts: SortRule[];
+}
+
 export interface FindCateringPackagesAndOccasionEventsResponse {
   cateringPackages: FindCateringPackagesAndOccasionEventsResponse_CateringPackage[];
   occasionEvents: FindCateringPackagesAndOccasionEventsResponse_OccasionEvent[];
@@ -1084,7 +1088,7 @@ export interface MenusServiceClient {
   ): Observable<FindCateringPackagesResponse>;
 
   findCateringPackagesAndOccasionEvents(
-    request: Empty,
+    request: FindCateringPackagesAndOccasionEventsRequest,
   ): Observable<FindCateringPackagesAndOccasionEventsResponse>;
 
   findItemsByFilters(request: FindItemsByFiltersRequest): Observable<FindItemsByFiltersResponse>;
@@ -1240,7 +1244,7 @@ export interface MenusServiceController {
     | FindCateringPackagesResponse;
 
   findCateringPackagesAndOccasionEvents(
-    request: Empty,
+    request: FindCateringPackagesAndOccasionEventsRequest,
   ):
     | Promise<FindCateringPackagesAndOccasionEventsResponse>
     | Observable<FindCateringPackagesAndOccasionEventsResponse>

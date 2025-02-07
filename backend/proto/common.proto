@@ -20,7 +20,6 @@ message FilterRule {
   string value = 3;
 }
 
-
 message SortRule {
   string column = 1;
   string direction = 2;
