@@ -37,6 +37,30 @@ import {
 
 export const protobufPackage = 'menu';
 
+export interface FindStoreIdsForPendingItemsRequest {
+  serviceCategory?: string | undefined;
+}
+
+export interface FindStoreIdsForPendingItemsResponse {
+  storeIds: string[];
+}
+
+export interface FindItemCountsByStoreIdsRequest {
+  storeIds: string[];
+  serviceCategory?: string | undefined;
+  shouldFetchPendingItems?: boolean | undefined;
+}
+
+export interface FindItemCountsByStoreIdsResponse {
+  data: FindItemCountsByStoreIdsResponse_StoreItemCount[];
+}
+
+export interface FindItemCountsByStoreIdsResponse_StoreItemCount {
+  storeId: string;
+  itemCount: number;
+  menuStatus: string;
+}
+
 export interface FindOnboardingsRequest {
   pagination: PaginationRequest | undefined;
   sorts: SortRule[];
@@ -1180,6 +1204,14 @@ export interface MenusServiceClient {
   findOnboardingsWithPagination(
     request: FindOnboardingsRequest,
   ): Observable<FindOnboardingsResponse>;
+
+  findItemCountsByStoreIds(
+    request: FindItemCountsByStoreIdsRequest,
+  ): Observable<FindItemCountsByStoreIdsResponse>;
+
+  findStoreIdsForPendingItems(
+    request: FindStoreIdsForPendingItemsRequest,
+  ): Observable<FindStoreIdsForPendingItemsResponse>;
 }
 
 export interface MenusServiceController {
@@ -1457,6 +1489,20 @@ export interface MenusServiceController {
     | Promise<FindOnboardingsResponse>
     | Observable<FindOnboardingsResponse>
     | FindOnboardingsResponse;
+
+  findItemCountsByStoreIds(
+    request: FindItemCountsByStoreIdsRequest,
+  ):
+    | Promise<FindItemCountsByStoreIdsResponse>
+    | Observable<FindItemCountsByStoreIdsResponse>
+    | FindItemCountsByStoreIdsResponse;
+
+  findStoreIdsForPendingItems(
+    request: FindStoreIdsForPendingItemsRequest,
+  ):
+    | Promise<FindStoreIdsForPendingItemsResponse>
+    | Observable<FindStoreIdsForPendingItemsResponse>
+    | FindStoreIdsForPendingItemsResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -1508,6 +1554,8 @@ export function MenusServiceControllerMethods() {
       'findCuisineTypes',
       'findSpecialDietaries',
       'findOnboardingsWithPagination',
+      'findItemCountsByStoreIds',
+      'findStoreIdsForPendingItems',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

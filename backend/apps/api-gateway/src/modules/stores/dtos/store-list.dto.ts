@@ -119,6 +119,22 @@ export class StoreListDto {
   })
   @Expose()
   performanceLevel: StorePerformanceLevel;
+
+  @ApiProperty({
+    description: 'The number of items the store has',
+    example: 100,
+    type: Number,
+  })
+  @Expose()
+  itemCount: number;
+
+  @ApiProperty({
+    description: 'Menu status',
+    example: 'active',
+    type: String,
+  })
+  @Expose()
+  menuStatus?: string;
 }
 
 export class QueryStoreListDto extends PaginationQueryDto {

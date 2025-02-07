@@ -723,4 +723,20 @@ export class MenuService {
   async findSpecialDietaries() {
     return this.itemRepository.findAllSpecialDietaries();
   }
+
+  async findItemCountsByStoreIds(
+    storeIds: string[],
+    serviceCategory?: string,
+    shouldFetchPendingItems?: boolean,
+  ) {
+    return this.partnerItemRepository.findItemCountsByStoreIds(
+      storeIds,
+      serviceCategory,
+      shouldFetchPendingItems,
+    );
+  }
+
+  async findStoreIdsForPendingItems(serviceCategory?: string) {
+    return this.partnerItemRepository.findStoreIdsForPendingItems(serviceCategory);
+  }
 }

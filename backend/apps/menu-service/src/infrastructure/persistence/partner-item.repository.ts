@@ -63,4 +63,18 @@ export abstract class PartnerItemRepository {
   abstract findCateringPackages(args: {
     filters: Record<string, FindOperator<any>>[];
   }): Promise<CateringPackage[]>;
+
+  abstract findItemCountsByStoreIds(
+    storeIds: string[],
+    serviceCategory?: string,
+    shouldFetchPendingItems?: boolean,
+  ): Promise<
+    {
+      storeId: string;
+      itemCount: number;
+      menuStatus: string;
+    }[]
+  >;
+
+  abstract findStoreIdsForPendingItems(serviceCategory?: string): Promise<{ storeIds: string[] }>;
 }

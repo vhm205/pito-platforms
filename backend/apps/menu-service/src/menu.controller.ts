@@ -65,6 +65,8 @@ import {
   UpdatePartnerResponse,
   FindOnboardingsRequest,
   FindCateringPackagesAndOccasionEventsRequest,
+  FindItemCountsByStoreIdsRequest,
+  FindStoreIdsForPendingItemsRequest,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -453,5 +455,22 @@ export class MenuController implements MenusServiceController {
       onboardings: onboardings.map(o => o.toMessage()),
       totalCount,
     };
+  }
+
+  async findItemCountsByStoreIds(request: FindItemCountsByStoreIdsRequest) {
+    const result = await this.menuService.findItemCountsByStoreIds(
+      request.storeIds,
+      request?.serviceCategory,
+      request?.shouldFetchPendingItems,
+    );
+
+    return {
+      data: result,
+    };
+  }
+
+  async findStoreIdsForPendingItems(request: FindStoreIdsForPendingItemsRequest) {
+    const storeIds = await this.menuService.findStoreIdsForPendingItems(request?.serviceCategory);
+    return storeIds;
   }
 }
