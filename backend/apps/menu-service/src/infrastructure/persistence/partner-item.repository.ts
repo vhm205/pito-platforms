@@ -34,9 +34,9 @@ export abstract class PartnerItemRepository {
     exceptionFilters: Record<string, unknown>;
   }): Promise<[PartnerItem[], number]>;
 
-  abstract findAllCateringPackages(): Promise<CateringPackage[]>;
+  abstract findAllCateringPackages(options: { sorts: SortRule[] }): Promise<CateringPackage[]>;
 
-  abstract findAllOccasionEvents(): Promise<OccasionEvent[]>;
+  abstract findAllOccasionEvents(options: { sorts: SortRule[] }): Promise<OccasionEvent[]>;
 
   abstract findItemsByFilters(options: {
     pagination: PaginationRequest;

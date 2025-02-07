@@ -46,6 +46,15 @@ export class GetCateringPackageResponseDto {
   cateringPackages: CateringPackageResponse[];
 }
 
+export class GetCateringPackageAndOccasionEventRequestDto {
+  @ApiPropertyOptional()
+  @Expose({ name: 'sort' })
+  @IsArray()
+  @Transform(({ value }) => normalizeArray(value), { toClassOnly: true })
+  @Transform(({ value }) => parseSort(value))
+  sort: SortRule[];
+}
+
 export class GetCateringPackageAndOccasionEventResponseDto {
   @ApiProperty({ type: () => [CateringPackageResponse] })
   cateringPackages: CateringPackageResponse[];

@@ -21,7 +21,7 @@ service MenusService {
   rpc FindAllCateringPackages (Empty) returns (FindAllCateringPackagesResponse);
   rpc FindAllCateringPackageOptions (FindAllCateringPackageOptionsRequest) returns (FindAllCateringPackageOptionsResponse);
   rpc FindCateringPackages(FindCateringPackagesRequest) returns (FindCateringPackagesResponse);
-  rpc FindCateringPackagesAndOccasionEvents (Empty) returns (FindCateringPackagesAndOccasionEventsResponse);
+  rpc FindCateringPackagesAndOccasionEvents (FindCateringPackagesAndOccasionEventsRequest) returns (FindCateringPackagesAndOccasionEventsResponse);
   rpc FindItemsByFilters (FindItemsByFiltersRequest) returns (FindItemsByFiltersResponse);
   rpc FilterItemsWithCateringPackage (FilterItemsWithCateringPackageRequest) returns (FilterItemsWithCateringPackageResponse);
 
@@ -565,6 +565,10 @@ message FindAllCateringPackageOptionsResponse {
   }
 
   repeated CateringPackageOption options = 1;
+}
+
+message FindCateringPackagesAndOccasionEventsRequest {
+  repeated common.SortRule sorts = 1;
 }
 
 message FindCateringPackagesAndOccasionEventsResponse {

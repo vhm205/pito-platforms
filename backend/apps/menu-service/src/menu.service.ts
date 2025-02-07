@@ -28,11 +28,13 @@ import {
   FindItemsWithPaginationRequest,
   AssignOptionsToPackageRequest,
   FindAllCateringPackageOptionsRequest,
+  FindCateringPackagesAndOccasionEventsRequest,
 } from '@app/common';
 import { AppConfig } from '@app/common/configs';
 import { GrpcStatus } from '@app/common/enums';
 import { PackageOptionStatus } from '@app/common/enums/catering-package';
 import { ItemStatus } from '@app/common/enums/item';
+import { SortRule } from '@app/common/types/proto/common';
 import {
   CreateOccasionEventRequest,
   CreateOccasionEventResponse,
@@ -479,15 +481,34 @@ export class MenuService {
   }
 
   async findAllCateringPackages(): Promise<FindAllCateringPackagesResponse> {
-    const cateringPackages = await this.partnerItemRepository.findAllCateringPackages();
+    const cateringPackages = await this.partnerItemRepository.findAllCateringPackages({
+      sorts: [],
+    });
 
     return { cateringPackages };
   }
 
-  async findCateringPackagesAndOccasionEvents(): Promise<FindCateringPackagesAndOccasionEventsResponse> {
+  async findCateringPackagesAndOccasionEvents(
+    request: FindCateringPackagesAndOccasionEventsRequest,
+  ): Promise<FindCateringPackagesAndOccasionEventsResponse> {
+    const cateringPackageOptions: { sorts: SortRule[] } = { sorts: [] };
+    const occasionEventOptions: { sorts: SortRule[] } = { sorts: [] };
+
+    if (request.sorts) {
+      request.sorts.forEach(sort => {
+        if (sort.column === 'cateringPackages') {
+          cateringPackageOptions.sorts.push({ column: 'id', direction: sort.direction });
+        }
+
+        if (sort.column === 'occasionEvents') {
+          occasionEventOptions.sorts.push({ column: 'id', direction: sort.direction });
+        }
+      });
+    }
+
     const [cateringPackages, occasionEvents] = await Promise.all([
-      this.partnerItemRepository.findAllCateringPackages(),
-      this.partnerItemRepository.findAllOccasionEvents(),
+      this.partnerItemRepository.findAllCateringPackages(cateringPackageOptions),
+      this.partnerItemRepository.findAllOccasionEvents(occasionEventOptions),
     ]);
 
     return { cateringPackages, occasionEvents };

@@ -21,6 +21,7 @@ import { ApiBadRequestResponse, ApiBody, ApiOperation, ApiParam } from '@nestjs/
 import { plainToInstance } from 'class-transformer';
 
 import {
+  GetCateringPackageAndOccasionEventRequestDto,
   GetCateringPackageAndOccasionEventResponseDto,
   GetCateringPackageOptionsRequestDto,
   GetCateringPackageOptionsResponseDto,
@@ -117,8 +118,10 @@ export class ItemsController {
   @Get('catering-packages')
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: GetCateringPackageAndOccasionEventResponseDto })
-  async getCateringPackagesAndOccasionEvents() {
-    const result = await this.itemsService.findCateringPackagesAndOccasionEvents();
+  async getCateringPackagesAndOccasionEvents(
+    @Query() query: GetCateringPackageAndOccasionEventRequestDto,
+  ) {
+    const result = await this.itemsService.findCateringPackagesAndOccasionEvents(query);
     return result;
   }
 
