@@ -63,6 +63,7 @@ import {
   UpdateStoreResponse,
   UpdatePartnerRequest,
   UpdatePartnerResponse,
+  FindCateringPackagesAndOccasionEventsRequest,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -200,8 +201,10 @@ export class MenuController implements MenusServiceController {
     return this.menuService.findAllCateringPackages();
   }
 
-  async findCateringPackagesAndOccasionEvents(): Promise<FindCateringPackagesAndOccasionEventsResponse> {
-    return this.menuService.findCateringPackagesAndOccasionEvents();
+  async findCateringPackagesAndOccasionEvents(
+    request: FindCateringPackagesAndOccasionEventsRequest,
+  ): Promise<FindCateringPackagesAndOccasionEventsResponse> {
+    return this.menuService.findCateringPackagesAndOccasionEvents(request);
   }
 
   async findItemsByFilters(

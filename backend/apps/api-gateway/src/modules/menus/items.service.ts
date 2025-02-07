@@ -16,6 +16,8 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom, timeout } from 'rxjs';
 
+import { GetCateringPackageAndOccasionEventRequestDto } from './dtos/get-catering-package.dto';
+
 @Injectable()
 export class ItemsService implements OnModuleInit {
   private menusService: MenusServiceClient;
@@ -67,8 +69,12 @@ export class ItemsService implements OnModuleInit {
     return firstValueFrom(source$);
   }
 
-  async findCateringPackagesAndOccasionEvents() {
-    const source$ = this.menusService.findCateringPackagesAndOccasionEvents({}).pipe(timeout(5000));
+  async findCateringPackagesAndOccasionEvents(
+    request: GetCateringPackageAndOccasionEventRequestDto,
+  ) {
+    const source$ = this.menusService
+      .findCateringPackagesAndOccasionEvents({ sorts: request.sort })
+      .pipe(timeout(5000));
     return firstValueFrom(source$);
   }
 

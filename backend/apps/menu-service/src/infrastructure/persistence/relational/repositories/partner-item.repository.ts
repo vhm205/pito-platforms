@@ -190,17 +190,28 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     return [partnerItems, total] as [PartnerItem[], number];
   }
 
-  async findAllCateringPackages(): Promise<CateringPackage[]> {
+  async findAllCateringPackages(options: { sorts: SortRule[] }): Promise<CateringPackage[]> {
+    const order = options.sorts.reduce(
+      (acc, sort) => ({ ...acc, [sort.column]: sort.direction }),
+      {},
+    );
     const packages = await this.cateringPackageRepository.find({
       relations: {
         options: true,
       },
+      order,
     });
     return packages.map(CateringPackageMapper.toDomain);
   }
 
-  async findAllOccasionEvents(): Promise<OccasionEvent[]> {
-    const occasionEvents = await this.occasionEventRepository.find();
+  async findAllOccasionEvents(options: { sorts: SortRule[] }): Promise<OccasionEvent[]> {
+    const order = options.sorts.reduce(
+      (acc, sort) => ({ ...acc, [sort.column]: sort.direction }),
+      {},
+    );
+    const occasionEvents = await this.occasionEventRepository.find({
+      order,
+    });
     return occasionEvents.map(occasionEvent => ({
       index: occasionEvent.index,
       id: occasionEvent.id,
