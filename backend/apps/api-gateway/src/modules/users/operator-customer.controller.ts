@@ -1,3 +1,4 @@
+import { DEFAULT_PAGE_NUMBER } from '@app/common';
 import { RoleType } from '@gateway/constants';
 import { ApiPageWrapperResponse, Auth } from '@gateway/decorators';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
@@ -65,21 +66,24 @@ export class OperatorCustomerController {
     }
 
     const { customers, totalCount } = await this.userService.getListCustomers(query);
-    const companyIds = customers.map(c => c.companyId).filter(Boolean);
-    const { companies } = await this.userService.getCompanies({
-      filters: [
-        {
-          column: 'id',
-          operator: 'in',
-          value: companyIds.join(','),
-        },
-      ],
-      page: query.page,
-      pageSize: query.pageSize,
-    });
 
-    const companiesMap = reduce(companies, (acc, c) => assign(acc, { [c.id]: c }), {});
-    customers.forEach(c => c.companyId && assign(c, { company: companiesMap[c.companyId].name }));
+    const companyIds = Array.from(new Set(customers.map(c => c.companyId).filter(Boolean)));
+    if (companyIds.length) {
+      const { companies } = await this.userService.getCompanies({
+        filters: [
+          {
+            column: 'id',
+            operator: 'in',
+            value: companyIds.join(','),
+          },
+        ],
+        page: DEFAULT_PAGE_NUMBER,
+        pageSize: companyIds.length,
+      });
+
+      const companiesMap = reduce(companies, (acc, c) => assign(acc, { [c.id]: c }), {});
+      customers.forEach(c => c.companyId && assign(c, { company: companiesMap[c.companyId].name }));
+    }
 
     const transformedCustomers = plainToInstance(CustomerListDto, customers, {
       excludeExtraneousValues: true,
