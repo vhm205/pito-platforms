@@ -1,5 +1,6 @@
 import { NullableType } from '@app/common/types/common';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
+import { Onboarding } from 'apps/menu-service/src/domain/onboarding.domain';
 import { FindOperator } from 'typeorm';
 
 import { Partner } from '../../domain/partner.domain';
@@ -15,4 +16,10 @@ export abstract class PartnerRepository {
   abstract findPartnerById(id: string): Promise<NullableType<Partner>>;
 
   abstract updatePartner(id: string, data: UpdatePartnerDto): Promise<{ affectedRows: number }>;
+
+  abstract findOnboardingsWithPagination(options: {
+    pagination: PaginationRequest;
+    filters: Record<string, FindOperator<unknown>>[];
+    sorts: SortRule[];
+  }): Promise<[Onboarding[], number]>;
 }

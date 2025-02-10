@@ -5,6 +5,7 @@ import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/pers
 import { CateringPackageEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/catering-package.entity';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
+import { PartnerOnboardingEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-onboarding.entity';
 import { PartnerItemRelationalRepository } from 'apps/menu-service/src/infrastructure/persistence/relational/repositories/partner-item.repository';
 
 import { CateringPackageRepository } from '../catering-package.repository';
@@ -55,6 +56,7 @@ const partnerEntities = [
   PartnerEntity,
   PartnerOccasionEventEntity,
   DishEntity,
+  PartnerOnboardingEntity,
 ];
 
 @Module({

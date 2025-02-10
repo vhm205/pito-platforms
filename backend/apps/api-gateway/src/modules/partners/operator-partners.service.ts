@@ -7,6 +7,7 @@ import {
 } from '@app/common';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
+import { OperatorQueryOnboardingDto } from '@gateway/modules/partners/dto/onboarding.dto';
 import { emptyPaginationResponse } from '@gateway/utils/common';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -67,5 +68,15 @@ export class OperatorPartnersService implements OnModuleInit {
   updatePartnerById(request: UpdatePartnerRequest) {
     const source$ = this.menuServiceClient.updatePartner(request).pipe(timeout(3000));
     return firstValueFrom(source$);
+  }
+
+  async findOnboardingsWithPagination(query: OperatorQueryOnboardingDto) {
+    return firstValueFrom(
+      this.menuServiceClient.findOnboardingsWithPagination({
+        filters: query.filters,
+        pagination: { currentPage: query.page, pageSize: query.pageSize },
+        sorts: query.sorts,
+      }),
+    );
   }
 }

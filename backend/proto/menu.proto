@@ -63,6 +63,32 @@ service MenusService {
   rpc FindOccasionEvents(Empty) returns (FindOccasionEventsResponse);
   rpc FindCuisineTypes(Empty) returns (FindCuisineTypesResponse);
   rpc FindSpecialDietaries(Empty) returns (FindSpecialDietariesResponse);
+
+  rpc FindOnboardingsWithPagination (FindOnboardingsRequest) returns (FindOnboardingsResponse);
+}
+
+message FindOnboardingsRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;     
+  repeated common.FilterRule filters = 3;
+}
+
+message FindOnboardingsResponse {
+  message Onboarding {
+    string id = 1;
+    google.protobuf.Timestamp created_at = 2;
+    google.protobuf.Timestamp updated_at = 3;
+    google.protobuf.Struct raw_owner_metadata = 4;
+    google.protobuf.Struct raw_business_metadata = 5;
+    google.protobuf.Struct raw_bank_account_metadata = 6;
+    string status = 7;
+    string email_confirmation = 8;
+    string partner_type = 9;
+    google.protobuf.Struct metadata = 10;
+  }
+
+  repeated Onboarding onboardings = 1;
+  int32 total_count = 2;
 }
 
 // [START] Find stores by filter
