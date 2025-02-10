@@ -120,7 +120,7 @@ export class MenuService {
     const searchTerm = filters?.keyword && filters.keyword.trim().toLowerCase();
 
     const filterPayload: GetItemInStoreFilterDto = {
-      sid: filters?.storeId,
+      storeId: filters?.storeId,
       budgetMin: filters?.budgetRange?.min,
       budgetMax: filters?.budgetRange?.max,
       occasionEvents: filters?.occasionEvents,
@@ -133,7 +133,8 @@ export class MenuService {
       pageSize,
     };
 
-    return this.itemRepository.getItemsInStore(filterPayload);
+    const [data, count] = await this.partnerItemRepository.searchItemsInStore({ ...filterPayload });
+    return { data, count };
   }
 
   async getFilterOptions(keyword: string) {

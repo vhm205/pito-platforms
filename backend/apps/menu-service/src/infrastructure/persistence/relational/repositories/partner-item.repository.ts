@@ -10,6 +10,7 @@ import {
   CateringPackage,
   OccasionEvent,
 } from 'apps/menu-service/src/domain/partner-item.domain';
+import { SearchItemsInStoreResult } from 'apps/menu-service/src/dtos/search-items-in-store.dto';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
@@ -487,5 +488,153 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     const params = serviceCategory ? [serviceCategory] : [];
     const result = await this.partnerItemRepository.query(query, params);
     return { storeIds: result.map((row: { store_id: string }) => row.store_id) };
+  }
+
+  async searchItemsInStore(params: {
+    storeId: string;
+    budgetMin?: number;
+    budgetMax?: number;
+    occasionEventIds?: number[];
+    specialDietaryIds?: number[];
+    serviceTypeIds?: number[];
+    cuisineTypeIds?: number[];
+    searchTerm?: string;
+    sortBy?: string;
+    page?: number;
+    pageSize?: number;
+  }): Promise<[SearchItemsInStoreResult[], number]> {
+    const {
+      storeId,
+      budgetMin,
+      budgetMax,
+      occasionEventIds,
+      specialDietaryIds,
+      serviceTypeIds,
+      cuisineTypeIds,
+      searchTerm,
+      sortBy,
+      page = 1,
+      pageSize = 10,
+    } = params;
+
+    const queryBuilder = this.partnerItemRepository
+      .createQueryBuilder('i')
+      .where('i.store_id = :storeId', { storeId });
+
+    if (budgetMin) {
+      queryBuilder.andWhere('i.base_price >= :budgetMin', { budgetMin });
+    }
+
+    if (budgetMax) {
+      queryBuilder.andWhere('i.base_price <= :budgetMax', { budgetMax });
+    }
+
+    if (occasionEventIds?.length) {
+      queryBuilder.andWhere('i.occasion_events @> :occasionEventIds', {
+        occasionEventIds: JSON.stringify(occasionEventIds),
+      });
+    }
+
+    if (specialDietaryIds?.length) {
+      queryBuilder.andWhere('i.special_dietaries @> :specialDietaryIds', {
+        specialDietaryIds: JSON.stringify(specialDietaryIds),
+      });
+    }
+
+    if (serviceTypeIds?.length) {
+      queryBuilder.andWhere('i.service_types @> :serviceTypeIds', {
+        serviceTypeIds: JSON.stringify(serviceTypeIds),
+      });
+    }
+
+    if (cuisineTypeIds?.length) {
+      queryBuilder.andWhere('i.cuisine_types @> :cuisineTypeIds', {
+        cuisineTypeIds: JSON.stringify(cuisineTypeIds),
+      });
+    }
+
+    // Add subqueries for related data
+    queryBuilder
+      .addSelect(subQuery => {
+        return subQuery
+          .select(
+            "jsonb_agg(jsonb_build_object('id', sd.id, 'name', sd.name))",
+            'special_dietaries',
+          )
+          .from('special_dietaries', 'sd')
+          .where('sd.id = ANY(i.special_dietaries)');
+      }, 'special_dietaries')
+      .addSelect(subQuery => {
+        return subQuery
+          .select("jsonb_agg(jsonb_build_object('id', ct.id, 'name', ct.name))", 'cuisine_types')
+          .from('cuisine_types', 'ct')
+          .where('ct.id = ANY(i.cuisine_types)');
+      }, 'cuisine_types')
+      .addSelect(subQuery => {
+        return subQuery
+          .select("jsonb_agg(jsonb_build_object('id', oe.id, 'name', oe.name))", 'occasion_events')
+          .from('occasion_events', 'oe')
+          .where('oe.id = ANY(i.occasion_events)');
+      }, 'occasion_events');
+
+    if (searchTerm) {
+      queryBuilder
+        .addSelect(
+          `ts_rank(i.fts_vector, plainto_tsquery('english_nostop', lower(unaccent(:searchTermRank))))`,
+          'search_rank',
+        )
+        .setParameter('searchTermRank', searchTerm)
+        .orderBy('search_rank', 'DESC');
+    }
+
+    // Add sorting
+    if (sortBy) {
+      const [field, direction] = sortBy.split(':');
+      queryBuilder.orderBy(`i.${field}`, direction?.toUpperCase() as 'ASC' | 'DESC');
+    }
+
+    // Get total count
+    const total = await queryBuilder.getCount();
+
+    // Add pagination
+    const skip = (page - 1) * pageSize;
+    queryBuilder.skip(skip).take(pageSize);
+
+    const items = await queryBuilder.getRawAndEntities();
+
+    // Map the raw result to the desired format
+    const data = items.entities.map((item, index) => {
+      const raw = items.raw[index];
+      const specialDietaries = raw.special_dietaries || [];
+      const cuisineTypes = raw.cuisine_types || [];
+      const occasionEvents = raw.occasion_events || [];
+
+      return {
+        item: {
+          ...item,
+          unitType: item.packagingUnit,
+          unitQuantity: item.participant,
+          eatingUtensil: item.metadata?.has_utensils,
+          optionsAndChoices: item.optionsChoices?.map(opt => ({
+            optionId: opt.id,
+            name: opt.name,
+            isRequired: opt.is_required,
+            maxChoices: opt.max_choices,
+            isMultipleChoice: opt.allow_multiple_selection,
+            isSelectionQuantityAllowed: opt.allow_quantity_selection,
+            choices: opt.choices?.map(choice => ({
+              choiceId: choice.id,
+              name: choice.name,
+              basePrice: choice.price,
+            })),
+          })),
+        },
+        specialDietaries,
+        cuisineTypes,
+        occasionEvents,
+      };
+    });
+
+    return [data as unknown as SearchItemsInStoreResult[], total];
   }
 }
