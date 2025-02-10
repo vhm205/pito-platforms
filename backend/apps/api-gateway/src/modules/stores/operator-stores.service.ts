@@ -38,4 +38,26 @@ export class OperatorStoresService implements OnModuleInit {
     const source$ = this.menuServiceClient.updateStore(request).pipe(timeout(3000));
     return firstValueFrom(source$);
   }
+
+  async findItemCountsByStoreIds(
+    storeIds: string[],
+    serviceCategory?: string,
+    shouldFetchPendingItems?: boolean,
+  ) {
+    return firstValueFrom(
+      this.menuServiceClient.findItemCountsByStoreIds({
+        storeIds,
+        serviceCategory: serviceCategory?.toUpperCase(),
+        shouldFetchPendingItems,
+      }),
+    );
+  }
+
+  async findStoreIdsForPendingItems(serviceCategory?: string) {
+    return firstValueFrom(
+      this.menuServiceClient.findStoreIdsForPendingItems({
+        serviceCategory: serviceCategory?.toUpperCase(),
+      }),
+    );
+  }
 }

@@ -444,4 +444,48 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     });
     return entities;
   }
+
+  async findItemCountsByStoreIds(
+    storeIds: string[],
+    serviceCategory?: string,
+    shouldFetchPendingItems = false,
+  ): Promise<{ storeId: string; itemCount: number; menuStatus: string }[]> {
+    const query = `
+      SELECT 
+        store_id,
+        COUNT(*) AS item_count,
+        CASE 
+          WHEN COUNT(*) FILTER (WHERE status = 'pending_approval') > 0 THEN 'pending_approval'
+          ELSE 'active'
+        END AS menu_status
+      FROM items
+      WHERE store_id = ANY($1)
+      ${serviceCategory ? 'AND service_category = $2' : ''}
+      ${shouldFetchPendingItems ? "AND status = 'pending_approval'" : ''}
+      GROUP BY store_id;
+    `;
+
+    const params = serviceCategory ? [storeIds, serviceCategory] : [storeIds];
+
+    const result = await this.partnerItemRepository.query(query, params);
+
+    return result.map((row: { store_id: string; item_count: string; menu_status: string }) => ({
+      storeId: row.store_id,
+      itemCount: parseInt(row.item_count, 10),
+      menuStatus: row.menu_status,
+    }));
+  }
+
+  async findStoreIdsForPendingItems(serviceCategory?: string): Promise<{ storeIds: string[] }> {
+    const query = `
+      SELECT DISTINCT store_id
+      FROM items
+      WHERE status = 'pending_approval'
+      ${serviceCategory ? 'AND service_category = $1' : ''};
+    `;
+
+    const params = serviceCategory ? [serviceCategory] : [];
+    const result = await this.partnerItemRepository.query(query, params);
+    return { storeIds: result.map((row: { store_id: string }) => row.store_id) };
+  }
 }

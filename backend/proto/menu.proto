@@ -65,6 +65,33 @@ service MenusService {
   rpc FindSpecialDietaries(Empty) returns (FindSpecialDietariesResponse);
 
   rpc FindOnboardingsWithPagination (FindOnboardingsRequest) returns (FindOnboardingsResponse);
+
+  rpc FindItemCountsByStoreIds (FindItemCountsByStoreIdsRequest) returns (FindItemCountsByStoreIdsResponse);
+  rpc FindStoreIdsForPendingItems (FindStoreIdsForPendingItemsRequest) returns (FindStoreIdsForPendingItemsResponse);
+}
+
+message FindStoreIdsForPendingItemsRequest {
+  optional string service_category = 1;
+}
+
+message FindStoreIdsForPendingItemsResponse {
+  repeated string store_ids = 1;
+}
+
+message FindItemCountsByStoreIdsRequest {
+  repeated string store_ids = 1;
+  optional string service_category = 2;
+  optional bool should_fetch_pending_items = 3;
+}
+
+message FindItemCountsByStoreIdsResponse {
+  message StoreItemCount {
+    string store_id = 1;
+    int32 item_count = 2;
+    string menu_status = 3;
+  }
+
+  repeated StoreItemCount data = 1;
 }
 
 message FindOnboardingsRequest {
