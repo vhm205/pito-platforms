@@ -138,7 +138,7 @@ export class MenusController {
   @ApiOperation({ summary: 'Create a new dish' })
   @ApiCreatedResponse({ description: 'The dish has been successfully created.' })
   @ApiBadRequestResponse({ description: 'Invalid input.' })
-  @Auth([RoleType.OPERATOR, RoleType.PARTNER])
+  @Auth([RoleType.OPERATOR])
   async createDish(@Body() createDishDto: CreateDishDto) {
     return this.dishesService.createDish(createDishDto);
   }
@@ -148,7 +148,7 @@ export class MenusController {
   @ApiParam({ name: 'id', description: 'ID of the dish' })
   @ApiWrapperResponse({ description: 'The dish', type: DishDto })
   @ApiNotFoundResponse({ description: 'Dish not found.' })
-  @Auth([RoleType.OPERATOR, RoleType.PARTNER])
+  @Auth([RoleType.OPERATOR])
   async findDishById(@Param('id') id: string) {
     const { dish } = await this.dishesService.findDishById(id);
     return dish;
@@ -161,7 +161,7 @@ export class MenusController {
     description: 'The dish has been successfully updated.',
     type: UpdateDishResponseDto,
   })
-  @Auth([RoleType.OPERATOR, RoleType.PARTNER])
+  @Auth([RoleType.OPERATOR])
   async updateDish(@Param('id') id: string, @Body() updateDishDto: UpdateDishDto) {
     return await this.dishesService.updateDish(id, updateDishDto);
   }
@@ -173,7 +173,7 @@ export class MenusController {
     description: 'The dish has been successfully deleted.',
     type: DeleteDishResponseDto,
   })
-  @Auth([RoleType.OPERATOR, RoleType.PARTNER])
+  @Auth([RoleType.OPERATOR])
   async deleteDish(@Param('id') id: string) {
     return this.dishesService.deleteDish(id);
   }
@@ -181,7 +181,7 @@ export class MenusController {
   @Get('dishes')
   @ApiOperation({ summary: 'Get list dishes' })
   @ApiPageWrapperResponse({ description: 'List of dishes', type: FindDishesResponseDto })
-  @Auth([RoleType.OPERATOR, RoleType.PARTNER])
+  @Auth([RoleType.OPERATOR])
   async findAllDishes(@Query() query: FindDishesQueryDto) {
     const { dishes, totalCount } = await this.dishesService.findDishesWithPagination(query);
     const { page, pageSize } = query;

@@ -10,6 +10,8 @@ import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
 import { CustomerRepository } from './infrastructure/persistence/customer.repository';
+import { PartnerUserRelationshipRepository } from './infrastructure/persistence/partner-user-relationship.repository';
+import { StoreUserRelationshipRepository } from './infrastructure/persistence/store-user-relationship.repository';
 import { UserPartnerRepository } from './infrastructure/persistence/user-partner.repository';
 
 @Injectable()
@@ -17,6 +19,8 @@ export class UserService {
   constructor(
     private readonly customerRepository: CustomerRepository,
     private readonly userPartnerRepository: UserPartnerRepository,
+    private readonly storeUserRelationshipRepository: StoreUserRelationshipRepository,
+    private readonly partnerUserRelationshipRepository: PartnerUserRelationshipRepository,
   ) {}
 
   async getCustomerProfile({ userId }: GetCustomerProfileRequest) {
@@ -68,5 +72,13 @@ export class UserService {
     });
 
     return { data: companies, totalCount };
+  }
+
+  async validateUserInPartner(userId: string, partnerId: string) {
+    return this.partnerUserRelationshipRepository.validateUserInPartner(userId, partnerId);
+  }
+
+  async validateUserInStore(userId: string, storeId: string) {
+    return this.storeUserRelationshipRepository.validateUserInStore(userId, storeId);
   }
 }

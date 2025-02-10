@@ -146,6 +146,20 @@ export interface GetCompaniesResponse_Company {
   updatedAt: Date | undefined;
 }
 
+export interface ValidateUserInPartnerRequest {
+  userId: string;
+  partnerId: string;
+}
+
+export interface ValidateUserInStoreRequest {
+  userId: string;
+  storeId: string;
+}
+
+export interface BooleanResponse {
+  value: boolean;
+}
+
 export const USER_PACKAGE_NAME = 'user';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -175,6 +189,10 @@ export interface UsersServiceClient {
   getCustomers(request: GetCustomersRequest): Observable<GetCustomersResponse>;
 
   getCompanies(request: GetCompaniesRequest): Observable<GetCompaniesResponse>;
+
+  validateUserInPartner(request: ValidateUserInPartnerRequest): Observable<BooleanResponse>;
+
+  validateUserInStore(request: ValidateUserInStoreRequest): Observable<BooleanResponse>;
 }
 
 export interface UsersServiceController {
@@ -208,6 +226,14 @@ export interface UsersServiceController {
   getCompanies(
     request: GetCompaniesRequest,
   ): Promise<GetCompaniesResponse> | Observable<GetCompaniesResponse> | GetCompaniesResponse;
+
+  validateUserInPartner(
+    request: ValidateUserInPartnerRequest,
+  ): Promise<BooleanResponse> | Observable<BooleanResponse> | BooleanResponse;
+
+  validateUserInStore(
+    request: ValidateUserInStoreRequest,
+  ): Promise<BooleanResponse> | Observable<BooleanResponse> | BooleanResponse;
 }
 
 export function UsersServiceControllerMethods() {
@@ -218,6 +244,8 @@ export function UsersServiceControllerMethods() {
       'getOperatorProfile',
       'getCustomers',
       'getCompanies',
+      'validateUserInPartner',
+      'validateUserInStore',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

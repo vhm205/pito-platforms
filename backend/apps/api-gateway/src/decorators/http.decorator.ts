@@ -1,5 +1,12 @@
+import { PartnerGuard } from '@gateway/guards/partner.guard';
+import { StoreGuard } from '@gateway/guards/store.guard';
 import { applyDecorators, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiQuery,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
 import type { RoleType } from '../constants';
 import { AuthGuard } from '../guards/auth.guard';
@@ -21,6 +28,56 @@ export function Auth(
     ApiBearerAuth(),
     UseInterceptors(AuthUserInterceptor),
     ApiUnauthorizedResponse({ description: 'Unauthorized' }),
+    PublicRoute(isPublicRoute),
+  );
+}
+
+export function PartnerAuth(
+  roles: RoleType[] = [],
+  options?: Partial<{ public: boolean }>,
+): MethodDecorator {
+  const isPublicRoute = options?.public;
+
+  return applyDecorators(
+    Roles(roles),
+    UseGuards(AuthGuard({ public: isPublicRoute }), RolesGuard),
+    ApiBearerAuth(),
+    UseInterceptors(AuthUserInterceptor),
+    ApiUnauthorizedResponse({ description: 'Unauthorized' }),
+    UseGuards(PartnerGuard),
+    ApiQuery({
+      name: 'partner_id',
+      type: String,
+      description: 'Partner ID',
+      required: true,
+      example: 1,
+    }),
+    ApiForbiddenResponse({ description: 'Forbidden' }),
+    PublicRoute(isPublicRoute),
+  );
+}
+
+export function StoreAuth(
+  roles: RoleType[] = [],
+  options?: Partial<{ public: boolean }>,
+): MethodDecorator {
+  const isPublicRoute = options?.public;
+
+  return applyDecorators(
+    Roles(roles),
+    UseGuards(AuthGuard({ public: isPublicRoute }), RolesGuard),
+    ApiBearerAuth(),
+    UseInterceptors(AuthUserInterceptor),
+    ApiUnauthorizedResponse({ description: 'Unauthorized' }),
+    UseGuards(StoreGuard),
+    ApiQuery({
+      name: 'store_id',
+      type: String,
+      description: 'Store ID',
+      required: true,
+      example: 1,
+    }),
+    ApiForbiddenResponse({ description: 'Forbidden' }),
     PublicRoute(isPublicRoute),
   );
 }
