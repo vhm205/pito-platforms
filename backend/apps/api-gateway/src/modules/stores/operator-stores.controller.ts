@@ -26,37 +26,17 @@ export class OperatorStoresController {
   @HttpCode(HttpStatus.OK)
   @ApiPageWrapperResponse({ type: StoreListDto })
   async getListStores(@Query() query: QueryStoreListDto) {
-    let shouldFetchItemCount = false;
-    let shouldFetchStoreIdsForPendingItems = false;
-    let serviceCategory = '';
+    const {
+      fetchItemCount = false,
+      fetchStoreIdsForPendingItems = false,
+      serviceCategory = '',
+    } = query;
 
-    query.filters = query.filters.filter(filter => {
+    query.filters.forEach(filter => {
       if (filter.column === 'name') filter.column = 'storeName';
-
-      switch (filter.column) {
-        case 'shouldFetchItemCount':
-          if (filter.operator === 'eq' && filter.value === 'true') {
-            shouldFetchItemCount = true;
-            return false;
-          }
-          break;
-        case 'serviceCategory':
-          if (filter.operator === 'eq' && filter.value) {
-            serviceCategory = filter.value;
-            return false;
-          }
-          break;
-        case 'shouldFetchStoreIdsForPendingItems':
-          if (filter.operator === 'eq' && filter.value === 'true') {
-            shouldFetchStoreIdsForPendingItems = true;
-            return false;
-          }
-          break;
-      }
-      return true;
     });
 
-    if (shouldFetchStoreIdsForPendingItems) {
+    if (fetchStoreIdsForPendingItems) {
       const { storeIds } = await this.service.findStoreIdsForPendingItems(serviceCategory);
       query.filters.push({ column: 'id', operator: 'in', value: storeIds.join(',') });
     }
@@ -69,11 +49,11 @@ export class OperatorStoresController {
 
     let itemCountsMap = new Map();
 
-    if (shouldFetchItemCount) {
+    if (fetchItemCount) {
       const itemCounts = await this.service.findItemCountsByStoreIds(
         stores.map(store => store.id),
         serviceCategory,
-        shouldFetchStoreIdsForPendingItems,
+        fetchStoreIdsForPendingItems,
       );
       itemCountsMap = new Map(
         itemCounts?.data?.map(item => [
@@ -87,8 +67,8 @@ export class OperatorStoresController {
       StoreListDto,
       map(stores, store => ({
         ...store,
-        itemCount: shouldFetchItemCount ? itemCountsMap.get(store.id)?.itemCount || 0 : undefined,
-        menuStatus: shouldFetchItemCount
+        itemCount: fetchItemCount ? itemCountsMap.get(store.id)?.itemCount || 0 : undefined,
+        menuStatus: fetchItemCount
           ? itemCountsMap.get(store.id)?.menuStatus || 'active'
           : undefined,
       })),

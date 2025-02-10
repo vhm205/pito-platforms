@@ -10,7 +10,7 @@ import {
 } from '@gateway/gateway-common/dto/query-dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, plainToClass, Transform } from 'class-transformer';
-import { IsArray } from 'class-validator';
+import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
 
 import { StoreLocationDto } from './common';
 
@@ -149,4 +149,18 @@ export class QueryStoreListDto extends PaginationQueryDto {
   @Transform(({ value }) => normalizeArray(value), { toClassOnly: true })
   @Transform(({ value }) => parseSort(value))
   sorts: SortRule[];
+
+  @IsBoolean()
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  fetchItemCount: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  fetchStoreIdsForPendingItems: boolean;
+
+  @IsString()
+  @IsOptional()
+  serviceCategory: string;
 }
