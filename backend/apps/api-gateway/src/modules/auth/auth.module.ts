@@ -1,6 +1,6 @@
 import { join } from 'path';
 
-import { USER_PACKAGE_NAME, USER_SERVICE } from '@app/common';
+import { MENU_PACKAGE_NAME, MENU_SERVICE, USER_PACKAGE_NAME, USER_SERVICE } from '@app/common';
 import { AllConfigType } from '@app/common/configs';
 import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
@@ -31,6 +31,19 @@ import { PublicStrategy } from './public.stategy';
             package: USER_PACKAGE_NAME,
             protoPath: join(process.cwd(), 'proto/user.proto'),
             url: configService.get('app.userGrpcUrl', { infer: true }),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        imports: [ConfigModule],
+        name: MENU_SERVICE,
+        useFactory: (configService: ConfigService<AllConfigType>) => ({
+          transport: Transport.GRPC,
+          options: {
+            package: MENU_PACKAGE_NAME,
+            protoPath: join(process.cwd(), 'proto/menu.proto'),
+            url: configService.get('app.menuGrpcUrl', { infer: true }),
           },
         }),
         inject: [ConfigService],

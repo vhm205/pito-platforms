@@ -10,6 +10,8 @@ import {
   LoggerService,
   UsersServiceController,
   UsersServiceControllerMethods,
+  ValidateUserInPartnerRequest,
+  ValidateUserInStoreRequest,
 } from '@app/common';
 import { Controller } from '@nestjs/common';
 
@@ -66,5 +68,15 @@ export class UserController implements UsersServiceController {
       this.logger.error(errMessage);
       return { error: errMessage, data: [], totalCount: 0 };
     }
+  }
+
+  async validateUserInPartner(payload: ValidateUserInPartnerRequest): Promise<{ value: boolean }> {
+    const value = await this.userService.validateUserInPartner(payload.userId, payload.partnerId);
+    return { value };
+  }
+
+  async validateUserInStore(payload: ValidateUserInStoreRequest): Promise<{ value: boolean }> {
+    const value = await this.userService.validateUserInStore(payload.userId, payload.storeId);
+    return { value };
   }
 }
