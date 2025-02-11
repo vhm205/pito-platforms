@@ -53,4 +53,6 @@ export abstract class PartnerStoreRepository {
     id: string,
     data: Partial<Omit<PartnerStore, 'id' | 'storeCode' | 'partnerId'>>,
   ): Promise<{ affected: number }>;
+
+  abstract getFavoriteStoreByUser(userId: string, storeId: string): Promise<boolean>;
 }

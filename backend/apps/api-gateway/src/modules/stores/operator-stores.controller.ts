@@ -12,14 +12,10 @@ import { GetStoreDetailResponseDto } from './dtos/get-store-detail.dto';
 import { QueryStoreListDto, StoreListDto } from './dtos/store-list.dto';
 import { UpdateStoreRequestDto, UpdateStoreResponseDto } from './dtos/update-store.dto';
 import { OperatorStoresService } from './operator-stores.service';
-import { StoresService } from './stores.service';
 
 @Controller('operator')
 export class OperatorStoresController {
-  constructor(
-    private readonly service: OperatorStoresService,
-    private readonly storeService: StoresService,
-  ) {}
+  constructor(private readonly service: OperatorStoresService) {}
 
   @Get('stores')
   @Auth([RoleType.OPERATOR])
@@ -88,7 +84,7 @@ export class OperatorStoresController {
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: GetStoreDetailResponseDto })
   async getStoreDetail(@Param('identifier') identifier: string) {
-    const result = await this.storeService.getStoreDetail({ identifier });
+    const result = await this.service.getStoreDetail({ identifier });
     return plainToInstance(GetStoreDetailResponseDto, result);
   }
 

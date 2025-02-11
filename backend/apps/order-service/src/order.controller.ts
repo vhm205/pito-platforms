@@ -21,6 +21,8 @@ import {
   FindTransactionsResponse,
   GetRevenueAndCountOrderByStoreIdsRequest,
   GetRevenueAndCountOrderByStoreIdsResponse,
+  GetTotalOrderCountByStoreIdRequest,
+  GetTotalOrderCountByStoreIdResponse,
 } from '@app/common/types';
 import { OrderStatus } from '@app/common/types/proto/common';
 import { Controller } from '@nestjs/common';
@@ -162,6 +164,16 @@ export class OrderController implements OrdersServiceController {
 
     return {
       storeRevenueAndCount: result,
+    };
+  }
+
+  async getTotalOrderCountByStoreId(
+    request: GetTotalOrderCountByStoreIdRequest,
+  ): Promise<GetTotalOrderCountByStoreIdResponse> {
+    const result = await this.storeOrderService.getTotalOrderCountByStoreId(request.storeId);
+
+    return {
+      totalOrderCount: result,
     };
   }
 }

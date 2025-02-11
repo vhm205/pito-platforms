@@ -1,5 +1,5 @@
 import {
-  LoggerService,
+  GetStoreDetailRequest,
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
@@ -15,10 +15,7 @@ import { QueryStoreListDto } from './dtos/store-list.dto';
 export class OperatorStoresService implements OnModuleInit {
   private menuServiceClient: MenusServiceClient;
 
-  constructor(
-    private readonly logger: LoggerService,
-    @Inject(MENU_SERVICE) private readonly menuClient: ClientGrpc,
-  ) {}
+  constructor(@Inject(MENU_SERVICE) private readonly menuClient: ClientGrpc) {}
 
   onModuleInit() {
     this.menuServiceClient = this.menuClient.getService<MenusServiceClient>(MENUS_SERVICE_NAME);
@@ -59,5 +56,10 @@ export class OperatorStoresService implements OnModuleInit {
         serviceCategory: serviceCategory?.toUpperCase(),
       }),
     );
+  }
+
+  getStoreDetail(request: GetStoreDetailRequest) {
+    const source$ = this.menuServiceClient.getStoreDetail(request).pipe(timeout(2000));
+    return firstValueFrom(source$);
   }
 }

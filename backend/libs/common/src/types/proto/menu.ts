@@ -761,6 +761,10 @@ export interface GetStoreDetailResponse {
   reopenTime: Date | undefined;
   dailyOrderLimit: number;
   dailyRevenueLimit: number;
+  minOrderPrice: number;
+  isFavorite?: boolean | undefined;
+  minPreOrderTime: number;
+  shippingFeeSettings: GetStoreDetailResponse_ShippingFeeSettings | undefined;
 }
 
 export interface GetStoreDetailResponse_Location {
@@ -794,6 +798,30 @@ export interface GetStoreDetailResponse_Image {
 export interface GetStoreDetailResponse_CuisineType {
   id: number;
   name: string;
+}
+
+export interface GetStoreDetailResponse_DistanceFee {
+  startKm: number;
+  endKm: number;
+  feePerKm: number;
+}
+
+export interface GetStoreDetailResponse_Vehicle {
+  baseFee: number;
+  distanceFees: GetStoreDetailResponse_DistanceFee[];
+  freeShippingDistance: number;
+  freeShippingThreshold: number;
+}
+
+export interface GetStoreDetailResponse_ShippingFeeSettings {
+  car: GetStoreDetailResponse_Vehicle | undefined;
+  motorbike: GetStoreDetailResponse_Vehicle | undefined;
+  thresholdSwitchToCar: number;
+}
+
+export interface GetStoreDetailForCustomerRequest {
+  identifier: string;
+  userId: string;
 }
 
 export interface UpdateStoreStatusRequest {
@@ -1155,6 +1183,10 @@ export interface MenusServiceClient {
 
   getStoreDetail(request: GetStoreDetailRequest): Observable<GetStoreDetailResponse>;
 
+  getStoreDetailForCustomer(
+    request: GetStoreDetailForCustomerRequest,
+  ): Observable<GetStoreDetailResponse>;
+
   insertMenuItem(request: PartnerItemRequest): Observable<PartnerItem>;
 
   bulkInsertItems(request: BulkInsertItemsRequest): Observable<BulkInsertItemsResponse>;
@@ -1337,6 +1369,10 @@ export interface MenusServiceController {
 
   getStoreDetail(
     request: GetStoreDetailRequest,
+  ): Promise<GetStoreDetailResponse> | Observable<GetStoreDetailResponse> | GetStoreDetailResponse;
+
+  getStoreDetailForCustomer(
+    request: GetStoreDetailForCustomerRequest,
   ): Promise<GetStoreDetailResponse> | Observable<GetStoreDetailResponse> | GetStoreDetailResponse;
 
   insertMenuItem(
@@ -1563,6 +1599,7 @@ export function MenusServiceControllerMethods() {
       'filterItemsWithCateringPackage',
       'getFilterOptions',
       'getStoreDetail',
+      'getStoreDetailForCustomer',
       'insertMenuItem',
       'bulkInsertItems',
       'updateMenuItem',

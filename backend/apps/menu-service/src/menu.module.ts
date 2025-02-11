@@ -29,6 +29,7 @@ import { PartnerOccasionEventEntity } from './infrastructure/persistence/relatio
 import { PartnerStoreEntity } from './infrastructure/persistence/relational/entities/partner-store.entity';
 import { PartnerEntity } from './infrastructure/persistence/relational/entities/partner.entity';
 import { SpecialDietaryEntity } from './infrastructure/persistence/relational/entities/special-dietaries.entity';
+import { StoreFavoriteEntity } from './infrastructure/persistence/relational/entities/store-favorite.entity';
 import { StoreServiceEntity } from './infrastructure/persistence/relational/entities/store-service.entity';
 import { StoreEntity } from './infrastructure/persistence/relational/entities/store.entity';
 import { RelationalMenuPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
@@ -60,6 +61,7 @@ const partnerEntities = [
   PartnerOnboardingEntity,
   MenuEntity,
   PartnerCategoryEntity,
+  StoreFavoriteEntity,
 ];
 
 @Module({
