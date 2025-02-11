@@ -1,5 +1,5 @@
 import { ServiceType } from '@app/common/enums/partner';
-import { NullableType } from '@app/common/types/common';
+import { NullableType, ObjectType } from '@app/common/types/common';
 
 export class StoreService {
   storeId: string;
@@ -10,6 +10,7 @@ export class StoreService {
   dailyOrderLimit: NullableType<number>;
   dailyRevenueLimit: NullableType<number>;
   reopenTime: NullableType<Date>;
+  shippingFeeSettings: NullableType<ObjectType>;
 
   toMessage() {
     return {
@@ -21,6 +22,7 @@ export class StoreService {
       dailyOrderLimit: this.dailyOrderLimit,
       dailyRevenueLimit: this.dailyRevenueLimit,
       reopenTime: this.reopenTime,
+      shippingFeeSettings: this.shippingFeeSettings,
     };
   }
 }

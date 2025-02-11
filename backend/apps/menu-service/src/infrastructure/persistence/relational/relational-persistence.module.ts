@@ -28,6 +28,7 @@ import { PartnerOccasionEventEntity } from './entities/partner-occasion-event.en
 import { PartnerStoreEntity } from './entities/partner-store.entity';
 import { PartnerEntity } from './entities/partner.entity';
 import { SpecialDietaryEntity } from './entities/special-dietaries.entity';
+import { StoreFavoriteEntity } from './entities/store-favorite.entity';
 import { StoreServiceEntity } from './entities/store-service.entity';
 import { StoreEntity } from './entities/store.entity';
 import { CateringPackageRelationalRepository } from './repositories/catering-package.repository';
@@ -61,6 +62,7 @@ const partnerEntities = [
   PartnerOnboardingEntity,
   MenuEntity,
   PartnerCategoryEntity,
+  StoreFavoriteEntity,
 ];
 
 @Module({

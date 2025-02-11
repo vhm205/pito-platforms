@@ -263,6 +263,14 @@ export interface GetRevenueAndCountOrderByStoreIdsResponse_StoreRevenueAndCount 
   totalRevenue: number;
 }
 
+export interface GetTotalOrderCountByStoreIdRequest {
+  storeId: string;
+}
+
+export interface GetTotalOrderCountByStoreIdResponse {
+  totalOrderCount: number;
+}
+
 export const ORDER_PACKAGE_NAME = 'order';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -298,6 +306,10 @@ export interface OrdersServiceClient {
   getRevenueAndCountOrderByStoreIds(
     request: GetRevenueAndCountOrderByStoreIdsRequest,
   ): Observable<GetRevenueAndCountOrderByStoreIdsResponse>;
+
+  getTotalOrderCountByStoreId(
+    request: GetTotalOrderCountByStoreIdRequest,
+  ): Observable<GetTotalOrderCountByStoreIdResponse>;
 }
 
 export interface OrdersServiceController {
@@ -348,6 +360,13 @@ export interface OrdersServiceController {
     | Promise<GetRevenueAndCountOrderByStoreIdsResponse>
     | Observable<GetRevenueAndCountOrderByStoreIdsResponse>
     | GetRevenueAndCountOrderByStoreIdsResponse;
+
+  getTotalOrderCountByStoreId(
+    request: GetTotalOrderCountByStoreIdRequest,
+  ):
+    | Promise<GetTotalOrderCountByStoreIdResponse>
+    | Observable<GetTotalOrderCountByStoreIdResponse>
+    | GetTotalOrderCountByStoreIdResponse;
 }
 
 export function OrdersServiceControllerMethods() {
@@ -362,6 +381,7 @@ export function OrdersServiceControllerMethods() {
       'findStoreOrders',
       'findTransactions',
       'getRevenueAndCountOrderByStoreIds',
+      'getTotalOrderCountByStoreId',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
