@@ -9,16 +9,19 @@ export abstract class ItemRepository {
   abstract getItemsInStore(
     payload: GetItemInStoreFilterDto,
   ): Promise<{ data: GetItemInStoreResult[]; count: number }>;
+
   abstract getFilterOptionIds(keyword: string): Promise<{ data: GetFilterOptionId }>;
 
   abstract findAllCuisineTypes(
     ids?: number[],
     options?: { isActive?: boolean; order?: 'ASC' | 'DESC' },
   ): Promise<{ id: CuisineTypeEntity['id']; name: CuisineTypeEntity['name'] }[]>;
+
   abstract findAllSpecialDietaries(
     ids?: number[],
     options?: { isActive?: boolean; order?: 'ASC' | 'DESC' },
   ): Promise<{ id: SpecialDietaryEntity['id']; name: SpecialDietaryEntity['name'] }[]>;
+
   abstract findAllOccasionEvents(
     ids?: number[],
     options?: { isActive?: boolean; order?: 'ASC' | 'DESC' },
