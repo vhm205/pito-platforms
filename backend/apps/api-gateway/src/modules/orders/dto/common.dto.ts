@@ -4,7 +4,7 @@ import { OrderStatus } from '@app/common/types/proto/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, plainToInstance, Transform, Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
-import { get } from 'lodash';
+import { get, map } from 'lodash';
 
 import { transformOrderItem } from '../utils/transformer';
 
@@ -426,7 +426,7 @@ export class OrderDto {
     type: [OrderItemDto],
   })
   @Expose()
-  @Transform(({ value }) => plainToInstance(OrderItemDto, value.map(transformOrderItem)))
+  @Transform(({ value }) => plainToInstance(OrderItemDto, map(value, transformOrderItem)))
   orderItems: OrderItemDto[];
 }
 
