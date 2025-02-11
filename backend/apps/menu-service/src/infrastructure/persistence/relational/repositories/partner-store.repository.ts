@@ -84,6 +84,14 @@ export class PartnerStoreRelationalRepository implements PartnerStoreRepository 
     return { affected: result.affected || 0 };
   }
 
+  async updateStoreStatusByPartnerIds(partnerIds: string[], status: StoreStatus) {
+    const result = await this.repository.update(
+      { partnerId: In(partnerIds) },
+      { status, updatedAt: new Date() },
+    );
+    return { affected: result.affected || 0 };
+  }
+
   async filterStores(args: {
     filters: Record<string, FindOperator<unknown>>[];
     pagination: PaginationRequest;

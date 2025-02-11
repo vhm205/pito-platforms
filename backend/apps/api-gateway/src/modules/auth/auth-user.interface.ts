@@ -11,3 +11,14 @@ export interface AuthenticatedUser {
   lastName: string;
   roles: ClientRole[];
 }
+
+export interface AuthenticatedPartner {
+  id: string;
+  name: string;
+  status: string;
+}
+
+export interface AuthenticatedStore {
+  id: string;
+  name: string;
+}

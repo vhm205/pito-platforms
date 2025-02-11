@@ -116,6 +116,20 @@ export class StoreService {
 
   async updatePartnerStatus(ids: string[], status: PartnerStatus) {
     const { affected } = await this.partnerStoreRepository.updatePartnerStatusByIds(ids, status);
+
+    switch (status) {
+      case PartnerStatus.APPROVED:
+        await this.partnerStoreRepository.updateStoreStatusByPartnerIds(ids, StoreStatus.ACTIVE);
+        break;
+      case PartnerStatus.SUSPEND:
+      case PartnerStatus.STOP_COOPERATION:
+        await this.partnerStoreRepository.updateStoreStatusByPartnerIds(
+          ids,
+          StoreStatus.TEMPORARILY_CLOSED,
+        );
+        break;
+    }
+
     return { success: affected === ids.length };
   }
 

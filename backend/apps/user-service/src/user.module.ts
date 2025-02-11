@@ -10,10 +10,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CompanyEntity } from './infrastructure/persistence/relational/entities/company.entity';
 import { CustomerEntity } from './infrastructure/persistence/relational/entities/customer.entity';
 import { OperatorEntity } from './infrastructure/persistence/relational/entities/operator.entity';
+import { PartnerUserRelationship } from './infrastructure/persistence/relational/entities/partner-user-relationship.entity';
 import { PartnerEntity } from './infrastructure/persistence/relational/entities/partner.entity';
 import { PermissionEntity } from './infrastructure/persistence/relational/entities/permission.entity';
 import { RolePermissionEntity } from './infrastructure/persistence/relational/entities/role-permission.entity';
 import { RoleEntity } from './infrastructure/persistence/relational/entities/role.entity';
+import { StoreUserRelationship } from './infrastructure/persistence/relational/entities/store-user-relationship.entity';
 import { UserCustomerEntity } from './infrastructure/persistence/relational/entities/user-customer.entity';
 import { UserPartnerEntity } from './infrastructure/persistence/relational/entities/user-partner.entity';
 import { UserRoleEntity } from './infrastructure/persistence/relational/entities/user-role.entity';
@@ -63,6 +65,8 @@ import { UserService } from './user.service';
           RoleEntity,
           RolePermissionEntity,
           PermissionEntity,
+          PartnerUserRelationship,
+          StoreUserRelationship,
         ],
       }),
     }),

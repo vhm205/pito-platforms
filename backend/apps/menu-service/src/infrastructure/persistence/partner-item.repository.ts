@@ -12,6 +12,7 @@ import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructur
 import type { FindOperator, FindOptionsWhere, ObjectLiteral } from 'typeorm';
 
 import { FindItemsByFiltersResult } from '../../dtos/get-items-by-filter.dto';
+import { SearchItemsInStoreResult } from '../../dtos/search-items-in-store.dto';
 
 export abstract class PartnerItemRepository {
   abstract insertItem(
@@ -114,4 +115,18 @@ export abstract class PartnerItemRepository {
     table: string;
     name: string;
   }): Promise<T[]>;
+
+  abstract searchItemsInStore(params: {
+    storeId: string;
+    budgetMin?: number;
+    budgetMax?: number;
+    occasionEventIds?: number[];
+    specialDietaryIds?: number[];
+    serviceTypeIds?: number[];
+    cuisineTypeIds?: number[];
+    searchTerm?: string;
+    sortBy?: string;
+    page?: number;
+    pageSize?: number;
+  }): Promise<[SearchItemsInStoreResult[], number]>;
 }

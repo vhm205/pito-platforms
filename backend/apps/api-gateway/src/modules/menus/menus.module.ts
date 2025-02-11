@@ -2,10 +2,12 @@ import { join } from 'path';
 
 import { MENU_PACKAGE_NAME, MENU_SERVICE, ORDER_PACKAGE_NAME, ORDER_SERVICE } from '@app/common';
 import { AllConfigType } from '@app/common/configs';
+import { AuthModule } from '@gateway/modules/auth/auth.module';
 import { MenusController } from '@gateway/modules/menus/menus.controller';
 import { MenusService } from '@gateway/modules/menus/menus.service';
 import { OperatorMenusController } from '@gateway/modules/menus/operator-menus.controller';
 import { OperatorMenusService } from '@gateway/modules/menus/operator-menus.service';
+import { PartnerMenusController } from '@gateway/modules/menus/partner-menu.controller';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -44,8 +46,9 @@ import { ItemsService } from './items.service';
         inject: [ConfigService],
       },
     ]),
+    AuthModule,
   ],
-  controllers: [MenusController, OperatorMenusController, ItemsController],
+  controllers: [MenusController, OperatorMenusController, ItemsController, PartnerMenusController],
   providers: [MenusService, OperatorMenusService, ItemsService, DishesService],
 })
 export class MenusModule {}

@@ -14,6 +14,8 @@ import { SentryModule } from '@sentry/nestjs/setup';
 import { ClsModule } from 'nestjs-cls';
 
 import { CatchAllErrorInterceptor } from './interceptors/catch-all-error.interceptor';
+import { PartnerInterceptor } from './interceptors/partner.interceptor';
+import { StoreInterceptor } from './interceptors/store.interceptor';
 import { TransformResponseInterceptor } from './interceptors/transform-response.interceptor';
 import { AuthModule } from './modules/auth/auth.module';
 import { FilesModule } from './modules/files/files.module';
@@ -67,6 +69,14 @@ const modules = [
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformResponseInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: StoreInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: PartnerInterceptor,
     },
   ],
 })

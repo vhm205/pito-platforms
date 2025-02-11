@@ -13,6 +13,8 @@ service UsersService {
   // rpc QueryUsers (stream PaginationDto) returns (stream Users) {}
   rpc GetCustomers (GetCustomersRequest) returns (GetCustomersResponse) {}
   rpc GetCompanies (GetCompaniesRequest) returns (GetCompaniesResponse) {}
+  rpc ValidateUserInPartner (ValidateUserInPartnerRequest) returns (BooleanResponse) {}
+  rpc ValidateUserInStore (ValidateUserInStoreRequest) returns (BooleanResponse) {}
 }
 
 message GetCustomerProfileRequest {
@@ -154,4 +156,18 @@ message GetCompaniesResponse {
   repeated Company data = 1;
   int32 total_count = 2;
   optional string error = 3;
+}
+
+message ValidateUserInPartnerRequest {
+  string user_id = 1;
+  string partner_id = 2;
+}
+
+message ValidateUserInStoreRequest {
+  string user_id = 1;
+  string store_id = 2;
+}
+
+message BooleanResponse {
+  bool value = 1;
 }

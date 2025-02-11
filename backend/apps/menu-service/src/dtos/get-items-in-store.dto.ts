@@ -1,8 +1,32 @@
 import { Item } from '../domain/item.domain';
 
+interface FilterOption {
+  id: number;
+  name: string;
+}
+
+interface RawChoice {
+  choice_id: string;
+  name: string;
+  is_active: boolean;
+  base_price: number;
+}
+
+interface RawOption {
+  option_id: string;
+  name: string;
+  max_choices: number;
+  is_active: boolean;
+  is_required: boolean;
+  is_multiple_choice: boolean;
+  is_selection_quantity_allowed: boolean;
+  description?: string;
+  choices: Array<RawChoice>;
+}
+
 export class GetItemInStoreFilterDto {
   keyword?: string | undefined;
-  sid: string; // store_id
+  storeId: string;
   budgetMin?: number | undefined;
   budgetMax?: number | undefined;
   occasionEvents: number[];
@@ -43,28 +67,4 @@ export class GetItemInStoreResult {
   specialDietaries: FilterOption[];
   cuisineTypes: FilterOption[];
   occasionEvents: FilterOption[];
-}
-
-interface FilterOption {
-  id: number;
-  name: string;
-}
-
-interface RawChoice {
-  choice_id: string;
-  name: string;
-  is_active: boolean;
-  base_price: number;
-}
-
-interface RawOption {
-  option_id: string;
-  name: string;
-  max_choices: number;
-  is_active: boolean;
-  is_required: boolean;
-  is_multiple_choice: boolean;
-  is_selection_quantity_allowed: boolean;
-  description?: string;
-  choices: Array<RawChoice>;
 }
