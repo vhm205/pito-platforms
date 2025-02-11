@@ -753,7 +753,11 @@ export class MenuService {
     itemId: string;
     driveFolderUrl: string;
   }) {
-    const response = await fetch('http://35.213.189.210:8000/upload-menu-images', {
+    const uploadMenuImagesUrl = (
+      this.configService.get<string>('UPLOAD_IMAGE_SERVICE_URL') ?? 'http://35.213.189.210:8000'
+    ).concat('/upload-menu-images');
+
+    const response = await fetch(uploadMenuImagesUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
