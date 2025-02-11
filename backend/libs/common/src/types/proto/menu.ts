@@ -37,6 +37,36 @@ import {
 
 export const protobufPackage = 'menu';
 
+export interface BulkInsertItemsRequest {
+  items: BulkInsertItemsRequest_Item[];
+  storeId: string;
+}
+
+export interface BulkInsertItemsRequest_Item {
+  name: string;
+  basePrice?: number | undefined;
+  description?: string | undefined;
+  specialDietaries: number[];
+  cuisineTypes: number[];
+  occasionEvents: number[];
+  driveFolderUrl?: string | undefined;
+  minQuantity?: number | undefined;
+  packagingType?: string | undefined;
+  packagingUnit?: string | undefined;
+  participant?: number | undefined;
+  preparationTime?: number | undefined;
+  optionsChoices: PartnerOptionsChoices[];
+  metadata: Metadata | undefined;
+  packageId?: string | undefined;
+  categoryId?: string | undefined;
+  serviceType: number;
+  serviceSettings: ItemServiceSettings | undefined;
+}
+
+export interface BulkInsertItemsResponse {
+  insertedCount: number;
+}
+
 export interface FindStoreIdsForPendingItemsRequest {
   serviceCategory?: string | undefined;
 }
@@ -1127,6 +1157,8 @@ export interface MenusServiceClient {
 
   insertMenuItem(request: PartnerItemRequest): Observable<PartnerItem>;
 
+  bulkInsertItems(request: BulkInsertItemsRequest): Observable<BulkInsertItemsResponse>;
+
   updateMenuItem(request: UpdateItemRequest): Observable<PartnerItem>;
 
   updateStoreStatus(request: UpdateStoreStatusRequest): Observable<UpdateStoreStatusResponse>;
@@ -1310,6 +1342,13 @@ export interface MenusServiceController {
   insertMenuItem(
     request: PartnerItemRequest,
   ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
+
+  bulkInsertItems(
+    request: BulkInsertItemsRequest,
+  ):
+    | Promise<BulkInsertItemsResponse>
+    | Observable<BulkInsertItemsResponse>
+    | BulkInsertItemsResponse;
 
   updateMenuItem(
     request: UpdateItemRequest,
@@ -1525,6 +1564,7 @@ export function MenusServiceControllerMethods() {
       'getFilterOptions',
       'getStoreDetail',
       'insertMenuItem',
+      'bulkInsertItems',
       'updateMenuItem',
       'updateStoreStatus',
       'updatePartnerStatus',

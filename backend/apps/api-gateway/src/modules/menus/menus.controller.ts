@@ -5,11 +5,9 @@ import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.dec
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
 import {
-  CuisineTypesDto,
+  FilterOptionDto,
   InsertItemDto,
-  OccasionEventsDto,
   PartnerItemDto,
-  SpecialDietariesDto,
 } from '@gateway/modules/menus/dtos/insert-menu-item.dto';
 import { UpdateItemDto } from '@gateway/modules/menus/dtos/update-menu-item.dto';
 import { MenusService } from '@gateway/modules/menus/menus.service';
@@ -206,7 +204,7 @@ export class MenusController {
   @ApiOperation({ summary: 'Retrieve all occasion events' })
   @ApiWrapperResponse({
     description: 'Retrieve all occasion events',
-    type: OccasionEventsDto,
+    type: [FilterOptionDto],
   })
   async findOccasionEvents() {
     const result = await this.menusService.findOccasionEvents();
@@ -217,7 +215,7 @@ export class MenusController {
   @ApiOperation({ summary: 'Retrieve all cuisine types' })
   @ApiWrapperResponse({
     description: 'Retrieve all cuisine types',
-    type: CuisineTypesDto,
+    type: [FilterOptionDto],
   })
   async findCuisineTypes() {
     const result = await this.menusService.findCuisineTypes();
@@ -228,7 +226,7 @@ export class MenusController {
   @ApiOperation({ summary: 'Retrieve all special dietaries' })
   @ApiWrapperResponse({
     description: 'Retrieve all special dietaries',
-    type: SpecialDietariesDto,
+    type: [FilterOptionDto],
   })
   async findSpecialDietaries() {
     const result = await this.menusService.findSpecialDietaries();

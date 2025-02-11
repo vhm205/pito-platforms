@@ -7,3 +7,21 @@ export enum StoreStatus {
   APPROVED = 'approved',
   REJECTED = 'rejected',
 }
+
+export enum StoreType {
+  Restaurant = 'restaurant',
+  Bakery = 'bakery',
+  JuiceBar = 'juice_bar',
+  IceCream = 'ice_cream',
+  CoffeeShop = 'coffee_shop',
+  Pizzerias = 'pizzerias',
+  Salad = 'salad',
+  Grazing = 'grazing',
+  ChineseRestaurant = 'chinese_restaurant',
+  JapaneseRestaurant = 'japanese_restaurant',
+  VietnameseFood = 'vietnamese_food',
+  Korean = 'korean',
+  BBQRestaurant = 'bbq_restaurant',
+  BeerGardenBrewpub = 'beer_garden_brewpub',
+  Steakhouse = 'steakhouse',
+}

@@ -1,8 +1,9 @@
-import { FilterOption, PartnerItem } from '@app/common';
+import { FilterOption, PartnerItem, BulkInsertItemsRequest_Item } from '@app/common';
 import { ItemStatus } from '@app/common/enums/item';
 import { InsertItemSchema } from '@gateway/modules/menus/schemas/item.schema';
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose, Transform } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
+import { IsArray, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { z } from 'zod';
 
 export type InsertItemDto = z.infer<typeof InsertItemSchema>;
@@ -277,7 +278,7 @@ export class PartnerItemDto implements PartnerItem {
   updatedAt: Date;
 }
 
-class FilterOptionDto {
+export class FilterOptionDto {
   @ApiProperty({ example: 1 })
   id: number;
 
@@ -285,44 +286,158 @@ class FilterOptionDto {
   name: string;
 }
 
-export class OccasionEventsDto {
+class ItemDto implements BulkInsertItemsRequest_Item {
+  @ApiProperty({ example: 'Example Name' })
+  @IsString()
+  name: string;
+
+  @ApiProperty({ example: 100 })
+  @IsNumber()
+  @IsOptional()
+  basePrice?: number;
+
+  @ApiProperty({ example: 'Example Description' })
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @ApiProperty({ type: [Number], example: [1, 2] })
+  @IsArray()
+  @IsNumber({}, { each: true })
+  specialDietaries: number[];
+
+  @ApiProperty({ type: [Number], example: [1, 2] })
+  @IsArray()
+  @IsNumber({}, { each: true })
+  cuisineTypes: number[];
+
+  @ApiProperty({ type: [Number], example: [1, 2] })
+  @IsArray()
+  @IsNumber({}, { each: true })
+  occasionEvents: number[];
+
+  @ApiProperty({ example: 'https://drive.google.com/folder' })
+  @IsString()
+  @IsOptional()
+  driveFolderUrl?: string;
+
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  @IsOptional()
+  minQuantity?: number;
+
+  @ApiProperty({ example: 'paper' })
+  @IsString()
+  @IsOptional()
+  packagingType?: string;
+
+  @ApiProperty({ example: 'set' })
+  @IsString()
+  @IsOptional()
+  packagingUnit?: string;
+
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  @IsOptional()
+  participant?: number;
+
+  @ApiProperty({ example: 30 })
+  @IsNumber()
+  @IsOptional()
+  preparationTime?: number;
+
+  @ApiProperty({ type: Array, example: [] })
+  @IsArray()
+  optionsChoices: Array<any>;
+
   @ApiProperty({
-    description: 'Occasion Events',
-    type: [FilterOptionDto],
-    example: [
-      { id: 1, name: 'Birthday' },
-      { id: 2, name: 'Anniversary' },
-    ],
+    type: Object,
+    example: {
+      hasNotes: true,
+      hasUtensils: true,
+    },
   })
-  @Expose()
-  @Transform(({ value }) => value ?? [])
-  occasionEvents: FilterOptionDto[];
+  @IsObject()
+  metadata: {
+    hasNotes: boolean;
+    hasUtensils: boolean;
+    rejectionReason?: string;
+    hasFeedingService?: boolean;
+    diningTools: string[];
+  };
+
+  @ApiProperty({ example: 'package-id' })
+  @IsString()
+  @IsOptional()
+  packageId?: string;
+
+  @ApiProperty({ example: 'category-id' })
+  @IsString()
+  @IsOptional()
+  categoryId?: string;
+
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  serviceType: number;
+
+  @ApiProperty({
+    type: Object,
+    example: {
+      setupTime: 10,
+      serviceTime: 30,
+      servicePerson: 2,
+    },
+  })
+  @IsObject()
+  serviceSettings: {
+    setupTime: number;
+    serviceTime: number;
+    servicePerson: number;
+  };
 }
 
-export class CuisineTypesDto {
+export class BulkInsertItemsDto {
   @ApiProperty({
-    description: 'Cuisine Types',
-    type: [FilterOptionDto],
+    type: [ItemDto],
     example: [
-      { id: 1, name: 'Italian' },
-      { id: 2, name: 'Chinese' },
+      {
+        name: 'Example Item',
+        basePrice: 100,
+        description: 'Example Description',
+        specialDietaries: [1, 2],
+        cuisineTypes: [1, 2],
+        occasionEvents: [1, 2],
+        driveFolderUrl: 'https://drive.google.com/folder',
+        minQuantity: 1,
+        packagingType: 'PAPER',
+        packagingUnit: 'BOTTLE',
+        participant: 1,
+        preparationTime: 30,
+        optionsChoices: [],
+        metadata: {
+          hasNotes: true,
+          hasUtensils: true,
+          rejectionReason: 'Example Reject Reason',
+          hasFeedingService: true,
+          diningTools: ['Example Dining Tools'],
+        },
+        packageId: 'package-id',
+        categoryId: 'category-id',
+        serviceType: 1,
+        serviceSettings: {
+          setupTime: 10,
+          serviceTime: 30,
+          servicePerson: 2,
+        },
+      },
     ],
   })
-  @Expose()
-  @Transform(({ value }) => value ?? [])
-  cuisineTypes: FilterOptionDto[];
-}
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ItemDto)
+  items: ItemDto[];
 
-export class SpecialDietariesDto {
-  @ApiProperty({
-    description: 'Special Dietaries',
-    type: [FilterOptionDto],
-    example: [
-      { id: 1, name: 'Vegetarian' },
-      { id: 2, name: 'Vegan' },
-    ],
-  })
-  @Expose()
-  @Transform(({ value }) => value ?? [])
-  specialDietaries: FilterOptionDto[];
+  @ApiProperty({ type: 'string', example: '50a33682-5d5b-4d29-857e-27a5caea3d1b' })
+  @IsString()
+  storeId: string;
 }
