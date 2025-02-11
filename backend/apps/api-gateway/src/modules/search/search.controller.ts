@@ -1,4 +1,5 @@
 import { LoggerService } from '@app/common';
+import * as REGIONS_OF_VIETNAM from '@gateway/assets/regions_of_vietnam.json';
 import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { WebhookAuth } from '@gateway/decorators/webhook-auth.decorator';
 import { WebhookGuard } from '@gateway/guards/webhook.guard';
@@ -19,6 +20,9 @@ import {
   AutocompleteFeedQueryDto,
   IndexAutocompleteFeedRequestBodyDto,
   AutocompleteFeedResponseDto,
+  RegionDto,
+  DistrictDto,
+  WardDto,
 } from './dto/autocomplete-feed.dto';
 
 @Controller('search')
@@ -55,5 +59,32 @@ export class SearchController {
       });
       return 'Failed to index autocomplete feed => ' + error.message;
     }
+  }
+
+  @Get('/regions')
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: [RegionDto] })
+  async findRegions() {
+    const data = REGIONS_OF_VIETNAM;
+    const regions = data?.regions;
+    return regions;
+  }
+
+  @Get('/districts')
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: [DistrictDto] })
+  async findDistricts(@Query('regionId') regionId: string) {
+    const data = REGIONS_OF_VIETNAM;
+    const districts = data?.districts[regionId] ?? [];
+    return districts;
+  }
+
+  @Get('/wards')
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: [WardDto] })
+  async findWards(@Query('districtId') districtId: string) {
+    const data = REGIONS_OF_VIETNAM;
+    const wards = data?.wards[districtId] ?? [];
+    return wards;
   }
 }
