@@ -67,6 +67,7 @@ import {
   FindCateringPackagesAndOccasionEventsRequest,
   FindItemCountsByStoreIdsRequest,
   FindStoreIdsForPendingItemsRequest,
+  BulkInsertItemsRequest,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -472,5 +473,9 @@ export class MenuController implements MenusServiceController {
   async findStoreIdsForPendingItems(request: FindStoreIdsForPendingItemsRequest) {
     const storeIds = await this.menuService.findStoreIdsForPendingItems(request?.serviceCategory);
     return storeIds;
+  }
+
+  async bulkInsertItems(request: BulkInsertItemsRequest) {
+    return this.menuService.bulkInsertItems(request);
   }
 }

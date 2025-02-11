@@ -3,7 +3,10 @@ import { ApiPageWrapperResponse, Auth } from '@gateway/decorators';
 import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
-import { PartnerItemDto } from '@gateway/modules/menus/dtos/insert-menu-item.dto';
+import {
+  BulkInsertItemsDto,
+  PartnerItemDto,
+} from '@gateway/modules/menus/dtos/insert-menu-item.dto';
 import { OperatorQueryItemDto } from '@gateway/modules/menus/dtos/query-menu.dto';
 import { UpdateItemDto } from '@gateway/modules/menus/dtos/update-menu-item.dto';
 import { MenusService } from '@gateway/modules/menus/menus.service';
@@ -157,5 +160,19 @@ export class OperatorMenusController {
     @Body() { optionIds }: AssignOptionsToPackageDto,
   ): Promise<{ success: boolean }> {
     return this.service.assignOptionsToPackage(packageId, optionIds);
+  }
+
+  @Post('items/bulk-insert')
+  @Auth([RoleType.OPERATOR])
+  @ApiOperation({ summary: 'Bulk insert items' })
+  @ApiResponse({
+    status: 201,
+    description: 'Items inserted successfully',
+    schema: { example: { data: { insertedCount: 10 }, message: 'Success', statusCode: 201 } },
+  })
+  @HttpCode(HttpStatus.CREATED)
+  async bulkInsertItems(@Body() request: BulkInsertItemsDto) {
+    const result = await this.service.bulkInsertItems(request);
+    return result;
   }
 }

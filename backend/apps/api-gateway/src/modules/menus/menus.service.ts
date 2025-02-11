@@ -108,14 +108,17 @@ export class MenusService {
   }
 
   async findOccasionEvents() {
-    return firstValueFrom(this.menusService.findOccasionEvents({}));
+    const response = await firstValueFrom(this.menusService.findOccasionEvents({}));
+    return response?.occasionEvents ?? [];
   }
 
   async findCuisineTypes() {
-    return firstValueFrom(this.menusService.findCuisineTypes({}));
+    const response = await firstValueFrom(this.menusService.findCuisineTypes({}));
+    return response?.cuisineTypes ?? [];
   }
 
   async findSpecialDietaries() {
-    return firstValueFrom(this.menusService.findSpecialDietaries({}));
+    const response = await firstValueFrom(this.menusService.findSpecialDietaries({}));
+    return response?.specialDietaries ?? [];
   }
 }

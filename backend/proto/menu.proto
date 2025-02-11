@@ -28,6 +28,7 @@ service MenusService {
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
   rpc GetStoreDetail (GetStoreDetailRequest) returns (GetStoreDetailResponse);
   rpc InsertMenuItem (PartnerItemRequest) returns (PartnerItem);
+  rpc BulkInsertItems (BulkInsertItemsRequest) returns (BulkInsertItemsResponse);
   rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
   rpc UpdateStoreStatus (UpdateStoreStatusRequest) returns (UpdateStoreStatusResponse);
   rpc UpdatePartnerStatus (UpdatePartnerStatusRequest) returns (UpdatePartnerStatusResponse);
@@ -68,6 +69,36 @@ service MenusService {
 
   rpc FindItemCountsByStoreIds (FindItemCountsByStoreIdsRequest) returns (FindItemCountsByStoreIdsResponse);
   rpc FindStoreIdsForPendingItems (FindStoreIdsForPendingItemsRequest) returns (FindStoreIdsForPendingItemsResponse);
+}
+
+message BulkInsertItemsRequest {
+  message Item {
+    string name = 1;
+    optional float base_price = 2;
+    optional string description = 3;
+    repeated int32 special_dietaries = 4;
+    repeated int32 cuisine_types = 5;
+    repeated int32 occasion_events = 6;
+    optional string drive_folder_url = 7;
+    optional int32 min_quantity = 8;
+    optional string packaging_type = 9;
+    optional string packaging_unit = 10;
+    optional int32 participant = 11;
+    optional int32 preparation_time = 12;
+    repeated PartnerOptionsChoices options_choices = 13;
+    Metadata metadata = 14;
+    optional string package_id = 15;
+    optional string category_id = 16;
+    int32 service_type = 17;
+    ItemServiceSettings service_settings = 18;
+  }
+
+  repeated Item items = 1;
+  string store_id = 2;
+}
+
+message BulkInsertItemsResponse {
+  int32 inserted_count = 1;
 }
 
 message FindStoreIdsForPendingItemsRequest {

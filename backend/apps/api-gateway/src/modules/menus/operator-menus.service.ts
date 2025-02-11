@@ -9,6 +9,7 @@ import {
 } from '@app/common';
 import { ItemStatus } from '@app/common/enums/item';
 import { FilterRuleDto } from '@gateway/gateway-common/dto/query-dto';
+import { BulkInsertItemsDto } from '@gateway/modules/menus/dtos/insert-menu-item.dto';
 import { OperatorQueryItemDto } from '@gateway/modules/menus/dtos/query-menu.dto';
 import { Inject, Injectable, InternalServerErrorException, OnModuleInit } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -131,5 +132,10 @@ export class OperatorMenusService implements OnModuleInit {
       .assignOptionsToPackage({ packageId, optionIds })
       .pipe(timeout(5000));
     return firstValueFrom(source$);
+  }
+
+  async bulkInsertItems(request: BulkInsertItemsDto) {
+    const result = await firstValueFrom(this.menusServiceClient.bulkInsertItems(request));
+    return result;
   }
 }

@@ -3,6 +3,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
 import { CateringPackageEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/catering-package.entity';
+import { MenuEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/menu.entity';
+import { PartnerCategoryEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-category.entity';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 import { PartnerOnboardingEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-onboarding.entity';
@@ -57,6 +59,8 @@ const partnerEntities = [
   PartnerOccasionEventEntity,
   DishEntity,
   PartnerOnboardingEntity,
+  MenuEntity,
+  PartnerCategoryEntity,
 ];
 
 @Module({
