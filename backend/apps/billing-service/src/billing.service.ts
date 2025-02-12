@@ -111,11 +111,6 @@ export class BillingService {
     filter: FindOptionsWhere<Pick<Transaction, 'id' | 'orderId' | 'status' | 'txCode'>>,
   ) {
     const transaction = await this.txRepository.findOne(filter);
-
-    if (!transaction) {
-      throw new RpcException('Transaction not found');
-    }
-
     return transaction;
   }
 
