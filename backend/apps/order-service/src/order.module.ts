@@ -204,7 +204,7 @@ import { TransactionService } from './transaction.service';
               process.env.RABBITMQ_HOST
             }:${process.env.RABBITMQ_PORT}${process.env.RABBITMQ_VHOST}`,
           ],
-          queue: 'notifications_queue',
+          queue: RabbitMQQueue.NOTIFICATION_QUEUE,
           queueOptions: {
             durable: true,
             noAck: false,
