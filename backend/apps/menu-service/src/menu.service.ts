@@ -777,7 +777,7 @@ export class MenuService {
     return response.json();
   }
 
-  async processItemsAndMenuCategories({
+  private async processItemsAndMenuCategories({
     items,
     menuId,
     storeId,

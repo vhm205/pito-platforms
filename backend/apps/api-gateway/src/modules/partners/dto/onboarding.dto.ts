@@ -15,6 +15,7 @@ import {
   IsArray,
   IsBoolean,
   IsEmail,
+  IsEnum,
   IsOptional,
   IsString,
   Matches,
@@ -348,4 +349,25 @@ export class OperatorQueryOnboardingDto extends PaginationQueryDto {
   @Transform(({ value }) => normalizeArray(value), { toClassOnly: true })
   @Transform(({ value }) => parseSort(value))
   sorts: SortRule[];
+}
+
+export class UpdateOnboardingStatusDto {
+  @ApiProperty({
+    type: OnboardingStatus,
+    enum: OnboardingStatus,
+    example: OnboardingStatus.REJECTED,
+    enumName: 'OnboardingStatus',
+    description: 'The status of the onboarding',
+  })
+  @IsEnum(OnboardingStatus)
+  status: OnboardingStatus;
+
+  @ApiPropertyOptional({
+    type: 'string',
+    description: 'The reason for rejection',
+    example: 'Incomplete documents',
+  })
+  @IsString()
+  @IsOptional()
+  rejectionReason?: string;
 }

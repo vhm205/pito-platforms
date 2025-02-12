@@ -1,3 +1,4 @@
+import { UpdateOnboardingStatusRequest } from '@app/common';
 import { NullableType } from '@app/common/types/common';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import { Onboarding } from 'apps/menu-service/src/domain/onboarding.domain';
@@ -22,4 +23,8 @@ export abstract class PartnerRepository {
     filters: Record<string, FindOperator<unknown>>[];
     sorts: SortRule[];
   }): Promise<[Onboarding[], number]>;
+
+  abstract updateOnboardingStatus(request: UpdateOnboardingStatusRequest): Promise<{
+    affectedRows: number;
+  }>;
 }

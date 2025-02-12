@@ -83,3 +83,7 @@ enum StorePerformanceLevel {
   NEEDS_IMPROVEMENT = 2;
   ALARM = 3;
 }
+
+message UpdateStatusResponse {
+  int32 affected_rows = 1;
+}

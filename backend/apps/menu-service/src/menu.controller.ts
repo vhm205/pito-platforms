@@ -68,6 +68,7 @@ import {
   FindItemCountsByStoreIdsRequest,
   FindStoreIdsForPendingItemsRequest,
   BulkInsertItemsRequest,
+  UpdateOnboardingStatusRequest,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -477,5 +478,9 @@ export class MenuController implements MenusServiceController {
 
   async bulkInsertItems(request: BulkInsertItemsRequest) {
     return this.menuService.bulkInsertItems(request);
+  }
+
+  async updateOnboardingStatus(request: UpdateOnboardingStatusRequest) {
+    return this.partnerService.updateOnboardingStatus(request);
   }
 }

@@ -69,6 +69,13 @@ service MenusService {
 
   rpc FindItemCountsByStoreIds (FindItemCountsByStoreIdsRequest) returns (FindItemCountsByStoreIdsResponse);
   rpc FindStoreIdsForPendingItems (FindStoreIdsForPendingItemsRequest) returns (FindStoreIdsForPendingItemsResponse);
+  rpc UpdateOnboardingStatus (UpdateOnboardingStatusRequest) returns (common.UpdateStatusResponse);
+}
+
+message UpdateOnboardingStatusRequest {
+  string id = 1;
+  string status = 2;
+  optional string rejection_reason = 3;
 }
 
 message BulkInsertItemsRequest {

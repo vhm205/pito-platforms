@@ -1,4 +1,5 @@
-import { PARTNER_DB_SOURCE } from '@app/common';
+import { PARTNER_DB_SOURCE, UpdateOnboardingStatusRequest } from '@app/common';
+import { OnboardingStatus } from '@app/common/enums/partner';
 import { NullableType } from '@app/common/types/common';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
@@ -104,5 +105,29 @@ export class PartnerRelationalRepository implements PartnerRepository {
     const domainEntities = entities.map(entity => OnboardingMapper.toDomain(entity));
 
     return [domainEntities, total];
+  }
+
+  async updateOnboardingStatus(request: UpdateOnboardingStatusRequest) {
+    const onboardingEntity = await this.onboardingRepository.findOneBy({ id: request.id });
+
+    if (!onboardingEntity) {
+      return { affectedRows: 0 };
+    }
+
+    const updateData: Partial<PartnerOnboardingEntity> = {
+      status: request.status as OnboardingStatus,
+    };
+
+    if (request.status === OnboardingStatus.REJECTED) {
+      const existingMetadata = onboardingEntity.metadata || {};
+      updateData.metadata = {
+        ...existingMetadata,
+        rejection_reason: request.rejectionReason,
+      };
+    }
+
+    const { affected } = await this.onboardingRepository.update(request.id, updateData);
+
+    return { affectedRows: affected ?? 0 };
   }
 }

@@ -10,6 +10,7 @@ import {
   SortRule,
   StoreEngagementLevel,
   StorePerformanceLevel,
+  UpdateStatusResponse,
 } from './common';
 import {
   CreateDishRequest,
@@ -36,6 +37,12 @@ import {
 } from './item/occasion-event';
 
 export const protobufPackage = 'menu';
+
+export interface UpdateOnboardingStatusRequest {
+  id: string;
+  status: string;
+  rejectionReason?: string | undefined;
+}
 
 export interface BulkInsertItemsRequest {
   items: BulkInsertItemsRequest_Item[];
@@ -1244,6 +1251,8 @@ export interface MenusServiceClient {
   findStoreIdsForPendingItems(
     request: FindStoreIdsForPendingItemsRequest,
   ): Observable<FindStoreIdsForPendingItemsResponse>;
+
+  updateOnboardingStatus(request: UpdateOnboardingStatusRequest): Observable<UpdateStatusResponse>;
 }
 
 export interface MenusServiceController {
@@ -1542,6 +1551,10 @@ export interface MenusServiceController {
     | Promise<FindStoreIdsForPendingItemsResponse>
     | Observable<FindStoreIdsForPendingItemsResponse>
     | FindStoreIdsForPendingItemsResponse;
+
+  updateOnboardingStatus(
+    request: UpdateOnboardingStatusRequest,
+  ): Promise<UpdateStatusResponse> | Observable<UpdateStatusResponse> | UpdateStatusResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -1596,6 +1609,7 @@ export function MenusServiceControllerMethods() {
       'findOnboardingsWithPagination',
       'findItemCountsByStoreIds',
       'findStoreIdsForPendingItems',
+      'updateOnboardingStatus',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

@@ -3,6 +3,7 @@ import {
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
+  UpdateOnboardingStatusRequest,
   UpdatePartnerRequest,
 } from '@app/common';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
@@ -78,5 +79,10 @@ export class OperatorPartnersService implements OnModuleInit {
         sorts: query.sorts,
       }),
     );
+  }
+
+  async updateOnboardingStatus(request: UpdateOnboardingStatusRequest) {
+    const source$ = this.menuServiceClient.updateOnboardingStatus(request).pipe(timeout(3000));
+    return firstValueFrom(source$);
   }
 }
