@@ -32,6 +32,10 @@ export class LongToNumberInterceptor implements NestInterceptor {
       return obj;
     }
 
+    if (obj instanceof Date) {
+      return obj;
+    }
+
     if (this.isLong(obj)) {
       return obj.toNumber();
     }
