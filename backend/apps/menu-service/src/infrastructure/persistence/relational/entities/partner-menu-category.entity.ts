@@ -1,12 +1,14 @@
 import { EntityRelationalHelper } from '@app/common';
 import { MenuType } from '@app/common/enums/menu';
 import { NullableType } from '@app/common/types/common';
+import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -53,4 +55,7 @@ export class PartnerMenuCategoriesEntity extends EntityRelationalHelper {
     nullable: false,
   })
   type: MenuType;
+
+  @OneToMany(() => PartnerItemEntity, item => item.menuCategory)
+  items: PartnerItemEntity[];
 }

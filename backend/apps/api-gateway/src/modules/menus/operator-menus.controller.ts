@@ -7,6 +7,7 @@ import {
   BulkInsertItemsDto,
   PartnerItemDto,
 } from '@gateway/modules/menus/dtos/insert-menu-item.dto';
+import { FindMenuCategoryRequestDto, MenuCategoryDto } from '@gateway/modules/menus/dtos/item.dto';
 import { OperatorQueryItemDto } from '@gateway/modules/menus/dtos/query-menu.dto';
 import {
   BulkUpdateItemsStatusDto,
@@ -206,5 +207,16 @@ export class OperatorMenusController {
   async deleteItem(@Param('identifier') identifier: string) {
     const filterCriteria = isValidUUID(identifier) ? { id: identifier } : { slug: identifier };
     return this.service.deleteItem(filterCriteria);
+  }
+
+  @Get('menu-categories/:id')
+  @Auth([RoleType.OPERATOR])
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: MenuCategoryDto })
+  async findMenuCategory(@Param('id') id: string, @Query() query: FindMenuCategoryRequestDto) {
+    return this.service.findMenuCategory({
+      id,
+      serviceCategory: query?.serviceCategory,
+    });
   }
 }

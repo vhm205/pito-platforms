@@ -1,5 +1,6 @@
 import {
   BulkUpdateItemsStatusRequest,
+  FindMenuCategoryRequest,
   PARTNER_DB_SOURCE,
   PartnerItemRequest,
   UpdateItemRequest,
@@ -818,5 +819,34 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
   ): Promise<{ affectedRows: number }> {
     const { affected } = await this.partnerItemRepository.delete(filter);
     return { affectedRows: affected ?? 0 };
+  }
+
+  async findMenuCategoryWithItemCounts(
+    request: FindMenuCategoryRequest,
+  ): Promise<{ category: PartnerMenuCategoriesEntity; itemCount: number }> {
+    const queryBuilder = this.partnerMenuCategoriesRepository
+      .createQueryBuilder('menuCategory')
+      .leftJoinAndSelect('menuCategory.items', 'items')
+      .where('menuCategory.id = :id', { id: request.id });
+
+    if (request.serviceCategory) {
+      queryBuilder.andWhere('items.serviceCategory = :serviceCategory', {
+        serviceCategory: request.serviceCategory,
+      });
+    }
+
+    const category = (await queryBuilder.getOne()) as PartnerMenuCategoriesEntity;
+    const itemCount = category?.items?.length ?? 0;
+
+    return { category, itemCount };
+  }
+
+  async findCategories(args: {
+    filters: Record<string, FindOperator<any>>[];
+  }): Promise<PartnerCategoryEntity[]> {
+    const entities = await this.partnerCategoryRepository.find({
+      where: args.filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
+    });
+    return entities;
   }
 }

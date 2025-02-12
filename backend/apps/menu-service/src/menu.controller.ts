@@ -31,6 +31,7 @@ import {
   FindItemsRequest,
   FindItemsResponse,
   FindItemsWithPaginationRequest,
+  FindMenuCategoryRequest,
   FindOnboardingsRequest,
   FindStoreIdsForPendingItemsRequest,
   FindStoreRequest,
@@ -491,5 +492,9 @@ export class MenuController implements MenusServiceController {
 
   async deleteItem(request: FindItemRequest) {
     return this.menuService.deleteItem(request);
+  }
+
+  async findMenuCategory(request: FindMenuCategoryRequest) {
+    return this.menuService.findMenuCategory(request);
   }
 }

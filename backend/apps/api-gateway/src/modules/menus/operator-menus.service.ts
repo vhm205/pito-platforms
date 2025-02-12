@@ -2,6 +2,7 @@ import {
   BulkUpdateItemsStatusRequest,
   DEFAULT_PAGE_NUMBER,
   FindItemRequest,
+  FindMenuCategoryRequest,
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
@@ -148,5 +149,10 @@ export class OperatorMenusService implements OnModuleInit {
 
   async deleteItem(request: FindItemRequest) {
     return firstValueFrom(this.menusServiceClient.deleteItem(request));
+  }
+
+  async findMenuCategory(request: FindMenuCategoryRequest) {
+    const result = await firstValueFrom(this.menusServiceClient.findMenuCategory(request));
+    return result?.data;
   }
 }

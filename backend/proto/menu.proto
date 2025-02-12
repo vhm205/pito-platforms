@@ -32,6 +32,7 @@ service MenusService {
   rpc BulkUpdateItemsStatus (BulkUpdateItemsStatusRequest) returns (common.UpdateStatusResponse);
   rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
   rpc DeleteItem (FindItemRequest) returns (common.UpdateStatusResponse);
+  rpc FindMenuCategory (FindMenuCategoryRequest) returns (FindMenuCategoryResponse);
 
   rpc UpdateStoreStatus (UpdateStoreStatusRequest) returns (UpdateStoreStatusResponse);
   rpc UpdatePartnerStatus (UpdatePartnerStatusRequest) returns (UpdatePartnerStatusResponse);
@@ -73,6 +74,28 @@ service MenusService {
   rpc FindItemCountsByStoreIds (FindItemCountsByStoreIdsRequest) returns (FindItemCountsByStoreIdsResponse);
   rpc FindStoreIdsForPendingItems (FindStoreIdsForPendingItemsRequest) returns (FindStoreIdsForPendingItemsResponse);
   rpc UpdateOnboardingStatus (UpdateOnboardingStatusRequest) returns (common.UpdateStatusResponse);
+}
+
+message FindMenuCategoryRequest {
+  string id = 1;
+  optional string service_category = 2;
+}
+
+message FindMenuCategoryResponse {
+  message MenuCategory {
+    string id = 1;
+    string name = 2;
+    bool is_active = 3;
+    google.protobuf.Timestamp created_at = 4;
+    google.protobuf.Timestamp updated_at = 5;
+    google.protobuf.Struct metadata = 6;
+    int32 total_items = 7;
+    string type = 8;
+    string notes = 9;
+    int32 index = 10;
+  }
+
+  MenuCategory data = 1;
 }
 
 message BulkUpdateItemsStatusRequest {

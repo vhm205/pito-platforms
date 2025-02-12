@@ -38,6 +38,28 @@ import {
 
 export const protobufPackage = 'menu';
 
+export interface FindMenuCategoryRequest {
+  id: string;
+  serviceCategory?: string | undefined;
+}
+
+export interface FindMenuCategoryResponse {
+  data: FindMenuCategoryResponse_MenuCategory | undefined;
+}
+
+export interface FindMenuCategoryResponse_MenuCategory {
+  id: string;
+  name: string;
+  isActive: boolean;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  metadata: { [key: string]: any } | undefined;
+  totalItems: number;
+  type: string;
+  notes: string;
+  index: number;
+}
+
 export interface BulkUpdateItemsStatusRequest {
   ids: string[];
   status: string;
@@ -1178,6 +1200,8 @@ export interface MenusServiceClient {
 
   deleteItem(request: FindItemRequest): Observable<UpdateStatusResponse>;
 
+  findMenuCategory(request: FindMenuCategoryRequest): Observable<FindMenuCategoryResponse>;
+
   updateStoreStatus(request: UpdateStoreStatusRequest): Observable<UpdateStoreStatusResponse>;
 
   updatePartnerStatus(request: UpdatePartnerStatusRequest): Observable<UpdatePartnerStatusResponse>;
@@ -1380,6 +1404,13 @@ export interface MenusServiceController {
   deleteItem(
     request: FindItemRequest,
   ): Promise<UpdateStatusResponse> | Observable<UpdateStatusResponse> | UpdateStatusResponse;
+
+  findMenuCategory(
+    request: FindMenuCategoryRequest,
+  ):
+    | Promise<FindMenuCategoryResponse>
+    | Observable<FindMenuCategoryResponse>
+    | FindMenuCategoryResponse;
 
   updateStoreStatus(
     request: UpdateStoreStatusRequest,
@@ -1599,6 +1630,7 @@ export function MenusServiceControllerMethods() {
       'bulkUpdateItemsStatus',
       'updateMenuItem',
       'deleteItem',
+      'findMenuCategory',
       'updateStoreStatus',
       'updatePartnerStatus',
       'updateStore',
