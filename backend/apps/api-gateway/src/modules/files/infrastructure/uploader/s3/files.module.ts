@@ -53,10 +53,13 @@ import { FilesS3Service } from './files.service';
               infer: true,
             }),
             contentType: multerS3.AUTO_CONTENT_TYPE,
-            key: (_req, file, resolve) => {
+            key: (req, file, resolve) => {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-expect-error
+              const folder = req.query.folder ?? 'files';
               resolve(
                 null,
-                `${randomStringGenerator()}.${file.originalname.split('.').pop()?.toLowerCase()}`,
+                `${folder}/${randomStringGenerator()}.${file.originalname.split('.').pop()?.toLowerCase()}`,
               );
             },
           }),
