@@ -31,6 +31,7 @@ import {
   FindCateringPackagesAndOccasionEventsRequest,
   BulkInsertItemsRequest,
   BulkInsertItemsRequest_Item,
+  BulkUpdateItemsStatusRequest,
 } from '@app/common';
 import { AppConfig, Environment } from '@app/common/configs';
 import { GrpcStatus, SourceSystemType } from '@app/common/enums';
@@ -922,5 +923,15 @@ export class MenuService {
     return {
       insertedCount: insertedItems?.length ?? 0,
     };
+  }
+
+  async bulkUpdateItemsStatus(request: BulkUpdateItemsStatusRequest) {
+    const result = await this.partnerItemRepository.bulkUpdateItemsStatus(request);
+    return result;
+  }
+
+  async deleteItem(request: FindItemRequest) {
+    const result = await this.partnerItemRepository.deleteItem(request);
+    return result;
   }
 }

@@ -38,6 +38,12 @@ import {
 
 export const protobufPackage = 'menu';
 
+export interface BulkUpdateItemsStatusRequest {
+  ids: string[];
+  status: string;
+  rejectionReason?: string | undefined;
+}
+
 export interface UpdateOnboardingStatusRequest {
   id: string;
   status: string;
@@ -1166,7 +1172,11 @@ export interface MenusServiceClient {
 
   bulkInsertItems(request: BulkInsertItemsRequest): Observable<BulkInsertItemsResponse>;
 
+  bulkUpdateItemsStatus(request: BulkUpdateItemsStatusRequest): Observable<UpdateStatusResponse>;
+
   updateMenuItem(request: UpdateItemRequest): Observable<PartnerItem>;
+
+  deleteItem(request: FindItemRequest): Observable<UpdateStatusResponse>;
 
   updateStoreStatus(request: UpdateStoreStatusRequest): Observable<UpdateStoreStatusResponse>;
 
@@ -1359,9 +1369,17 @@ export interface MenusServiceController {
     | Observable<BulkInsertItemsResponse>
     | BulkInsertItemsResponse;
 
+  bulkUpdateItemsStatus(
+    request: BulkUpdateItemsStatusRequest,
+  ): Promise<UpdateStatusResponse> | Observable<UpdateStatusResponse> | UpdateStatusResponse;
+
   updateMenuItem(
     request: UpdateItemRequest,
   ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
+
+  deleteItem(
+    request: FindItemRequest,
+  ): Promise<UpdateStatusResponse> | Observable<UpdateStatusResponse> | UpdateStatusResponse;
 
   updateStoreStatus(
     request: UpdateStoreStatusRequest,
@@ -1578,7 +1596,9 @@ export function MenusServiceControllerMethods() {
       'getStoreDetail',
       'insertMenuItem',
       'bulkInsertItems',
+      'bulkUpdateItemsStatus',
       'updateMenuItem',
+      'deleteItem',
       'updateStoreStatus',
       'updatePartnerStatus',
       'updateStore',

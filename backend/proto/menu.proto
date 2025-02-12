@@ -29,7 +29,10 @@ service MenusService {
   rpc GetStoreDetail (GetStoreDetailRequest) returns (GetStoreDetailResponse);
   rpc InsertMenuItem (PartnerItemRequest) returns (PartnerItem);
   rpc BulkInsertItems (BulkInsertItemsRequest) returns (BulkInsertItemsResponse);
+  rpc BulkUpdateItemsStatus (BulkUpdateItemsStatusRequest) returns (common.UpdateStatusResponse);
   rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
+  rpc DeleteItem (FindItemRequest) returns (common.UpdateStatusResponse);
+
   rpc UpdateStoreStatus (UpdateStoreStatusRequest) returns (UpdateStoreStatusResponse);
   rpc UpdatePartnerStatus (UpdatePartnerStatusRequest) returns (UpdatePartnerStatusResponse);
   rpc UpdateStore (UpdateStoreRequest) returns (UpdateStoreResponse);
@@ -70,6 +73,12 @@ service MenusService {
   rpc FindItemCountsByStoreIds (FindItemCountsByStoreIdsRequest) returns (FindItemCountsByStoreIdsResponse);
   rpc FindStoreIdsForPendingItems (FindStoreIdsForPendingItemsRequest) returns (FindStoreIdsForPendingItemsResponse);
   rpc UpdateOnboardingStatus (UpdateOnboardingStatusRequest) returns (common.UpdateStatusResponse);
+}
+
+message BulkUpdateItemsStatusRequest {
+  repeated string ids = 1;
+  string status = 2;
+  optional string rejection_reason = 3;
 }
 
 message UpdateOnboardingStatusRequest {

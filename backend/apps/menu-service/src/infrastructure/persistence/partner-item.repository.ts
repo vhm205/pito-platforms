@@ -1,4 +1,4 @@
-import { PartnerItemRequest, UpdateItemRequest } from '@app/common';
+import { BulkUpdateItemsStatusRequest, PartnerItemRequest, UpdateItemRequest } from '@app/common';
 import { NullableType } from '@app/common/types/common';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import {
@@ -129,4 +129,12 @@ export abstract class PartnerItemRepository {
     page?: number;
     pageSize?: number;
   }): Promise<[SearchItemsInStoreResult[], number]>;
+
+  abstract bulkUpdateItemsStatus(request: BulkUpdateItemsStatusRequest): Promise<{
+    affectedRows: number;
+  }>;
+
+  abstract deleteItem(filter: FindOptionsWhere<Pick<PartnerItem, 'id' | 'slug'>>): Promise<{
+    affectedRows: number;
+  }>;
 }
