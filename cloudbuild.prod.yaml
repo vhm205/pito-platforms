@@ -32,7 +32,7 @@ steps:
         if git diff --name-only HEAD~1 | grep -q 'backend/libs/common/'; then
           changed_services="all"
         else
-          for service in api-gateway order-service notification-service review-service menu-service user-service; do
+          for service in api-gateway order-service notification-service review-service menu-service user-service billing-service; do
             if git diff --name-only HEAD~1 | grep -q "backend/apps/${service}"; then
               changed_services="${changed_services} ${service}"
               echo "Service changed: ${service}"
@@ -66,7 +66,7 @@ steps:
         services=${changed_services}
 
         if [ "${changed_services}" = "all" ]; then
-          services=("api-gateway" "order-service" "notification-service" "review-service" "menu-service" "user-service")
+          services=("api-gateway" "order-service" "notification-service" "review-service" "menu-service" "user-service" "billing-service")
         else
           IFS=' ' read -r -a services <<< "${changed_services}"
         fi
@@ -124,7 +124,7 @@ steps:
         echo \"changed_services: \${changed_services}\"
 
         if [ \"\$changed_services\" = \"all\" ]; then
-          for service in api-gateway order-service notification-service review-service menu-service user-service; do
+          for service in api-gateway order-service notification-service review-service menu-service user-service billing-service; do
             docker compose pull \$service
             if [ \"$(docker ps -aq -f name=\${service})\" ]; then
               docker compose down \$service

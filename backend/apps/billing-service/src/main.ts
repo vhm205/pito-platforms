@@ -43,4 +43,6 @@ async function bootstrap() {
   await app.startAllMicroservices();
 }
 
+// TODO: Deploy billing-service
+
 void bootstrap();
