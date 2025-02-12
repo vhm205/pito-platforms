@@ -1,12 +1,7 @@
 {
-<<<<<<< HEAD
-  "editor.formatOnSave": true
-}
-=======
   "editor.formatOnSave": true,
   "editor.indentSize": 2,
   "editor.tabSize": 2,
   "files.trimTrailingWhitespace": true,
   "files.trimFinalNewlines": true
 }
->>>>>>> f816fae (feat: api create order)
