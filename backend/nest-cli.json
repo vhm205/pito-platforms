@@ -18,9 +18,7 @@
       "sourceRoot": "./",
       "compilerOptions": {
         "tsConfigPath": "apps/api-gateway/tsconfig.app.json",
-        "assets": [
-          "proto/*.proto"
-        ],
+        "assets": ["proto/*.proto"],
         "watchAssets": true
       }
     },
@@ -31,9 +29,7 @@
       "sourceRoot": "./",
       "compilerOptions": {
         "tsConfigPath": "apps/user-service/tsconfig.app.json",
-        "assets": [
-          "proto/*.proto"
-        ],
+        "assets": ["proto/*.proto"],
         "watchAssets": true
       }
     },
@@ -44,9 +40,7 @@
       "sourceRoot": "./",
       "compilerOptions": {
         "tsConfigPath": "apps/review-service/tsconfig.app.json",
-        "assets": [
-          "proto/*.proto"
-        ],
+        "assets": ["proto/*.proto"],
         "watchAssets": true
       }
     },
@@ -57,9 +51,7 @@
       "sourceRoot": "./",
       "compilerOptions": {
         "tsConfigPath": "apps/order-service/tsconfig.app.json",
-        "assets": [
-          "proto/*.proto"
-        ],
+        "assets": ["proto/*.proto"],
         "watchAssets": true
       }
     },
@@ -70,9 +62,7 @@
       "sourceRoot": "./",
       "compilerOptions": {
         "tsConfigPath": "apps/billing-service/tsconfig.app.json",
-        "assets": [
-          "proto/*.proto"
-        ],
+        "assets": ["proto/*.proto", "proto/payment/*.proto"],
         "watchAssets": true
       }
     },
@@ -83,9 +73,7 @@
       "sourceRoot": "./",
       "compilerOptions": {
         "tsConfigPath": "apps/promotion-service/tsconfig.app.json",
-        "assets": [
-          "proto/*.proto"
-        ],
+        "assets": ["proto/*.proto"],
         "watchAssets": true
       }
     },
@@ -96,9 +84,7 @@
       "sourceRoot": "./",
       "compilerOptions": {
         "tsConfigPath": "apps/notification-service/tsconfig.app.json",
-        "assets": [
-          "proto/*.proto"
-        ],
+        "assets": ["proto/*.proto"],
         "watchAssets": true
       }
     },
@@ -109,9 +95,7 @@
       "sourceRoot": "./",
       "compilerOptions": {
         "tsConfigPath": "apps/menu-service/tsconfig.app.json",
-        "assets": [
-          "proto/*.proto"
-        ],
+        "assets": ["proto/*.proto"],
         "watchAssets": true
       }
     },

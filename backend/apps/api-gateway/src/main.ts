@@ -12,6 +12,7 @@ import './instrument';
 
 import { AppModule } from './app.module';
 // import { ResolvePromisesInterceptor } from './utils/serializer.interceptor';
+import { LongToNumberInterceptor } from './interceptors/long-to-number.interceptor';
 import { validationOptions } from './utils/validation-options';
 
 async function bootstrap() {
@@ -34,9 +35,10 @@ async function bootstrap() {
 
   app.useLogger(app.get(LoggerService));
   app.useGlobalPipes(new ValidationPipe(validationOptions));
+  app.useGlobalInterceptors(new LongToNumberInterceptor());
 
   /**
-    ResolvePromisesInterceptor is used to resolve promises in responses 
+    ResolvePromisesInterceptor is used to resolve promises in responses
     because class-transformer can't do it.
     https://github.com/typestack/class-transformer/issues/549
    */
@@ -47,7 +49,10 @@ async function bootstrap() {
   // TEMP: Trigger deploy api-gateway
 
   const PORT = configService.get<AppConfig>('app.apiGatewayPort', { infer: true });
-  await app.listen(PORT);
+  await app.listen(PORT, () => {
+    const logger = new LoggerService({ service: 'ApiGateway' });
+    logger.log(`API Gateway is running on: http://localhost:${PORT}/api`);
+  });
 }
 
 void bootstrap();

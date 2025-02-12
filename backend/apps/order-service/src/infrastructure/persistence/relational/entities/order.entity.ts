@@ -1,6 +1,7 @@
 import { EntityRelationalHelper } from '@app/common';
 import { ReadableOrderStatus, ReadableOrderType, ReadablePaymentMethod } from '@app/common/enums';
 import { NullableType } from '@app/common/types/common';
+import { VatInfo } from 'apps/order-service/src/domain';
 import {
   Column,
   Entity,
@@ -9,7 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'orders' })
+@Entity('orders')
 export class OrderEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -93,8 +94,8 @@ export class OrderEntity extends EntityRelationalHelper {
   @Column({ type: 'text', name: 'delivery_address' })
   deliveryAddress: string;
 
-  // @Column({ type: 'time', name: 'delivery_time', nullable: true })
-  // deliveryTime: NullableType<string>;
+  @Column({ type: 'time', name: 'delivery_time', nullable: true })
+  deliveryTime: NullableType<string>;
 
   @Column({ type: 'numeric', name: 'delivery_eta', nullable: true })
   deliveryEta: NullableType<number>;
@@ -102,8 +103,8 @@ export class OrderEntity extends EntityRelationalHelper {
   @Column({ type: 'text', name: 'tracking_url', nullable: true })
   trackingUrl: NullableType<string>;
 
-  @Column({ type: 'timestamp', name: 'delivery_date', nullable: true })
-  deliveryDate: NullableType<Date>;
+  @Column({ type: 'timestamp', name: 'delivery_date', nullable: false })
+  deliveryDate: Date;
 
   @Column({ type: 'timestamp', name: 'delivery_failed_at', nullable: true })
   deliveryFailedAt: NullableType<Date>;
@@ -125,7 +126,7 @@ export class OrderEntity extends EntityRelationalHelper {
   orderItems: Array<any>; // we will need to create a new entity for this
 
   @Column({ type: 'jsonb', name: 'vat_info', nullable: true })
-  vatInfo: NullableType<object>;
+  vatInfo: NullableType<VatInfo>;
 
   @Column({ type: 'text', name: 'order_count', nullable: true })
   orderCount: NullableType<string>;
@@ -140,7 +141,7 @@ export class OrderEntity extends EntityRelationalHelper {
   receiverEmail: NullableType<string>;
 
   // Timestamps
-  @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
+  @CreateDateColumn({ type: 'timestamp', name: 'created_at', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamp', name: 'updated_at', nullable: true, default: null })

@@ -21,4 +21,6 @@ export abstract class StoreOrderRepository {
   abstract getTotalRevenueAndCountOrders(storeIds: string[]): Promise<GetRevenueAndCountDto[]>;
 
   abstract getTotalOrderCountByStoreId(storeId: string): Promise<number>;
+
+  abstract saveOrder(order: Partial<StoreOrder>): Promise<StoreOrder>;
 }

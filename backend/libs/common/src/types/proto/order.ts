@@ -14,6 +14,61 @@ import { Struct } from './google/protobuf/struct';
 
 export const protobufPackage = 'order';
 
+/** Request message for create order */
+export interface CreateOrderRequest {
+  sessionId: string;
+  voucherIds: string[];
+  note?: string | undefined;
+  receiverName: string;
+  receiverPhone: string;
+  deliveryAddress: string;
+  deliveryDate: string;
+  deliveryLater: boolean;
+  paymentMethod: string;
+  orderType: string;
+  vnpayCallbackUrl: string;
+  bankCode: string;
+  vatInfo: CreateOrderRequest_VatInfo | undefined;
+  addressDetail: CreateOrderRequest_AddressDetail | undefined;
+  userId: string;
+  receiverEmail: string;
+  ipAddr: string;
+  introducerName: string;
+  version: number;
+}
+
+export interface CreateOrderRequest_VatInfo {
+  name: string;
+  taxCode: string;
+  email: string;
+  address: string;
+  isDefault: boolean;
+}
+
+export interface CreateOrderRequest_AddressDetail {
+  name: string;
+  building: string;
+  companyName: string;
+  numberOfApartment: string;
+  latitude: string;
+  longitude: string;
+}
+
+export interface CreateOrderResponse {
+  orderCode: string;
+  orderId: string;
+  totalPrice: number;
+  txCode: string;
+  txId: string;
+  paymentData: CreateOrderResponse_PaymentData | undefined;
+}
+
+export interface CreateOrderResponse_PaymentData {
+  qrCode?: string | undefined;
+  paymentUrl?: string | undefined;
+  state: string;
+}
+
 /**
  * message OperatorNoteEntry {
  *   string description = 1;      // The note of the operation
@@ -89,11 +144,33 @@ export interface FindStoreOrdersResponse {
 }
 
 /** Message for Order Items */
-export interface OrderItem {
-  totalPrice: number;
+export interface OrderItemChoice {
+  /** Name of the choice */
+  name: string;
+  /** Unique ID of the choice */
+  choiceId: string;
+  /** Base price of the choice */
+  basePrice: number;
+  /** Quantity of the choice */
   quantity: number;
-  /** repeated string raw_options_choices = 8; */
-  notes: string;
+}
+
+export interface OrderItemOptionAndChoice {
+  /** Unique ID of the option */
+  optionId: string;
+  /** Name of the option */
+  name: string;
+  /** List of choices */
+  choices: OrderItemChoice[];
+  /** Description of the option */
+  description: string;
+}
+
+export interface OrderItem {
+  price: number;
+  quantity: number;
+  totalPrice: number;
+  notes?: string | undefined;
   item: OrderItem_Item | undefined;
   rawOptionsChoices: OrderItem_RawOptionsChoices[];
 }
@@ -170,7 +247,6 @@ export interface Order {
   note?: string | undefined;
   orderItems: OrderItem[];
   vatInfo: { [key: string]: any } | undefined;
-  orderCount: string;
   errorCode: number;
   metadata: { [key: string]: any } | undefined;
   receiverEmail: string;
@@ -285,6 +361,8 @@ wrappers['.google.protobuf.Timestamp'] = {
 wrappers['.google.protobuf.Struct'] = { fromObject: Struct.wrap, toObject: Struct.unwrap } as any;
 
 export interface OrdersServiceClient {
+  createOrder(request: CreateOrderRequest): Observable<CreateOrderResponse>;
+
   updateOrderStatus(request: UpdateOrderStatusRequest): Observable<UpdateOrderResponse>;
 
   updateStoreOrderStatus(
@@ -313,6 +391,10 @@ export interface OrdersServiceClient {
 }
 
 export interface OrdersServiceController {
+  createOrder(
+    request: CreateOrderRequest,
+  ): Promise<CreateOrderResponse> | Observable<CreateOrderResponse> | CreateOrderResponse;
+
   updateOrderStatus(
     request: UpdateOrderStatusRequest,
   ): Promise<UpdateOrderResponse> | Observable<UpdateOrderResponse> | UpdateOrderResponse;
@@ -372,6 +454,7 @@ export interface OrdersServiceController {
 export function OrdersServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
+      'createOrder',
       'updateOrderStatus',
       'updateStoreOrderStatus',
       'updateOrder',

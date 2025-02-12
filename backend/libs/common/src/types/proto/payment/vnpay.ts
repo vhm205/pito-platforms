@@ -7,15 +7,16 @@ export interface CreateVnpayUrlPaymentRequest {
   orderCode: string;
   amount: number;
   bankCode: string;
-  locale: string;
-  urlCallback: string;
+  locale?: string | undefined;
+  callbackUrl: string;
+  ipAddr: string;
 }
 
 export interface CreateVnpayUrlPaymentResponse {
-  vnpayUrl: string;
+  paymentUrl: string;
 }
 
-export interface HandleIPNRequest {
+export interface HandleIpnVnpayRequest {
   vnpAmount: string;
   vnpBankCode: string;
   vnpBankTranNo: string;
@@ -28,6 +29,11 @@ export interface HandleIPNRequest {
   vnpTxnRef: string;
   vnpSecureHash: string;
   vnpTransactionStatus: string;
+}
+
+export interface HandleIpnVnpayResponse {
+  RspCode: string;
+  Message: string;
 }
 
 export const PAYMENT_PACKAGE_NAME = 'payment';

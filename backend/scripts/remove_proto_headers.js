@@ -1,7 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const folders = ['./libs/common/src/types/proto', './libs/common/src/types/google/protobuf'];
+const folders = [
+  './libs/common/src/types/proto',
+  './libs/common/src/types/google/protobuf',
+  './libs/common/src/types/proto/payment',
+];
 
 // Recursive function to get all files in subfolders
 const getAllFiles = (dirPath, filesArray = []) => {

@@ -9,5 +9,9 @@ export function getOrderStatusTemplateIds() {
     [OrderStatus.CANCELED]: process.env.SENDGRID_ORDER_CANCELED_TEMPLATE_ID!,
     [OrderStatus.REJECTED]: process.env.SENDGRID_ORDER_CANCELED_TEMPLATE_ID!,
     [OrderStatus.UNCONFIRMED]: process.env.SENDGRID_ORDER_CANCELED_TEMPLATE_ID!,
+
+    [OrderStatus.PAYMENT_FAILED]: process.env.SENDGRID_PAYMENT_FAILED_TEMPLATE_ID!,
+    [OrderStatus.WAITING_FOR_CONFIRMATION]: process.env.SENDGRID_ORDER_CREATE_TEMPLATE_ID!,
+    [OrderStatus.WAITING_FOR_DEPOSIT]: process.env.SENDGRID_CONFIRM_PAY_LATER_TEMPLATE_ID!,
   };
 }

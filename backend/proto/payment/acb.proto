@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package payment;
+
+message CreateAcbQrPaymentRequest {
+  string tx_id = 1;
+  string order_id = 2;
+  string order_code = 3;
+  int64 amount = 4;
+  string user_id = 5;
+}
+
+message CreateAcbQrPaymentResponse {
+  string qr_code = 1;
+}
+
+message HandleIpnAcbRequest {
+  string request_date_time = 1;
+  RequestParameters request_parameters = 2;
+  string request_trace = 3;
+}
+
+message HandleIpnAcbResponse {
+  message ResponseStatus {
+    string response_code = 1;
+    string response_message = 2;
+  }
+  message ResponseBody {
+    int32 index = 1;
+    string reference_code = 2;
+  }
+  string request_trace = 1;
+  string response_date_time = 2;
+  ResponseStatus response_status = 3;
+  ResponseBody response_body = 4;
+}
+
+message RequestParameters {
+  message RequestMeta {
+    string request_code = 1;
+    string request_type = 2;
+  }
+  message Request {
+    RequestMeta request_meta = 1;
+    RequestParams request_params = 2;
+  }
+  message MasterMeta {
+    string client_id = 1;
+    string client_request_id = 2;
+  }
+
+  MasterMeta master_meta = 1;
+  Request request = 2;
+}
+
+message RequestParams {
+  message Pagination {
+    int32 page = 1;
+    int32 page_size = 2;
+    int32 total_page = 3;
+  }
+  message Transaction {
+    double amount = 1;
+    string debit_or_credit = 2;
+    string effective_date = 3;
+    string transaction_channel = 4;
+    string transaction_content = 5;
+    string transaction_date = 6;
+    TransactionEntityAttribute transaction_entity_attribute = 7;
+    string transaction_status = 8;
+  }
+
+  Pagination pagination = 1;
+  repeated Transaction transactions = 2;
+}
+
+message TransactionEntityAttribute {
+  string beneficiary_name = 1;
+  string custom1 = 2;
+  string custom2 = 3;
+  string custom3 = 4;
+  string custom4 = 5;
+  string trace_number = 6;
+  string virtual_account = 7;
+}
