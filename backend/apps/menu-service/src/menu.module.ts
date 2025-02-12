@@ -12,8 +12,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CateringPackageEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/catering-package.entity';
+import { MenuEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/menu.entity';
+import { PartnerCategoryEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-category.entity';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
+import { PartnerOnboardingEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-onboarding.entity';
 
 import { DishService } from './dish.service';
 import { CategoryEntity } from './infrastructure/persistence/relational/entities/category.entity';
@@ -26,6 +29,7 @@ import { PartnerOccasionEventEntity } from './infrastructure/persistence/relatio
 import { PartnerStoreEntity } from './infrastructure/persistence/relational/entities/partner-store.entity';
 import { PartnerEntity } from './infrastructure/persistence/relational/entities/partner.entity';
 import { SpecialDietaryEntity } from './infrastructure/persistence/relational/entities/special-dietaries.entity';
+import { StoreFavoriteEntity } from './infrastructure/persistence/relational/entities/store-favorite.entity';
 import { StoreServiceEntity } from './infrastructure/persistence/relational/entities/store-service.entity';
 import { StoreEntity } from './infrastructure/persistence/relational/entities/store.entity';
 import { RelationalMenuPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
@@ -54,6 +58,10 @@ const partnerEntities = [
   PartnerEntity,
   PartnerOccasionEventEntity,
   DishEntity,
+  PartnerOnboardingEntity,
+  MenuEntity,
+  PartnerCategoryEntity,
+  StoreFavoriteEntity,
 ];
 
 @Module({

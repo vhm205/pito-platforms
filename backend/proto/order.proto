@@ -16,6 +16,7 @@ service OrdersService {
   rpc FindStoreOrders (FindStoreOrdersRequest) returns (FindStoreOrdersResponse);
   rpc FindTransactions (FindTransactionsRequest) returns (FindTransactionsResponse);
   rpc GetRevenueAndCountOrderByStoreIds (GetRevenueAndCountOrderByStoreIdsRequest) returns (GetRevenueAndCountOrderByStoreIdsResponse);
+  rpc GetTotalOrderCountByStoreId (GetTotalOrderCountByStoreIdRequest) returns (GetTotalOrderCountByStoreIdResponse);
 }
 
 message UpdateOrderRequest {
@@ -312,4 +313,12 @@ message GetRevenueAndCountOrderByStoreIdsResponse {
     float total_revenue = 3;
   }
   repeated StoreRevenueAndCount store_revenue_and_count = 1;
+}
+
+message GetTotalOrderCountByStoreIdRequest {
+  string store_id = 1;
+}
+
+message GetTotalOrderCountByStoreIdResponse {
+  int32 total_order_count = 1;
 }

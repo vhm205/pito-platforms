@@ -73,7 +73,7 @@ export class OperatorOrdersController {
       });
     }
 
-    const storeIds = Array.from(new Set(orders.map(order => order.storeId)));
+    const storeIds = Array.from(new Set(map(orders, order => order.storeId)));
     const storesMap = await this.service
       .filterStores(
         {
@@ -84,7 +84,7 @@ export class OperatorOrdersController {
         DEFAULT_PAGE_NUMBER,
         storeIds.length,
       )
-      .then(({ stores }) => new Map(stores.map(store => [store.id, store])));
+      .then(({ stores }) => new Map(map(stores, store => [store.id, store])));
 
     const transformedOrders = plainToInstance(
       OrderListingDto,

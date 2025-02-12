@@ -12,6 +12,7 @@ import { In, type FindOperator, type FindOptionsWhere, type Repository } from 't
 import { PartnerStoreRepository } from '../../partner-store.repository';
 import { PartnerStoreEntity } from '../entities/partner-store.entity';
 import { PartnerEntity } from '../entities/partner.entity';
+import { StoreFavoriteEntity } from '../entities/store-favorite.entity';
 import { StoreServiceEntity } from '../entities/store-service.entity';
 import { PartnerStoreMapper, StoreServiceMapper } from '../mappers/store.mapper';
 
@@ -24,6 +25,8 @@ export class PartnerStoreRelationalRepository implements PartnerStoreRepository 
     private readonly storeServiceRepository: Repository<StoreServiceEntity>,
     @InjectRepository(PartnerEntity, PARTNER_DB_SOURCE)
     private readonly partnerRepository: Repository<PartnerEntity>,
+    @InjectRepository(StoreFavoriteEntity, PARTNER_DB_SOURCE)
+    private readonly storeFavoriteRepository: Repository<StoreFavoriteEntity>,
   ) {}
 
   async findOne(
@@ -84,6 +87,14 @@ export class PartnerStoreRelationalRepository implements PartnerStoreRepository 
     return { affected: result.affected || 0 };
   }
 
+  async updateStoreStatusByPartnerIds(partnerIds: string[], status: StoreStatus) {
+    const result = await this.repository.update(
+      { partnerId: In(partnerIds) },
+      { status, updatedAt: new Date() },
+    );
+    return { affected: result.affected || 0 };
+  }
+
   async filterStores(args: {
     filters: Record<string, FindOperator<unknown>>[];
     pagination: PaginationRequest;
@@ -123,5 +134,10 @@ export class PartnerStoreRelationalRepository implements PartnerStoreRepository 
   ): Promise<{ affected: number }> {
     const result = await this.repository.update({ id }, PartnerStoreMapper.toPersistence(data));
     return { affected: result.affected || 0 };
+  }
+
+  async getFavoriteStoreByUser(userId: string, storeId: string): Promise<boolean> {
+    const entity = await this.storeFavoriteRepository.findOneBy({ userId, storeId });
+    return !!entity;
   }
 }

@@ -1,4 +1,11 @@
-import { USER_SERVICE, USERS_SERVICE_NAME, UsersServiceClient } from '@app/common';
+import {
+  MENU_SERVICE,
+  MENUS_SERVICE_NAME,
+  MenusServiceClient,
+  USER_SERVICE,
+  USERS_SERVICE_NAME,
+  UsersServiceClient,
+} from '@app/common';
 import { CacheExpiry } from '@app/common/enums';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
@@ -16,6 +23,7 @@ import { UserEntity } from './entities/UserEntity';
 @Injectable()
 export class AuthService {
   private userServiceClient: UsersServiceClient;
+  private partnerServiceClient: MenusServiceClient;
 
   constructor(
     private readonly configService: ConfigService,
@@ -24,9 +32,12 @@ export class AuthService {
     @InjectRepository(RoleEntity)
     private readonly roleRepository: Repository<RoleEntity>,
     @Inject(USER_SERVICE) private readonly userClient: ClientGrpc,
+    @Inject(MENU_SERVICE) private readonly partnerClient: ClientGrpc,
     @Inject(CACHE_MANAGER) private readonly cacheManager: RedisStore,
   ) {
     this.userServiceClient = this.userClient.getService<UsersServiceClient>(USERS_SERVICE_NAME);
+    this.partnerServiceClient =
+      this.partnerClient.getService<MenusServiceClient>(MENUS_SERVICE_NAME);
   }
 
   async getCustomerProfileByUserId(id: string) {
@@ -133,5 +144,31 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async validateUserExistsInPartner(userId: string, partnerId: string): Promise<boolean> {
+    const source$ = this.userServiceClient
+      .validateUserInPartner({ userId, partnerId })
+      .pipe(timeout(3000));
+    const response = await firstValueFrom(source$);
+
+    return response.value || false;
+  }
+
+  async validateUserExistsInStore(userId: string, storeId: string): Promise<boolean> {
+    const source$ = this.userServiceClient
+      .validateUserInStore({ userId, storeId })
+      .pipe(timeout(3000));
+    const response = await firstValueFrom(source$);
+
+    return response.value || false;
+  }
+
+  async getStoreById(storeId: string) {
+    return firstValueFrom(this.partnerServiceClient.findStore({ id: storeId }));
+  }
+
+  async getPartnerById(partnerId: string) {
+    return firstValueFrom(this.partnerServiceClient.getPartnerDetails({ id: partnerId }));
   }
 }

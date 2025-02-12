@@ -2,10 +2,13 @@ import {
   CalculateDistanceRequest,
   GetItemInStoreRequest,
   GetStoreByFilterRequest,
-  GetStoreDetailRequest,
+  GetStoreDetailForCustomerRequest,
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
+  ORDER_SERVICE,
+  ORDERS_SERVICE_NAME,
+  OrdersServiceClient,
   UpdateStoreStatusRequest,
 } from '@app/common';
 import { Inject, Injectable } from '@nestjs/common';
@@ -15,9 +18,14 @@ import { timeout, firstValueFrom } from 'rxjs';
 @Injectable()
 export class StoresService {
   private menuService: MenusServiceClient;
+  private orderService: OrdersServiceClient;
 
-  constructor(@Inject(MENU_SERVICE) private client: ClientGrpc) {
+  constructor(
+    @Inject(MENU_SERVICE) private client: ClientGrpc,
+    @Inject(ORDER_SERVICE) private orderClient: ClientGrpc,
+  ) {
     this.menuService = this.client.getService<MenusServiceClient>(MENUS_SERVICE_NAME);
+    this.orderService = this.orderClient.getService<OrdersServiceClient>(ORDERS_SERVICE_NAME);
   }
 
   searchStores(params: GetStoreByFilterRequest) {
@@ -40,9 +48,15 @@ export class StoresService {
     return firstValueFrom(source$);
   }
 
-  getStoreDetail(request: GetStoreDetailRequest) {
-    const source$ = this.menuService.getStoreDetail(request).pipe(timeout(2000));
-    return firstValueFrom(source$);
+  async getStoreDetailForCustomer(request: GetStoreDetailForCustomerRequest) {
+    const store = await firstValueFrom(
+      this.menuService.getStoreDetailForCustomer(request).pipe(timeout(2000)),
+    );
+    const totalData = await firstValueFrom(
+      this.orderService.getTotalOrderCountByStoreId({ storeId: store.id }).pipe(timeout(2000)),
+    );
+
+    return { ...store, totalOrdersCompleted: totalData.totalOrderCount };
   }
 
   updateStoreStatusByIds(request: UpdateStoreStatusRequest) {

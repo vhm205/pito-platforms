@@ -63,6 +63,12 @@ import {
   UpdateStoreResponse,
   UpdatePartnerRequest,
   UpdatePartnerResponse,
+  FindOnboardingsRequest,
+  FindCateringPackagesAndOccasionEventsRequest,
+  FindItemCountsByStoreIdsRequest,
+  FindStoreIdsForPendingItemsRequest,
+  BulkInsertItemsRequest,
+  GetStoreDetailForCustomerRequest,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -147,6 +153,13 @@ export class MenuController implements MenusServiceController {
     return this.storeService.getStoreDetailByIdOrSlug(request);
   }
 
+  @UseInterceptors(CamelCaseResponseInterceptor)
+  async getStoreDetailForCustomer(
+    request: GetStoreDetailForCustomerRequest,
+  ): Promise<GetStoreDetailResponse> {
+    return this.storeService.getStoreDetailByIdOrSlugForCustomer(request);
+  }
+
   async findStores(request: FindStoresRequest): Promise<FindStoresResponse> {
     request.filters ??= [];
     request.sorts ??= [];
@@ -200,8 +213,10 @@ export class MenuController implements MenusServiceController {
     return this.menuService.findAllCateringPackages();
   }
 
-  async findCateringPackagesAndOccasionEvents(): Promise<FindCateringPackagesAndOccasionEventsResponse> {
-    return this.menuService.findCateringPackagesAndOccasionEvents();
+  async findCateringPackagesAndOccasionEvents(
+    request: FindCateringPackagesAndOccasionEventsRequest,
+  ): Promise<FindCateringPackagesAndOccasionEventsResponse> {
+    return this.menuService.findCateringPackagesAndOccasionEvents(request);
   }
 
   async findItemsByFilters(
@@ -421,5 +436,54 @@ export class MenuController implements MenusServiceController {
   async updatePartner(request: UpdatePartnerRequest): Promise<UpdatePartnerResponse> {
     const { id, ...data } = request;
     return this.partnerService.updatePartner(id, data as UpdatePartnerDto);
+  }
+
+  async findOccasionEvents() {
+    const occasionEvents = await this.menuService.findOccasionEvents();
+    return { occasionEvents };
+  }
+
+  async findCuisineTypes() {
+    const cuisineTypes = await this.menuService.findCuisineTypes();
+    return { cuisineTypes };
+  }
+
+  async findSpecialDietaries() {
+    const specialDietaries = await this.menuService.findSpecialDietaries();
+    return { specialDietaries };
+  }
+
+  async findOnboardingsWithPagination(request: FindOnboardingsRequest) {
+    request.filters ??= [];
+    request.sorts ??= [];
+
+    const [onboardings, totalCount] =
+      await this.partnerService.findOnboardingsWithPagination(request);
+
+    return {
+      onboardings: onboardings.map(o => o.toMessage()),
+      totalCount,
+    };
+  }
+
+  async findItemCountsByStoreIds(request: FindItemCountsByStoreIdsRequest) {
+    const result = await this.menuService.findItemCountsByStoreIds(
+      request.storeIds,
+      request?.serviceCategory,
+      request?.shouldFetchPendingItems,
+    );
+
+    return {
+      data: result,
+    };
+  }
+
+  async findStoreIdsForPendingItems(request: FindStoreIdsForPendingItemsRequest) {
+    const storeIds = await this.menuService.findStoreIdsForPendingItems(request?.serviceCategory);
+    return storeIds;
+  }
+
+  async bulkInsertItems(request: BulkInsertItemsRequest) {
+    return this.menuService.bulkInsertItems(request);
   }
 }

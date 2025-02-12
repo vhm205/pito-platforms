@@ -1,4 +1,5 @@
 import { PARTNER_DB_SOURCE } from '@app/common';
+import { StoreOrderStatus } from '@app/common/enums';
 import { NullableType } from '@app/common/types/common';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
@@ -65,5 +66,11 @@ export class StoreOrderRelationalRepository implements StoreOrderRepository {
       totalRevenue: +totalRevenue,
       totalOrders: +totalOrders,
     }));
+  }
+
+  async getTotalOrderCountByStoreId(storeId: string): Promise<number> {
+    return this.repository.count({
+      where: { storeId, status: StoreOrderStatus.COMPLETED },
+    });
   }
 }

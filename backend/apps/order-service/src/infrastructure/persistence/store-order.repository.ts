@@ -19,4 +19,6 @@ export abstract class StoreOrderRepository {
   abstract update(storeOrder: StoreOrder): Promise<StoreOrder>;
 
   abstract getTotalRevenueAndCountOrders(storeIds: string[]): Promise<GetRevenueAndCountDto[]>;
+
+  abstract getTotalOrderCountByStoreId(storeId: string): Promise<number>;
 }

@@ -129,3 +129,65 @@ export class AutocompleteFeedResponseDto implements AutocompleteFeedResponse {
   })
   label: string;
 }
+
+export class RegionDto {
+  @ApiProperty({
+    description: 'The name of the region',
+    example: 'Bình Định',
+    type: String,
+  })
+  @IsString()
+  name: string;
+
+  @ApiProperty({
+    description: 'The unique identifier of the region',
+    example: 52,
+    type: Number,
+  })
+  @IsNumber()
+  regionId: number;
+}
+
+export class DistrictDto {
+  @ApiProperty({
+    description: 'The name of the district',
+    example: 'Thành phố Quy Nhơn',
+    type: String,
+  })
+  @IsString()
+  name: string;
+
+  @ApiProperty({
+    description: 'The unique identifier of the district',
+    example: 540,
+    type: Number,
+  })
+  @IsNumber()
+  districtId: number;
+}
+
+export class WardDto {
+  @ApiProperty({
+    description: 'The name of the ward',
+    example: 'Phường Nguyễn Văn Cừ',
+    type: String,
+  })
+  @IsString()
+  name: string;
+
+  @ApiProperty({
+    description: 'The unique identifier of the ward',
+    example: 21592,
+    type: Number,
+  })
+  @IsNumber()
+  wardId: number;
+
+  @ApiProperty({
+    description: "The level of the ward, for example: 'Phường'",
+    example: 'Phường',
+    type: String,
+  })
+  @IsString()
+  level: string;
+}

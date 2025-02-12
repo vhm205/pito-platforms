@@ -1,7 +1,7 @@
 import { GetItemInStoreResult, Item, OptionAndChoice } from '@app/common';
 import { PaginationQueryDto } from '@app/common/dto';
 import { transformArrayStringToNumber } from '@gateway/utils/transformers';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
 
@@ -9,36 +9,44 @@ import { IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
  * [GET-PRODUCTS-IN-STORE] REQUEST DTO
  */
 export class GetItemInStoreRequestDto extends PaginationQueryDto {
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   keyword: string;
 
+  @ApiProperty()
   @IsString()
   @IsUUID()
   storeId: string;
 
+  @ApiPropertyOptional()
   @IsNumber()
   @Type(() => Number)
   @IsOptional()
   budgetMin: number;
 
+  @ApiPropertyOptional()
   @IsNumber()
   @Type(() => Number)
   @IsOptional()
   budgetMax: number;
 
+  @ApiPropertyOptional()
   @IsOptional()
   @Transform(transformArrayStringToNumber)
   occasionEvents: number[];
 
+  @ApiPropertyOptional()
   @IsOptional()
   @Transform(transformArrayStringToNumber)
   specialDietaries: number[];
 
+  @ApiPropertyOptional()
   @IsOptional()
   @Transform(transformArrayStringToNumber)
   serviceTypes: number[];
 
+  @ApiPropertyOptional()
   @IsOptional()
   @Transform(transformArrayStringToNumber)
   cuisineTypes: number[];

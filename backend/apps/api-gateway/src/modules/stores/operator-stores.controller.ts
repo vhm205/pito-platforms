@@ -6,42 +6,71 @@ import { PageDto } from '@gateway/gateway-common/dto/page.dto';
 import { emptyPaginationResponse } from '@gateway/utils/common';
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Query } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { isEmpty } from 'lodash';
+import { isEmpty, map } from 'lodash';
 
 import { GetStoreDetailResponseDto } from './dtos/get-store-detail.dto';
 import { QueryStoreListDto, StoreListDto } from './dtos/store-list.dto';
 import { UpdateStoreRequestDto, UpdateStoreResponseDto } from './dtos/update-store.dto';
 import { OperatorStoresService } from './operator-stores.service';
-import { StoresService } from './stores.service';
 
 @Controller('operator')
 export class OperatorStoresController {
-  constructor(
-    private readonly service: OperatorStoresService,
-    private readonly storeService: StoresService,
-  ) {}
+  constructor(private readonly service: OperatorStoresService) {}
 
   @Get('stores')
   @Auth([RoleType.OPERATOR])
   @HttpCode(HttpStatus.OK)
   @ApiPageWrapperResponse({ type: StoreListDto })
   async getListStores(@Query() query: QueryStoreListDto) {
+    const {
+      fetchItemCount = false,
+      fetchStoreIdsForPendingItems = false,
+      serviceCategory = '',
+    } = query;
+
     query.filters.forEach(filter => {
       if (filter.column === 'name') filter.column = 'storeName';
     });
 
-    const { stores, totalCount } = await this.service.getListStores(query);
-    if (isEmpty(stores)) {
-      return emptyPaginationResponse({
-        page: query.page,
-        pageSize: query.pageSize,
-        totalCount,
-      });
+    if (fetchStoreIdsForPendingItems) {
+      const { storeIds } = await this.service.findStoreIdsForPendingItems(serviceCategory);
+      query.filters.push({ column: 'id', operator: 'in', value: storeIds.join(',') });
     }
 
-    const transformedStores = plainToInstance(StoreListDto, stores, {
-      excludeExtraneousValues: true,
-    });
+    const { stores, totalCount } = await this.service.getListStores(query);
+
+    if (isEmpty(stores)) {
+      return emptyPaginationResponse({ page: query.page, pageSize: query.pageSize, totalCount });
+    }
+
+    let itemCountsMap = new Map();
+
+    if (fetchItemCount) {
+      const itemCounts = await this.service.findItemCountsByStoreIds(
+        stores.map(store => store.id),
+        serviceCategory,
+        fetchStoreIdsForPendingItems,
+      );
+      itemCountsMap = new Map(
+        itemCounts?.data?.map(item => [
+          item.storeId,
+          { itemCount: item.itemCount, menuStatus: item.menuStatus },
+        ]),
+      );
+    }
+
+    const transformedStores = plainToInstance(
+      StoreListDto,
+      map(stores, store => ({
+        ...store,
+        itemCount: fetchItemCount ? itemCountsMap.get(store.id)?.itemCount || 0 : undefined,
+        menuStatus: fetchItemCount
+          ? itemCountsMap.get(store.id)?.menuStatus || 'active'
+          : undefined,
+      })),
+      { excludeExtraneousValues: true },
+    );
+
     const pageMeta = new PageMetaDto({
       pageOptions: { page: query.page, pageSize: query.pageSize },
       totalCount,
@@ -55,7 +84,7 @@ export class OperatorStoresController {
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: GetStoreDetailResponseDto })
   async getStoreDetail(@Param('identifier') identifier: string) {
-    const result = await this.storeService.getStoreDetail({ identifier });
+    const result = await this.service.getStoreDetail({ identifier });
     return plainToInstance(GetStoreDetailResponseDto, result);
   }
 

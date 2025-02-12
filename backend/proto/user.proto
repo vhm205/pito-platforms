@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package user;
 
+import "common.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/struct.proto";
 
@@ -10,6 +11,10 @@ service UsersService {
   rpc GetPartnerProfile (GetUserPartnerProfileRequest) returns (GetUserPartnerProfileResponse) {}
   rpc GetOperatorProfile (GetUserPartnerProfileRequest) returns (GetUserPartnerProfileResponse) {}
   // rpc QueryUsers (stream PaginationDto) returns (stream Users) {}
+  rpc GetCustomers (GetCustomersRequest) returns (GetCustomersResponse) {}
+  rpc GetCompanies (GetCompaniesRequest) returns (GetCompaniesResponse) {}
+  rpc ValidateUserInPartner (ValidateUserInPartnerRequest) returns (BooleanResponse) {}
+  rpc ValidateUserInStore (ValidateUserInStoreRequest) returns (BooleanResponse) {}
 }
 
 message GetCustomerProfileRequest {
@@ -33,6 +38,11 @@ message GetCustomerProfileResponse {
     bool default = 4;
   }
   repeated DeliveryAddress delivery_addresses = 9;
+
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+  int32 status = 12;
+  optional string company_id = 13;
 }
 
 message GetPartnerProfileRequest {
@@ -112,3 +122,52 @@ message GetUserPartnerProfileResponse {
 }
 
 message Empty {};
+
+message GetCustomersRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;     
+  repeated common.FilterRule filters = 3;
+}
+
+message GetCustomersResponse {
+  repeated GetCustomerProfileResponse data = 1;
+  int32 total_count = 2;
+  optional string error = 3;
+}
+
+message GetCompaniesRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;     
+  repeated common.FilterRule filters = 3;
+}
+
+message GetCompaniesResponse {
+  message Company {
+    string id = 1;
+    string name = 2;
+    string email = 3;
+    string phone = 4;
+    string address = 5;
+    string tax_code = 6;
+    google.protobuf.Timestamp created_at = 7;
+    google.protobuf.Timestamp updated_at = 8;
+  }
+
+  repeated Company data = 1;
+  int32 total_count = 2;
+  optional string error = 3;
+}
+
+message ValidateUserInPartnerRequest {
+  string user_id = 1;
+  string partner_id = 2;
+}
+
+message ValidateUserInStoreRequest {
+  string user_id = 1;
+  string store_id = 2;
+}
+
+message BooleanResponse {
+  bool value = 1;
+}

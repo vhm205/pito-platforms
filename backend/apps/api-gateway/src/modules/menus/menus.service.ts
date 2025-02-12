@@ -106,4 +106,19 @@ export class MenusService {
       }),
     ).then(r => r.data ?? []);
   }
+
+  async findOccasionEvents() {
+    const response = await firstValueFrom(this.menusService.findOccasionEvents({}));
+    return response?.occasionEvents ?? [];
+  }
+
+  async findCuisineTypes() {
+    const response = await firstValueFrom(this.menusService.findCuisineTypes({}));
+    return response?.cuisineTypes ?? [];
+  }
+
+  async findSpecialDietaries() {
+    const response = await firstValueFrom(this.menusService.findSpecialDietaries({}));
+    return response?.specialDietaries ?? [];
+  }
 }

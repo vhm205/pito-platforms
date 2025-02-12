@@ -3,8 +3,11 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
 import { CateringPackageEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/catering-package.entity';
+import { MenuEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/menu.entity';
+import { PartnerCategoryEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-category.entity';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
+import { PartnerOnboardingEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-onboarding.entity';
 import { PartnerItemRelationalRepository } from 'apps/menu-service/src/infrastructure/persistence/relational/repositories/partner-item.repository';
 
 import { CateringPackageRepository } from '../catering-package.repository';
@@ -25,6 +28,7 @@ import { PartnerOccasionEventEntity } from './entities/partner-occasion-event.en
 import { PartnerStoreEntity } from './entities/partner-store.entity';
 import { PartnerEntity } from './entities/partner.entity';
 import { SpecialDietaryEntity } from './entities/special-dietaries.entity';
+import { StoreFavoriteEntity } from './entities/store-favorite.entity';
 import { StoreServiceEntity } from './entities/store-service.entity';
 import { StoreEntity } from './entities/store.entity';
 import { CateringPackageRelationalRepository } from './repositories/catering-package.repository';
@@ -55,6 +59,10 @@ const partnerEntities = [
   PartnerEntity,
   PartnerOccasionEventEntity,
   DishEntity,
+  PartnerOnboardingEntity,
+  MenuEntity,
+  PartnerCategoryEntity,
+  StoreFavoriteEntity,
 ];
 
 @Module({

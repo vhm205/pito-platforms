@@ -21,13 +21,15 @@ service MenusService {
   rpc FindAllCateringPackages (Empty) returns (FindAllCateringPackagesResponse);
   rpc FindAllCateringPackageOptions (FindAllCateringPackageOptionsRequest) returns (FindAllCateringPackageOptionsResponse);
   rpc FindCateringPackages(FindCateringPackagesRequest) returns (FindCateringPackagesResponse);
-  rpc FindCateringPackagesAndOccasionEvents (Empty) returns (FindCateringPackagesAndOccasionEventsResponse);
+  rpc FindCateringPackagesAndOccasionEvents (FindCateringPackagesAndOccasionEventsRequest) returns (FindCateringPackagesAndOccasionEventsResponse);
   rpc FindItemsByFilters (FindItemsByFiltersRequest) returns (FindItemsByFiltersResponse);
   rpc FilterItemsWithCateringPackage (FilterItemsWithCateringPackageRequest) returns (FilterItemsWithCateringPackageResponse);
 
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
   rpc GetStoreDetail (GetStoreDetailRequest) returns (GetStoreDetailResponse);
+  rpc GetStoreDetailForCustomer (GetStoreDetailForCustomerRequest) returns (GetStoreDetailResponse);
   rpc InsertMenuItem (PartnerItemRequest) returns (PartnerItem);
+  rpc BulkInsertItems (BulkInsertItemsRequest) returns (BulkInsertItemsResponse);
   rpc UpdateMenuItem (UpdateItemRequest) returns (PartnerItem);
   rpc UpdateStoreStatus (UpdateStoreStatusRequest) returns (UpdateStoreStatusResponse);
   rpc UpdatePartnerStatus (UpdatePartnerStatusRequest) returns (UpdatePartnerStatusResponse);
@@ -59,6 +61,93 @@ service MenusService {
   rpc GetOccasionEvent(occasion.event.GetOccasionEventRequest) returns (occasion.event.GetOccasionEventResponse);
   rpc UpdateOccasionEvent(occasion.event.UpdateOccasionEventRequest) returns (occasion.event.UpdateOccasionEventResponse);
   rpc DeleteOccasionEvent(occasion.event.DeleteOccasionEventRequest) returns (occasion.event.DeleteOccasionEventResponse);
+
+  rpc FindOccasionEvents(Empty) returns (FindOccasionEventsResponse);
+  rpc FindCuisineTypes(Empty) returns (FindCuisineTypesResponse);
+  rpc FindSpecialDietaries(Empty) returns (FindSpecialDietariesResponse);
+
+  rpc FindOnboardingsWithPagination (FindOnboardingsRequest) returns (FindOnboardingsResponse);
+
+  rpc FindItemCountsByStoreIds (FindItemCountsByStoreIdsRequest) returns (FindItemCountsByStoreIdsResponse);
+  rpc FindStoreIdsForPendingItems (FindStoreIdsForPendingItemsRequest) returns (FindStoreIdsForPendingItemsResponse);
+}
+
+message BulkInsertItemsRequest {
+  message Item {
+    string name = 1;
+    optional float base_price = 2;
+    optional string description = 3;
+    repeated int32 special_dietaries = 4;
+    repeated int32 cuisine_types = 5;
+    repeated int32 occasion_events = 6;
+    optional string drive_folder_url = 7;
+    optional int32 min_quantity = 8;
+    optional string packaging_type = 9;
+    optional string packaging_unit = 10;
+    optional int32 participant = 11;
+    optional int32 preparation_time = 12;
+    repeated PartnerOptionsChoices options_choices = 13;
+    Metadata metadata = 14;
+    optional string package_id = 15;
+    optional string category_id = 16;
+    int32 service_type = 17;
+    ItemServiceSettings service_settings = 18;
+  }
+
+  repeated Item items = 1;
+  string store_id = 2;
+}
+
+message BulkInsertItemsResponse {
+  int32 inserted_count = 1;
+}
+
+message FindStoreIdsForPendingItemsRequest {
+  optional string service_category = 1;
+}
+
+message FindStoreIdsForPendingItemsResponse {
+  repeated string store_ids = 1;
+}
+
+message FindItemCountsByStoreIdsRequest {
+  repeated string store_ids = 1;
+  optional string service_category = 2;
+  optional bool should_fetch_pending_items = 3;
+}
+
+message FindItemCountsByStoreIdsResponse {
+  message StoreItemCount {
+    string store_id = 1;
+    int32 item_count = 2;
+    string menu_status = 3;
+  }
+
+  repeated StoreItemCount data = 1;
+}
+
+message FindOnboardingsRequest {
+  common.PaginationRequest pagination = 1;
+  repeated common.SortRule sorts = 2;     
+  repeated common.FilterRule filters = 3;
+}
+
+message FindOnboardingsResponse {
+  message Onboarding {
+    string id = 1;
+    google.protobuf.Timestamp created_at = 2;
+    google.protobuf.Timestamp updated_at = 3;
+    google.protobuf.Struct raw_owner_metadata = 4;
+    google.protobuf.Struct raw_business_metadata = 5;
+    google.protobuf.Struct raw_bank_account_metadata = 6;
+    string status = 7;
+    string email_confirmation = 8;
+    string partner_type = 9;
+    google.protobuf.Struct metadata = 10;
+  }
+
+  repeated Onboarding onboardings = 1;
+  int32 total_count = 2;
 }
 
 // [START] Find stores by filter
@@ -330,6 +419,18 @@ message PartnerItem {
   optional google.protobuf.Timestamp updated_at = 29;
 }
 
+message FindOccasionEventsResponse {
+  repeated FilterOption occasion_events = 1;
+}
+
+message FindCuisineTypesResponse {
+  repeated FilterOption cuisine_types = 1;
+}
+
+message FindSpecialDietariesResponse {
+  repeated FilterOption special_dietaries = 1;
+}
+
 message FindStoresRequest {
   common.PaginationRequest pagination = 1;
   repeated common.SortRule sorts = 2;
@@ -551,6 +652,10 @@ message FindAllCateringPackageOptionsResponse {
   repeated CateringPackageOption options = 1;
 }
 
+message FindCateringPackagesAndOccasionEventsRequest {
+  repeated common.SortRule sorts = 1;
+}
+
 message FindCateringPackagesAndOccasionEventsResponse {
   message OccasionEvent {
     int32 id = 1;
@@ -703,6 +808,25 @@ message GetStoreDetailResponse {
     string name = 2;
   }
 
+  message DistanceFee {
+    int32 start_km = 1;
+    int32 end_km = 2;
+    int32 fee_per_km = 3;
+  }
+
+  message Vehicle {
+    int32 base_fee = 1;
+    repeated DistanceFee distance_fees = 2;
+    int32 free_shipping_distance = 3;
+    int32 free_shipping_threshold = 4;
+  }
+
+  message ShippingFeeSettings {
+    Vehicle car = 1;
+    Vehicle motorbike = 2;
+    int32 threshold_switch_to_car = 3;
+  }
+
   string id = 1;
   string partner_id = 2;
   string name = 3;
@@ -729,6 +853,16 @@ message GetStoreDetailResponse {
 
   float daily_order_limit = 19;
   float daily_revenue_limit = 20;
+
+  float min_order_price = 21;
+  optional bool is_favorite = 22;
+  int32 min_pre_order_time = 23;
+  ShippingFeeSettings shipping_fee_settings = 24;
+}
+
+message GetStoreDetailForCustomerRequest {
+  string identifier = 1;
+  string user_id = 2;
 }
 
 message UpdateStoreStatusRequest {

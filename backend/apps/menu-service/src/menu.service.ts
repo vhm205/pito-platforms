@@ -28,11 +28,15 @@ import {
   FindItemsWithPaginationRequest,
   AssignOptionsToPackageRequest,
   FindAllCateringPackageOptionsRequest,
+  FindCateringPackagesAndOccasionEventsRequest,
+  BulkInsertItemsRequest,
+  BulkInsertItemsRequest_Item,
 } from '@app/common';
-import { AppConfig } from '@app/common/configs';
-import { GrpcStatus } from '@app/common/enums';
+import { AppConfig, Environment } from '@app/common/configs';
+import { GrpcStatus, SourceSystemType } from '@app/common/enums';
 import { PackageOptionStatus } from '@app/common/enums/catering-package';
 import { ItemStatus } from '@app/common/enums/item';
+import { SortRule } from '@app/common/types/proto/common';
 import {
   CreateOccasionEventRequest,
   CreateOccasionEventResponse,
@@ -44,9 +48,12 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RpcException } from '@nestjs/microservices';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
+import { CateringPackageEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/catering-package.entity';
+import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { generateSlug } from 'apps/menu-service/src/utils/slug.util';
 import dayjs from 'dayjs';
 import { compact, keyBy, uniq } from 'lodash';
+import { v4 as uuidV4 } from 'uuid';
 
 import { GetItemInStoreFilterDto } from './dtos/get-items-in-store.dto';
 import { SearchStoreFilterDto } from './dtos/search-store.dto';
@@ -118,7 +125,7 @@ export class MenuService {
     const searchTerm = filters?.keyword && filters.keyword.trim().toLowerCase();
 
     const filterPayload: GetItemInStoreFilterDto = {
-      sid: filters?.storeId,
+      storeId: filters?.storeId,
       budgetMin: filters?.budgetRange?.min,
       budgetMax: filters?.budgetRange?.max,
       occasionEvents: filters?.occasionEvents,
@@ -131,7 +138,8 @@ export class MenuService {
       pageSize,
     };
 
-    return this.itemRepository.getItemsInStore(filterPayload);
+    const [data, count] = await this.partnerItemRepository.searchItemsInStore({ ...filterPayload });
+    return { data, count };
   }
 
   async getFilterOptions(keyword: string) {
@@ -479,15 +487,34 @@ export class MenuService {
   }
 
   async findAllCateringPackages(): Promise<FindAllCateringPackagesResponse> {
-    const cateringPackages = await this.partnerItemRepository.findAllCateringPackages();
+    const cateringPackages = await this.partnerItemRepository.findAllCateringPackages({
+      sorts: [],
+    });
 
     return { cateringPackages };
   }
 
-  async findCateringPackagesAndOccasionEvents(): Promise<FindCateringPackagesAndOccasionEventsResponse> {
+  async findCateringPackagesAndOccasionEvents(
+    request: FindCateringPackagesAndOccasionEventsRequest,
+  ): Promise<FindCateringPackagesAndOccasionEventsResponse> {
+    const cateringPackageOptions: { sorts: SortRule[] } = { sorts: [] };
+    const occasionEventOptions: { sorts: SortRule[] } = { sorts: [] };
+
+    if (request.sorts) {
+      request.sorts.forEach(sort => {
+        if (sort.column === 'cateringPackages') {
+          cateringPackageOptions.sorts.push({ column: 'id', direction: sort.direction });
+        }
+
+        if (sort.column === 'occasionEvents') {
+          occasionEventOptions.sorts.push({ column: 'id', direction: sort.direction });
+        }
+      });
+    }
+
     const [cateringPackages, occasionEvents] = await Promise.all([
-      this.partnerItemRepository.findAllCateringPackages(),
-      this.partnerItemRepository.findAllOccasionEvents(),
+      this.partnerItemRepository.findAllCateringPackages(cateringPackageOptions),
+      this.partnerItemRepository.findAllOccasionEvents(occasionEventOptions),
     ]);
 
     return { cateringPackages, occasionEvents };
@@ -689,5 +716,211 @@ export class MenuService {
     }
 
     return occasionEvent;
+  }
+
+  async findOccasionEvents() {
+    return this.itemRepository.findAllOccasionEvents();
+  }
+
+  async findCuisineTypes() {
+    return this.itemRepository.findAllCuisineTypes();
+  }
+
+  async findSpecialDietaries() {
+    return this.itemRepository.findAllSpecialDietaries();
+  }
+
+  async findItemCountsByStoreIds(
+    storeIds: string[],
+    serviceCategory?: string,
+    shouldFetchPendingItems?: boolean,
+  ) {
+    return this.partnerItemRepository.findItemCountsByStoreIds(
+      storeIds,
+      serviceCategory,
+      shouldFetchPendingItems,
+    );
+  }
+
+  async findStoreIdsForPendingItems(serviceCategory?: string) {
+    return this.partnerItemRepository.findStoreIdsForPendingItems(serviceCategory);
+  }
+
+  async fetchDriveFolderImages({
+    itemId,
+    driveFolderUrl,
+  }: {
+    itemId: string;
+    driveFolderUrl: string;
+  }) {
+    const uploadMenuImagesUrl = (
+      this.configService.get<string>('UPLOAD_IMAGE_SERVICE_URL') ?? 'http://35.213.189.210:8000'
+    ).concat('/upload-menu-images');
+
+    const response = await fetch(uploadMenuImagesUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        menu_id: itemId,
+        drive_folder_url: driveFolderUrl,
+        environment: (() => {
+          const env = process.env.NODE_ENV! as Environment;
+          if (env === Environment.PRODUCTION) return 'prod';
+          if (env === Environment.DEVELOPMENT) return 'dev';
+          return 'stg';
+        })(),
+      }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch drive folder images');
+    }
+    return response.json();
+  }
+
+  async processItemsAndMenuCategories({
+    items,
+    menuId,
+    storeId,
+  }: {
+    items: BulkInsertItemsRequest_Item[];
+    menuId: string;
+    storeId: string;
+  }): Promise<
+    Array<
+      PartnerItemRequest & {
+        slug: PartnerItemEntity['slug'];
+        cateringPackages: PartnerItemEntity['cateringPackages'];
+      }
+    >
+  > {
+    const processedItems: Array<
+      PartnerItemRequest & {
+        slug: PartnerItemEntity['slug'];
+        cateringPackages: PartnerItemEntity['cateringPackages'];
+      }
+    > = [];
+
+    for (const item of items) {
+      const newItem: any = {
+        ...item,
+      };
+
+      const itemId = uuidV4();
+      newItem.id = itemId;
+      newItem.storeId = storeId;
+      newItem.menuId = menuId;
+      newItem.status = ItemStatus.PENDING_APPROVAL;
+
+      if (item?.driveFolderUrl) {
+        try {
+          const driveImages = await this.fetchDriveFolderImages({
+            itemId,
+            driveFolderUrl: item.driveFolderUrl,
+          });
+
+          newItem.images = driveImages?.data ?? [];
+        } catch {
+          throw new RpcException({
+            message: 'Failed to fetch drive folder images',
+            status: GrpcStatus.INTERNAL,
+          });
+        }
+      }
+
+      if (item.packageId) {
+        const cateringPackages =
+          await this.partnerItemRepository.fuzzySearchByName<CateringPackageEntity>({
+            table: 'catering_packages',
+            name: item.packageId,
+          });
+
+        newItem.packageId = cateringPackages[0]?.id;
+      }
+
+      if (item.categoryId) {
+        const categories = await this.partnerItemRepository.fuzzySearchByName({
+          table: 'categories',
+          name: item.categoryId,
+        });
+
+        newItem.categoryId = categories[0]?.id;
+      }
+
+      const menuCategoryId = await this.partnerItemRepository.findOrCreateMenuCategory({
+        menuId,
+        categoryId: newItem.categoryId ?? null,
+        packageId: newItem.packageId ?? null,
+      });
+
+      newItem.menuCategory = menuCategoryId;
+
+      delete newItem.packageId;
+      delete newItem.categoryId;
+      delete newItem.driveFolderUrl;
+
+      const slug = generateSlug(newItem.name);
+
+      const [menuCategoryResponse, isSlugExist] = await Promise.all([
+        this.partnerItemRepository.getMenuCategoryById(menuCategoryId),
+        this.findItem({ slug }).then(d => d?.slug),
+      ]);
+
+      if (!menuCategoryResponse) {
+        throw new RpcException({
+          message: 'Menu category not found',
+          status: GrpcStatus.NOT_FOUND,
+        });
+      }
+
+      if (isSlugExist) {
+        newItem.slug = slug.concat(`-${Date.now()}`);
+      }
+
+      if (menuCategoryResponse.packageId) {
+        newItem.cateringPackages = [menuCategoryResponse.packageId];
+      }
+
+      processedItems.push(newItem);
+    }
+
+    return processedItems;
+  }
+
+  async bulkInsertItems(request: BulkInsertItemsRequest) {
+    const storeId = request.storeId;
+    const items = request.items;
+
+    const store = await this.partnerStoreRepository.findOne({ id: storeId });
+
+    if (!store) {
+      throw new RpcException({
+        message: 'Store not found',
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    const menu = await this.partnerItemRepository.findMenuByStoreAndSystemType({
+      storeId,
+      systemType: SourceSystemType.PX,
+    });
+
+    if (!menu) {
+      throw new RpcException({
+        message: 'Menu not found',
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    const processedItems = await this.processItemsAndMenuCategories({
+      items,
+      menuId: menu.id,
+      storeId,
+    });
+
+    const insertedItems = await this.partnerItemRepository.bulkInsertItems(processedItems);
+
+    return {
+      insertedCount: insertedItems?.length ?? 0,
+    };
   }
 }

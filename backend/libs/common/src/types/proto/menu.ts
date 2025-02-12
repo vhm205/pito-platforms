@@ -37,6 +37,84 @@ import {
 
 export const protobufPackage = 'menu';
 
+export interface BulkInsertItemsRequest {
+  items: BulkInsertItemsRequest_Item[];
+  storeId: string;
+}
+
+export interface BulkInsertItemsRequest_Item {
+  name: string;
+  basePrice?: number | undefined;
+  description?: string | undefined;
+  specialDietaries: number[];
+  cuisineTypes: number[];
+  occasionEvents: number[];
+  driveFolderUrl?: string | undefined;
+  minQuantity?: number | undefined;
+  packagingType?: string | undefined;
+  packagingUnit?: string | undefined;
+  participant?: number | undefined;
+  preparationTime?: number | undefined;
+  optionsChoices: PartnerOptionsChoices[];
+  metadata: Metadata | undefined;
+  packageId?: string | undefined;
+  categoryId?: string | undefined;
+  serviceType: number;
+  serviceSettings: ItemServiceSettings | undefined;
+}
+
+export interface BulkInsertItemsResponse {
+  insertedCount: number;
+}
+
+export interface FindStoreIdsForPendingItemsRequest {
+  serviceCategory?: string | undefined;
+}
+
+export interface FindStoreIdsForPendingItemsResponse {
+  storeIds: string[];
+}
+
+export interface FindItemCountsByStoreIdsRequest {
+  storeIds: string[];
+  serviceCategory?: string | undefined;
+  shouldFetchPendingItems?: boolean | undefined;
+}
+
+export interface FindItemCountsByStoreIdsResponse {
+  data: FindItemCountsByStoreIdsResponse_StoreItemCount[];
+}
+
+export interface FindItemCountsByStoreIdsResponse_StoreItemCount {
+  storeId: string;
+  itemCount: number;
+  menuStatus: string;
+}
+
+export interface FindOnboardingsRequest {
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+  filters: FilterRule[];
+}
+
+export interface FindOnboardingsResponse {
+  onboardings: FindOnboardingsResponse_Onboarding[];
+  totalCount: number;
+}
+
+export interface FindOnboardingsResponse_Onboarding {
+  id: string;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  rawOwnerMetadata: { [key: string]: any } | undefined;
+  rawBusinessMetadata: { [key: string]: any } | undefined;
+  rawBankAccountMetadata: { [key: string]: any } | undefined;
+  status: string;
+  emailConfirmation: string;
+  partnerType: string;
+  metadata: { [key: string]: any } | undefined;
+}
+
 /** [START] Find stores by filter */
 export interface GetStoreByFilterRequest {
   /** Page number for pagination */
@@ -313,6 +391,18 @@ export interface PartnerItem {
   updatedAt?: Date | undefined;
 }
 
+export interface FindOccasionEventsResponse {
+  occasionEvents: FilterOption[];
+}
+
+export interface FindCuisineTypesResponse {
+  cuisineTypes: FilterOption[];
+}
+
+export interface FindSpecialDietariesResponse {
+  specialDietaries: FilterOption[];
+}
+
 export interface FindStoresRequest {
   pagination: PaginationRequest | undefined;
   sorts: SortRule[];
@@ -526,6 +616,10 @@ export interface FindAllCateringPackageOptionsResponse_CateringPackageOption {
   status: string;
 }
 
+export interface FindCateringPackagesAndOccasionEventsRequest {
+  sorts: SortRule[];
+}
+
 export interface FindCateringPackagesAndOccasionEventsResponse {
   cateringPackages: FindCateringPackagesAndOccasionEventsResponse_CateringPackage[];
   occasionEvents: FindCateringPackagesAndOccasionEventsResponse_OccasionEvent[];
@@ -667,6 +761,10 @@ export interface GetStoreDetailResponse {
   reopenTime: Date | undefined;
   dailyOrderLimit: number;
   dailyRevenueLimit: number;
+  minOrderPrice: number;
+  isFavorite?: boolean | undefined;
+  minPreOrderTime: number;
+  shippingFeeSettings: GetStoreDetailResponse_ShippingFeeSettings | undefined;
 }
 
 export interface GetStoreDetailResponse_Location {
@@ -700,6 +798,30 @@ export interface GetStoreDetailResponse_Image {
 export interface GetStoreDetailResponse_CuisineType {
   id: number;
   name: string;
+}
+
+export interface GetStoreDetailResponse_DistanceFee {
+  startKm: number;
+  endKm: number;
+  feePerKm: number;
+}
+
+export interface GetStoreDetailResponse_Vehicle {
+  baseFee: number;
+  distanceFees: GetStoreDetailResponse_DistanceFee[];
+  freeShippingDistance: number;
+  freeShippingThreshold: number;
+}
+
+export interface GetStoreDetailResponse_ShippingFeeSettings {
+  car: GetStoreDetailResponse_Vehicle | undefined;
+  motorbike: GetStoreDetailResponse_Vehicle | undefined;
+  thresholdSwitchToCar: number;
+}
+
+export interface GetStoreDetailForCustomerRequest {
+  identifier: string;
+  userId: string;
 }
 
 export interface UpdateStoreStatusRequest {
@@ -1048,7 +1170,7 @@ export interface MenusServiceClient {
   ): Observable<FindCateringPackagesResponse>;
 
   findCateringPackagesAndOccasionEvents(
-    request: Empty,
+    request: FindCateringPackagesAndOccasionEventsRequest,
   ): Observable<FindCateringPackagesAndOccasionEventsResponse>;
 
   findItemsByFilters(request: FindItemsByFiltersRequest): Observable<FindItemsByFiltersResponse>;
@@ -1061,7 +1183,13 @@ export interface MenusServiceClient {
 
   getStoreDetail(request: GetStoreDetailRequest): Observable<GetStoreDetailResponse>;
 
+  getStoreDetailForCustomer(
+    request: GetStoreDetailForCustomerRequest,
+  ): Observable<GetStoreDetailResponse>;
+
   insertMenuItem(request: PartnerItemRequest): Observable<PartnerItem>;
+
+  bulkInsertItems(request: BulkInsertItemsRequest): Observable<BulkInsertItemsResponse>;
 
   updateMenuItem(request: UpdateItemRequest): Observable<PartnerItem>;
 
@@ -1130,6 +1258,24 @@ export interface MenusServiceClient {
   updateOccasionEvent(request: UpdateOccasionEventRequest): Observable<UpdateOccasionEventResponse>;
 
   deleteOccasionEvent(request: DeleteOccasionEventRequest): Observable<DeleteOccasionEventResponse>;
+
+  findOccasionEvents(request: Empty): Observable<FindOccasionEventsResponse>;
+
+  findCuisineTypes(request: Empty): Observable<FindCuisineTypesResponse>;
+
+  findSpecialDietaries(request: Empty): Observable<FindSpecialDietariesResponse>;
+
+  findOnboardingsWithPagination(
+    request: FindOnboardingsRequest,
+  ): Observable<FindOnboardingsResponse>;
+
+  findItemCountsByStoreIds(
+    request: FindItemCountsByStoreIdsRequest,
+  ): Observable<FindItemCountsByStoreIdsResponse>;
+
+  findStoreIdsForPendingItems(
+    request: FindStoreIdsForPendingItemsRequest,
+  ): Observable<FindStoreIdsForPendingItemsResponse>;
 }
 
 export interface MenusServiceController {
@@ -1194,7 +1340,7 @@ export interface MenusServiceController {
     | FindCateringPackagesResponse;
 
   findCateringPackagesAndOccasionEvents(
-    request: Empty,
+    request: FindCateringPackagesAndOccasionEventsRequest,
   ):
     | Promise<FindCateringPackagesAndOccasionEventsResponse>
     | Observable<FindCateringPackagesAndOccasionEventsResponse>
@@ -1225,9 +1371,20 @@ export interface MenusServiceController {
     request: GetStoreDetailRequest,
   ): Promise<GetStoreDetailResponse> | Observable<GetStoreDetailResponse> | GetStoreDetailResponse;
 
+  getStoreDetailForCustomer(
+    request: GetStoreDetailForCustomerRequest,
+  ): Promise<GetStoreDetailResponse> | Observable<GetStoreDetailResponse> | GetStoreDetailResponse;
+
   insertMenuItem(
     request: PartnerItemRequest,
   ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
+
+  bulkInsertItems(
+    request: BulkInsertItemsRequest,
+  ):
+    | Promise<BulkInsertItemsResponse>
+    | Observable<BulkInsertItemsResponse>
+    | BulkInsertItemsResponse;
 
   updateMenuItem(
     request: UpdateItemRequest,
@@ -1379,6 +1536,48 @@ export interface MenusServiceController {
     | Promise<DeleteOccasionEventResponse>
     | Observable<DeleteOccasionEventResponse>
     | DeleteOccasionEventResponse;
+
+  findOccasionEvents(
+    request: Empty,
+  ):
+    | Promise<FindOccasionEventsResponse>
+    | Observable<FindOccasionEventsResponse>
+    | FindOccasionEventsResponse;
+
+  findCuisineTypes(
+    request: Empty,
+  ):
+    | Promise<FindCuisineTypesResponse>
+    | Observable<FindCuisineTypesResponse>
+    | FindCuisineTypesResponse;
+
+  findSpecialDietaries(
+    request: Empty,
+  ):
+    | Promise<FindSpecialDietariesResponse>
+    | Observable<FindSpecialDietariesResponse>
+    | FindSpecialDietariesResponse;
+
+  findOnboardingsWithPagination(
+    request: FindOnboardingsRequest,
+  ):
+    | Promise<FindOnboardingsResponse>
+    | Observable<FindOnboardingsResponse>
+    | FindOnboardingsResponse;
+
+  findItemCountsByStoreIds(
+    request: FindItemCountsByStoreIdsRequest,
+  ):
+    | Promise<FindItemCountsByStoreIdsResponse>
+    | Observable<FindItemCountsByStoreIdsResponse>
+    | FindItemCountsByStoreIdsResponse;
+
+  findStoreIdsForPendingItems(
+    request: FindStoreIdsForPendingItemsRequest,
+  ):
+    | Promise<FindStoreIdsForPendingItemsResponse>
+    | Observable<FindStoreIdsForPendingItemsResponse>
+    | FindStoreIdsForPendingItemsResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -1400,7 +1599,9 @@ export function MenusServiceControllerMethods() {
       'filterItemsWithCateringPackage',
       'getFilterOptions',
       'getStoreDetail',
+      'getStoreDetailForCustomer',
       'insertMenuItem',
+      'bulkInsertItems',
       'updateMenuItem',
       'updateStoreStatus',
       'updatePartnerStatus',
@@ -1426,6 +1627,12 @@ export function MenusServiceControllerMethods() {
       'getOccasionEvent',
       'updateOccasionEvent',
       'deleteOccasionEvent',
+      'findOccasionEvents',
+      'findCuisineTypes',
+      'findSpecialDietaries',
+      'findOnboardingsWithPagination',
+      'findItemCountsByStoreIds',
+      'findStoreIdsForPendingItems',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

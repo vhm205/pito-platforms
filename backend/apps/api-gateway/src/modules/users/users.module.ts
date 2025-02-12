@@ -6,6 +6,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
+import { OperatorCustomerController } from './operator-customer.controller';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
@@ -27,7 +28,7 @@ import { UsersService } from './users.service';
       },
     ]),
   ],
-  controllers: [UsersController],
+  controllers: [UsersController, OperatorCustomerController],
   providers: [UsersService],
 })
 export class UsersModule {}

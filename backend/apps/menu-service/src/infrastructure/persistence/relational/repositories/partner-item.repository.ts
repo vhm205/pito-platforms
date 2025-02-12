@@ -1,7 +1,8 @@
 import { PARTNER_DB_SOURCE, PartnerItemRequest, UpdateItemRequest } from '@app/common';
-import { StoreStatus } from '@app/common/enums';
+import { SourceSystemType, StoreStatus } from '@app/common/enums';
 import { ItemStatus, PackagingType, UnitType } from '@app/common/enums/item';
 import { MenuType } from '@app/common/enums/menu';
+import { NullableType } from '@app/common/types/common';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,12 +11,21 @@ import {
   CateringPackage,
   OccasionEvent,
 } from 'apps/menu-service/src/domain/partner-item.domain';
+import { SearchItemsInStoreResult } from 'apps/menu-service/src/dtos/search-items-in-store.dto';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
+import { MenuEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/menu.entity';
+import { PartnerCategoryEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-category.entity';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 import { PartnerItemMapper } from 'apps/menu-service/src/infrastructure/persistence/relational/mappers/partner-item.mapper';
 import { forEach, isEmpty, map, size, toNumber } from 'lodash';
-import { FindOperator, In, type FindOptionsWhere, type Repository } from 'typeorm';
+import {
+  FindOperator,
+  In,
+  type ObjectLiteral,
+  type FindOptionsWhere,
+  type Repository,
+} from 'typeorm';
 
 import { CateringPackageEntity } from '../entities/catering-package.entity';
 import { PartnerOccasionEventEntity } from '../entities/partner-occasion-event.entity';
@@ -39,6 +49,12 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
 
     @InjectRepository(StoreServiceEntity, PARTNER_DB_SOURCE)
     private storeServiceRepository: Repository<StoreServiceEntity>,
+
+    @InjectRepository(MenuEntity, PARTNER_DB_SOURCE)
+    private menuRepository: Repository<MenuEntity>,
+
+    @InjectRepository(PartnerCategoryEntity, PARTNER_DB_SOURCE)
+    private partnerCategoryRepository: Repository<PartnerCategoryEntity>,
   ) {}
 
   async insertItem(
@@ -190,17 +206,28 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     return [partnerItems, total] as [PartnerItem[], number];
   }
 
-  async findAllCateringPackages(): Promise<CateringPackage[]> {
+  async findAllCateringPackages(options: { sorts: SortRule[] }): Promise<CateringPackage[]> {
+    const order = options.sorts.reduce(
+      (acc, sort) => ({ ...acc, [sort.column]: sort.direction }),
+      {},
+    );
     const packages = await this.cateringPackageRepository.find({
       relations: {
         options: true,
       },
+      order,
     });
     return packages.map(CateringPackageMapper.toDomain);
   }
 
-  async findAllOccasionEvents(): Promise<OccasionEvent[]> {
-    const occasionEvents = await this.occasionEventRepository.find();
+  async findAllOccasionEvents(options: { sorts: SortRule[] }): Promise<OccasionEvent[]> {
+    const order = options.sorts.reduce(
+      (acc, sort) => ({ ...acc, [sort.column]: sort.direction }),
+      {},
+    );
+    const occasionEvents = await this.occasionEventRepository.find({
+      order,
+    });
     return occasionEvents.map(occasionEvent => ({
       index: occasionEvent.index,
       id: occasionEvent.id,
@@ -432,5 +459,324 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
       where: args.filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
     });
     return entities;
+  }
+
+  async findItemCountsByStoreIds(
+    storeIds: string[],
+    serviceCategory?: string,
+    shouldFetchPendingItems = false,
+  ): Promise<{ storeId: string; itemCount: number; menuStatus: string }[]> {
+    const query = `
+      SELECT 
+        store_id,
+        COUNT(*) AS item_count,
+        CASE 
+          WHEN COUNT(*) FILTER (WHERE status = 'pending_approval') > 0 THEN 'pending_approval'
+          ELSE 'active'
+        END AS menu_status
+      FROM items
+      WHERE store_id = ANY($1)
+      ${serviceCategory ? 'AND service_category = $2' : ''}
+      ${shouldFetchPendingItems ? "AND status = 'pending_approval'" : ''}
+      GROUP BY store_id;
+    `;
+
+    const params = serviceCategory ? [storeIds, serviceCategory] : [storeIds];
+
+    const result = await this.partnerItemRepository.query(query, params);
+
+    return result.map((row: { store_id: string; item_count: string; menu_status: string }) => ({
+      storeId: row.store_id,
+      itemCount: parseInt(row.item_count, 10),
+      menuStatus: row.menu_status,
+    }));
+  }
+
+  async findStoreIdsForPendingItems(serviceCategory?: string): Promise<{ storeIds: string[] }> {
+    const query = `
+      SELECT DISTINCT store_id
+      FROM items
+      WHERE status = 'pending_approval'
+      ${serviceCategory ? 'AND service_category = $1' : ''};
+    `;
+
+    const params = serviceCategory ? [serviceCategory] : [];
+    const result = await this.partnerItemRepository.query(query, params);
+    return { storeIds: result.map((row: { store_id: string }) => row.store_id) };
+  }
+
+  async bulkInsertItems(
+    items: Array<
+      PartnerItemRequest & {
+        slug: PartnerItemEntity['slug'];
+        cateringPackages: PartnerItemEntity['cateringPackages'];
+      }
+    >,
+  ) {
+    const entities = items.map(item => ({
+      ...item,
+      packagingUnit: item?.packagingUnit as UnitType,
+      packagingType: item?.packagingType as PackagingType,
+      specialDietaries: item?.specialDietaries ?? [],
+      status: (item?.status as ItemStatus) ?? ItemStatus.DRAFT,
+      metadata: {
+        has_notes: item?.metadata?.hasNotes,
+        has_utensils: item?.metadata?.hasUtensils,
+        rejection_reason: item?.metadata?.rejectionReason,
+        dining_tools: item?.metadata?.diningTools,
+        has_feeding_service: item?.metadata?.hasFeedingService,
+      },
+      serviceSettings: {
+        setup_time: item?.serviceSettings?.setupTime ?? 0,
+        service_person: item?.serviceSettings?.servicePerson ?? 0,
+        service_time: item?.serviceSettings?.serviceTime ?? 0,
+      },
+      optionsChoices:
+        item?.optionsChoices?.map(option => ({
+          id: option?.id,
+          name: option?.name,
+          description: option?.description,
+          allow_multiple_selection: option?.allowMultipleSelection ?? false,
+          allow_quantity_selection: option?.allowQuantitySelection ?? false,
+          is_required: option?.isRequired ?? false,
+          max_choices: option?.maxChoices ?? 0,
+          type: option?.type,
+          max_quantity: option?.maxQuantity,
+          choices: option?.choices?.map(choice => ({
+            id: choice?.id,
+            name: choice?.name,
+            price: choice?.price,
+            quantity: choice?.quantity,
+            quantity_unit: choice?.quantityUnit,
+          })),
+        })) ?? [],
+    }));
+
+    const insertedItems = await this.partnerItemRepository.save(entities);
+    return insertedItems.map(PartnerItemMapper.toDomain);
+  }
+
+  async findMenuByStoreAndSystemType({
+    storeId,
+    systemType,
+  }: {
+    storeId: string;
+    systemType: SourceSystemType;
+  }): Promise<NullableType<MenuEntity>> {
+    const queryBuilder = this.menuRepository.createQueryBuilder('menu');
+    queryBuilder.where('menu.store_id = :storeId', { storeId });
+    queryBuilder.andWhere('menu.type = :type', { type: systemType });
+    const menu = await queryBuilder.getOne();
+    return menu;
+  }
+
+  async findOrCreateMenuCategory({
+    menuId,
+    categoryId,
+    packageId,
+  }: {
+    menuId: string;
+    categoryId: NullableType<string>;
+    packageId: NullableType<string>;
+  }): Promise<string> {
+    const matchObject: FindOptionsWhere<PartnerMenuCategoriesEntity> = { menuId };
+    if (categoryId !== null) matchObject.categoryId = categoryId;
+    if (packageId !== null) matchObject.packageId = +packageId;
+
+    const existingCategory = await this.partnerMenuCategoriesRepository.findOne({
+      where: matchObject,
+    });
+
+    if (existingCategory) {
+      return existingCategory.id;
+    }
+
+    const newMenuCategoryPayload: Partial<PartnerMenuCategoriesEntity> = {
+      menuId,
+      categoryId,
+      packageId: packageId ? +packageId : null,
+    };
+
+    if (categoryId !== null) newMenuCategoryPayload.type = MenuType.INDIVIDUAL;
+    if (packageId !== null) newMenuCategoryPayload.type = MenuType.SET;
+
+    const newMenuCategory = this.partnerMenuCategoriesRepository.create(newMenuCategoryPayload);
+    const savedCategory = await this.partnerMenuCategoriesRepository.save(newMenuCategory);
+
+    return savedCategory.id;
+  }
+
+  async fuzzySearchByName<T extends ObjectLiteral>({
+    table,
+    name,
+  }: {
+    table: string;
+    name: string;
+  }): Promise<T[]> {
+    let repository: Repository<T>;
+
+    switch (table) {
+      case 'catering_packages':
+        repository = this.cateringPackageRepository as unknown as Repository<T>;
+        break;
+      case 'categories':
+        repository = this.partnerCategoryRepository as unknown as Repository<T>;
+        break;
+      default:
+        throw new Error('Invalid repository name');
+    }
+
+    return repository
+      .createQueryBuilder('item')
+      .where('item.name ILIKE :name', { name: `%${name}%` })
+      .getMany();
+  }
+
+  async searchItemsInStore(params: {
+    storeId: string;
+    budgetMin?: number;
+    budgetMax?: number;
+    occasionEventIds?: number[];
+    specialDietaryIds?: number[];
+    serviceTypeIds?: number[];
+    cuisineTypeIds?: number[];
+    searchTerm?: string;
+    sortBy?: string;
+    page?: number;
+    pageSize?: number;
+  }): Promise<[SearchItemsInStoreResult[], number]> {
+    const {
+      storeId,
+      budgetMin,
+      budgetMax,
+      occasionEventIds,
+      specialDietaryIds,
+      serviceTypeIds,
+      cuisineTypeIds,
+      searchTerm,
+      sortBy,
+      page = 1,
+      pageSize = 10,
+    } = params;
+
+    const queryBuilder = this.partnerItemRepository
+      .createQueryBuilder('i')
+      .where('i.store_id = :storeId', { storeId });
+
+    if (budgetMin) {
+      queryBuilder.andWhere('i.base_price >= :budgetMin', { budgetMin });
+    }
+
+    if (budgetMax) {
+      queryBuilder.andWhere('i.base_price <= :budgetMax', { budgetMax });
+    }
+
+    if (occasionEventIds?.length) {
+      queryBuilder.andWhere('i.occasion_events @> :occasionEventIds', {
+        occasionEventIds: JSON.stringify(occasionEventIds),
+      });
+    }
+
+    if (specialDietaryIds?.length) {
+      queryBuilder.andWhere('i.special_dietaries @> :specialDietaryIds', {
+        specialDietaryIds: JSON.stringify(specialDietaryIds),
+      });
+    }
+
+    if (serviceTypeIds?.length) {
+      queryBuilder.andWhere('i.service_types @> :serviceTypeIds', {
+        serviceTypeIds: JSON.stringify(serviceTypeIds),
+      });
+    }
+
+    if (cuisineTypeIds?.length) {
+      queryBuilder.andWhere('i.cuisine_types @> :cuisineTypeIds', {
+        cuisineTypeIds: JSON.stringify(cuisineTypeIds),
+      });
+    }
+
+    // Add subqueries for related data
+    queryBuilder
+      .addSelect(subQuery => {
+        return subQuery
+          .select(
+            "jsonb_agg(jsonb_build_object('id', sd.id, 'name', sd.name))",
+            'special_dietaries',
+          )
+          .from('special_dietaries', 'sd')
+          .where('sd.id = ANY(i.special_dietaries)');
+      }, 'special_dietaries')
+      .addSelect(subQuery => {
+        return subQuery
+          .select("jsonb_agg(jsonb_build_object('id', ct.id, 'name', ct.name))", 'cuisine_types')
+          .from('cuisine_types', 'ct')
+          .where('ct.id = ANY(i.cuisine_types)');
+      }, 'cuisine_types')
+      .addSelect(subQuery => {
+        return subQuery
+          .select("jsonb_agg(jsonb_build_object('id', oe.id, 'name', oe.name))", 'occasion_events')
+          .from('occasion_events', 'oe')
+          .where('oe.id = ANY(i.occasion_events)');
+      }, 'occasion_events');
+
+    if (searchTerm) {
+      queryBuilder
+        .addSelect(
+          `ts_rank(i.fts_vector, plainto_tsquery('english_nostop', lower(unaccent(:searchTermRank))))`,
+          'search_rank',
+        )
+        .setParameter('searchTermRank', searchTerm)
+        .orderBy('search_rank', 'DESC');
+    }
+
+    // Add sorting
+    if (sortBy) {
+      const [field, direction] = sortBy.split(':');
+      queryBuilder.orderBy(`i.${field}`, direction?.toUpperCase() as 'ASC' | 'DESC');
+    }
+
+    // Get total count
+    const total = await queryBuilder.getCount();
+
+    // Add pagination
+    const skip = (page - 1) * pageSize;
+    queryBuilder.skip(skip).take(pageSize);
+
+    const items = await queryBuilder.getRawAndEntities();
+
+    // Map the raw result to the desired format
+    const data = items.entities.map((item, index) => {
+      const raw = items.raw[index];
+      const specialDietaries = raw.special_dietaries || [];
+      const cuisineTypes = raw.cuisine_types || [];
+      const occasionEvents = raw.occasion_events || [];
+
+      return {
+        item: {
+          ...item,
+          unitType: item.packagingUnit,
+          unitQuantity: item.participant,
+          eatingUtensil: item.metadata?.has_utensils,
+          optionsAndChoices: item.optionsChoices?.map(opt => ({
+            optionId: opt.id,
+            name: opt.name,
+            isRequired: opt.is_required,
+            maxChoices: opt.max_choices,
+            isMultipleChoice: opt.allow_multiple_selection,
+            isSelectionQuantityAllowed: opt.allow_quantity_selection,
+            choices: opt.choices?.map(choice => ({
+              choiceId: choice.id,
+              name: choice.name,
+              basePrice: choice.price,
+            })),
+          })),
+        },
+        specialDietaries,
+        cuisineTypes,
+        occasionEvents,
+      };
+    });
+
+    return [data as unknown as SearchItemsInStoreResult[], total];
   }
 }

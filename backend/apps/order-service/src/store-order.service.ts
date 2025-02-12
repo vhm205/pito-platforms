@@ -90,4 +90,8 @@ export class StoreOrderService {
 
     return result;
   }
+
+  async getTotalOrderCountByStoreId(storeId: string) {
+    return this.repository.getTotalOrderCountByStoreId(storeId);
+  }
 }

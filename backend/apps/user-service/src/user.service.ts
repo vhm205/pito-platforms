@@ -1,9 +1,17 @@
-import { GetCustomerProfileRequest, GetUserPartnerProfileRequest } from '@app/common';
+import {
+  GetCompaniesRequest,
+  GetCustomerProfileRequest,
+  GetCustomersRequest,
+  GetUserPartnerProfileRequest,
+  transformFilterRule,
+} from '@app/common';
 import { GrpcStatus } from '@app/common/enums';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
 import { CustomerRepository } from './infrastructure/persistence/customer.repository';
+import { PartnerUserRelationshipRepository } from './infrastructure/persistence/partner-user-relationship.repository';
+import { StoreUserRelationshipRepository } from './infrastructure/persistence/store-user-relationship.repository';
 import { UserPartnerRepository } from './infrastructure/persistence/user-partner.repository';
 
 @Injectable()
@@ -11,6 +19,8 @@ export class UserService {
   constructor(
     private readonly customerRepository: CustomerRepository,
     private readonly userPartnerRepository: UserPartnerRepository,
+    private readonly storeUserRelationshipRepository: StoreUserRelationshipRepository,
+    private readonly partnerUserRelationshipRepository: PartnerUserRelationshipRepository,
   ) {}
 
   async getCustomerProfile({ userId }: GetCustomerProfileRequest) {
@@ -42,5 +52,33 @@ export class UserService {
       ...user.toMessage(),
       roles,
     };
+  }
+
+  async getCustomers({ pagination, sorts, filters }: GetCustomersRequest) {
+    const [customers, totalCount] = await this.customerRepository.findAndCount({
+      pagination: pagination!,
+      filters: filters.map(transformFilterRule),
+      sorts,
+    });
+
+    return { data: customers.map(c => c.toMessage()), totalCount };
+  }
+
+  async getCompanies({ pagination, sorts, filters }: GetCompaniesRequest) {
+    const [companies, totalCount] = await this.customerRepository.findAndCountCompanies({
+      pagination: pagination!,
+      filters: filters.map(transformFilterRule),
+      sorts,
+    });
+
+    return { data: companies, totalCount };
+  }
+
+  async validateUserInPartner(userId: string, partnerId: string) {
+    return this.partnerUserRelationshipRepository.validateUserInPartner(userId, partnerId);
+  }
+
+  async validateUserInStore(userId: string, storeId: string) {
+    return this.storeUserRelationshipRepository.validateUserInStore(userId, storeId);
   }
 }
