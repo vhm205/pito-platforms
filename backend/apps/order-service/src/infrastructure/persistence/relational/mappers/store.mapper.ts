@@ -8,6 +8,8 @@ export class StoreMapper {
 
     domain.id = raw.id;
     domain.storeName = raw.storeName;
+    domain.storeCode = raw.storeCode;
+    domain.partnerId = raw.partnerId;
     domain.status = raw.status;
     domain.isVat = raw.isVat;
     domain.slug = raw.slug;

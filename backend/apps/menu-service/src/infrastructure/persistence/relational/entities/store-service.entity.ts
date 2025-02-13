@@ -1,5 +1,5 @@
 import { ServiceType } from '@app/common/enums/partner';
-import { NullableType } from '@app/common/types/common';
+import { NullableType, ObjectType } from '@app/common/types/common';
 import { Entity, PrimaryColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 
 import { PartnerStoreEntity } from './partner-store.entity';
@@ -33,4 +33,7 @@ export class StoreServiceEntity {
 
   @Column({ name: 'reopen_time', type: 'timestamptz', nullable: true })
   reopenTime: NullableType<Date>;
+
+  @Column({ name: 'shipping_fee_settings', type: 'jsonb', nullable: true })
+  shippingFeeSettings: NullableType<ObjectType>;
 }

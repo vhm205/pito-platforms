@@ -1,3 +1,12 @@
+import * as dayjs from 'dayjs';
+import * as timezone from 'dayjs/plugin/timezone';
+import * as utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+dayjs.tz.setDefault('Asia/Ho_Chi_Minh');
+
 export function getCurrentDateTime(offset = 7) {
   const currentTime = new Date();
 
@@ -32,4 +41,8 @@ export function formatTimestamp(timestamp: Date | string) {
   } catch {
     return timestamp;
   }
+}
+
+export function getDateTime(date: string | Date = new Date()) {
+  return dayjs(date);
 }

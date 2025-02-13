@@ -110,6 +110,9 @@ export class StoreServiceMapper {
     domain.reopenTime = raw.reopenTime;
     domain.dailyOrderLimit = raw.dailyOrderLimit;
     domain.dailyRevenueLimit = raw.dailyRevenueLimit;
+    domain.minPreorderTime = raw.minPreorderTime;
+    domain.minOrderPrice = raw.minOrderPrice;
+    domain.shippingFeeSettings = raw.shippingFeeSettings;
 
     return domain;
   }

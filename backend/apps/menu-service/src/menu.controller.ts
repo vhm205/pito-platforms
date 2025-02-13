@@ -71,6 +71,7 @@ import {
   UpdateStoreRequest,
   UpdateStoreResponse,
   UpdateStoreStatusRequest,
+  GetStoreDetailForCustomerRequest,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -153,6 +154,13 @@ export class MenuController implements MenusServiceController {
   @UseInterceptors(CamelCaseResponseInterceptor)
   async getStoreDetail(request: GetStoreDetailRequest): Promise<GetStoreDetailResponse> {
     return this.storeService.getStoreDetailByIdOrSlug(request);
+  }
+
+  @UseInterceptors(CamelCaseResponseInterceptor)
+  async getStoreDetailForCustomer(
+    request: GetStoreDetailForCustomerRequest,
+  ): Promise<GetStoreDetailResponse> {
+    return this.storeService.getStoreDetailByIdOrSlugForCustomer(request);
   }
 
   async findStores(request: FindStoresRequest): Promise<FindStoresResponse> {

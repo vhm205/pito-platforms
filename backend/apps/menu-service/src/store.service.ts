@@ -4,6 +4,7 @@ import {
   FindStoreRequest,
   FindStoresRequest,
   GetStoreDetailRequest,
+  GetStoreDetailForCustomerRequest,
 } from '@app/common';
 import { GrpcStatus, StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -86,20 +87,79 @@ export class StoreService {
       });
     }
 
-    const cuisineTypesAsync = (() => {
-      if (!store.cuisineTypes) return [];
-      return this.itemRepository.findAllCuisineTypes(store.cuisineTypes);
-    })();
+    const asyncTasks: Array<Promise<any>> = [this.repository.findStoreServiceByStoreId(store.id)];
 
-    const [storeService, cuisineTypes] = await Promise.all([
-      this.repository.findStoreServiceByStoreId(store.id),
-      cuisineTypesAsync,
-    ]);
+    if (store.cuisineTypes) {
+      asyncTasks[asyncTasks.length] = this.itemRepository.findAllCuisineTypes(store.cuisineTypes);
+    }
+
+    const [storeService, cuisineTypes = []] = await Promise.all(asyncTasks);
+
+    const defaultShippingFeeSettings = {
+      car: { distance_fees: [] },
+      motorbike: { distance_fees: [] },
+    };
+
+    const shippingFeeSettings = Object.keys(storeService?.shippingFeeSettings || {}).length
+      ? storeService?.shippingFeeSettings
+      : defaultShippingFeeSettings;
 
     return {
       ...store.toMessage(),
       cuisineTypes,
+      shippingFeeSettings,
       reopenTime: storeService?.reopenTime as Date,
+      minOrderPrice: storeService?.minOrderPrice as number,
+      minPreOrderTime: storeService?.minPreorderTime as number,
+      dailyOrderLimit: storeService?.dailyOrderLimit as number,
+      dailyRevenueLimit: storeService?.dailyRevenueLimit as number,
+    };
+  }
+
+  async getStoreDetailByIdOrSlugForCustomer({
+    identifier,
+    userId,
+  }: GetStoreDetailForCustomerRequest) {
+    const query = isValidUUID(identifier) ? { id: identifier } : { slug: identifier };
+    const store = await this.repository.findOne(query);
+
+    if (!store) {
+      throw new RpcException({
+        message: `Store not found with identifier ${identifier}`,
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    const asyncTasks: Array<Promise<any>> = [this.repository.findStoreServiceByStoreId(store.id)];
+    let isFavorite = false;
+
+    if (store.cuisineTypes) {
+      asyncTasks[asyncTasks.length] = this.itemRepository.findAllCuisineTypes(store.cuisineTypes);
+    }
+
+    if (userId) {
+      isFavorite = await this.partnerStoreRepository.getFavoriteStoreByUser(userId, store.id);
+    }
+
+    const [storeService, cuisineTypes = []] = await Promise.all(asyncTasks);
+
+    const defaultShippingFeeSettings = {
+      car: { distance_fees: [] },
+      motorbike: { distance_fees: [] },
+    };
+
+    const shippingFeeSettings = Object.keys(storeService?.shippingFeeSettings || {}).length
+      ? storeService?.shippingFeeSettings
+      : defaultShippingFeeSettings;
+
+    return {
+      ...store.toMessage(),
+      isFavorite,
+      cuisineTypes,
+      shippingFeeSettings,
+      reopenTime: storeService?.reopenTime as Date,
+      minOrderPrice: storeService?.minOrderPrice as number,
+      minPreOrderTime: storeService?.minPreorderTime as number,
       dailyOrderLimit: storeService?.dailyOrderLimit as number,
       dailyRevenueLimit: storeService?.dailyRevenueLimit as number,
     };

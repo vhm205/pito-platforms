@@ -16,7 +16,9 @@ services:
   #     - "5432:5432"
 
   rabbitmq:
-    image: rabbitmq:management
+    build:
+      context: .
+      dockerfile: Dockerfile.rabbitmq
     container_name: rabbitmq
     ports:
       - '5672:5672'

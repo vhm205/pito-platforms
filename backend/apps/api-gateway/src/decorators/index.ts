@@ -5,3 +5,4 @@ export * from './public-route.decorator';
 export * from './roles.decorator';
 export * from './store.decorator';
 export * from './partner.decorator';
+export * from './client-ip.decorator';

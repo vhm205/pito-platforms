@@ -27,6 +27,7 @@ service MenusService {
 
   rpc GetFilterOptions (GetFilterOptionRequest) returns (GetFilterOptionResponse);
   rpc GetStoreDetail (GetStoreDetailRequest) returns (GetStoreDetailResponse);
+  rpc GetStoreDetailForCustomer (GetStoreDetailForCustomerRequest) returns (GetStoreDetailResponse);
   rpc InsertMenuItem (PartnerItemRequest) returns (PartnerItem);
   rpc BulkInsertItems (BulkInsertItemsRequest) returns (BulkInsertItemsResponse);
   rpc BulkUpdateItemsStatus (BulkUpdateItemsStatusRequest) returns (common.UpdateStatusResponse);
@@ -486,7 +487,7 @@ message FindStoresResponse {
       double latitude = 5;
       double longitude = 6;
     }
-  
+
     message ContactInfo {
       string email = 1;
       string phone = 2;
@@ -539,7 +540,7 @@ message FindStoreResponse {
       double latitude = 5;
       double longitude = 6;
     }
-  
+
     message ContactInfo {
       string email = 1;
       string phone = 2;
@@ -846,6 +847,25 @@ message GetStoreDetailResponse {
     string name = 2;
   }
 
+  message DistanceFee {
+    int32 start_km = 1;
+    int32 end_km = 2;
+    int32 fee_per_km = 3;
+  }
+
+  message Vehicle {
+    int32 base_fee = 1;
+    repeated DistanceFee distance_fees = 2;
+    int32 free_shipping_distance = 3;
+    int32 free_shipping_threshold = 4;
+  }
+
+  message ShippingFeeSettings {
+    Vehicle car = 1;
+    Vehicle motorbike = 2;
+    int32 threshold_switch_to_car = 3;
+  }
+
   string id = 1;
   string partner_id = 2;
   string name = 3;
@@ -872,6 +892,16 @@ message GetStoreDetailResponse {
 
   float daily_order_limit = 19;
   float daily_revenue_limit = 20;
+
+  float min_order_price = 21;
+  optional bool is_favorite = 22;
+  int32 min_pre_order_time = 23;
+  ShippingFeeSettings shipping_fee_settings = 24;
+}
+
+message GetStoreDetailForCustomerRequest {
+  string identifier = 1;
+  string user_id = 2;
 }
 
 message UpdateStoreStatusRequest {

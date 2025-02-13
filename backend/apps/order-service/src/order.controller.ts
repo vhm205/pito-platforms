@@ -3,9 +3,13 @@ import {
   UpdateOrderResponse,
   UpdateOrderStatusRequest,
   FindOrderResponse,
+  LoggerService,
 } from '@app/common';
-import { GrpcStatus } from '@app/common/enums';
+import { GrpcStatus, OrderPatternEvent, OrderStatusCode } from '@app/common/enums';
+import { PaymentFailedEvent, PaymentSuccessEvent, PaymentTimeoutEvent } from '@app/common/events';
 import {
+  CreateOrderRequest,
+  CreateOrderResponse,
   FindOrderRequest,
   FindStoreOrderRequest,
   FindStoreOrderResponse,
@@ -21,10 +25,13 @@ import {
   FindTransactionsResponse,
   GetRevenueAndCountOrderByStoreIdsRequest,
   GetRevenueAndCountOrderByStoreIdsResponse,
+  GetTotalOrderCountByStoreIdRequest,
+  GetTotalOrderCountByStoreIdResponse,
 } from '@app/common/types';
 import { OrderStatus } from '@app/common/types/proto/common';
 import { Controller } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import { Ctx, EventPattern, Payload, RmqContext, RpcException } from '@nestjs/microservices';
+import { Not } from 'typeorm';
 
 import { OrderNotificationService } from './order-notification.service';
 import { OrderService } from './order.service';
@@ -39,7 +46,12 @@ export class OrderController implements OrdersServiceController {
     private readonly storeOrderService: StoreOrderService,
     private readonly orderNotificationService: OrderNotificationService,
     private readonly transactionService: TransactionService,
+    private readonly logger: LoggerService,
   ) {}
+
+  async createOrder(request: CreateOrderRequest): Promise<CreateOrderResponse> {
+    return this.orderService.createOrder(request);
+  }
 
   async updateOrderStatus(request: UpdateOrderStatusRequest): Promise<UpdateOrderResponse> {
     const updatedOrder = await this.orderService.updateOrderStatus(request);
@@ -163,5 +175,136 @@ export class OrderController implements OrdersServiceController {
     return {
       storeRevenueAndCount: result,
     };
+  }
+
+  async getTotalOrderCountByStoreId(
+    request: GetTotalOrderCountByStoreIdRequest,
+  ): Promise<GetTotalOrderCountByStoreIdResponse> {
+    const result = await this.storeOrderService.getTotalOrderCountByStoreId(request.storeId);
+
+    return {
+      totalOrderCount: result,
+    };
+  }
+
+  @EventPattern(OrderPatternEvent.PAYMENT_SUCCESS)
+  async paymentSuccess(@Ctx() context: RmqContext, @Payload() payload: PaymentSuccessEvent) {
+    const channel = context.getChannelRef();
+    const originalMessage = context.getMessage();
+
+    this.logger.log('PAYMENT SUCCESS EVENT RECEIVED', {
+      metadata: payload,
+    });
+
+    try {
+      const { orderId } = payload;
+
+      const order = await this.orderService.findOrderByFilter({
+        id: orderId,
+        statusCode: Not(OrderStatusCode.WAITING_FOR_CONFIRMATION),
+      });
+      if (!order) {
+        throw new Error(
+          `Failed to get order with id ${orderId} from ${OrderPatternEvent.PAYMENT_SUCCESS} event`,
+        );
+      }
+
+      const updatedOrder = await this.orderService.updateOrderToWaiting(order);
+      const { storeId, userId, metadata } = updatedOrder;
+
+      await Promise.all([
+        this.orderService.createStoreOrder(updatedOrder),
+        this.orderService.removeShoppingCart(storeId, userId),
+        this.orderService.updateNumberOfVoucherUses(userId, metadata?.voucherIds),
+        this.orderNotificationService.sendPaymentSuccessNotification(updatedOrder),
+      ]);
+
+      this.logger.log('PAYMENT SUCCESS EVENT PROCESSED', {
+        metadata: payload,
+      });
+
+      channel.ack(originalMessage);
+    } catch (error) {
+      this.logger.error((error as Error).message, {
+        metadata: error,
+      });
+      channel.nack(originalMessage, false, false);
+    }
+  }
+
+  @EventPattern(OrderPatternEvent.PAYMENT_FAILED)
+  async paymentFailed(@Ctx() context: RmqContext, @Payload() payload: PaymentFailedEvent) {
+    const channel = context.getChannelRef();
+    const originalMessage = context.getMessage();
+
+    this.logger.log('PAYMENT FAILED EVENT RECEIVED', {
+      metadata: payload,
+    });
+
+    try {
+      const { orderId } = payload;
+
+      const order = await this.orderService.findOrderByFilter({
+        id: orderId,
+        statusCode: Not(OrderStatusCode.PAYMENT_FAILED),
+      });
+      if (!order) {
+        throw new Error(
+          `Failed to get order with id ${orderId} from ${OrderPatternEvent.PAYMENT_FAILED} event`,
+        );
+      }
+
+      const updatedOrder = await this.orderService.updateOrderToFailed(order);
+      await this.orderNotificationService.sendPaymentFailedNotification(updatedOrder);
+
+      this.logger.log('PAYMENT FAILED EVENT PROCESSED', {
+        metadata: payload,
+      });
+
+      channel.ack(originalMessage);
+    } catch (error) {
+      this.logger.error((error as Error).message, {
+        metadata: error,
+      });
+      channel.nack(originalMessage, false, false);
+    }
+  }
+
+  @EventPattern(OrderPatternEvent.PAYMENT_TIMEOUT)
+  async paymentTimeout(@Ctx() context: RmqContext, @Payload() payload: PaymentTimeoutEvent) {
+    const channel = context.getChannelRef();
+    const originalMessage = context.getMessage();
+
+    this.logger.log('PAYMENT TIMEOUT EVENT RECEIVED', {
+      metadata: payload,
+    });
+
+    try {
+      const { orderId } = payload;
+
+      const order = await this.orderService.findOrderByFilter({
+        id: orderId,
+        statusCode: Not(OrderStatusCode.PAYMENT_FAILED),
+      });
+      if (!order) {
+        throw new Error(
+          `Failed to get order with id ${orderId} from ${OrderPatternEvent.PAYMENT_TIMEOUT} event`,
+        );
+      }
+
+      const updatedOrder = await this.orderService.updateOrderToFailed(order);
+      await this.orderNotificationService.sendPaymentSuccessNotification(updatedOrder);
+
+      this.logger.log('PAYMENT TIMEOUT EVENT PROCESSED', {
+        metadata: payload,
+      });
+
+      channel.ack(originalMessage);
+    } catch (error) {
+      this.logger.error((error as Error).message, {
+        metadata: error,
+      });
+      channel.nack(originalMessage, false, false);
+    }
   }
 }

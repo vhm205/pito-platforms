@@ -19,7 +19,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity({ name: 'store_orders' })
+@Entity('store_orders')
 export class StoreOrderEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn('uuid')
   id: string;

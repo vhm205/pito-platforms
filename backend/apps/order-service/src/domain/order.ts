@@ -20,9 +20,17 @@ import { NullableType } from '@app/common/types/common';
 //   notes: string;
 // };
 
+export interface VatInfo {
+  name: string;
+  taxCode: string;
+  email: string;
+  address: string;
+  isDefault: boolean;
+}
+
 export class Order {
   id: string;
-  // partnerId: string;
+  partnerId: string;
   storeId: string;
   userId: string;
   orderType: ReadableOrderType;
@@ -50,24 +58,24 @@ export class Order {
   receiverName: string;
   receiverPhone: string;
   deliveryAddress: string;
-  // deliveryTime: NullableType<string>;
+  deliveryTime: NullableType<string>;
   deliveryEta: NullableType<number>;
   trackingUrl: NullableType<string>;
-  deliveryDate: NullableType<Date>;
+  deliveryDate: Date | undefined;
 
   // Cancellation and additional details
   cancelReason: NullableType<string>;
   deliveryLater: NullableType<boolean>;
   note: NullableType<string>;
   orderItems: Array<OrderItem>;
-  vatInfo: NullableType<object>;
+  vatInfo: NullableType<VatInfo>;
   orderCount: NullableType<string>;
   errorCode: NullableType<number>;
-  metadata: NullableType<object>;
+  metadata: NullableType<Record<string, any>>;
   receiverEmail: NullableType<string>;
 
   // Timestamps
-  createdAt: Date;
+  createdAt: Date | undefined;
   updatedAt: NullableType<Date>;
   preparingAt: NullableType<Date>;
   canceledByUser: boolean;
@@ -106,9 +114,8 @@ export class Order {
       cancelReason: this.cancelReason ?? undefined,
       deliveryLater: Boolean(this.deliveryLater),
       note: this.note ?? undefined,
-      orderItems: this.orderItems,
-      vatInfo: this.vatInfo as Record<string, unknown>,
-      orderCount: this.orderCount!,
+      orderItems: this.orderItems as any,
+      vatInfo: this.vatInfo as VatInfo,
       errorCode: 0, //  this.errorCode
       metadata: this.metadata as Record<string, unknown>,
       receiverEmail: this.receiverEmail!,

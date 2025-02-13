@@ -36,6 +36,25 @@ export type ExternalConfig = {
     systemToken: string;
     orderEventsApiKey: string;
   };
+  vnpay: {
+    paymentUrl: string;
+    tmnCode: string;
+    secretKey: string;
+    tmnCodeInternational: string;
+    secretKeyInternational: string;
+  };
+  acb: {
+    openApi: string;
+    clientId: string;
+    clientSecret: string;
+    ownerNumber: string;
+    va: string;
+    providerId: string;
+  };
+  gcp: {
+    paymentGatewayUrl: string;
+    paymentApiKey: string;
+  };
 };
 
 class ExternalVariablesValidator {
@@ -161,6 +180,45 @@ class ExternalVariablesValidator {
 
   @IsString()
   SLACK_WEBHOOK_URL: string;
+
+  @IsString()
+  VNPAY_PAYMENT_URL: string;
+
+  @IsString()
+  VNPAY_TMN_CODE: string;
+
+  @IsString()
+  VNPAY_SECRET_KEY: string;
+
+  @IsString()
+  VNPAY_TMN_CODE_INTERNATIONAL: string;
+
+  @IsString()
+  VNPAY_SECRET_KEY_INTERNATIONAL: string;
+
+  @IsString()
+  ACB_OPEN_API: string;
+
+  @IsString()
+  ACB_CLIENT_ID: string;
+
+  @IsString()
+  ACB_CLIENT_SECRET: string;
+
+  @IsString()
+  ACB_OWNER_NUMBER: string;
+
+  @IsString()
+  ACB_VIRTUAL_ACCOUNT: string;
+
+  @IsString()
+  ACB_PROVIDER_ID: string;
+
+  @IsString()
+  PAYMENT_GATEWAY_URL: string;
+
+  @IsString()
+  PAYMENT_API_KEY: string;
 }
 
 // eslint-disable-next-line import/no-default-export
@@ -202,6 +260,25 @@ export default registerAs<ExternalConfig>('external', () => {
     },
     slack: {
       webhookUrl: process.env.SLACK_WEBHOOK_URL!,
+    },
+    vnpay: {
+      paymentUrl: process.env.VNPAY_PAYMENT_URL!,
+      tmnCode: process.env.VNPAY_TMN_CODE!,
+      secretKey: process.env.VNPAY_SECRET_KEY!,
+      tmnCodeInternational: process.env.VNPAY_TMN_CODE_INTERNATIONAL!,
+      secretKeyInternational: process.env.VNPAY_SECRET_KEY_INTERNATIONAL!,
+    },
+    acb: {
+      openApi: process.env.ACB_OPEN_API!,
+      clientId: process.env.ACB_CLIENT_ID!,
+      clientSecret: process.env.ACB_CLIENT_SECRET!,
+      ownerNumber: process.env.ACB_OWNER_NUMBER!,
+      va: process.env.ACB_VIRTUAL_ACCOUNT!,
+      providerId: process.env.ACB_PROVIDER_ID!,
+    },
+    gcp: {
+      paymentGatewayUrl: process.env.PAYMENT_GATEWAY_URL!,
+      paymentApiKey: process.env.PAYMENT_API_KEY!,
     },
   };
 });

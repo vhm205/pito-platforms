@@ -7,6 +7,7 @@ import "google/protobuf/struct.proto";
 import "common.proto";
 
 service OrdersService {
+  rpc CreateOrder (CreateOrderRequest) returns (CreateOrderResponse);
   rpc UpdateOrderStatus (UpdateOrderStatusRequest) returns (UpdateOrderResponse);
   rpc UpdateStoreOrderStatus(UpdateStoreOrderStatusRequest) returns (UpdateStoreOrderResponse);
   rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse);
@@ -16,6 +17,61 @@ service OrdersService {
   rpc FindStoreOrders (FindStoreOrdersRequest) returns (FindStoreOrdersResponse);
   rpc FindTransactions (FindTransactionsRequest) returns (FindTransactionsResponse);
   rpc GetRevenueAndCountOrderByStoreIds (GetRevenueAndCountOrderByStoreIdsRequest) returns (GetRevenueAndCountOrderByStoreIdsResponse);
+  rpc GetTotalOrderCountByStoreId (GetTotalOrderCountByStoreIdRequest) returns (GetTotalOrderCountByStoreIdResponse);
+}
+
+// Request message for create order
+message CreateOrderRequest {
+  message VatInfo {
+    string name = 1;
+    string tax_code = 2;
+    string email = 3;
+    string address = 4;
+    bool is_default = 5;
+  }
+
+  message AddressDetail {
+    string name = 1;
+    string building = 2;
+    string company_name = 3;
+    string number_of_apartment = 4;
+    string latitude = 5;
+    string longitude = 6;
+  }
+
+  string session_id = 1;
+  repeated string voucher_ids = 2;
+  optional string note = 3;
+  string receiver_name = 4;
+  string receiver_phone = 5;
+  string delivery_address = 6;
+  string delivery_date = 7;
+  bool delivery_later = 8;
+  string payment_method = 9;
+  string order_type = 10;
+  string vnpay_callback_url = 11;
+  string bank_code = 12;
+  VatInfo vat_info = 13;
+  AddressDetail address_detail = 14;
+  string user_id = 15;
+  string receiver_email = 16;
+  string ip_addr = 17;
+  string introducer_name = 18;
+  int32 version = 19;
+}
+
+message CreateOrderResponse {
+  message PaymentData {
+    optional string qr_code = 1;
+    optional string payment_url = 2;
+    string state = 3;
+  }
+  string order_code = 1;
+  string order_id = 2;
+  int64 total_price = 3;
+  string tx_code = 4;
+  string tx_id = 5;
+  PaymentData payment_data = 6;
 }
 
 message UpdateOrderRequest {
@@ -77,13 +133,12 @@ message FindOrderRequest {
   oneof filter {
     string id = 1;
     string order_code = 2;
-    string status = 3; 
+    string status = 3;
   }
 }
 message FindOrderResponse {
   Order order = 1;
 }
-
 
 // Request message for FindStoreOrder
 message FindStoreOrderRequest {
@@ -91,7 +146,7 @@ message FindStoreOrderRequest {
     string id = 1;
     string order_code = 2;
     string order_id = 3;
-    string status = 4; 
+    string status = 4;
   }
 }
 message FindStoreOrderResponse {
@@ -100,7 +155,7 @@ message FindStoreOrderResponse {
 
 message FindStoreOrdersRequest {
   common.PaginationRequest pagination = 1;
-  repeated common.SortRule sorts = 2;     
+  repeated common.SortRule sorts = 2;
   repeated common.FilterRule filters = 3;
 }
 
@@ -123,11 +178,25 @@ message FindStoreOrdersResponse {
 // }
 
 // Message for Order Items
+message OrderItemChoice {
+  string name = 1;         // Name of the choice
+  string choice_id = 2;     // Unique ID of the choice
+  double base_price = 3;    // Base price of the choice
+  int32 quantity = 4;    // Quantity of the choice
+}
+
+message OrderItemOptionAndChoice {
+  string option_id = 1;           // Unique ID of the option
+  string name = 2;               // Name of the option
+  repeated OrderItemChoice choices = 3; // List of choices
+  string description = 4;        // Description of the option
+}
+
 message OrderItem {
-  float total_price = 1;
+  float price = 1;
   int32 quantity = 2;
-  string notes = 3;
-  // repeated string raw_options_choices = 8;
+  float total_price = 3;
+  optional string notes = 4;
 
   message Item {
     string id = 1;
@@ -150,7 +219,7 @@ message OrderItem {
     repeated OptionsAndChoices options_and_choices = 7;
   }
 
-  Item item = 4;
+  Item item = 5;
 
   message RawOptionsChoices {
     string option_id = 1;
@@ -161,7 +230,7 @@ message OrderItem {
     repeated Choice choices = 2;
   }
 
-  repeated RawOptionsChoices raw_options_choices = 5;
+  repeated RawOptionsChoices raw_options_choices = 6;
 }
 
 // Message for Order
@@ -207,10 +276,9 @@ message Order {
   optional string note = 28;
   repeated OrderItem order_items = 29;
   google.protobuf.Struct vat_info = 30;
-  string order_count = 31;
-  int32 error_code = 32;
-  google.protobuf.Struct metadata = 33;
-  string receiver_email = 34;
+  int32 error_code = 31;
+  google.protobuf.Struct metadata = 32;
+  string receiver_email = 33;
 
   // Timestamps
   google.protobuf.Timestamp created_at = 35;
@@ -232,7 +300,7 @@ message StoreOrder {
   int32 status_code = 5;
   string order_code = 6;
   float total_price = 7;
-  
+
   message InvoiceRequest  {
     string email = 1;
     string address = 2;
@@ -259,13 +327,13 @@ message Orders {
 // GetOrderRequest with pagination
 message FindOrdersRequest {
   common.PaginationRequest pagination = 1;
-  repeated common.SortRule sorts = 2;     
+  repeated common.SortRule sorts = 2;
 
   // Filtering criteria
   // message OrderFilter {
   //   optional string status = 1;
   //   optional string user_id = 2;
-  //   optional string order_code = 3; 
+  //   optional string order_code = 3;
   //   optional string from_date = 4;
   //   optional string to_date = 5;
   //   optional string store_id = 6;
@@ -312,4 +380,12 @@ message GetRevenueAndCountOrderByStoreIdsResponse {
     float total_revenue = 3;
   }
   repeated StoreRevenueAndCount store_revenue_and_count = 1;
+}
+
+message GetTotalOrderCountByStoreIdRequest {
+  string store_id = 1;
+}
+
+message GetTotalOrderCountByStoreIdResponse {
+  int32 total_order_count = 1;
 }

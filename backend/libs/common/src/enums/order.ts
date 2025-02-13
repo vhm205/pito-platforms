@@ -1,5 +1,6 @@
 export enum ReadableOrderStatus {
   DRAFT = 'draft',
+  WAITING_FOR_DEPOSIT = 'wait_for_deposit',
   PAYMENT_FAILED = 'payment_failed',
   WAITING_FOR_CONFIRMATION = 'waiting',
   CANCELED = 'canceled',
@@ -20,6 +21,51 @@ export enum ReadableStoreOrderStatus {
   missed = 'missed',
   prepared = 'prepared',
   completed = 'completed',
+}
+
+// export enum OrderStatusCode {
+//   DRAFT = 1000,
+//   WAITING = 100,
+//   APPROVED = 200,
+//   PROCESSING = 300,
+//   PREPARED = 301,
+//   DELIVERING = 400,
+//   COMPLETED = 500,
+//   CUSTOMER_CANCELED = 701,
+//   PARTNER_CANCELED = 702,
+//   PAYMENT_FAILED = 704,
+// }
+
+export enum OrderStatusCode {
+  DRAFT = 0,
+  WAITING_FOR_DEPOSIT = 1,
+  PAYMENT_FAILED = 10,
+  WAITING_FOR_CONFIRMATION = 20,
+  CANCELED = 30,
+  REJECTED = 31,
+  CONFIRMED = 40,
+  UNCONFIRMED = 41,
+  PREPARING = 50,
+  PREPARED = 51,
+  DELIVERING = 60,
+  DELIVERY_FAILED = 61,
+  COMPLETED = 100,
+  UNRECOGNIZED = -1,
+}
+
+// TODO: remove after
+export enum OrderErrorCode {
+  DRAFT = 1000,
+  WAITING_FOR_DEPOSIT = 1001,
+  WAITING = 100,
+  APPROVED = 200,
+  PROCESSING = 300,
+  PREPARED = 301,
+  DELIVERING = 400,
+  COMPLETED = 500,
+  CUSTOMER_CANCELED = 701,
+  PARTNER_CANCELED = 702,
+  PAYMENT_FAILED = 704,
 }
 
 export enum StoreOrderStatus {
@@ -44,52 +90,24 @@ export enum OrderType {
   CT = 'CT',
 }
 
-export enum OrderErrorCode {
-  draft = 1000,
-  waiting = 100,
-  approved = 200,
-  processing = 300,
-  prepared = 301,
-  delivering = 400,
-  completed = 500,
-  customer_canceled = 701,
-  partner_canceled = 702,
-  payment_failed = 704,
-}
-
+/**
+ * Voucher
+ */
 export enum VoucherType {
-  all = 'all',
-  individual = 'individual',
+  ALL = 'all',
+  INDIVIDUAL = 'individual',
 }
 
 export enum VoucherUnit {
-  percent = 'percent',
-  currency = 'currency',
+  PERCENT = 'percent',
+  CURRENCY = 'currency',
 }
 
 /**
  * ORDER EVENT
  */
-export enum EventType {
-  order_created = 'order_created',
-  customer_cancel = 'customer_cancel',
-  driver_request = 'driver_request',
-  driver_cancel = 'driver_cancel',
-}
-
-export enum EventStatus {
-  created = 'created',
-  timeout = 'timeout',
-  approved = 'approved',
-  rejected = 'rejected',
-}
-
-/**
- * DRIVER SHIPPING
- */
-export enum DeliveryStatus {
-  received = 'received',
-  delivering = 'delivering',
-  canceled = 'canceled',
-  completed = 'completed',
+export enum OrderPatternEvent {
+  PAYMENT_SUCCESS = 'order.payment.success',
+  PAYMENT_FAILED = 'order.payment.failed',
+  PAYMENT_TIMEOUT = 'order.payment.timeout',
 }

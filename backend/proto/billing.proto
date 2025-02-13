@@ -2,8 +2,32 @@ syntax = "proto3";
 
 package billing;
 
+import "payment/vnpay.proto";
+import "payment/acb.proto";
+
 service BillingService {
-  rpc createPayment (Empty) returns (SuccessReponse);
+  rpc createTransaction (CreateTransactionRequest) returns (CreateTransactionResponse);
+
+  rpc createVnpayUrlPayment (payment.CreateVnpayUrlPaymentRequest) returns (payment.CreateVnpayUrlPaymentResponse);
+  rpc handleVnpayIPN (payment.HandleIpnVnpayRequest) returns (payment.HandleIpnVnpayResponse);
+
+  rpc createAcbQrPayment (payment.CreateAcbQrPaymentRequest) returns (payment.CreateAcbQrPaymentResponse);
+  rpc handleAcbIPN (payment.HandleIpnAcbRequest) returns (payment.HandleIpnAcbResponse);
+}
+
+message CreateTransactionRequest {
+  string order_id = 1;
+  int64 amount = 2;
+  string user_id = 3;
+  string payment_method = 4;
+  string store_id = 5;
+  string order_type = 6;
+}
+
+message CreateTransactionResponse {
+  string tx_id = 1;
+  string tx_code = 2;
+  string payment_gateway = 3;
 }
 
 message Empty {};

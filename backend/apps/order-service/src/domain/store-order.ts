@@ -21,15 +21,15 @@ export type StoreOrderItem = {
   id: string;
   name: string;
   notes: string;
-  images: string;
+  images: string[];
   quantity: number;
   base_price: number;
   selected_options: Array<{
     name: string;
     selected_choices: Array<{
       name: string;
-      price: string;
-      quantity: string;
+      price: number;
+      quantity: number;
     }>;
   }>;
 };

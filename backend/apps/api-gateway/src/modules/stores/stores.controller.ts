@@ -1,11 +1,13 @@
 import { GetItemInStoreResult, ItemFilter, SearchStoreResult, StoreFilter } from '@app/common';
-import { ApiPageWrapperResponse } from '@gateway/decorators';
+import { ApiPageWrapperResponse, AuthUser } from '@gateway/decorators';
 import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+
+import { AuthenticatedUser } from '../auth/auth-user.interface';
 
 import {
   CalculateDistanceRequestDto,
@@ -136,8 +138,14 @@ export class StoresController {
   @Get(':identifier')
   @HttpCode(HttpStatus.OK)
   @ApiWrapperResponse({ type: GetStoreDetailResponseDto })
-  async getStoreDetail(@Param('identifier') identifier: string) {
-    const result = await this.storeService.getStoreDetail({ identifier });
+  async getStoreDetail(
+    @Param('identifier') identifier: string,
+    @AuthUser() user: AuthenticatedUser,
+  ) {
+    const result = await this.storeService.getStoreDetailForCustomer({
+      identifier,
+      userId: user?.id,
+    });
     return plainToInstance(GetStoreDetailResponseDto, result);
   }
 

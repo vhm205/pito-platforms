@@ -4,3 +4,4 @@ export * from './abstract.entity';
 export * from './transformers';
 export * from './logger';
 export * from './utils';
+export * from './rabbitmq';

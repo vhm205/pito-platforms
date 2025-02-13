@@ -1,6 +1,8 @@
 import { ReadableOrderStatus, ReadableOrderType, ReadablePaymentMethod } from '../enums';
 import { OrderStatus, OrderType, PaymentMethod } from '../types/proto/common';
 
+export const PLATFORM_FEE_RATE = 20;
+
 export const DEFAULT_PAGE_LIMIT = 10;
 export const DEFAULT_PAGE_NUMBER = 1;
 
@@ -35,6 +37,7 @@ export const readableToOrderStatus: { [key in ReadableOrderStatus]: OrderStatus 
   [ReadableOrderStatus.DELIVERING]: OrderStatus.DELIVERING,
   [ReadableOrderStatus.DELIVERY_FAILED]: OrderStatus.DELIVERY_FAILED,
   [ReadableOrderStatus.COMPLETED]: OrderStatus.COMPLETED,
+  [ReadableOrderStatus.WAITING_FOR_DEPOSIT]: OrderStatus.WAITING_FOR_DEPOSIT,
 };
 
 // Map ReadablePaymentMethod to PaymentMethod
@@ -46,6 +49,7 @@ export const readableToPaymentMethod: { [key in ReadablePaymentMethod]: PaymentM
   [ReadablePaymentMethod.QR_CODE]: PaymentMethod.PAYMENT_METHOD_QRCODE,
   [ReadablePaymentMethod.UPI]: PaymentMethod.PAYMENT_METHOD_UPI,
   [ReadablePaymentMethod.VISA]: PaymentMethod.PAYMENT_METHOD_VISA,
+  [ReadablePaymentMethod.PAY_LATER]: PaymentMethod.UNRECOGNIZED,
 };
 
 // Reverse map PaymentMethod to ReadablePaymentMethod

@@ -8,7 +8,7 @@ export class OrderMapper {
     const domain = new Order();
 
     domain.id = raw.id;
-    // domain.partnerId = raw.partnerId!;
+    domain.partnerId = raw.partnerId!;
     domain.storeId = raw.storeId;
     domain.userId = raw.customerId;
     domain.orderType = raw.orderType;
@@ -46,7 +46,6 @@ export class OrderMapper {
     if (raw.deliveryLater !== null) domain.deliveryLater = raw.deliveryLater;
     if (raw.note) domain.note = raw.note;
     if (raw.vatInfo) domain.vatInfo = raw.vatInfo;
-    if (raw.orderCount) domain.orderCount = raw.orderCount;
     if (raw.errorCode) domain.errorCode = raw.errorCode;
     if (raw.metadata) domain.metadata = raw.metadata;
     if (raw.receiverEmail) domain.receiverEmail = raw.receiverEmail;
@@ -58,6 +57,7 @@ export class OrderMapper {
         totalPrice: item.total_price,
         quantity: item.quantity,
         notes: item.notes,
+        price: item.item?.base_price,
         item: {
           id: item.item.id,
           name: item.item.name,
@@ -101,6 +101,7 @@ export class OrderMapper {
     entity.id = domainEntity.id;
     // Business-related information
     entity.storeId = domainEntity.storeId;
+    entity.partnerId = domainEntity.partnerId;
     entity.customerId = domainEntity.userId;
     entity.orderType = domainEntity.orderType;
     entity.orderCode = domainEntity.orderCode;
@@ -129,21 +130,20 @@ export class OrderMapper {
     // entity.deliveryTime = domainEntity.deliveryTime;
     entity.deliveryEta = domainEntity.deliveryEta;
     entity.trackingUrl = domainEntity.trackingUrl;
-    entity.deliveryDate = domainEntity.deliveryDate;
+    if (domainEntity.deliveryDate) entity.deliveryDate = domainEntity.deliveryDate;
     entity.deliveryFailedAt = domainEntity.deliveryFailedAt;
     // Cancellation and additional details
     entity.cancelReason = domainEntity.cancelReason;
     entity.canceledByUser = domainEntity.canceledByUser;
     entity.deliveryLater = domainEntity.deliveryLater;
     entity.note = domainEntity.note;
-    // entity.orderItems = domainEntity.orderItems ?? [];
+    entity.orderItems = domainEntity.orderItems ?? [];
     entity.vatInfo = domainEntity.vatInfo;
-    entity.orderCount = domainEntity.orderCount;
     entity.errorCode = domainEntity.errorCode;
     entity.metadata = domainEntity.metadata;
     entity.receiverEmail = domainEntity.receiverEmail;
 
-    entity.createdAt = domainEntity.createdAt;
+    if (domainEntity.createdAt) entity.createdAt = domainEntity.createdAt;
     if (domainEntity.updatedAt) entity.updatedAt = domainEntity.updatedAt;
 
     entity.refundStatus = domainEntity.refundStatus;
