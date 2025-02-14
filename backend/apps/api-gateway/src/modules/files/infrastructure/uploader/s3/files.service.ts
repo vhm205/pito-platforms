@@ -16,10 +16,11 @@ export class FilesS3Service {
       });
     }
 
+    const fileUploaded = await this.fileRepository.create({ path: file.key });
+    fileUploaded.fullPath = file.location;
+
     return {
-      file: await this.fileRepository.create({
-        path: file.key,
-      }),
+      file: fileUploaded,
     };
   }
 }
