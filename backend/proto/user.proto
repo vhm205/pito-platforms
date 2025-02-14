@@ -32,10 +32,20 @@ message GetCustomerProfileResponse {
   optional string contact_address = 8;
 
   message DeliveryAddress {
-    string name = 1;
-    string label = 2;
-    string type = 3;
-    bool default = 4;
+    message Geometry {
+      repeated double point = 1;
+    }
+
+    string id = 2;
+    string name = 3;
+    string label = 4;
+    string type = 5;
+    bool default = 6;
+    string building = 7;
+    string company_name = 8;
+    string number_of_apartment = 9;
+    string created_at = 10;
+    Geometry geometry = 11;
   }
   repeated DeliveryAddress delivery_addresses = 9;
 
@@ -113,7 +123,7 @@ message GetUserPartnerProfileResponse {
   optional string full_name = 2;
   string email = 3;
   optional string phone = 4;
-  optional string avatar_url = 5; 
+  optional string avatar_url = 5;
 
   google.protobuf.Timestamp created_at = 6;
   google.protobuf.Timestamp updated_at = 7;
@@ -125,7 +135,7 @@ message Empty {};
 
 message GetCustomersRequest {
   common.PaginationRequest pagination = 1;
-  repeated common.SortRule sorts = 2;     
+  repeated common.SortRule sorts = 2;
   repeated common.FilterRule filters = 3;
 }
 
@@ -137,7 +147,7 @@ message GetCustomersResponse {
 
 message GetCompaniesRequest {
   common.PaginationRequest pagination = 1;
-  repeated common.SortRule sorts = 2;     
+  repeated common.SortRule sorts = 2;
   repeated common.FilterRule filters = 3;
 }
 

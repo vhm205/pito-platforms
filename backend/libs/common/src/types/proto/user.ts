@@ -28,10 +28,20 @@ export interface GetCustomerProfileResponse {
 }
 
 export interface GetCustomerProfileResponse_DeliveryAddress {
+  id: string;
   name: string;
   label: string;
   type: string;
   default: boolean;
+  building: string;
+  companyName: string;
+  numberOfApartment: string;
+  createdAt: string;
+  geometry: GetCustomerProfileResponse_DeliveryAddress_Geometry | undefined;
+}
+
+export interface GetCustomerProfileResponse_DeliveryAddress_Geometry {
+  point: number[];
 }
 
 export interface GetPartnerProfileRequest {
