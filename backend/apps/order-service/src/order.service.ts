@@ -377,7 +377,7 @@ export class OrderService {
     storeCode: string,
     orderType: ReadableOrderType,
   ) {
-    const orderCode = `${orderType}${storeCode}${generateRandomString()}`;
+    const orderCode = `${orderType}${storeCode}${generateRandomString(7)}`;
     const order = await this.orderRepository.findOne({ orderCode });
 
     if (order) {
@@ -431,29 +431,33 @@ export class OrderService {
         basePrice: item.item?.basePrice as number,
         unitQuantity: item.item?.unitQuantity as number,
         optionsAndChoices:
-          item.item?.optionsAndChoices?.map?.(option => ({
-            optionId: option.optionId,
-            name: option.name,
-            description: option.description,
-            choices: option.choices.map(choice => ({
-              choiceId: choice.choiceId,
-              name: choice.name,
-              basePrice: choice.basePrice,
-              quantity: choice.quantity,
-            })),
-          })) ?? [],
+          item.item?.optionsAndChoices?.map?.(option => {
+            return {
+              optionId: option.optionId,
+              name: option.name,
+              description: option.description,
+              choices: option.choices.map(choice => ({
+                choiceId: choice.choiceId,
+                name: choice.name,
+                basePrice: choice.basePrice,
+                quantity: choice.quantity,
+              })),
+            };
+          }) ?? [],
       },
       notes: item.notes as string,
       quantity: item.quantity,
       price: item.item?.basePrice as number,
       totalPrice: item.totalPrice,
-      rawOptionsChoices: item.rawOptionsChoices.map(option => ({
-        optionId: option.optionId,
-        choices: option.choices.map(choice => ({
-          quantity: choice.quantity,
-          choiceId: choice.choiceId,
-        })),
-      })),
+      rawOptionsChoices: item.rawOptionsChoices.map(option => {
+        return {
+          optionId: option.option_id,
+          choices: option.choices.map(choice => ({
+            quantity: choice.quantity,
+            choiceId: choice.choice_id,
+          })),
+        };
+      }),
     }));
   }
 

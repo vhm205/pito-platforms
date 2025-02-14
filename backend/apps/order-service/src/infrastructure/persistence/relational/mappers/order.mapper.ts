@@ -52,37 +52,37 @@ export class OrderMapper {
     // Timestamps
     domain.createdAt = raw.createdAt;
     if (raw.updatedAt) domain.updatedAt = raw.updatedAt;
-    domain.orderItems = map(raw.orderItems, item => {
+    domain.orderItems = map(raw.orderItems, orderItem => {
       return {
-        totalPrice: item.total_price,
-        quantity: item.quantity,
-        notes: item.notes,
-        price: item.item?.base_price,
+        totalPrice: orderItem.totalPrice,
+        quantity: orderItem.quantity,
+        notes: orderItem.notes,
+        price: orderItem.price,
         item: {
-          id: item.item.id,
-          name: item.item.name,
-          slug: item.item.slug,
-          images: item.item.images,
-          basePrice: item.item.base_price,
-          unitQuantity: item.item.unit_quantity,
-          optionsAndChoices: map(item.item?.options_and_choices, ({ choices, ...option }) => {
+          id: orderItem.item.id,
+          name: orderItem.item.name,
+          slug: orderItem.item.slug,
+          images: orderItem.item.images,
+          basePrice: orderItem.item.basePrice,
+          unitQuantity: orderItem.item.unitQuantity,
+          optionsAndChoices: map(orderItem.item?.optionsAndChoices, ({ choices, ...option }) => {
             return {
-              optionId: option.option_id,
+              optionId: option.optionId,
               name: option.name,
               choices: map(choices, choice => ({
-                choiceId: choice.choice_id,
+                choiceId: choice.choiceId,
                 name: choice.name,
-                basePrice: choice.base_price,
+                basePrice: choice.basePrice,
               })),
             };
           }),
         },
-        rawOptionsChoices: map(item.raw_options_choices, ({ choices, ...option }) => {
+        rawOptionsChoices: map(orderItem.rawOptionsChoices, ({ choices, ...option }) => {
           return {
-            optionId: option.option_id,
+            optionId: option.optionId,
             choices: map(choices, choice => ({
               quantity: choice.quantity,
-              choiceId: choice.choice_id,
+              choiceId: choice.choiceId,
             })),
           };
         }),
