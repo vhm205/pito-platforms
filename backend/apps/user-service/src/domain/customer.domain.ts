@@ -1,10 +1,18 @@
 import { MaybeType, NullableType } from '@app/common/types/common';
 
 export class DeliveryAddress {
+  id: string;
   name: string;
   label: string;
   type: string;
   default: boolean;
+  building: string;
+  companyName: string;
+  numberOfApartment: string;
+  createdAt: string;
+  geometry: {
+    point: number[];
+  };
 }
 
 export class Customer {

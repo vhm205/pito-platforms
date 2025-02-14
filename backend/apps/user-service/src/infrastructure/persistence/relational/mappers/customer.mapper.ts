@@ -22,11 +22,30 @@ export class CustomerMapper {
 
     if (raw.deliveryAddresses) {
       domain.deliveryAddresses = raw.deliveryAddresses.map(
-        ({ name, label, type, default: isDefault }) => ({
+        ({
+          id,
           name,
           label,
           type,
           default: isDefault,
+          companyName,
+          building,
+          numberOfApartment,
+          createdAt,
+          geometry,
+        }) => ({
+          id,
+          name,
+          label,
+          type,
+          default: isDefault,
+          companyName,
+          building,
+          numberOfApartment,
+          createdAt,
+          geometry: geometry && {
+            point: geometry.point,
+          },
         }),
       );
     } else {

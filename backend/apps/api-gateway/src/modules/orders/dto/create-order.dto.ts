@@ -66,7 +66,7 @@ class AddressDetail {
     type: String,
   })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   name: string;
 
   @ApiProperty({
@@ -102,7 +102,6 @@ class AddressDetail {
     type: String,
   })
   @IsLatitude()
-  @IsOptional()
   latitude: string;
 
   @ApiProperty({
@@ -111,7 +110,6 @@ class AddressDetail {
     type: String,
   })
   @IsLongitude()
-  @IsOptional()
   longitude: string;
 }
 
