@@ -17,6 +17,8 @@ export class FilesS3Service {
     }
 
     const fileUploaded = await this.fileRepository.create({ path: file.key });
+
+    fileUploaded.path = file.location; // TODO: need to remove this line in the future
     fileUploaded.fullPath = file.location;
 
     return {
