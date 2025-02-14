@@ -294,84 +294,96 @@ export class BillingService {
   async createAcbQrPayment(
     payload: CreateAcbQrPaymentRequest,
   ): Promise<CreateAcbQrPaymentResponse> {
-    const { acb: acbConfig, gcp: gcpConfig } = this.configService.get<AllConfigType>('external', {
-      infer: true,
-    });
-    const { clientId, clientSecret, ownerNumber, va, providerId } = acbConfig;
-    const { paymentGatewayUrl, paymentApiKey } = gcpConfig;
-    const { txId, orderCode, orderId, userId } = payload;
+    try {
+      const { acb: acbConfig, gcp: gcpConfig } = this.configService.get<AllConfigType>('external', {
+        infer: true,
+      });
+      const { clientId, clientSecret, ownerNumber, va, providerId } = acbConfig;
+      const { paymentGatewayUrl, paymentApiKey } = gcpConfig;
+      const { txId, orderCode, orderId, userId, amount } = payload;
 
-    const token = await this.getAcbToken({
-      clientId,
-      clientSecret,
-      paymentGatewayUrl,
-      paymentApiKey,
-    });
+      const token = await this.getAcbToken({
+        clientId,
+        clientSecret,
+        paymentGatewayUrl,
+        paymentApiKey,
+      });
 
-    const requestId = uuidv4();
-    const requestTrace = uuidv4();
-    const traceNumber = txId;
+      const requestId = uuidv4();
+      const requestTrace = uuidv4();
+      const traceNumber = txId;
 
-    // Date format: "2024-05-17T17:30:24.116+0700"
-    const requestDateTime = dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZZ');
+      /* Date format: "2024-05-17T17:30:24.116+0700" */
+      const requestDateTime = dayjs().format('YYYY-MM-DDTHH:mm:ss.SSSZZ');
 
-    // - merchantid: theo từng cửa hàng
-    // - terminalid: theo từng quầy/máy tính tiền/mục đích thanh toán
-    // - orderID:
-    // Giới hạn từ 13 ký tự trở xuống, nó sẽ là phần đuôi của Virtualaccount
-    // Virtual account bên c tối đa 18 ký tự (bao gồm 3 ký tự đầu số VA-VirtualPrefix,
-    // 2 ký tự cố định là MS, 13 ký tự sau cùng dành cho orderid map qua)
+      const query = {
+        Authorization: `Bearer ${token}`,
+        'X-Client-Id': clientId,
+        'X-Owner-Number': ownerNumber,
+        'X-Owner-Type': 'ORG',
+        'X-Provider-Id': providerId,
+        'X-Request-Id': requestId,
+        'X-Service': 'QRPAYMENT',
+      };
 
-    const query = {
-      Authorization: `Bearer ${token}`,
-      'X-Client-Id': clientId,
-      'X-Owner-Number': ownerNumber,
-      'X-Owner-Type': 'ORG',
-      'X-Provider-Id': providerId,
-      'X-Request-Id': requestId,
-      'X-Service': 'QRPAYMENT',
-    };
+      /*
+      - merchantid: theo từng cửa hàng <= 30 characters
+      - terminalid: theo từng quầy/máy tính tiền/mục đích thanh toán <= 30 characters
+      - beneficiaryName <= 30 characters
+      - orderID <= 13 characters
+      - description <= 40 characters
+      - docs: https://developer.acb.com.vn/acb/open/vi/product/7042/api/7036#/KhitoQRCode_104/operation/%2Finitiate/post
+      */
 
-    const payloadCreateQR = {
-      requestDateTime,
-      requestParameters: {
-        amount: 20_0000,
-        description: `THANH TOAN DON HANG ${orderCode}`,
-        beneficiaryName: 'CTY CO PHAN PITO',
-        orderId: orderCode,
+      const payloadCreateQR = {
+        requestDateTime,
+        requestParameters: {
+          amount: +amount,
+          description: `THANH TOAN DON HANG ${orderCode}`,
+          beneficiaryName: 'CTY CO PHAN PITO',
+          orderId: orderCode,
+          merchantId: userId.substring(0, 30),
+          terminalId: txId.substring(0, 30),
+          traceNumber,
+          userId,
+          virtualAccountPrefix: va,
+        },
+        requestTrace,
+      };
+      const urlSearchParams = new URLSearchParams(query);
+      const queryString = urlSearchParams.toString();
+
+      const result = await fetch(`${paymentGatewayUrl}/acb/generate-qr?${queryString}`, {
+        method: 'POST',
+        body: JSON.stringify(payloadCreateQR),
+        headers: {
+          'payment-pitovn-api-key': paymentApiKey,
+        },
+      });
+
+      const response = await result.json();
+      const qrCodeData = response?.responseBody?.qrDataUrl;
+
+      if (!qrCodeData) {
+        throw new RpcException('Create QR code error');
+      }
+
+      await this.cacheAcbQrPaymentRequest(orderCode, {
+        txId,
+        orderId,
         traceNumber,
+        requestId,
         userId,
-        virtualAccountPrefix: va,
-      },
-      requestTrace,
-    };
-    const urlSearchParams = new URLSearchParams(query);
-    const queryString = urlSearchParams.toString();
+      });
 
-    const result = await fetch(`${paymentGatewayUrl}/acb/generate-qr?${queryString}`, {
-      method: 'POST',
-      body: JSON.stringify(payloadCreateQR),
-      headers: {
-        'payment-pitovn-api-key': paymentApiKey,
-      },
-    });
+      return { qrCode: qrCodeData };
+    } catch (error) {
+      this.logger.error('Create ACB QR payment error', {
+        metadata: error,
+      });
 
-    const response = await result.json();
-    const qrCodeData = response?.responseBody?.qrDataUrl;
-
-    if (!qrCodeData) {
-      throw new RpcException('Create QR code error');
+      throw new RpcException(error as Error);
     }
-
-    await this.cacheAcbQrPaymentRequest(orderCode, {
-      txId,
-      orderId,
-      traceNumber,
-      requestId,
-      userId,
-    });
-
-    return { qrCode: qrCodeData };
   }
 
   private async getAcbToken(payload: GenerateTokenProps) {

@@ -1,6 +1,6 @@
 import { EntityRelationalHelper } from '@app/common';
 import { NullableType } from '@app/common/types/common';
-import { ItemOptionAndChoice } from 'apps/order-service/src/domain/item';
+import { RawOptionChoice } from 'apps/order-service/src/domain';
 import {
   Column,
   Entity,
@@ -32,7 +32,7 @@ export class CartItemEntity extends EntityRelationalHelper {
   quantity: number;
 
   @Column({ type: 'jsonb', name: 'raw_options_choices' })
-  rawOptionsChoices: Array<ItemOptionAndChoice>;
+  rawOptionsChoices: Array<RawOptionChoice>;
 
   @Column({ type: 'text', name: 'notes', nullable: true })
   notes: NullableType<string>;
