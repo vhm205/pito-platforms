@@ -1,4 +1,4 @@
-import { PARTNER_DB_SOURCE } from '@app/common';
+import { CUSTOMER_DB_SOURCE, PARTNER_DB_SOURCE } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
 import { NullableType } from '@app/common/types/common';
@@ -25,7 +25,7 @@ export class PartnerStoreRelationalRepository implements PartnerStoreRepository 
     private readonly storeServiceRepository: Repository<StoreServiceEntity>,
     @InjectRepository(PartnerEntity, PARTNER_DB_SOURCE)
     private readonly partnerRepository: Repository<PartnerEntity>,
-    @InjectRepository(StoreFavoriteEntity, PARTNER_DB_SOURCE)
+    @InjectRepository(StoreFavoriteEntity, CUSTOMER_DB_SOURCE)
     private readonly storeFavoriteRepository: Repository<StoreFavoriteEntity>,
   ) {}
 

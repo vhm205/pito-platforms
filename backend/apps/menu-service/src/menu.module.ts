@@ -45,6 +45,7 @@ const customerEntities = [
   OccasionEventEntity,
   SpecialDietaryEntity,
   CategoryEntity,
+  StoreFavoriteEntity,
 ];
 
 const partnerEntities = [
@@ -61,7 +62,6 @@ const partnerEntities = [
   PartnerOnboardingEntity,
   MenuEntity,
   PartnerCategoryEntity,
-  StoreFavoriteEntity,
 ];
 
 @Module({
