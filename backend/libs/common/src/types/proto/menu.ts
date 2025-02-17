@@ -10,6 +10,7 @@ import {
   SortRule,
   StoreEngagementLevel,
   StorePerformanceLevel,
+  UpdateStatusResponse,
 } from './common';
 import {
   CreateDishRequest,
@@ -36,6 +37,40 @@ import {
 } from './item/occasion-event';
 
 export const protobufPackage = 'menu';
+
+export interface FindMenuCategoryRequest {
+  id: string;
+  serviceCategory?: string | undefined;
+}
+
+export interface FindMenuCategoryResponse {
+  data: FindMenuCategoryResponse_MenuCategory | undefined;
+}
+
+export interface FindMenuCategoryResponse_MenuCategory {
+  id: string;
+  name: string;
+  isActive: boolean;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+  metadata: { [key: string]: any } | undefined;
+  totalItems: number;
+  type: string;
+  notes: string;
+  index: number;
+}
+
+export interface BulkUpdateItemsStatusRequest {
+  ids: string[];
+  status: string;
+  rejectionReason?: string | undefined;
+}
+
+export interface UpdateOnboardingStatusRequest {
+  id: string;
+  status: string;
+  rejectionReason?: string | undefined;
+}
 
 export interface BulkInsertItemsRequest {
   items: BulkInsertItemsRequest_Item[];
@@ -1191,7 +1226,13 @@ export interface MenusServiceClient {
 
   bulkInsertItems(request: BulkInsertItemsRequest): Observable<BulkInsertItemsResponse>;
 
+  bulkUpdateItemsStatus(request: BulkUpdateItemsStatusRequest): Observable<UpdateStatusResponse>;
+
   updateMenuItem(request: UpdateItemRequest): Observable<PartnerItem>;
+
+  deleteItem(request: FindItemRequest): Observable<UpdateStatusResponse>;
+
+  findMenuCategory(request: FindMenuCategoryRequest): Observable<FindMenuCategoryResponse>;
 
   updateStoreStatus(request: UpdateStoreStatusRequest): Observable<UpdateStoreStatusResponse>;
 
@@ -1276,6 +1317,8 @@ export interface MenusServiceClient {
   findStoreIdsForPendingItems(
     request: FindStoreIdsForPendingItemsRequest,
   ): Observable<FindStoreIdsForPendingItemsResponse>;
+
+  updateOnboardingStatus(request: UpdateOnboardingStatusRequest): Observable<UpdateStatusResponse>;
 }
 
 export interface MenusServiceController {
@@ -1386,9 +1429,24 @@ export interface MenusServiceController {
     | Observable<BulkInsertItemsResponse>
     | BulkInsertItemsResponse;
 
+  bulkUpdateItemsStatus(
+    request: BulkUpdateItemsStatusRequest,
+  ): Promise<UpdateStatusResponse> | Observable<UpdateStatusResponse> | UpdateStatusResponse;
+
   updateMenuItem(
     request: UpdateItemRequest,
   ): Promise<PartnerItem> | Observable<PartnerItem> | PartnerItem;
+
+  deleteItem(
+    request: FindItemRequest,
+  ): Promise<UpdateStatusResponse> | Observable<UpdateStatusResponse> | UpdateStatusResponse;
+
+  findMenuCategory(
+    request: FindMenuCategoryRequest,
+  ):
+    | Promise<FindMenuCategoryResponse>
+    | Observable<FindMenuCategoryResponse>
+    | FindMenuCategoryResponse;
 
   updateStoreStatus(
     request: UpdateStoreStatusRequest,
@@ -1578,6 +1636,10 @@ export interface MenusServiceController {
     | Promise<FindStoreIdsForPendingItemsResponse>
     | Observable<FindStoreIdsForPendingItemsResponse>
     | FindStoreIdsForPendingItemsResponse;
+
+  updateOnboardingStatus(
+    request: UpdateOnboardingStatusRequest,
+  ): Promise<UpdateStatusResponse> | Observable<UpdateStatusResponse> | UpdateStatusResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -1602,7 +1664,10 @@ export function MenusServiceControllerMethods() {
       'getStoreDetailForCustomer',
       'insertMenuItem',
       'bulkInsertItems',
+      'bulkUpdateItemsStatus',
       'updateMenuItem',
+      'deleteItem',
+      'findMenuCategory',
       'updateStoreStatus',
       'updatePartnerStatus',
       'updateStore',
@@ -1633,6 +1698,7 @@ export function MenusServiceControllerMethods() {
       'findOnboardingsWithPagination',
       'findItemCountsByStoreIds',
       'findStoreIdsForPendingItems',
+      'updateOnboardingStatus',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

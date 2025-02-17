@@ -1,4 +1,9 @@
-import { PartnerItemRequest, UpdateItemRequest } from '@app/common';
+import {
+  BulkUpdateItemsStatusRequest,
+  FindMenuCategoryRequest,
+  PartnerItemRequest,
+  UpdateItemRequest,
+} from '@app/common';
 import { NullableType } from '@app/common/types/common';
 import { PaginationRequest, SortRule } from '@app/common/types/proto/common';
 import {
@@ -7,6 +12,7 @@ import {
   OccasionEvent,
 } from 'apps/menu-service/src/domain/partner-item.domain';
 import { MenuEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/menu.entity';
+import { PartnerCategoryEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-category.entity';
 import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-item.entity';
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 import type { FindOperator, FindOptionsWhere, ObjectLiteral } from 'typeorm';
@@ -129,4 +135,21 @@ export abstract class PartnerItemRepository {
     page?: number;
     pageSize?: number;
   }): Promise<[SearchItemsInStoreResult[], number]>;
+
+  abstract bulkUpdateItemsStatus(request: BulkUpdateItemsStatusRequest): Promise<{
+    affectedRows: number;
+  }>;
+
+  abstract deleteItem(filter: FindOptionsWhere<Pick<PartnerItem, 'id' | 'slug'>>): Promise<{
+    affectedRows: number;
+  }>;
+
+  abstract findMenuCategoryWithItemCounts(request: FindMenuCategoryRequest): Promise<{
+    category: PartnerMenuCategoriesEntity;
+    itemCount: number;
+  }>;
+
+  abstract findCategories(args: {
+    filters: Record<string, FindOperator<any>>[];
+  }): Promise<PartnerCategoryEntity[]>;
 }

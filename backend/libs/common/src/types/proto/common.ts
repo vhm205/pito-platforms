@@ -91,4 +91,8 @@ export interface SortRule {
   direction: string;
 }
 
+export interface UpdateStatusResponse {
+  affectedRows: number;
+}
+
 export const COMMON_PACKAGE_NAME = 'common';

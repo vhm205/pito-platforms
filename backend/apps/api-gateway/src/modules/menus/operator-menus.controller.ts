@@ -7,8 +7,13 @@ import {
   BulkInsertItemsDto,
   PartnerItemDto,
 } from '@gateway/modules/menus/dtos/insert-menu-item.dto';
+import { FindMenuCategoryRequestDto, MenuCategoryDto } from '@gateway/modules/menus/dtos/item.dto';
 import { OperatorQueryItemDto } from '@gateway/modules/menus/dtos/query-menu.dto';
-import { UpdateItemDto } from '@gateway/modules/menus/dtos/update-menu-item.dto';
+import {
+  BulkUpdateItemsStatusDto,
+  BulkUpdateItemsStatusResponseDto,
+  UpdateItemDto,
+} from '@gateway/modules/menus/dtos/update-menu-item.dto';
 import { MenusService } from '@gateway/modules/menus/menus.service';
 import { OperatorMenusService } from '@gateway/modules/menus/operator-menus.service';
 import { DraftBypassPipe } from '@gateway/modules/menus/pipes/draft-bypass.pipe';
@@ -17,11 +22,13 @@ import { emptyPaginationResponse, isValidUUID } from '@gateway/utils/common';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -174,5 +181,42 @@ export class OperatorMenusController {
   async bulkInsertItems(@Body() request: BulkInsertItemsDto) {
     const result = await this.service.bulkInsertItems(request);
     return result;
+  }
+
+  @Patch('items/status')
+  @Auth([RoleType.OPERATOR])
+  @ApiOperation({ summary: 'Bulk update items status' })
+  @ApiWrapperResponse({
+    type: BulkUpdateItemsStatusResponseDto,
+    description: 'Bulk update items status',
+  })
+  @HttpCode(HttpStatus.OK)
+  async bulkUpdateItemsStatus(@Body() request: BulkUpdateItemsStatusDto) {
+    const result = await this.service.bulkUpdateItemsStatus(request);
+    return result;
+  }
+
+  @Delete('items/:identifier')
+  @ApiOperation({ summary: 'Delete a item by identifier' })
+  @ApiParam({ name: 'identifier', description: 'Identifier of the item' })
+  @ApiWrapperResponse({
+    description: 'The item has been successfully deleted.',
+    type: BulkUpdateItemsStatusResponseDto,
+  })
+  @Auth([RoleType.OPERATOR])
+  async deleteItem(@Param('identifier') identifier: string) {
+    const filterCriteria = isValidUUID(identifier) ? { id: identifier } : { slug: identifier };
+    return this.service.deleteItem(filterCriteria);
+  }
+
+  @Get('menu-categories/:id')
+  @Auth([RoleType.OPERATOR])
+  @HttpCode(HttpStatus.OK)
+  @ApiWrapperResponse({ type: MenuCategoryDto })
+  async findMenuCategory(@Param('id') id: string, @Query() query: FindMenuCategoryRequestDto) {
+    return this.service.findMenuCategory({
+      id,
+      serviceCategory: query?.serviceCategory,
+    });
   }
 }

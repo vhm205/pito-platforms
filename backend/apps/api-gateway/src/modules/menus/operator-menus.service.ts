@@ -1,5 +1,8 @@
 import {
+  BulkUpdateItemsStatusRequest,
   DEFAULT_PAGE_NUMBER,
+  FindItemRequest,
+  FindMenuCategoryRequest,
   MENU_SERVICE,
   MENUS_SERVICE_NAME,
   MenusServiceClient,
@@ -137,5 +140,19 @@ export class OperatorMenusService implements OnModuleInit {
   async bulkInsertItems(request: BulkInsertItemsDto) {
     const result = await firstValueFrom(this.menusServiceClient.bulkInsertItems(request));
     return result;
+  }
+
+  async bulkUpdateItemsStatus(request: BulkUpdateItemsStatusRequest) {
+    const result = await firstValueFrom(this.menusServiceClient.bulkUpdateItemsStatus(request));
+    return result;
+  }
+
+  async deleteItem(request: FindItemRequest) {
+    return firstValueFrom(this.menusServiceClient.deleteItem(request));
+  }
+
+  async findMenuCategory(request: FindMenuCategoryRequest) {
+    const result = await firstValueFrom(this.menusServiceClient.findMenuCategory(request));
+    return result?.data;
   }
 }

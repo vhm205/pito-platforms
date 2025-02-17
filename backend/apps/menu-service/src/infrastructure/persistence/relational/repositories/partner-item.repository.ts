@@ -1,4 +1,10 @@
-import { PARTNER_DB_SOURCE, PartnerItemRequest, UpdateItemRequest } from '@app/common';
+import {
+  BulkUpdateItemsStatusRequest,
+  FindMenuCategoryRequest,
+  PARTNER_DB_SOURCE,
+  PartnerItemRequest,
+  UpdateItemRequest,
+} from '@app/common';
 import { SourceSystemType, StoreStatus } from '@app/common/enums';
 import { ItemStatus, PackagingType, UnitType } from '@app/common/enums/item';
 import { MenuType } from '@app/common/enums/menu';
@@ -778,5 +784,69 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     });
 
     return [data as unknown as SearchItemsInStoreResult[], total];
+  }
+
+  async bulkUpdateItemsStatus(request: BulkUpdateItemsStatusRequest) {
+    const { ids, status, rejectionReason } = request;
+    if (!ids?.length) throw new Error('No item IDs provided');
+
+    const updateData = { status: status as ItemStatus };
+
+    if (status === ItemStatus.REJECTED) {
+      const items = await this.partnerItemRepository.findByIds(ids);
+      if (!items.length) throw new Error('No matching items found');
+
+      const updatedItems = items?.map(item => ({
+        id: item.id,
+        metadata: {
+          ...item.metadata,
+          rejection_reason: rejectionReason,
+        },
+        status: ItemStatus.REJECTED,
+      }));
+
+      await this.partnerItemRepository.save(updatedItems);
+    } else {
+      const { affected } = await this.partnerItemRepository.update({ id: In(ids) }, updateData);
+      return { affectedRows: affected ?? 0 };
+    }
+
+    return { affectedRows: ids.length };
+  }
+
+  async deleteItem(
+    filter: FindOptionsWhere<Pick<PartnerItem, 'id' | 'slug'>>,
+  ): Promise<{ affectedRows: number }> {
+    const { affected } = await this.partnerItemRepository.delete(filter);
+    return { affectedRows: affected ?? 0 };
+  }
+
+  async findMenuCategoryWithItemCounts(
+    request: FindMenuCategoryRequest,
+  ): Promise<{ category: PartnerMenuCategoriesEntity; itemCount: number }> {
+    const queryBuilder = this.partnerMenuCategoriesRepository
+      .createQueryBuilder('menuCategory')
+      .leftJoinAndSelect('menuCategory.items', 'items')
+      .where('menuCategory.id = :id', { id: request.id });
+
+    if (request.serviceCategory) {
+      queryBuilder.andWhere('items.serviceCategory = :serviceCategory', {
+        serviceCategory: request.serviceCategory,
+      });
+    }
+
+    const category = (await queryBuilder.getOne()) as PartnerMenuCategoriesEntity;
+    const itemCount = category?.items?.length ?? 0;
+
+    return { category, itemCount };
+  }
+
+  async findCategories(args: {
+    filters: Record<string, FindOperator<any>>[];
+  }): Promise<PartnerCategoryEntity[]> {
+    const entities = await this.partnerCategoryRepository.find({
+      where: args.filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
+    });
+    return entities;
   }
 }

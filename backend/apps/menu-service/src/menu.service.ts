@@ -31,11 +31,14 @@ import {
   FindCateringPackagesAndOccasionEventsRequest,
   BulkInsertItemsRequest,
   BulkInsertItemsRequest_Item,
+  BulkUpdateItemsStatusRequest,
+  FindMenuCategoryRequest,
 } from '@app/common';
 import { AppConfig, Environment } from '@app/common/configs';
 import { GrpcStatus, SourceSystemType } from '@app/common/enums';
 import { PackageOptionStatus } from '@app/common/enums/catering-package';
 import { ItemStatus } from '@app/common/enums/item';
+import { MenuType } from '@app/common/enums/menu';
 import { SortRule } from '@app/common/types/proto/common';
 import {
   CreateOccasionEventRequest,
@@ -777,7 +780,7 @@ export class MenuService {
     return response.json();
   }
 
-  async processItemsAndMenuCategories({
+  private async processItemsAndMenuCategories({
     items,
     menuId,
     storeId,
@@ -921,6 +924,88 @@ export class MenuService {
 
     return {
       insertedCount: insertedItems?.length ?? 0,
+    };
+  }
+
+  async bulkUpdateItemsStatus(request: BulkUpdateItemsStatusRequest) {
+    const result = await this.partnerItemRepository.bulkUpdateItemsStatus(request);
+    return result;
+  }
+
+  async deleteItem(request: FindItemRequest) {
+    const result = await this.partnerItemRepository.deleteItem(request);
+    return result;
+  }
+
+  async findMenuCategory(request: FindMenuCategoryRequest) {
+    const menuCategory = await this.partnerItemRepository.findMenuCategoryWithItemCounts(request);
+
+    if (!menuCategory?.category) {
+      throw new RpcException({
+        message: 'Menu category not found',
+        status: GrpcStatus.NOT_FOUND,
+      });
+    }
+
+    const isSetMenu =
+      menuCategory?.category?.type === MenuType.SET && menuCategory?.category.packageId;
+
+    if (isSetMenu) {
+      const [cateringPackage] = await this.partnerItemRepository.findCateringPackages({
+        filters: [
+          transformFilterRule({
+            column: 'id',
+            operator: 'in',
+            value: menuCategory?.category?.packageId?.toString() ?? '',
+          }),
+        ],
+      });
+
+      return {
+        data: {
+          ...menuCategory?.category,
+          updatedAt: menuCategory?.category?.updatedAt ?? undefined,
+          notes: menuCategory?.category?.notes ?? '',
+          totalItems: menuCategory?.itemCount,
+
+          name: cateringPackage?.name ?? 'unknown',
+          metadata: {
+            cateringPackage: {
+              id: cateringPackage?.id,
+              name: cateringPackage?.name,
+            },
+            category: null,
+          },
+        },
+      };
+    }
+
+    const [category] = await this.partnerItemRepository.findCategories({
+      filters: [
+        transformFilterRule({
+          column: 'id',
+          operator: 'in',
+          value: menuCategory?.category?.categoryId?.toString() ?? '',
+        }),
+      ],
+    });
+
+    return {
+      data: {
+        ...menuCategory?.category,
+        updatedAt: menuCategory?.category?.updatedAt ?? undefined,
+        notes: menuCategory?.category?.notes ?? '',
+        totalItems: menuCategory?.itemCount,
+
+        name: category?.name ?? 'unknown',
+        metadata: {
+          cateringPackage: null,
+          category: {
+            id: category?.id,
+            name: category?.name,
+          },
+        },
+      },
     };
   }
 }

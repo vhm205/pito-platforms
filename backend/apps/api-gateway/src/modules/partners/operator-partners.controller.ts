@@ -6,6 +6,7 @@ import { PageDto } from '@gateway/gateway-common/dto/page.dto';
 import {
   OnboardingDto,
   OperatorQueryOnboardingDto,
+  UpdateOnboardingStatusDto,
 } from '@gateway/modules/partners/dto/onboarding.dto';
 import { emptyPaginationResponse } from '@gateway/utils/common';
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Query } from '@nestjs/common';
@@ -79,5 +80,18 @@ export class OperatorPartnersController {
     });
 
     return new PageDto<OnboardingDto>(transformed, pageMeta);
+  }
+
+  @Patch('/onboardings/status/:id')
+  @Auth([RoleType.OPERATOR])
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update onboarding status' })
+  @ApiWrapperResponse({
+    type: UpdatePartnerResponseDto,
+    description: 'Update onboarding status',
+  })
+  async updateOnboardingStatus(@Param('id') id: string, @Body() body: UpdateOnboardingStatusDto) {
+    const result = await this.service.updateOnboardingStatus({ id, ...body });
+    return result;
   }
 }

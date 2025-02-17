@@ -223,6 +223,6 @@ export class UpdatePartnerRequestDto {
 }
 
 export class UpdatePartnerResponseDto {
-  @ApiProperty()
+  @ApiProperty({ example: 1, description: 'The number of affected rows in the database' })
   affectedRows: number;
 }
