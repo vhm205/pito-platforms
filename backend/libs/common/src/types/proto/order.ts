@@ -347,6 +347,97 @@ export interface GetTotalOrderCountByStoreIdResponse {
   totalOrderCount: number;
 }
 
+export interface GetCartsRequest {
+  userId: string;
+  storeId?: string | undefined;
+}
+
+export interface GetCartsResponse {
+  sessions: GetCartsResponse_Session[];
+}
+
+export interface GetCartsResponse_Item {
+  id: string;
+  name: string;
+  slug: string;
+  images: string[];
+  basePrice: number;
+  unitQuantity: number;
+  optionsAndChoices: GetCartsResponse_Item_OptionsAndChoices[];
+}
+
+export interface GetCartsResponse_Item_OptionsAndChoices {
+  optionId: string;
+  name: string;
+  choices: GetCartsResponse_Item_OptionsAndChoices_Choice[];
+}
+
+export interface GetCartsResponse_Item_OptionsAndChoices_Choice {
+  choiceId: string;
+  name: string;
+  basePrice: number;
+  quantity: number;
+}
+
+export interface GetCartsResponse_CartItem {
+  id: string;
+  notes: string;
+  quantity: number;
+  sessionId: string;
+  item: GetCartsResponse_Item | undefined;
+}
+
+export interface GetCartsResponse_Session {
+  sessionId: string;
+  carts: GetCartsResponse_CartItem[];
+}
+
+export interface AddItemToCartRequest {
+  userId: string;
+  storeId: string;
+  itemId: string;
+  quantity: number;
+  notes?: string | undefined;
+  optionsChoices: AddItemToCartRequest_OptionsChoices[];
+}
+
+export interface AddItemToCartRequest_OptionsChoices {
+  optionId: string;
+  choices: AddItemToCartRequest_OptionsChoices_Choice[];
+}
+
+export interface AddItemToCartRequest_OptionsChoices_Choice {
+  choiceId: string;
+  quantity: number;
+}
+
+export interface AddItemToCartResponse {
+  success: boolean;
+}
+
+export interface UpdateItemInCartRequest {
+  userId: string;
+  storeId: string;
+  cartItemId: string;
+  itemId: string;
+  quantity: number;
+  optionsChoices: UpdateItemInCartRequest_OptionsChoices[];
+}
+
+export interface UpdateItemInCartRequest_OptionsChoices {
+  optionId: string;
+  choices: UpdateItemInCartRequest_OptionsChoices_Choice[];
+}
+
+export interface UpdateItemInCartRequest_OptionsChoices_Choice {
+  choiceId: string;
+  quantity: number;
+}
+
+export interface UpdateItemInCartResponse {
+  success: boolean;
+}
+
 export const ORDER_PACKAGE_NAME = 'order';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -388,6 +479,12 @@ export interface OrdersServiceClient {
   getTotalOrderCountByStoreId(
     request: GetTotalOrderCountByStoreIdRequest,
   ): Observable<GetTotalOrderCountByStoreIdResponse>;
+
+  getCarts(request: GetCartsRequest): Observable<GetCartsResponse>;
+
+  addItemToCart(request: AddItemToCartRequest): Observable<AddItemToCartResponse>;
+
+  updateItemInCart(request: UpdateItemInCartRequest): Observable<UpdateItemInCartResponse>;
 }
 
 export interface OrdersServiceController {
@@ -449,6 +546,21 @@ export interface OrdersServiceController {
     | Promise<GetTotalOrderCountByStoreIdResponse>
     | Observable<GetTotalOrderCountByStoreIdResponse>
     | GetTotalOrderCountByStoreIdResponse;
+
+  getCarts(
+    request: GetCartsRequest,
+  ): Promise<GetCartsResponse> | Observable<GetCartsResponse> | GetCartsResponse;
+
+  addItemToCart(
+    request: AddItemToCartRequest,
+  ): Promise<AddItemToCartResponse> | Observable<AddItemToCartResponse> | AddItemToCartResponse;
+
+  updateItemInCart(
+    request: UpdateItemInCartRequest,
+  ):
+    | Promise<UpdateItemInCartResponse>
+    | Observable<UpdateItemInCartResponse>
+    | UpdateItemInCartResponse;
 }
 
 export function OrdersServiceControllerMethods() {
@@ -465,6 +577,9 @@ export function OrdersServiceControllerMethods() {
       'findTransactions',
       'getRevenueAndCountOrderByStoreIds',
       'getTotalOrderCountByStoreId',
+      'getCarts',
+      'addItemToCart',
+      'updateItemInCart',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

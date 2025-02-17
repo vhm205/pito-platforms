@@ -29,6 +29,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { redisStore } from 'cache-manager-redis-yet';
 
 import { BillingService } from './billing.service';
+import { CartService } from './cart.service';
 import { CartItemEntity } from './infrastructure/persistence/relational/entities/cart-item.entity';
 import { ItemEntity } from './infrastructure/persistence/relational/entities/item.entity';
 import { OrderEntity } from './infrastructure/persistence/relational/entities/order.entity';
@@ -227,6 +228,7 @@ import { TransactionService } from './transaction.service';
     BillingService,
     PromotionService,
     TransactionService,
+    CartService,
   ],
   exports: [
     OrderService,
@@ -235,6 +237,7 @@ import { TransactionService } from './transaction.service';
     BillingService,
     PromotionService,
     TransactionService,
+    CartService,
   ],
 })
 export class OrderModule {}

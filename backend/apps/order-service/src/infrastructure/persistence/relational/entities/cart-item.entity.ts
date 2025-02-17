@@ -25,8 +25,8 @@ export class CartItemEntity extends EntityRelationalHelper {
   @Column({ type: 'uuid', name: 'session_id' })
   sessionId: string;
 
-  // @Column({ type: 'uuid', name: 'item_id' })
-  // itemId: string;
+  @Column({ type: 'uuid', name: 'item_id' })
+  itemId: string;
 
   @Column({ type: 'smallint', name: 'quantity' })
   quantity: number;

@@ -18,6 +18,10 @@ service OrdersService {
   rpc FindTransactions (FindTransactionsRequest) returns (FindTransactionsResponse);
   rpc GetRevenueAndCountOrderByStoreIds (GetRevenueAndCountOrderByStoreIdsRequest) returns (GetRevenueAndCountOrderByStoreIdsResponse);
   rpc GetTotalOrderCountByStoreId (GetTotalOrderCountByStoreIdRequest) returns (GetTotalOrderCountByStoreIdResponse);
+
+  rpc GetCarts (GetCartsRequest) returns (GetCartsResponse);
+  rpc AddItemToCart (AddItemToCartRequest) returns (AddItemToCartResponse);
+  rpc UpdateItemInCart (UpdateItemInCartRequest) returns (UpdateItemInCartResponse);
 }
 
 // Request message for create order
@@ -388,4 +392,92 @@ message GetTotalOrderCountByStoreIdRequest {
 
 message GetTotalOrderCountByStoreIdResponse {
   int32 total_order_count = 1;
+}
+
+message GetCartsRequest {
+  string user_id = 1;
+  optional string store_id = 2;
+}
+
+message GetCartsResponse {
+  message Item {
+    string id = 1;
+    string name = 2;
+    string slug = 3;
+    repeated string images = 4;
+    float base_price = 5;
+    int32 unit_quantity = 6;
+
+    message OptionsAndChoices {
+      string option_id = 1;
+      string name = 2;
+
+      message Choice {
+        string choice_id = 1;
+        string name = 2;
+        float base_price = 3;
+        int32 quantity = 4;
+      }
+      repeated Choice choices = 3;
+    }
+    repeated OptionsAndChoices options_and_choices = 7;
+  }
+
+  message CartItem {
+    string id = 1;
+    string notes = 2;
+    int32 quantity = 3;
+    string session_id = 4;
+    Item item = 5;
+  }
+
+  message Session {
+    string session_id = 1;
+    repeated CartItem carts = 2;
+  }
+
+  repeated Session sessions = 1;
+}
+
+message AddItemToCartRequest {
+  message OptionsChoices {
+    message Choice {
+      string choice_id = 1;
+      int32 quantity = 2;
+    }
+    string option_id = 1;
+    repeated Choice choices = 2;
+  }
+  string user_id = 1;
+  string store_id = 2;
+  string item_id = 3;
+  int32 quantity = 4;
+  optional string notes = 5;
+  repeated OptionsChoices options_choices = 6;
+}
+
+message AddItemToCartResponse {
+  bool success = 1;
+}
+
+message UpdateItemInCartRequest {
+  message OptionsChoices {
+    message Choice {
+      string choice_id = 1;
+      int32 quantity = 2;
+    }
+    string option_id = 1;
+    repeated Choice choices = 2;
+  }
+
+  string user_id = 1;
+  string store_id = 2;
+  string cart_item_id = 3;
+  string item_id = 4;
+  int32 quantity = 5;
+  repeated OptionsChoices options_choices = 6;
+}
+
+message UpdateItemInCartResponse {
+  bool success = 1;
 }
