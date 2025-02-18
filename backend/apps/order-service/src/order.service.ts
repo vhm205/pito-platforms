@@ -521,7 +521,7 @@ export class OrderService {
         item_name: item.item?.name,
         item_amount: formatCurrency(item.price),
         count: item.quantity,
-        note: item.notes,
+        notes: item.notes,
         item_options: itemOptions,
       };
     });

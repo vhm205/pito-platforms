@@ -8,11 +8,14 @@ import {
 } from '@app/common/enums';
 import { SendNotificationDto } from '@app/common/types/notification';
 import { OrderStatus } from '@app/common/types/proto/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy, RmqRecord, RmqRecordBuilder } from '@nestjs/microservices';
 import { getOrderNotificationTemplate } from 'apps/notification-service/src/utils';
+import { RedisStore } from 'cache-manager-redis-yet';
 import { get, map } from 'lodash';
 
+import { ORDER_CACHE_PREFIX } from './constants/order';
 import { Order } from './domain';
 import { StoreRepository } from './infrastructure/persistence/store.repository';
 import { getOrderStatusTemplateIds } from './utils/sendgrid-template';
@@ -25,6 +28,7 @@ export class OrderNotificationService {
   constructor(
     private readonly logger: LoggerService,
     private readonly storeRepository: StoreRepository,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: RedisStore,
     @Inject('NOTIFICATIONS_SERVICE') private readonly rabbitClient: ClientProxy,
   ) {}
 
@@ -162,14 +166,15 @@ export class OrderNotificationService {
 
   async sendPaymentFailedNotification(order: Order) {
     const templateId = getOrderStatusTemplateIds()[OrderStatus.PAYMENT_FAILED];
-    const dynamicData = this.getBaseDynamicDataForOrder(order);
+    const cacheKey = `${ORDER_CACHE_PREFIX}:${order.orderCode}:mail`;
+    const mailPayload: undefined | Record<string, any> = await this.cacheManager.get(cacheKey);
 
-    switch (order.statusCode) {
-      case OrderStatus.PAYMENT_FAILED: {
-        const store = await this.storeRepository.findOne({ id: order.storeId })!;
-        dynamicData['store'] = { name: get(store, 'storeName') };
-        break;
-      }
+    if (!mailPayload) {
+      return this.logger.error(`Failed to get mail payload for order ${order.orderCode}`, {
+        metadata: {
+          cacheKey,
+        },
+      });
     }
 
     const message: SendNotificationDto = {
@@ -178,9 +183,9 @@ export class OrderNotificationService {
       message: {
         email: {
           from: this.fromEmail,
-          to: dynamicData.recipient.email!,
+          to: order.receiverEmail!,
           templateId,
-          dynamicTemplateData: dynamicData,
+          dynamicTemplateData: mailPayload,
         },
       },
     };
@@ -202,14 +207,15 @@ export class OrderNotificationService {
       ? 'delivery_report.wav'
       : 'default';
 
-    const dynamicData = this.getBaseDynamicDataForOrder(order);
+    const cacheKey = `${ORDER_CACHE_PREFIX}:${order.orderCode}:mail`;
+    const mailPayload: undefined | Record<string, any> = await this.cacheManager.get(cacheKey);
 
-    switch (order.statusCode) {
-      case OrderStatus.PAYMENT_FAILED: {
-        const store = await this.storeRepository.findOne({ id: order.storeId })!;
-        dynamicData['store'] = { name: get(store, 'storeName') };
-        break;
-      }
+    if (!mailPayload) {
+      return this.logger.error(`Failed to get mail payload for order ${order.orderCode}`, {
+        metadata: {
+          cacheKey,
+        },
+      });
     }
 
     const { title, body } = getOrderNotificationTemplate(code, order.orderCode);
@@ -222,7 +228,7 @@ export class OrderNotificationService {
           from: this.fromEmail,
           to: order.receiverEmail!,
           templateId,
-          dynamicTemplateData: dynamicData,
+          dynamicTemplateData: mailPayload,
         },
         pushNotification: {
           type: PushType.TOPIC,
