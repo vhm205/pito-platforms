@@ -185,7 +185,10 @@ export class OrderNotificationService {
           from: this.fromEmail,
           to: order.receiverEmail!,
           templateId,
-          dynamicTemplateData: mailPayload,
+          dynamicTemplateData: {
+            ...mailPayload,
+            subject: 'Đặt hàng thất bại',
+          },
         },
       },
     };
@@ -228,7 +231,10 @@ export class OrderNotificationService {
           from: this.fromEmail,
           to: order.receiverEmail!,
           templateId,
-          dynamicTemplateData: mailPayload,
+          dynamicTemplateData: {
+            ...mailPayload,
+            subject: 'Đặt hàng thành công',
+          },
         },
         pushNotification: {
           type: PushType.TOPIC,
