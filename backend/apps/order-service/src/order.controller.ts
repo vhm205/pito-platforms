@@ -288,15 +288,11 @@ export class OrderController implements OrdersServiceController {
 
       const order = await this.orderService.findOrderByFilter({
         id: orderId,
-        statusCode: Not(OrderStatusCode.PAYMENT_FAILED),
+        statusCode: OrderStatusCode.DRAFT,
       });
-      if (!order) {
-        throw new Error(
-          `Failed to get order with id ${orderId} from ${OrderPatternEvent.PAYMENT_TIMEOUT} event`,
-        );
+      if (order) {
+        await this.orderService.updateOrderToFailed(order);
       }
-
-      await this.orderService.updateOrderToFailed(order);
 
       this.logger.log('PAYMENT TIMEOUT EVENT PROCESSED', {
         metadata: payload,
