@@ -217,6 +217,10 @@ export class OrderController implements OrdersServiceController {
         this.orderService.removeShoppingCart(storeId, userId),
         this.orderService.updateNumberOfVoucherUses(userId, metadata?.voucherIds),
         this.orderNotificationService.sendPaymentSuccessNotification(updatedOrder),
+        this.orderService.sendSlackMessageForNewOrder({
+          orderCode: updatedOrder.orderCode,
+          totalPrice: updatedOrder.totalPrice,
+        }),
       ]);
 
       this.logger.log('PAYMENT SUCCESS EVENT PROCESSED', {
