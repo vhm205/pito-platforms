@@ -7,7 +7,7 @@ export interface OrderMailItem {
   item_name: string;
   item_amount: string;
   count: number;
-  note: string;
+  notes: string;
   item_options: SelectedOption[];
 }
 
