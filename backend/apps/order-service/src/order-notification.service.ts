@@ -29,7 +29,7 @@ export class OrderNotificationService {
     private readonly logger: LoggerService,
     private readonly storeRepository: StoreRepository,
     @Inject(CACHE_MANAGER) private readonly cacheManager: RedisStore,
-    @Inject('NOTIFICATIONS_SERVICE') private readonly rabbitClient: ClientProxy,
+    @Inject('NOTIFICATION_QUEUE') private readonly rabbitClient: ClientProxy,
   ) {}
 
   private buildRmqRecord(data: SendNotificationDto, priority = 0): RmqRecord<SendNotificationDto> {

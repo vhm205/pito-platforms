@@ -1,6 +1,6 @@
 import { HandleIpnVnpayResponse } from '@app/common/types/proto/payment/vnpay';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 /**
  * REQUEST DTO
@@ -18,7 +18,7 @@ export class HandleIpnVnpayRequestDto {
 
   @ApiProperty({ description: 'The bank transaction number' })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   vnp_BankTranNo: string;
 
   @ApiProperty({ description: 'The card type used for the transaction' })
