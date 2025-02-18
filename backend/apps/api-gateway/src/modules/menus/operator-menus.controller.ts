@@ -219,4 +219,11 @@ export class OperatorMenusController {
       serviceCategory: query?.serviceCategory,
     });
   }
+
+  @Get('menus/setting-fees')
+  @Auth([RoleType.OPERATOR])
+  @HttpCode(HttpStatus.OK)
+  async getSettingFees() {
+    return [];
+  }
 }
