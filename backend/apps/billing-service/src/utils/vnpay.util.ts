@@ -23,7 +23,6 @@ export function checkVnpayResponseValid(
   const queriesFormated = {
     vnp_Amount: vnpayQuery.vnpAmount,
     vnp_BankCode: vnpayQuery.vnpBankCode,
-    vnp_BankTranNo: vnpayQuery.vnpBankTranNo,
     vnp_CardType: vnpayQuery.vnpCardType,
     vnp_OrderInfo: vnpayQuery.vnpOrderInfo,
     vnp_PayDate: vnpayQuery.vnpPayDate,

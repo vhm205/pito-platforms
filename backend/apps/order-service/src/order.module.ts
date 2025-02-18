@@ -101,6 +101,7 @@ import { TransactionService } from './transaction.service';
             durable: true,
             noAck: false,
           },
+          persistent: true,
         },
       },
     ]),
@@ -194,24 +195,6 @@ import { TransactionService } from './transaction.service';
       }),
     }),
     RelationalOrderPersistenceModule,
-    ClientsModule.register([
-      {
-        name: 'NOTIFICATIONS_SERVICE',
-        transport: Transport.RMQ,
-        options: {
-          urls: [
-            `amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${
-              process.env.RABBITMQ_HOST
-            }:${process.env.RABBITMQ_PORT}${process.env.RABBITMQ_VHOST}`,
-          ],
-          queue: RabbitMQQueue.NOTIFICATION_QUEUE,
-          queueOptions: {
-            durable: true,
-            noAck: false,
-          },
-        },
-      },
-    ]),
     SlackModule,
   ],
   controllers: [OrderController],
