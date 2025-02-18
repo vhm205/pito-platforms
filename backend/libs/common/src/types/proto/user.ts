@@ -170,6 +170,32 @@ export interface BooleanResponse {
   value: boolean;
 }
 
+export interface GetUsersInStoreRequest {
+  storeId: string;
+  filters: FilterRule[];
+  pagination: PaginationRequest | undefined;
+  sorts: SortRule[];
+}
+
+export interface GetUsersInStoreResponse {
+  data: GetUsersInStoreResponse_UserInStore[];
+  totalCount: number;
+  error?: string | undefined;
+}
+
+export interface GetUsersInStoreResponse_UserInStore {
+  id: string;
+  fullName: string;
+  email: string;
+  phone?: string | undefined;
+  avatarUrl?: string | undefined;
+  storeUid: number;
+  userRoles: string[];
+  isBanned: boolean;
+  createdAt: Date | undefined;
+  updatedAt: Date | undefined;
+}
+
 export const USER_PACKAGE_NAME = 'user';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -203,6 +229,8 @@ export interface UsersServiceClient {
   validateUserInPartner(request: ValidateUserInPartnerRequest): Observable<BooleanResponse>;
 
   validateUserInStore(request: ValidateUserInStoreRequest): Observable<BooleanResponse>;
+
+  getUsersInStore(request: GetUsersInStoreRequest): Observable<GetUsersInStoreResponse>;
 }
 
 export interface UsersServiceController {
@@ -244,6 +272,13 @@ export interface UsersServiceController {
   validateUserInStore(
     request: ValidateUserInStoreRequest,
   ): Promise<BooleanResponse> | Observable<BooleanResponse> | BooleanResponse;
+
+  getUsersInStore(
+    request: GetUsersInStoreRequest,
+  ):
+    | Promise<GetUsersInStoreResponse>
+    | Observable<GetUsersInStoreResponse>
+    | GetUsersInStoreResponse;
 }
 
 export function UsersServiceControllerMethods() {
@@ -256,6 +291,7 @@ export function UsersServiceControllerMethods() {
       'getCompanies',
       'validateUserInPartner',
       'validateUserInStore',
+      'getUsersInStore',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

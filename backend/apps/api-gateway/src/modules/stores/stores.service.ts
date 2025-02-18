@@ -10,6 +10,9 @@ import {
   ORDERS_SERVICE_NAME,
   OrdersServiceClient,
   UpdateStoreStatusRequest,
+  USER_SERVICE,
+  USERS_SERVICE_NAME,
+  UsersServiceClient,
 } from '@app/common';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -19,13 +22,16 @@ import { timeout, firstValueFrom } from 'rxjs';
 export class StoresService {
   private menuService: MenusServiceClient;
   private orderService: OrdersServiceClient;
+  private userServiceClient: UsersServiceClient;
 
   constructor(
     @Inject(MENU_SERVICE) private client: ClientGrpc,
     @Inject(ORDER_SERVICE) private orderClient: ClientGrpc,
+    @Inject(USER_SERVICE) private readonly userClient: ClientGrpc,
   ) {
     this.menuService = this.client.getService<MenusServiceClient>(MENUS_SERVICE_NAME);
     this.orderService = this.orderClient.getService<OrdersServiceClient>(ORDERS_SERVICE_NAME);
+    this.userServiceClient = this.userClient.getService<UsersServiceClient>(USERS_SERVICE_NAME);
   }
 
   searchStores(params: GetStoreByFilterRequest) {
@@ -61,6 +67,18 @@ export class StoresService {
 
   updateStoreStatusByIds(request: UpdateStoreStatusRequest) {
     const source$ = this.menuService.updateStoreStatus(request).pipe(timeout(2000));
+    return firstValueFrom(source$);
+  }
+
+  getUsersStore(storeId: string) {
+    const source$ = this.userServiceClient
+      .getUsersInStore({
+        storeId,
+        filters: [],
+        pagination: undefined,
+        sorts: [],
+      })
+      .pipe(timeout(2000));
     return firstValueFrom(source$);
   }
 }

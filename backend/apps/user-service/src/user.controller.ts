@@ -7,6 +7,8 @@ import {
   GetCustomersResponse,
   GetUserPartnerProfileRequest,
   GetUserPartnerProfileResponse,
+  GetUsersInStoreRequest,
+  GetUsersInStoreResponse,
   LoggerService,
   UsersServiceController,
   UsersServiceControllerMethods,
@@ -78,5 +80,18 @@ export class UserController implements UsersServiceController {
   async validateUserInStore(payload: ValidateUserInStoreRequest): Promise<{ value: boolean }> {
     const value = await this.userService.validateUserInStore(payload.userId, payload.storeId);
     return { value };
+  }
+
+  async getUsersInStore(request: GetUsersInStoreRequest): Promise<GetUsersInStoreResponse> {
+    try {
+      request.filters ??= [];
+      request.sorts ??= [];
+
+      return await this.userService.getUsersInStore(request);
+    } catch (e) {
+      const errMessage = (e as Error).message;
+      this.logger.error(errMessage);
+      return { error: errMessage, data: [], totalCount: 0 };
+    }
   }
 }
