@@ -782,7 +782,7 @@ export class OrderService {
       },
 
       status: StoreOrderStatus.PENDING,
-      statusCode: OrderStatus.DRAFT,
+      statusCode: OrderStatus.WAITING_FOR_CONFIRMATION,
 
       estimationTime: undefined,
       deliveryDate: order.deliveryDate,

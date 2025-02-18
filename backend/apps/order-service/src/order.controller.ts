@@ -292,8 +292,7 @@ export class OrderController implements OrdersServiceController {
         );
       }
 
-      const updatedOrder = await this.orderService.updateOrderToFailed(order);
-      await this.orderNotificationService.sendPaymentSuccessNotification(updatedOrder);
+      await this.orderService.updateOrderToFailed(order);
 
       this.logger.log('PAYMENT TIMEOUT EVENT PROCESSED', {
         metadata: payload,
