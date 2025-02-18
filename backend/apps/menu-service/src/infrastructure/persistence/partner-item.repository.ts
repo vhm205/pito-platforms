@@ -17,6 +17,7 @@ import { PartnerItemEntity } from 'apps/menu-service/src/infrastructure/persiste
 import { PartnerMenuCategoriesEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/partner-menu-category.entity';
 import type { FindOperator, FindOptionsWhere, ObjectLiteral } from 'typeorm';
 
+import { SettingFee } from '../../domain/setting-fee.domain';
 import { FindItemsByFiltersResult } from '../../dtos/get-items-by-filter.dto';
 import { SearchItemsInStoreResult } from '../../dtos/search-items-in-store.dto';
 
@@ -152,4 +153,6 @@ export abstract class PartnerItemRepository {
   abstract findCategories(args: {
     filters: Record<string, FindOperator<any>>[];
   }): Promise<PartnerCategoryEntity[]>;
+
+  abstract findSettingsFee(): Promise<SettingFee[]>;
 }

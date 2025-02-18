@@ -72,6 +72,7 @@ import {
   UpdateStoreResponse,
   UpdateStoreStatusRequest,
   GetStoreDetailForCustomerRequest,
+  GetSettingFeesResponse,
 } from '@app/common';
 import { StoreStatus } from '@app/common/enums';
 import { PartnerStatus } from '@app/common/enums/partner';
@@ -98,6 +99,7 @@ import {
   UpdateOccasionEventRequest,
   UpdateOccasionEventResponse,
 } from '@app/common/types/proto/item/occasion-event';
+import { Empty } from '@app/common/types/proto/menu';
 import { Controller, UseInterceptors } from '@nestjs/common';
 import { find, includes, isEmpty } from 'lodash';
 
@@ -504,5 +506,11 @@ export class MenuController implements MenusServiceController {
 
   async findMenuCategory(request: FindMenuCategoryRequest) {
     return this.menuService.findMenuCategory(request);
+  }
+
+  async getSettingFees(_request: Empty): Promise<GetSettingFeesResponse> {
+    return {
+      data: await this.menuService.findSettingsFee(),
+    };
   }
 }

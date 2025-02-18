@@ -1162,6 +1162,20 @@ export interface UpdatePartnerResponse {
   affectedRows: number;
 }
 
+export interface GetSettingFeesResponse {
+  data: GetSettingFeesResponse_SettingFee[];
+  error?: string | undefined;
+}
+
+export interface GetSettingFeesResponse_SettingFee {
+  id: number;
+  name: string;
+  type: string;
+  value: number;
+  serviceType: number[];
+  isActive: boolean;
+}
+
 export const MENU_PACKAGE_NAME = 'menu';
 
 wrappers['.google.protobuf.Timestamp'] = {
@@ -1319,6 +1333,8 @@ export interface MenusServiceClient {
   ): Observable<FindStoreIdsForPendingItemsResponse>;
 
   updateOnboardingStatus(request: UpdateOnboardingStatusRequest): Observable<UpdateStatusResponse>;
+
+  getSettingFees(request: Empty): Observable<GetSettingFeesResponse>;
 }
 
 export interface MenusServiceController {
@@ -1640,6 +1656,10 @@ export interface MenusServiceController {
   updateOnboardingStatus(
     request: UpdateOnboardingStatusRequest,
   ): Promise<UpdateStatusResponse> | Observable<UpdateStatusResponse> | UpdateStatusResponse;
+
+  getSettingFees(
+    request: Empty,
+  ): Promise<GetSettingFeesResponse> | Observable<GetSettingFeesResponse> | GetSettingFeesResponse;
 }
 
 export function MenusServiceControllerMethods() {
@@ -1699,6 +1719,7 @@ export function MenusServiceControllerMethods() {
       'findItemCountsByStoreIds',
       'findStoreIdsForPendingItems',
       'updateOnboardingStatus',
+      'getSettingFees',
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
