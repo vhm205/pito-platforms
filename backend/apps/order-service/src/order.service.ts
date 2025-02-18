@@ -563,7 +563,7 @@ export class OrderService {
     return payload;
   }
 
-  private async sendSlackMessageForNewOrder(payload: Record<string, string | number>) {
+  async sendSlackMessageForNewOrder(payload: Record<string, string | number>) {
     const { orderCode, totalPrice } = payload;
     const nodeEnv = this.configService.get<AppConfig>('app.nodeEnv', {
       infer: true,
