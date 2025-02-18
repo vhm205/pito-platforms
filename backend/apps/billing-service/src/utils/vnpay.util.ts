@@ -20,7 +20,7 @@ export function checkVnpayResponseValid(
   vnpayQuery: HandleIpnVnpayRequest,
   secret: string,
 ): boolean {
-  const queriesFormated = {
+  const queriesFormated: Record<string, any> = {
     vnp_Amount: vnpayQuery.vnpAmount,
     vnp_BankCode: vnpayQuery.vnpBankCode,
     vnp_CardType: vnpayQuery.vnpCardType,
@@ -32,6 +32,10 @@ export function checkVnpayResponseValid(
     vnp_TxnRef: vnpayQuery.vnpTxnRef,
     vnp_TransactionStatus: vnpayQuery.vnpTransactionStatus,
   };
+
+  if (vnpayQuery.vnpBankTranNo) {
+    queriesFormated.vnp_BankTranNo = vnpayQuery.vnpBankTranNo;
+  }
 
   const queriesSorted = sortObject(queriesFormated);
 
