@@ -1,7 +1,15 @@
 import { join } from 'path';
 
-import { MENU_PACKAGE_NAME, MENU_SERVICE, ORDER_PACKAGE_NAME, ORDER_SERVICE } from '@app/common';
+import {
+  MENU_PACKAGE_NAME,
+  MENU_SERVICE,
+  ORDER_PACKAGE_NAME,
+  ORDER_SERVICE,
+  USER_PACKAGE_NAME,
+  USER_SERVICE,
+} from '@app/common';
 import { AllConfigType } from '@app/common/configs';
+import { AuthModule } from '@gateway/modules/auth/auth.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -40,7 +48,21 @@ import { StoresService } from './stores.service';
         }),
         inject: [ConfigService],
       },
+      {
+        imports: [ConfigModule],
+        name: USER_SERVICE,
+        useFactory: (configService: ConfigService<AllConfigType>) => ({
+          transport: Transport.GRPC,
+          options: {
+            package: USER_PACKAGE_NAME,
+            protoPath: join(process.cwd(), 'proto/user.proto'),
+            url: configService.get('app.userGrpcUrl', { infer: true }),
+          },
+        }),
+        inject: [ConfigService],
+      },
     ]),
+    AuthModule,
   ],
   controllers: [StoresController, OperatorStoresController],
   providers: [StoresService, OperatorStoresService],

@@ -15,6 +15,7 @@ service UsersService {
   rpc GetCompanies (GetCompaniesRequest) returns (GetCompaniesResponse) {}
   rpc ValidateUserInPartner (ValidateUserInPartnerRequest) returns (BooleanResponse) {}
   rpc ValidateUserInStore (ValidateUserInStoreRequest) returns (BooleanResponse) {}
+  rpc GetUsersInStore (GetUsersInStoreRequest) returns (GetUsersInStoreResponse) {}
 }
 
 message GetCustomerProfileRequest {
@@ -180,4 +181,30 @@ message ValidateUserInStoreRequest {
 
 message BooleanResponse {
   bool value = 1;
+}
+
+message GetUsersInStoreRequest {
+  string store_id = 1;
+  repeated common.FilterRule filters = 2;
+  common.PaginationRequest pagination = 3;
+  repeated common.SortRule sorts = 4;
+}
+
+message GetUsersInStoreResponse {
+  message UserInStore {
+    string id = 1;
+    string full_name = 2;
+    string email = 3;
+    optional string phone = 4;
+    optional string avatar_url = 5;
+    int64 store_uid = 6;
+    repeated string user_roles = 7;
+    bool is_banned = 8;
+    google.protobuf.Timestamp created_at = 9;
+    google.protobuf.Timestamp updated_at = 10;
+  }
+
+  repeated UserInStore data = 1;
+  int32 total_count = 2;
+  optional string error = 3;
 }

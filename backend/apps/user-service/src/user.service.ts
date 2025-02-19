@@ -3,6 +3,7 @@ import {
   GetCustomerProfileRequest,
   GetCustomersRequest,
   GetUserPartnerProfileRequest,
+  GetUsersInStoreRequest,
   transformFilterRule,
 } from '@app/common';
 import { GrpcStatus } from '@app/common/enums';
@@ -80,5 +81,11 @@ export class UserService {
 
   async validateUserInStore(userId: string, storeId: string) {
     return this.storeUserRelationshipRepository.validateUserInStore(userId, storeId);
+  }
+
+  async getUsersInStore({ storeId }: GetUsersInStoreRequest) {
+    const [storeUsers, totalCount] =
+      await this.storeUserRelationshipRepository.getStoreUsers(storeId);
+    return { data: storeUsers, totalCount };
   }
 }

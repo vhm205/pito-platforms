@@ -5,12 +5,12 @@ export class StoreUserRelationship {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'partner_id', type: 'uuid', primary: true })
-  partnerId: string;
+  @Column({ name: 'store_id', type: 'uuid' })
+  storeId: string;
 
-  @Column({ name: 'store_id', type: 'uuid', primary: true })
+  @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
 
-  @Column({ name: 'is_banded', type: 'boolean' })
+  @Column({ name: 'is_banned', type: 'boolean' })
   isBanned: boolean;
 }

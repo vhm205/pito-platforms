@@ -1,5 +1,6 @@
 import { GetItemInStoreResult, ItemFilter, SearchStoreResult, StoreFilter } from '@app/common';
-import { ApiPageWrapperResponse, AuthUser } from '@gateway/decorators';
+import { RoleType } from '@gateway/constants';
+import { ApiPageWrapperResponse, AuthUser, Store, StoreAuth } from '@gateway/decorators';
 import { ApiWrapperResponse } from '@gateway/decorators/api-wrapper-response.decorator';
 import { PageMetaDto } from '@gateway/gateway-common/dto/page-meta.dto';
 import { PageDto } from '@gateway/gateway-common/dto/page.dto';
@@ -7,7 +8,7 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Query } from
 import { ApiTags } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 
-import { AuthenticatedUser } from '../auth/auth-user.interface';
+import { AuthenticatedStore, AuthenticatedUser } from '../auth/auth-user.interface';
 
 import {
   CalculateDistanceRequestDto,
@@ -16,6 +17,7 @@ import {
 import { GetItemInStoreRequestDto, GetItemInStoreResponseDto } from './dtos/get-items-in-store.dto';
 import { GetStoreDetailResponseDto } from './dtos/get-store-detail.dto';
 import { SearchStoreRequestDto, SearchStoreResponseDto } from './dtos/search-store.dto';
+import { QueryStoreUserDto, StoreUserListingDto } from './dtos/store-user-listing.dto';
 import { UpdateStoreStatusRequestDto } from './dtos/update-store-status.dto';
 import { StoresService } from './stores.service';
 
@@ -133,6 +135,16 @@ export class StoresController {
   async calculateDistance(@Query() query: CalculateDistanceRequestDto) {
     const result = await this.storeService.calculateDistance(query);
     return result;
+  }
+
+  @Get('store-users')
+  @HttpCode(HttpStatus.OK)
+  @StoreAuth([RoleType.PARTNER])
+  @ApiPageWrapperResponse({ type: StoreUserListingDto })
+  async getStoreUsers(@Query() query: QueryStoreUserDto, @Store() store: AuthenticatedStore) {
+    query.filters.push({ column: 'storeId', operator: 'eq', value: store.id });
+
+    return this.storeService.getUsersStore(store.id);
   }
 
   @Get(':identifier')
