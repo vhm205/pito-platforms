@@ -75,6 +75,7 @@ service MenusService {
   rpc FindItemCountsByStoreIds (FindItemCountsByStoreIdsRequest) returns (FindItemCountsByStoreIdsResponse);
   rpc FindStoreIdsForPendingItems (FindStoreIdsForPendingItemsRequest) returns (FindStoreIdsForPendingItemsResponse);
   rpc UpdateOnboardingStatus (UpdateOnboardingStatusRequest) returns (common.UpdateStatusResponse);
+  rpc GetSettingFees (Empty) returns (GetSettingFeesResponse);
 }
 
 message FindMenuCategoryRequest {
@@ -167,7 +168,7 @@ message FindItemCountsByStoreIdsResponse {
 
 message FindOnboardingsRequest {
   common.PaginationRequest pagination = 1;
-  repeated common.SortRule sorts = 2;     
+  repeated common.SortRule sorts = 2;
   repeated common.FilterRule filters = 3;
 }
 
@@ -592,7 +593,7 @@ message UpdateItemRequest {
 
 message FindItemsWithPaginationRequest {
   common.PaginationRequest pagination = 1;
-  repeated common.SortRule sorts = 2;     
+  repeated common.SortRule sorts = 2;
   repeated common.FilterRule filters = 3;
   optional string menu_type = 4;
 }
@@ -924,7 +925,7 @@ message UpdatePartnerStatusResponse {
 
 message GetListPartnersRequest {
   common.PaginationRequest pagination = 1;
-  repeated common.SortRule sorts = 2;     
+  repeated common.SortRule sorts = 2;
   repeated common.FilterRule filters = 3;
 }
 
@@ -1214,3 +1215,17 @@ message UpdatePartnerResponse {
 }
 
 // [END] UPDATE PARTNER
+
+message GetSettingFeesResponse {
+  message SettingFee {
+    int64 id = 1;
+    string name = 2;
+    string type = 3;
+    float value = 4;
+    repeated int32 service_type = 5;
+    bool is_active = 6;
+  }
+
+  repeated SettingFee data = 1;
+  optional string error = 2;
+}

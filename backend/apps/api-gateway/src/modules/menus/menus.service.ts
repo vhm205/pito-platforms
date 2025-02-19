@@ -6,7 +6,7 @@ import {
   MenusServiceClient,
 } from '@app/common';
 import { InsertItemDto } from '@gateway/modules/menus/dtos/insert-menu-item.dto';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { isEmpty } from 'lodash';
 import { firstValueFrom, timeout } from 'rxjs';
@@ -120,5 +120,11 @@ export class MenusService {
   async findSpecialDietaries() {
     const response = await firstValueFrom(this.menusService.findSpecialDietaries({}));
     return response?.specialDietaries ?? [];
+  }
+
+  async getSettingFees() {
+    const { data, error } = await firstValueFrom(this.menusService.getSettingFees({}));
+    if (error) throw new InternalServerErrorException(error);
+    return data;
   }
 }

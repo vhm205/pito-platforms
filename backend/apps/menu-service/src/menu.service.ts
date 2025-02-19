@@ -1008,4 +1008,8 @@ export class MenuService {
       },
     };
   }
+
+  findSettingsFee() {
+    return this.partnerItemRepository.findSettingsFee();
+  }
 }

@@ -17,6 +17,7 @@ import {
   CateringPackage,
   OccasionEvent,
 } from 'apps/menu-service/src/domain/partner-item.domain';
+import { SettingFee } from 'apps/menu-service/src/domain/setting-fee.domain';
 import { SearchItemsInStoreResult } from 'apps/menu-service/src/dtos/search-items-in-store.dto';
 import { PartnerItemRepository } from 'apps/menu-service/src/infrastructure/persistence/partner-item.repository';
 import { MenuEntity } from 'apps/menu-service/src/infrastructure/persistence/relational/entities/menu.entity';
@@ -35,6 +36,7 @@ import {
 
 import { CateringPackageEntity } from '../entities/catering-package.entity';
 import { PartnerOccasionEventEntity } from '../entities/partner-occasion-event.entity';
+import { SettingFeeEntity } from '../entities/setting-fee.entity';
 import { StoreServiceEntity } from '../entities/store-service.entity';
 import { CateringPackageMapper } from '../mappers/catering-package.mapper';
 
@@ -61,6 +63,9 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
 
     @InjectRepository(PartnerCategoryEntity, PARTNER_DB_SOURCE)
     private partnerCategoryRepository: Repository<PartnerCategoryEntity>,
+
+    @InjectRepository(SettingFeeEntity, PARTNER_DB_SOURCE)
+    private settingFeeRepository: Repository<SettingFeeEntity>,
   ) {}
 
   async insertItem(
@@ -427,18 +432,18 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     cateringPackages: number[];
   }): Promise<Map<number, number>> {
     const query = `
-      SELECT 
+      SELECT
           cp.value AS catering_package,
           COUNT(*) AS item_count
       FROM (
           SELECT catering_packages
           FROM items
-          WHERE 
+          WHERE
               service_category = $1 AND
               status = ANY($2)
       ) i,
         UNNEST(i.catering_packages) AS cp(value)
-      WHERE 
+      WHERE
           cp.value = ANY($3)
       GROUP BY cp.value
       ORDER BY cp.value;
@@ -473,10 +478,10 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
     shouldFetchPendingItems = false,
   ): Promise<{ storeId: string; itemCount: number; menuStatus: string }[]> {
     const query = `
-      SELECT 
+      SELECT
         store_id,
         COUNT(*) AS item_count,
-        CASE 
+        CASE
           WHEN COUNT(*) FILTER (WHERE status = 'pending_approval') > 0 THEN 'pending_approval'
           ELSE 'active'
         END AS menu_status
@@ -848,5 +853,9 @@ export class PartnerItemRelationalRepository implements PartnerItemRepository {
       where: args.filters.reduce((acc, filter) => ({ ...acc, ...filter }), {}),
     });
     return entities;
+  }
+
+  findSettingsFee(): Promise<SettingFee[]> {
+    return this.settingFeeRepository.find();
   }
 }

@@ -224,6 +224,6 @@ export class OperatorMenusController {
   @Auth([RoleType.OPERATOR])
   @HttpCode(HttpStatus.OK)
   async getSettingFees() {
-    return [];
+    return this.menusService.getSettingFees();
   }
 }
