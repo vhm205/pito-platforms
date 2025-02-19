@@ -8,6 +8,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { redisStore } from 'cache-manager-redis-yet';
 
+import { CartsController } from './carts.controller';
+import { CartsService } from './carts.service';
 import { OperatorOrdersController } from './operator-order.controller';
 import { OperatorOrderService } from './operator-order.service';
 import { OrdersController } from './orders.controller';
@@ -58,7 +60,7 @@ import { OrdersService } from './orders.service';
       },
     }),
   ],
-  controllers: [OrdersController, OperatorOrdersController],
-  providers: [OrdersService, OperatorOrderService],
+  controllers: [OrdersController, OperatorOrdersController, CartsController],
+  providers: [OrdersService, OperatorOrderService, CartsService],
 })
 export class OrdersModule {}

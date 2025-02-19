@@ -27,12 +27,19 @@ import {
   GetRevenueAndCountOrderByStoreIdsResponse,
   GetTotalOrderCountByStoreIdRequest,
   GetTotalOrderCountByStoreIdResponse,
+  GetCartsResponse,
+  GetCartsRequest,
+  AddItemToCartRequest,
+  AddItemToCartResponse,
+  UpdateItemInCartRequest,
+  UpdateItemInCartResponse,
 } from '@app/common/types';
 import { OrderStatus } from '@app/common/types/proto/common';
 import { Controller } from '@nestjs/common';
 import { Ctx, EventPattern, Payload, RmqContext, RpcException } from '@nestjs/microservices';
 import { Not } from 'typeorm';
 
+import { CartService } from './cart.service';
 import { OrderNotificationService } from './order-notification.service';
 import { OrderService } from './order.service';
 import { StoreOrderService } from './store-order.service';
@@ -46,6 +53,7 @@ export class OrderController implements OrdersServiceController {
     private readonly storeOrderService: StoreOrderService,
     private readonly orderNotificationService: OrderNotificationService,
     private readonly transactionService: TransactionService,
+    private readonly cartService: CartService,
     private readonly logger: LoggerService,
   ) {}
 
@@ -305,5 +313,17 @@ export class OrderController implements OrdersServiceController {
       });
       channel.nack(originalMessage, false, false);
     }
+  }
+
+  addItemToCart(request: AddItemToCartRequest): Promise<AddItemToCartResponse> {
+    return this.cartService.addItemToCart(request);
+  }
+
+  updateItemInCart(request: UpdateItemInCartRequest): Promise<UpdateItemInCartResponse> {
+    return this.cartService.updateItemInCart(request);
+  }
+
+  getCarts(request: GetCartsRequest): Promise<GetCartsResponse> {
+    return this.cartService.getCarts(request);
   }
 }

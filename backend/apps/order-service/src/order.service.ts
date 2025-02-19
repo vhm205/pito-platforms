@@ -449,15 +449,13 @@ export class OrderService {
       quantity: item.quantity,
       price: item.item?.basePrice as number,
       totalPrice: item.totalPrice,
-      rawOptionsChoices: item.rawOptionsChoices.map(option => {
-        return {
-          optionId: option.option_id,
-          choices: option.choices.map(choice => ({
-            quantity: choice.quantity,
-            choiceId: choice.choice_id,
-          })),
-        };
-      }),
+      rawOptionsChoices: item.rawOptionsChoices.map(option => ({
+        optionId: option.option_id,
+        choices: option.choices.map(choice => ({
+          quantity: choice.quantity,
+          choiceId: choice.choice_id,
+        })),
+      })),
     }));
   }
 

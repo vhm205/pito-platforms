@@ -31,6 +31,7 @@ export class CartItemMapper {
     const domain = new CartItem();
     domain.id = raw.id;
     domain.sessionId = raw.sessionId;
+    domain.itemId = raw.itemId;
     domain.quantity = raw.quantity;
     domain.totalPrice = parseInt(raw.totalPrice);
     domain.rawOptionsChoices = raw.rawOptionsChoices;
@@ -45,12 +46,15 @@ export class CartItemMapper {
 
   static toPersistence(domainEntity: CartItem): CartItemEntity {
     const entity = new CartItemEntity();
+
     entity.id = domainEntity.id;
     entity.sessionId = domainEntity.sessionId;
+    entity.itemId = domainEntity.itemId;
     entity.quantity = domainEntity.quantity;
     entity.totalPrice = domainEntity.totalPrice.toString();
     entity.rawOptionsChoices = domainEntity.rawOptionsChoices;
     entity.notes = domainEntity.notes;
+
     return entity;
   }
 }
