@@ -1,5 +1,6 @@
 import {
   formatCurrency,
+  formatTimestamp,
   generateRandomString,
   getDateTime,
   LoggerService,
@@ -527,7 +528,7 @@ export class OrderService {
       user_name: receiverName,
       store_name: storeName,
       order_code: orderCode,
-      order_time: getDateTime().format('HH:mm:ss DD/MM/YYYY'),
+      order_time: formatTimestamp(new Date()) as string,
       total_sub_amount: formatCurrency(subTotalPrice),
       shipping_fee: formatCurrency(shippingFee),
       discount_shipping_fee: formatCurrency(discountShippingFee),

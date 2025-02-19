@@ -29,10 +29,7 @@ export class NotificationController {
   }
 
   @EventPattern(NotificationEventPattern.SEND)
-  async sendNotification(
-    @Payload(new ZodValidationPipe(sendNotificationSchema)) payload: SendNotificationDto,
-    @Ctx() context: RmqContext,
-  ) {
+  async sendNotification(@Payload() payload: SendNotificationDto, @Ctx() context: RmqContext) {
     const channel = context.getChannelRef();
     const originalMessage = context.getMessage();
 
@@ -41,7 +38,8 @@ export class NotificationController {
     });
 
     try {
-      const { channels, message } = payload;
+      const parsedValue = new ZodValidationPipe(sendNotificationSchema).transform(payload);
+      const { channels, message } = parsedValue;
 
       const asyncSendNotifications = channels.map(channel => {
         switch (channel) {
