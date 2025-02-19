@@ -209,7 +209,6 @@ export class OrderService {
         this.sendSlackMessageForNewOrder({ orderCode, totalPrice }),
         this.notificationService.sendOrderConfirmNotification({
           ...orderMailPayload,
-          subject: `Đơn hàng đã được xác nhận`,
         }),
       ]);
 

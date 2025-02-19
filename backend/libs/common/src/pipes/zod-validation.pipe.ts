@@ -10,6 +10,7 @@ export class ZodValidationPipe implements PipeTransform {
       const parsedValue = this.schema.parse(value);
       return parsedValue;
     } catch (error: any) {
+      console.error(error);
       throw new RpcException({
         message: `Validation failed: ${error.message}`,
         validationErrors: error.errors,

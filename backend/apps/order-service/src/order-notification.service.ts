@@ -45,7 +45,9 @@ export class OrderNotificationService {
   private notify(record: RmqRecord<SendNotificationDto>) {
     try {
       this.rabbitClient.emit(NotificationEventPattern.SEND, record);
-      this.logger.log(`Notification event emitted`);
+      this.logger.log(`Notification event emitted`, {
+        metadata: record.data,
+      });
     } catch (e) {
       const error = e as Error;
       this.logger.error(`Failed to emit event: ${error.message}`, {
@@ -156,7 +158,10 @@ export class OrderNotificationService {
           from: this.fromEmail,
           to: payload.to,
           templateId,
-          dynamicTemplateData: payload,
+          dynamicTemplateData: {
+            ...payload,
+            subject: `Đơn hàng đã được xác nhận`,
+          },
         },
       },
     };
