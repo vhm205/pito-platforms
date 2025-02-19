@@ -5,7 +5,7 @@ import { LogLevel, WebClient, ChatPostMessageArguments } from '@slack/web-api';
 import { AllConfigType } from '../configs';
 import { LoggerService } from '../logger';
 
-import { SlackMessage } from './slack.interface';
+import { SlackMessage, BlockSection } from './slack.interface';
 
 @Injectable()
 export class SlackService {
@@ -33,13 +33,15 @@ export class SlackService {
     const args: ChatPostMessageArguments = options?.thread_ts
       ? {
           channel,
-          blocks: payload.blocks as any,
+          text: payload?.text as string,
+          blocks: payload?.blocks as BlockSection[],
           thread_ts: options.thread_ts,
           reply_broadcast: options.reply_broadcast ?? false,
         }
       : {
           channel,
-          blocks: payload.blocks as any,
+          text: payload?.text as string,
+          blocks: payload?.blocks as BlockSection[],
         };
 
     const { error, ...response } = await this.slackClient.chat.postMessage(args);
